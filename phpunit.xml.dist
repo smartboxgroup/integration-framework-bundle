@@ -5,9 +5,9 @@
          xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.1/phpunit.xsd"
          backupGlobals="false"
          colors="true"
-         bootstrap="./Tests/Fixtures/app/autoload.php"
+         bootstrap="./Tests/App/autoload.php"
 >
-    <testsuite name="SmartApi Suite">
+    <testsuite name="Framework Bundle Suite">
         <directory>./Tests/</directory>
     </testsuite>
 </phpunit>

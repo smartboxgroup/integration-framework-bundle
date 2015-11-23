@@ -27,6 +27,9 @@
         "phpunit/phpunit": "4.7.*",
         "sensio/generator-bundle": "~2.3"
     },
+    "config": {
+        "bin-dir": "bin"
+    },
     "repositories": [
         {
           "type": "vcs",
