@@ -1,0 +1,12 @@
+framework:
+    secret: "5yg6u543wrftg34"
+    validation:      { enable_annotations: true }
+    router:
+        resource: routing.yml
+        strict_requirements: ~
+
+smartbox_core:
+  fixtures_path: "%kernel.root_dir%/JsonFixtures"
+  entities_namespaces:
+    - 'Smartbox\Integration\Framework\Entity'
+
