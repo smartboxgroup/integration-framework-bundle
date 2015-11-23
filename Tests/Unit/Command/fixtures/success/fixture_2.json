@@ -1,0 +1,7 @@
+{
+  "type":"Smartbox\\ApiBundle\\Entity\\BasicResponse",
+  "group":"A",
+  "version":"v1",
+  "code":200,
+  "message":"Hi"
+}

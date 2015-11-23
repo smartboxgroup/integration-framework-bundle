@@ -1,0 +1,39 @@
+{
+    "name": "smartbox/integration/framework-bundle",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "autoload": {
+      "psr-4": {
+        "Smartbox\\Integration\\FrameworkBundle\\": ""
+      }
+    },
+    "require": {
+        "php": ">=5.5",
+        "ext-pcntl": "*",
+        "ext-mongo": "~1.6",
+        "centraldesktop/stomp": "^2.0",
+        "symfony/symfony": "2.7.*",
+        "doctrine/orm": "~2.2,>=2.2.3,<2.5",
+        "doctrine/dbal": "<2.5",
+        "doctrine/doctrine-bundle": "~1.4",
+        "symfony/assetic-bundle": "~2.3",
+        "symfony/monolog-bundle": "~2.4",
+        "sensio/distribution-bundle": "~4.0",
+        "sensio/framework-extra-bundle": "^3.0",
+        "incenteev/composer-parameter-handler": "~2.0",
+        "jms/serializer-bundle": "^0.13.0",
+        "besimple/soap": "^0.2.6",
+        "smartbox/core-bundle": "dev-master"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.7.*",
+        "sensio/generator-bundle": "~2.3"
+    },
+    "repositories": [
+        {
+          "type": "vcs",
+          "url":  "git@gitlab.production.smartbox.com:smartesb/core-bundle.git"
+        }
+    ],
+    "minimum-stability": "dev"
+}

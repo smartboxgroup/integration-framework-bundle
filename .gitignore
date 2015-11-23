@@ -1,0 +1,12 @@
+# Cache and logs (Symfony2)
+Tests/App/logs/*
+Tests/App/cache/*
+
+# Composer
+/vendor/
+
+# Composer PHAR
+/composer.phar
+
+# PhpStorm/Webstorm IDE files
+/.idea
