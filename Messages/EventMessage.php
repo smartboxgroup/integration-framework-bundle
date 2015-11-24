@@ -17,7 +17,7 @@ class EventMessage extends Message
 
     /**
      * @Assert\Valid(traverse=true, deep=true)
-     * @JMS\Type("Smartbox\Integration\ServiceBusBundle\Event\Event")
+     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Events\Event")
      * @JMS\Groups({"logs"})
      * @JMS\Expose
      * @var Event

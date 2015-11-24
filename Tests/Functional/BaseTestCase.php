@@ -18,6 +18,10 @@ use Symfony\Component\DependencyInjection\Container;
 // @todo move cration methods to factory
 abstract class BaseTestCase extends KernelTestCase
 {
+    public static function getKernelClass(){
+        return AppKernel::class;
+    }
+
     /**
      * @return Container
      */

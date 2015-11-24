@@ -1,13 +1,13 @@
 <?php
 
-namespace Smartbox\Integration\ServiceBusBundle\Tests\Event;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Event;
 
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 
 /**
  * Class HandlerEventTest
- * @package Smartbox\Integration\ServiceBusBundle\Tests\Event
+ * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Event
  */
 class HandlerEventTest extends \PHPUnit_Framework_TestCase
 {

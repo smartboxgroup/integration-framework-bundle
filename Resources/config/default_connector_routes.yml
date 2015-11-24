@@ -1,0 +1,22 @@
+queues.stomp:
+  pattern: "stomp://{host}/{queue}"
+  defaults:
+    _connector: @smartesb.connectors.queue
+    queue_driver: @smartbox.queue.driver.main
+    prefix: null
+  requirements:
+    queue: "[a-zA-Z0-9/]+"
+
+queues.generic:
+  pattern: "queue://{host}/{queue}"
+  defaults:
+    _connector: @smartesb.connectors.queue
+    queue_driver: @smartbox.queue.driver.main
+    prefix: null
+  requirements:
+    queue: "[a-zA-Z0-9/]+"
+
+direct:
+  pattern: "direct://{host}/{subroutine}"
+  defaults:
+    _connector: @smartesb.connector.direct

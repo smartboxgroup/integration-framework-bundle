@@ -20,7 +20,7 @@ use Smartbox\Integration\FrameworkBundle\Traits\UsesConnectorsRouter;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesItinerariesRouter;
-use Smartbox\Integration\ServiceBusBundle\Exceptions\HandlerException;
+use Smartbox\Integration\FrameworkBundle\Exceptions\HandlerException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
