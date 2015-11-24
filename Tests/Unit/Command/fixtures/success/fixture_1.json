@@ -1,5 +1,5 @@
 {
-  "type":"Smartbox\\ApiBundle\\Entity\\ApiEntity",
+  "type":"Smartbox\\Integration\\FrameworkBundle\\Tests\\Unit\\Command\\fixtures\\Entity\\ApiEntity",
   "group":"XXX",
   "version":"1"
 }

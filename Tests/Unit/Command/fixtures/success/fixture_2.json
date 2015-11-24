@@ -1,5 +1,5 @@
 {
-  "type":"Smartbox\\ApiBundle\\Entity\\BasicResponse",
+  "type":"Smartbox\\Integration\\FrameworkBundle\\Tests\\Unit\\Command\\fixtures\\Entity\\BasicResponse",
   "group":"A",
   "version":"v1",
   "code":200,
