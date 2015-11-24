@@ -4,6 +4,7 @@ Tests/App/cache/*
 
 # Composer
 /vendor/
+/bin/
 
 # Composer PHAR
 /composer.phar
