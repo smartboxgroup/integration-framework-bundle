@@ -1,0 +1,27 @@
+parameters:
+  ########## CONNECTOR CLASSES  ##########
+  smartesb.connectors.direct.class: Smartbox\Integration\FrameworkBundle\Connectors\DirectConnector
+  smartesb.connectors.soap.class: Smartbox\Integration\FrameworkBundle\Connectors\SoapConnector
+  smartesb.connectors.json_file.class: Smartbox\Integration\FrameworkBundle\Connectors\JsonFileLoaderConnector
+  smartesb.connectors.queue.class: Smartbox\Integration\FrameworkBundle\Connectors\QueueConnector
+
+services:
+  ########## CONNECTORS  ##########
+  smartesb.connectors.soap:
+      class: %smartesb.connectors.soap.class%
+
+  smartesb.connector.direct:
+      class: %smartesb.connectors.direct.class%
+      calls:
+        - [setItinerariesRouter, [@smartif.router.itineraries]]
+
+  smartesb.connectors.json_file:
+      class: %smartesb.connectors.json_file.class%
+      calls:
+        - [setSerializer, [@serializer]]
+
+  # STOMP
+  smartesb.connectors.queue:
+      class: %smartesb.connectors.queue.class%
+      calls:
+        - [setSerializer, [@serializer]]

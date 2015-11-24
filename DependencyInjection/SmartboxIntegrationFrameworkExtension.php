@@ -23,9 +23,15 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $eventQueueName = $config['events_queue'];
+        $eventsLogLevel = $config['events_log_level'];
+
         $container->setParameter('smartif.events_queue_name', $eventQueueName);
+        $container->setParameter('smartesb.event_listener.events_logger.log_level', $eventsLogLevel);
+
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('exceptions.yml');
+        $loader->load('connectors.yml');
         $loader->load('services.yml');
     }
 }

@@ -7,7 +7,7 @@ use Smartbox\CoreBundle\Type\Traits\HasType;
 use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
 use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
-use Smartbox\Integration\ServiceBusBundle\Helper\EndpointHelper;
+use Smartbox\Integration\FrameworkBundle\Helper\EndpointHelper;
 
 /**
  * Class DeferredEventsHandler
