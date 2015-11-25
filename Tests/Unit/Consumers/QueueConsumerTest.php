@@ -4,10 +4,8 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Consumers;
 
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * This is a functional test that relies on a specific configuration of ActiveMQ, specifically, it relies on the usage
@@ -18,7 +16,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  * Class QueueConsumerTest
  * @package Smartbox\Integration\PlatformBundle\Tests\Command
  */
-class QueueConsumerTest extends KernelTestCase
+class QueueConsumerTest extends BaseKernelTestCase
 {
     const queue_prefix = '/test/command';
     const queue1 = '/test/command/1';

@@ -5,8 +5,69 @@ framework:
         resource: routing.yml
         strict_requirements: ~
 
+monolog:
+    channels: [tracking]
+    handlers:
+        syslog:
+            type: syslog
+            level: error
+            formatter: smartbox.monolog.formatter.json
+        syslog_tracking:
+            type: syslog
+            level: debug
+            formatter: smartbox.monolog.formatter.json
+            channels: [tracking]
+
 smartbox_core:
   fixtures_path: "%kernel.root_dir%/JsonFixtures"
   entities_namespaces:
     - 'Smartbox\Integration\Framework\Entity'
 
+parameters:
+  hostname: real.smartesb.local
+
+services:
+    # DEFAULT QUEUE DRIVER
+    smartbox.queue.driver.main:
+        class: Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver
+        calls:
+          - [configure, [%hostname%, '', '']]
+          - [setSerializer, [@serializer]]
+
+    # EVENTS QUEUE DRIVER
+    smartbox.queue.driver.events:
+        class: Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver
+        calls:
+          - [configure, [%hostname%, '', '']]
+          - [setSerializer, [@serializer]]
+
+    smartbox.handler.message:
+        abstract: true
+        class: %smartesb.handler.main.class%
+        calls:
+          - [setEventDispatcher, [@event_dispatcher]]
+          - [setRetriesMax, [5]]
+          - [setConnectorsRouter, [@smartesb.router.connectors]]
+          - [setItinerariesRouter, [@smartesb.router.itineraries]]
+
+    # Sync Handler
+    smartbox.handler.sync:
+        parent: smartbox.handler.message
+        calls:
+          - [setId, ['smartbox.handler.sync']]
+          - [setFailedURI, ['stomp://internal/sync/failed']]
+          - [setRetryURI, ['stomp://internal/sync/retry']]
+          - [setThrowExceptions, [true]]
+        tags:
+          - { name: kernel.event_listener, event: smartesb.exchange.new, method: onNewExchangeEvent }
+
+    # Async Handler
+    smartbox.handler.async:
+        parent: smartbox.handler.message
+        calls:
+          - [setId, ['smartbox.handler.async']]
+          - [setFailedURI, ['stomp://internal/async/failed']]
+          - [setThrowExceptions, [false]]
+          - [setDeferNewExchanges, [true]] # We want to defer new exchanges in async
+        tags:
+          - { name: kernel.event_listener, event: smartesb.exchange.new, method: onNewExchangeEvent }
