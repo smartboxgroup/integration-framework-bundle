@@ -122,16 +122,10 @@ services:
       tags:
         - { name: kernel.event_listener, event: smartesb.event.error, method: onErrorEvent }
 
-  smartbox.consumers.queue.main:
-      class: Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer
-      calls:
-          - [ setQueueDriver, [ @smartbox.queue.driver.main ] ]
-          - [ setHandler, [ @smartbox.handler.async ] ]
-
   smartbox.consumers.queue.events:
       class: Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer
       calls:
-          - [ setQueueDriver, [ @smartbox.queue.driver.events ] ]
+          - [ setQueueDriver, [ @smartesb.events_queue_driver ] ]
           - [ setHandler, [ @smartbox.handler.events ] ]
 
   # Queue Events Handler

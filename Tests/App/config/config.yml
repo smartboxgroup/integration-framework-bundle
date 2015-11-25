@@ -23,51 +23,49 @@ smartbox_core:
   entities_namespaces:
     - 'Smartbox\Integration\Framework\Entity'
 
+smartbox_integration_framework:
+    queue_drivers:
+        default:
+            type: ActiveMQ
+            description: Default queue driver
+            host: real.smartesb.local
+            username: ''
+            password: ''
+            format: json
+
+        events:
+            type: ActiveMQ
+            description: Events queue driver
+            host: real.smartesb.local
+            username: ''
+            password: ''
+            format: json
+
+    events_queue_driver: events
+    default_queue_driver: default
+
+    message_handlers:
+        sync:
+            description: Message hanlder to handle messages comming from the API
+            retries_max: 5
+            failed_uri: stomp://internal/sync/failed
+            retry_uri: stomp://internal/sync/retry
+            throw_exceptions: true
+            defer_new_exchanges: false
+
+        async:
+            description: Message hanlder to handle messages comming from a queue
+            retries_max: 5
+            failed_uri: stomp://internal/async/failed
+            retry_uri: original
+            throw_exceptions: false
+            defer_new_exchanges: true
+
+    message_consumers:
+        queue.main:
+            type: queue
+            driver: default
+            handler: async
+
 parameters:
   hostname: real.smartesb.local
-
-services:
-    # DEFAULT QUEUE DRIVER
-    smartbox.queue.driver.main:
-        class: Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver
-        calls:
-          - [configure, [%hostname%, '', '']]
-          - [setSerializer, [@serializer]]
-
-    # EVENTS QUEUE DRIVER
-    smartbox.queue.driver.events:
-        class: Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver
-        calls:
-          - [configure, [%hostname%, '', '']]
-          - [setSerializer, [@serializer]]
-
-    smartbox.handler.message:
-        abstract: true
-        class: %smartesb.handler.main.class%
-        calls:
-          - [setEventDispatcher, [@event_dispatcher]]
-          - [setRetriesMax, [5]]
-          - [setConnectorsRouter, [@smartesb.router.connectors]]
-          - [setItinerariesRouter, [@smartesb.router.itineraries]]
-
-    # Sync Handler
-    smartbox.handler.sync:
-        parent: smartbox.handler.message
-        calls:
-          - [setId, ['smartbox.handler.sync']]
-          - [setFailedURI, ['stomp://internal/sync/failed']]
-          - [setRetryURI, ['stomp://internal/sync/retry']]
-          - [setThrowExceptions, [true]]
-        tags:
-          - { name: kernel.event_listener, event: smartesb.exchange.new, method: onNewExchangeEvent }
-
-    # Async Handler
-    smartbox.handler.async:
-        parent: smartbox.handler.message
-        calls:
-          - [setId, ['smartbox.handler.async']]
-          - [setFailedURI, ['stomp://internal/async/failed']]
-          - [setThrowExceptions, [false]]
-          - [setDeferNewExchanges, [true]] # We want to defer new exchanges in async
-        tags:
-          - { name: kernel.event_listener, event: smartesb.exchange.new, method: onNewExchangeEvent }

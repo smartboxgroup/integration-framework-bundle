@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
 use Symfony\Component\Console\Input\InputArgument;
 
 /**
@@ -15,7 +16,7 @@ class MainQueueConsumerCommand extends QueueConsumerCommand
      */
     protected function getCommandName()
     {
-        return 'smartbox:consumers:queue:main:start';
+        return 'smartbox:consumers:start';
     }
 
     /**
@@ -23,7 +24,8 @@ class MainQueueConsumerCommand extends QueueConsumerCommand
      */
     protected function getConsumer()
     {
-        return $this->getContainer()->get('smartbox.consumers.queue.main');
+        $consumerName = $this->getInput()->getArgument('consumer');
+        return $this->getContainer()->get(SmartboxIntegrationFrameworkExtension::CONSUMER_PREFIX.$consumerName);
     }
 
     /**
@@ -31,7 +33,7 @@ class MainQueueConsumerCommand extends QueueConsumerCommand
      */
     protected function getQueueName()
     {
-        return $this->getInput()->getArgument('queue');
+        return $this->getInput()->getArgument('source');
     }
 
     /**
@@ -42,9 +44,15 @@ class MainQueueConsumerCommand extends QueueConsumerCommand
         parent::configure();
 
         $this->addArgument(
-            'queue',
+            'consumer',
             InputArgument::REQUIRED,
-            'Queue name'
+            'Consumer name'
+        );
+
+        $this->addArgument(
+            'source',
+            InputArgument::REQUIRED,
+            'Source name (E.g.: queue name)'
         );
     }
 }

@@ -29,16 +29,16 @@ class QueueConsumerTest extends BaseKernelTestCase
 
     public function handleSignal(){
         $container = self::$kernel->getContainer();
-        $container->get('smartbox.consumers.queue.main')->stop();
+        $container->get('smartesb.consumers.queue.main')->stop();
         $this->fail("The queue consumer seems to be in an endless loop, please check if you enabled the destinationPathSeparatorPlugin in ActiveMQ");
     }
 
     public function testExecute()
     {
         $container = self::$kernel->getContainer();
-        $consumer = $container->get('smartbox.consumers.queue.main');
+        $consumer = $container->get('smartesb.consumers.queue.main');
 
-        $driver = $container->get('smartbox.queue.driver.main');
+        $driver = $container->get('smartesb.default_queue_driver');
         $driver->connect();
 
         $message1 = new Message(new EntityX(111));
