@@ -48,7 +48,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $def->addMethodCall('setConnectorsRouter', [new Reference('smartesb.router.connectors')]);
             $def->addMethodCall('setItinerariesRouter', [new Reference('smartesb.router.itineraries')]);
             $def->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
-            $def->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
+
+            if($handlerConfig['retry_uri'] != 'original'){
+                $def->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
+            }else{
+                $def->addMethodCall('setRetryURI', [false]);
+            }
+
             $def->addMethodCall('setThrowExceptions',  [$handlerConfig['throw_exceptions']]);
             $def->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
 
