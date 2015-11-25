@@ -52,6 +52,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $def->addMethodCall('setThrowExceptions',  [$handlerConfig['throw_exceptions']]);
             $def->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
 
+            $def->addTag('kernel.event_listener', array(
+                'event' => 'smartesb.exchange.new',
+                'method' => 'onNewExchangeEvent'
+            ));
+
             $container->setDefinition($handlerName,$def);
         }
 

@@ -27,7 +27,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
 
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
-        $container->set('smartesb.queue.driver.events',$queueDriver);
+        $container->set('smartesb.drivers.events',$queueDriver);
 
         $container->setParameter('smartesb.events_queue_name', 'test_queue');
 
@@ -61,7 +61,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
 
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
-        $container->set('smartesb.queue.driver.events',$queueDriver);
+        $container->set('smartesb.drivers.events',$queueDriver);
 
         $container->setParameter('smartesb.events_queue_name', 'test_queue');
 
@@ -87,7 +87,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
 
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
-        $container->set('smartesb.queue.driver.events',$queueDriver);
+        $container->set('smartesb.drivers.events',$queueDriver);
 
         $container->setParameter('smartesb.events_queue_name', 'test_queue');
 
