@@ -29,7 +29,7 @@ class TransformerTest extends KernelTestCase
 
         $this->transformer = new Transformer();
         $this->transformer->setEventDispatcher($eventDispatcherMock);
-        $this->transformer->setEvaluator($container->get('smartif.util.evaluator'));
+        $this->transformer->setEvaluator($container->get('smartesb.util.evaluator'));
     }
 
     /**

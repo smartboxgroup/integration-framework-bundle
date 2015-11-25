@@ -2,6 +2,11 @@ parameters:
   smartesb.registry.endpoints.class: Smartbox\Integration\FrameworkBundle\Helper\EndpointsRegistry
   smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Processors\Itinerary
 
+  smartesb.handler.main.class: Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler
+  smartesb.handler.events.class: Smartbox\Integration\FrameworkBundle\Handlers\DeferredEventsHandler
+  smartbox.storage.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBStorage
+  smartesb.event_listener.events_logger.class: Smartbox\Integration\FrameworkBundle\EventListener\EventsLoggerListener
+
   smartesb.processor.router.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter
   smartesb.processor.multicast.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\Multicast
   smartesb.processor.transformer.class: Smartbox\Integration\FrameworkBundle\Processors\Transformation\Transformer
@@ -10,16 +15,16 @@ parameters:
   event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Events\EventDispatcher
 #  debug.event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Events\EventDispatcher
 
-  smartif.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Util\ExpressionEvaluator
-  smartif.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Serialization\ItineraryHandler
+  smartesb.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Util\ExpressionEvaluator
+  smartesb.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Serialization\ItineraryHandler
   smartesb.internal_router.class: Smartbox\Integration\FrameworkBundle\Routing\InternalRouter
   smartesb.map.itineraries.class: Smartbox\Integration\FrameworkBundle\Routing\ItinerariesMap
   smartesb.event_listener.fatal_error.class: Smartbox\Integration\FrameworkBundle\EventListener\FatalErrorListener
   smartbox.monolog.formatter.json.class: Smartbox\Integration\FrameworkBundle\Util\JMSSerializerFormatter
 
-  smartif.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBDateHandler
+  smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBDateHandler
 
-  smartif.router.itineraries.options:
+  smartesb.router.itineraries.options:
       cache_dir: %kernel.cache_dir%
       debug: %kernel.debug%
       generator_class: 'SmartesbItinerariesUrlGenerator'
@@ -31,7 +36,7 @@ parameters:
       matcher_dumper_class: %router.options.matcher_dumper_class%
       matcher_cache_class: 'SmartesbItinerariesUrlMatcher'
 
-  smartif.router.connectors.options:
+  smartesb.router.connectors.options:
       cache_dir: %kernel.cache_dir%
       debug: %kernel.debug%
       generator_class: 'SmartesbConnectorsUrlGenerator'
@@ -44,50 +49,50 @@ parameters:
       matcher_cache_class: 'SmartesbConnectorsUrlMatcher'
 
 services:
-  smartif.util.evaluator:
-      class: %smartif.util.evaluator.class%
+  smartesb.util.evaluator:
+      class: %smartesb.util.evaluator.class%
 
-  smartif.serialization.handler.itinerary:
-      class:  %smartif.serialization.handler.itinerary.class%
+  smartesb.serialization.handler.itinerary:
+      class:  %smartesb.serialization.handler.itinerary.class%
       calls:
         - [setContainer, [@service_container]]
       tags:
         - { name: jms_serializer.subscribing_handler }
 
-  smartif.serialization.handler.mongodate:
-      class: %smartif.serialization.handler.mongodate.class%
+  smartesb.serialization.handler.mongodate:
+      class: %smartesb.serialization.handler.mongodate.class%
       tags:
         - { name: jms_serializer.subscribing_handler }
 
-  smartif.router.itineraries:
+  smartesb.router.itineraries:
       class: %smartesb.internal_router.class%
       arguments:
         - @service_container
         - "%kernel.root_dir%/config/routing_itineraries.yml"
-        - %smartif.router.itineraries.options%
+        - %smartesb.router.itineraries.options%
       tags:
         - { name: monolog.logger, channel: "router.itineraries" }
 
-  smartif.router.connectors:
+  smartesb.router.connectors:
       class: %smartesb.internal_router.class%
       arguments:
         - @service_container
         - "%kernel.root_dir%/config/routing_connectors.yml"
-        - %smartif.router.connectors.options%
+        - %smartesb.router.connectors.options%
       tags:
         - { name: monolog.logger, channel: "router.connectors" }
 
-  smartif.router.itineraries.cache_warmer:
+  smartesb.router.itineraries.cache_warmer:
     class: %router.cache_warmer.class%
     arguments:
-      - @smartif.router.itineraries
+      - @smartesb.router.itineraries
     tags:
       - { name: "kernel.cache_warmer" }
 
-  smartif.router.connectors.cache_warmer:
+  smartesb.router.connectors.cache_warmer:
     class: %router.cache_warmer.class%
     arguments:
-      - @smartif.router.connectors
+      - @smartesb.router.connectors
     tags:
       - { name: "kernel.cache_warmer" }
 
@@ -101,7 +106,7 @@ services:
       tags:
           - { name: routing.loader }
 
-  smartif.registry.event_filters:
+  smartesb.registry.event_filters:
     class: Smartbox\Integration\FrameworkBundle\Events\EventFiltersRegistry
 
   smartbox.monolog.formatter.json:
@@ -116,3 +121,31 @@ services:
       class: %smartesb.event_listener.fatal_error.class%
       tags:
         - { name: kernel.event_listener, event: smartesb.event.error, method: onErrorEvent }
+
+  smartbox.consumers.queue.main:
+      class: Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer
+      calls:
+          - [ setQueueDriver, [ @smartbox.queue.driver.main ] ]
+          - [ setHandler, [ @smartbox.handler.async ] ]
+
+  smartbox.consumers.queue.events:
+      class: Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer
+      calls:
+          - [ setQueueDriver, [ @smartbox.queue.driver.events ] ]
+          - [ setHandler, [ @smartbox.handler.events ] ]
+
+  # Queue Events Handler
+  smartbox.handler.events:
+      class: %smartesb.handler.events.class%
+      calls:
+        - [setEventDispatcher, [@event_dispatcher]]
+
+  smartesb.event_listener.events_logger:
+      class: %smartesb.event_listener.events_logger.class%
+      arguments: [@monolog.logger.tracking, @request_stack, %smartesb.event_listener.events_logger.log_level%]
+      tags:
+        - { name: kernel.event_listener, event: smartesb.handler.before_handle, method: onEvent }
+        - { name: kernel.event_listener, event: smartesb.process.before_process, method: onEvent }
+        - { name: kernel.event_listener, event: smartesb.event.error, method: onEvent }
+        - { name: kernel.event_listener, event: smartesb.process.after_process, method: onEvent }
+        - { name: kernel.event_listener, event: smartesb.handler.after_handle, method: onEvent }

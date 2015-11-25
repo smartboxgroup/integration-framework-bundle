@@ -16,7 +16,7 @@ use Symfony\Component\Finder\SplFileInfo;
  */
 class EventDeferringCompilerPass implements CompilerPassInterface
 {
-    const TAG_EVENTS_FILTER = 'smartif.events.deferring_filter';
+    const TAG_EVENTS_FILTER = 'smartesb.events.deferring_filter';
 
     /**
      * You can modify the container here before it is dumped to PHP code.
@@ -28,7 +28,7 @@ class EventDeferringCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         $filters = $container->findTaggedServiceIds(self::TAG_EVENTS_FILTER);
-        $filtersRepoDef = $container->getDefinition('smartif.registry.event_filters');
+        $filtersRepoDef = $container->getDefinition('smartesb.registry.event_filters');
 
         foreach($filters as $serviceName => $tags){
             $filtersRepoDef->addMethodCall('addDeferringFilter',array(new Reference($serviceName)));

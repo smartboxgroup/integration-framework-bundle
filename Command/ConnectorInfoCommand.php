@@ -21,7 +21,7 @@ class ConnectorInfoCommand extends ContainerAwareCommand {
 
     protected function execute(InputInterface $input, OutputInterface $output){
         $connectorId = $input->getArgument('connector_id');
-        $routerConnectors = $this->getContainer()->get('smartif.router.connectors');
+        $routerConnectors = $this->getContainer()->get('smartesb.router.connectors');
 
         if($connectorId){
             $connectors = array($connectorId);
@@ -43,7 +43,7 @@ class ConnectorInfoCommand extends ContainerAwareCommand {
     }
 
     protected function explainConnector($connectorId, $input, $output){
-        $routerConnectors = $this->getContainer()->get('smartif.router.connectors');
+        $routerConnectors = $this->getContainer()->get('smartesb.router.connectors');
 
         /** @var ConnectorInterface $connector */
         $connector = $this->getContainer()->get($connectorId);

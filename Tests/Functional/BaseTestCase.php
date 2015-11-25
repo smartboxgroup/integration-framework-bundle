@@ -96,7 +96,7 @@ abstract class BaseTestCase extends KernelTestCase
         foreach ($traits as $trait) {
             switch ($trait) {
                 case (UsesEvaluator::class):
-                    $instance->setEvaluator($this->getContainer()->get('smartif.util.evaluator'));
+                    $instance->setEvaluator($this->getContainer()->get('smartesb.util.evaluator'));
                     break;
 
                 case (UsesSerializer::class):

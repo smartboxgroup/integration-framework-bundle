@@ -29,6 +29,6 @@ class EventsQueueConsumerCommand extends QueueConsumerCommand
      */
     protected function getQueueName()
     {
-        return $this->getContainer()->getParameter('smartif.events_queue_name');
+        return $this->getContainer()->getParameter('smartesb.events_queue_name');
     }
 }

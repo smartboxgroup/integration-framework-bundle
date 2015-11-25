@@ -14,7 +14,7 @@ class EventDispatcher extends ContainerAwareEventDispatcher{
     public function shouldDefer(\Symfony\Component\EventDispatcher\Event $event){
         if($event instanceof \Smartbox\Integration\FrameworkBundle\Events\Event){
 
-            $filtersRegistry = $this->getContainer()->get('smartif.registry.event_filters');
+            $filtersRegistry = $this->getContainer()->get('smartesb.registry.event_filters');
             $filters = $filtersRegistry->getDeferringFilters();
 
             /** @var EventFilterInterface $filter */
@@ -34,8 +34,8 @@ class EventDispatcher extends ContainerAwareEventDispatcher{
      */
     public function enqueue(Event $event)
     {
-        $queueDriver = $this->getContainer()->get('smartif.queue.driver.events');
-        $queueName = $this->getContainer()->getParameter('smartif.events_queue_name');
+        $queueDriver = $this->getContainer()->get('smartesb.queue.driver.events');
+        $queueName = $this->getContainer()->getParameter('smartesb.events_queue_name');
 
         if(!$queueDriver->isConnected()){
             $queueDriver->connect();
