@@ -25,7 +25,7 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
             array(
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
                 'format' => 'mongo_array',
-                'type' => 'MongoDate',
+                'type' => 'DateTime',
                 'method' => 'convertMongoDateToDateTime',
             ),
         );

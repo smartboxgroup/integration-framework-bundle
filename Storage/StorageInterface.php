@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Storage;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
+use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
 
 interface StorageInterface
 {
@@ -27,4 +28,18 @@ interface StorageInterface
      * @return SerializableInterface|null
      */
     public function findOne($storageName, $id);
+
+    /**
+     * @param $collection
+     * @param StorageFilterInterface $filter
+     * @return \MongoCursor|array
+     */
+    public function find($collection, StorageFilterInterface $filter);
+
+    /**
+     * @param $collection
+     * @param StorageFilterInterface $filter
+     * @return int
+     */
+    public function count($collection, StorageFilterInterface $filter);
 }
