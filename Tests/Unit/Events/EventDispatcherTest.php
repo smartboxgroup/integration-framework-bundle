@@ -26,10 +26,10 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $event = new HandlerEvent();
 
         $container = new Container();
-        $container->set('smartif.registry.event_filters',$filtersRegistry);
-        $container->set('smartif.queue.driver.events',$queueDriver);
+        $container->set('smartesb.registry.event_filters',$filtersRegistry);
+        $container->set('smartesb.drivers.events',$queueDriver);
 
-        $container->setParameter('smartif.events_queue_name', 'test_queue');
+        $container->setParameter('smartesb.events_queue_name', 'test_queue');
 
         $dispatcher = new EventDispatcher($container);
         $dispatcher->dispatch("test_event", $event);
@@ -60,10 +60,10 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $event = new HandlerEvent();
 
         $container = new Container();
-        $container->set('smartif.registry.event_filters',$filtersRegistry);
-        $container->set('smartif.queue.driver.events',$queueDriver);
+        $container->set('smartesb.registry.event_filters',$filtersRegistry);
+        $container->set('smartesb.drivers.events',$queueDriver);
 
-        $container->setParameter('smartif.events_queue_name', 'test_queue');
+        $container->setParameter('smartesb.events_queue_name', 'test_queue');
 
         $dispatcher = new EventDispatcher($container);
         $dispatcher->dispatch("test_event.deferred", $event);
@@ -86,10 +86,10 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $event = new HandlerEvent();
 
         $container = new Container();
-        $container->set('smartif.registry.event_filters',$filtersRegistry);
-        $container->set('smartif.queue.driver.events',$queueDriver);
+        $container->set('smartesb.registry.event_filters',$filtersRegistry);
+        $container->set('smartesb.drivers.events',$queueDriver);
 
-        $container->setParameter('smartif.events_queue_name', 'test_queue');
+        $container->setParameter('smartesb.events_queue_name', 'test_queue');
 
         $dispatcher = new EventDispatcher($container);
         $dispatcher->dispatch("test_event.deferred", $event);

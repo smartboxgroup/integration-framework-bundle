@@ -67,7 +67,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
      */
     protected function createDriver()
     {
-        $host = $this->getContainer()->getParameter('showcase.hostname');
+        $host = $this->getContainer()->getParameter('hostname');
         /** @var ActiveMQStompQueueDriver $processor */
         $driver = new ActiveMQStompQueueDriver();
         $driver->setSerializer($this->getContainer()->get('serializer'));

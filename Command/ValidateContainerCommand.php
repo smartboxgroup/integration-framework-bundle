@@ -22,7 +22,7 @@ class ValidateContainerCommand extends ContainerAwareCommand {
 
         // CHECK CONNECTOR ROUTES
         $output->writeln("Validating routes...");
-        $routerConnectors = $this->getContainer()->get('smartif.router.connectors');
+        $routerConnectors = $this->getContainer()->get('smartesb.router.connectors');
         foreach($routerConnectors->getRouteCollection()->all() as $name => $route){
             $options = $route->getDefaults();
             if(!array_key_exists(InternalRouter::KEY_CONNECTOR,$options)){

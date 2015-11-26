@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+parse_git_branch() {
+ git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+}
+
+branch=$(parse_git_branch)
+
+path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "${path}/../" && composer update smartbox/core-bundle
+
+git add composer.lock
+
+echo -e "\nCommitting...\n"
+git commit -m "${branch}; Updated dependencies"
+
+echo -e "\nPushing to ${branch}...\n"
+git push origin ${branch}

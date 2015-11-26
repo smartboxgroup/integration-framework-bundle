@@ -13,7 +13,7 @@ services:
   smartesb.connector.direct:
       class: %smartesb.connectors.direct.class%
       calls:
-        - [setItinerariesRouter, [@smartif.router.itineraries]]
+        - [setItinerariesRouter, [@smartesb.router.itineraries]]
 
   smartesb.connectors.json_file:
       class: %smartesb.connectors.json_file.class%

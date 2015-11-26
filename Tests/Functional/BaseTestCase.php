@@ -3,9 +3,9 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional;
 
-use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Connectors\APIConnector;
 use Smartbox\Integration\FrameworkBundle\Connectors\DirectConnector;
+use Smartbox\Integration\FrameworkBundle\Tests\App\AppKernel;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\SpyProcessor;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
@@ -96,7 +96,7 @@ abstract class BaseTestCase extends KernelTestCase
         foreach ($traits as $trait) {
             switch ($trait) {
                 case (UsesEvaluator::class):
-                    $instance->setEvaluator($this->getContainer()->get('smartif.util.evaluator'));
+                    $instance->setEvaluator($this->getContainer()->get('smartesb.util.evaluator'));
                     break;
 
                 case (UsesSerializer::class):

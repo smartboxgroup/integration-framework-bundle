@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Util;
 use JMS\Serializer\SerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\App\AppKernel;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
+use Smartbox\Integration\FrameworkBundle\Util\JMSSerializerFormatter;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**

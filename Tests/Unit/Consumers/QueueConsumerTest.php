@@ -4,10 +4,8 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Consumers;
 
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * This is a functional test that relies on a specific configuration of ActiveMQ, specifically, it relies on the usage
@@ -18,7 +16,7 @@ use Symfony\Component\Console\Tester\CommandTester;
  * Class QueueConsumerTest
  * @package Smartbox\Integration\PlatformBundle\Tests\Command
  */
-class QueueConsumerTest extends KernelTestCase
+class QueueConsumerTest extends BaseKernelTestCase
 {
     const queue_prefix = '/test/command';
     const queue1 = '/test/command/1';
@@ -31,16 +29,16 @@ class QueueConsumerTest extends KernelTestCase
 
     public function handleSignal(){
         $container = self::$kernel->getContainer();
-        $container->get('smartbox.consumers.queue.main')->stop();
+        $container->get('smartesb.consumers.queue.main')->stop();
         $this->fail("The queue consumer seems to be in an endless loop, please check if you enabled the destinationPathSeparatorPlugin in ActiveMQ");
     }
 
     public function testExecute()
     {
         $container = self::$kernel->getContainer();
-        $consumer = $container->get('smartbox.consumers.queue.main');
+        $consumer = $container->get('smartesb.consumers.queue.main');
 
-        $driver = $container->get('smartbox.queue.driver.main');
+        $driver = $container->get('smartesb.default_queue_driver');
         $driver->connect();
 
         $message1 = new Message(new EntityX(111));

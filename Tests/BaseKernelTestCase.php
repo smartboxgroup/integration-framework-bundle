@@ -16,13 +16,11 @@ class BaseKernelTestCase extends KernelTestCase {
     }
 
     public function setUp(){
-        self::$class = null;
         $this->bootKernel();
     }
 
     public function tearDown(){
         parent::tearDown();
-        self::$class = null;
     }
 
     public function getContainer(){

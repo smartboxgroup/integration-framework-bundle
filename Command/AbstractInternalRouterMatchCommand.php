@@ -16,7 +16,7 @@ abstract class AbstractInternalRouterMatchCommand extends ContainerAwareCommand 
     public abstract function getInternalRouterName();
 
     public function getRouterServiceId(){
-        return 'smartif.router.'.$this->getInternalRouterName();
+        return 'smartesb.router.'.$this->getInternalRouterName();
     }
 
     /**
