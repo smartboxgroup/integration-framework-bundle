@@ -51,12 +51,14 @@ class EventDispatcher extends ContainerAwareEventDispatcher{
     /** {@inheritdoc} */
     public function dispatch($eventName, \Symfony\Component\EventDispatcher\Event $event = null)
     {
-        parent::dispatch($eventName,$event);
+        $event = parent::dispatch($eventName,$event);
 
         $isDeferred = strpos($eventName,'.deferred') !==  false;
 
         if(!$isDeferred && $this->shouldDefer($event)){
             $this->enqueue($event);
         }
+
+        return $event;
     }
 }
