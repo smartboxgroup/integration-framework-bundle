@@ -40,7 +40,7 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
      */
     public function convertDateTimeToMongoDate(VisitorInterface $visitor, \DateTime $date, array $type, Context $context)
     {
-        return new \MongoDate($date->getTimestamp());
+        return new \MongoDate($date->getTimestamp(), $date->format('u'));
     }
 
     /**

@@ -19,7 +19,7 @@ abstract class Event extends BaseEvent implements SerializableInterface
     /**
      * @JMS\Expose
      * @JMS\Groups({"logs"})
-     * @JMS\Type("DateTime")
+     * @JMS\Type("DateTime<'Y-m-d\TH:i:s.uP'>")
      * @var \DateTime
      */
     protected $timestamp;
@@ -36,7 +36,11 @@ abstract class Event extends BaseEvent implements SerializableInterface
     {
         $this->setName($eventName);
         $this->eventName = $eventName;
-        $this->timestamp = new \DateTime();
+
+        // Generates the date time including microseconds correctly
+        $t = microtime(true);
+        $micro = sprintf("%06d",($t - floor($t)) * 1000000);
+        $this->timestamp = new \DateTime(date('Y-m-d H:i:s.'.$micro,$t));
     }
 
     /**
