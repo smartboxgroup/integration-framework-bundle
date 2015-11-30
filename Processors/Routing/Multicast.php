@@ -102,6 +102,7 @@ class Multicast extends Processor
 
             // Set Itinerary
             $exchange->getItinerary()->prepend($itinerary);
+            $exchange->getItinerary()->setName("Multicast from \"".$mainExchange->getItinerary()->getName()."\"");
 
             // Set Message
             $msgCopy = unserialize(serialize($mainExchange->getIn()));
