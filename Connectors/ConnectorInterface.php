@@ -2,11 +2,11 @@
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
 
+use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Processors\ProcessorInterface;
 
-interface ConnectorInterface{
+interface ConnectorInterface extends SerializableInterface{
 
     /**
      * Sends an exchange to the connector

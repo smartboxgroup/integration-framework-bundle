@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Processors\ControlFlow;
 
 use JMS\Serializer\Annotation as JMS;
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Exceptions\ExchangeAwareInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
@@ -50,7 +51,7 @@ class ThrowException extends Processor
      * @return bool
      * @throws ExchangeAwareInterface
      */
-    protected function doProcess(Exchange $exchange)
+    protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         if(empty($this->exceptionClass)){
             throw new \RuntimeException("Exception class not found");

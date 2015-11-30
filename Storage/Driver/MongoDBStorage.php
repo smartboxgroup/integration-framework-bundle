@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Storage\Driver;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\DataStorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
+use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\StorageInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use JMS\Serializer\SerializerInterface;
@@ -138,9 +139,63 @@ class MongoDBStorage implements StorageInterface
         if (!empty($result)) {
             unset($result['_id']);
 
-            return $this->serializer->deserialize($result, SerializableInterface::class, 'array');
+            return $this->serializer->deserialize($result, SerializableInterface::class, 'mongo_array');
         }
 
         return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function find($collection, StorageFilterInterface $filter)
+    {
+        $this->checkConnection();
+
+        $queryParams = $filter->getQueryParams();
+
+        try {
+            $cursor = $this->db->$collection
+                ->find($queryParams)
+                ->sort($filter->getSortParams())
+                ->limit($filter->getLimit())
+                ->skip($filter->getOffset())
+            ;
+        } catch(\Exception $e) {
+            throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+
+        $result = [];
+        if ($cursor->count() > 0) {
+            while($cursor->hasNext()) {
+                $item = $cursor->getNext();
+                $id = $item['_id'];
+
+                unset($item['_id']);
+                $result[(string) $id] = $this->serializer->deserialize($item, SerializableInterface::class, 'mongo_array');
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count($collection, StorageFilterInterface $filter)
+    {
+        $this->checkConnection();
+
+        $queryParams = $filter->getQueryParams();
+
+        try {
+            $count = $this->db->$collection
+                ->find($queryParams)
+                ->count()
+            ;
+        } catch(\Exception $e) {
+            throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+
+        return $count;
     }
 }

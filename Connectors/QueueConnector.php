@@ -42,6 +42,7 @@ class QueueConnector extends Connector
         self::OPTION_PRIORITY => 4,
         self::OPTION_AUTO_DISCONNECT => true,
         self::OPTION_EXCHANGE_PATTERN => self::EXCHANGE_PATTERN_IN_ONLY,
+        self::OPTION_TRACK => true
     );
 
     protected $headersToPropagate = array(

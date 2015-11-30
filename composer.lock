@@ -1311,7 +1311,7 @@
             "source": {
                 "type": "git",
                 "url": "git@gitlab.production.smartbox.com:smartesb/core-bundle.git",
-                "reference": "a58ebe9259f6a2b29f4687a18ec696025a9da186"
+                "reference": "de51fbf67937c81a503b1b9c9482cef8307e00da"
             },
             "require": {
                 "doctrine/annotations": "1.2.*",
@@ -1336,7 +1336,7 @@
             "license": [
                 "MIT"
             ],
-            "time": "2015-11-25 16:04:33"
+            "time": "2015-11-30 15:51:21"
         },
         {
             "name": "symfony/assetic-bundle",

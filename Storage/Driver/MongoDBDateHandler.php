@@ -25,7 +25,7 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
             array(
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
                 'format' => 'mongo_array',
-                'type' => 'MongoDate',
+                'type' => 'DateTime',
                 'method' => 'convertMongoDateToDateTime',
             ),
         );
@@ -40,7 +40,7 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
      */
     public function convertDateTimeToMongoDate(VisitorInterface $visitor, \DateTime $date, array $type, Context $context)
     {
-        return new \MongoDate($date->getTimestamp());
+        return new \MongoDate($date->getTimestamp(), $date->format('u'));
     }
 
     /**

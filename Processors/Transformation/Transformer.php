@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Processors\Transformation;
 
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEvaluator;
@@ -31,7 +32,7 @@ class Transformer extends Processor
      * @param Exchange $exchange
      * @return bool
      */
-    protected function doProcess(Exchange $exchange)
+    protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         $evaluator = $this->getEvaluator();
 
