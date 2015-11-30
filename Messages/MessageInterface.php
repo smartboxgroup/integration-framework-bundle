@@ -57,7 +57,7 @@ interface MessageInterface extends SerializableInterface
     public function setBody(SerializableInterface $body = null);
 
     /**
-     * @return Entity
+     * @return SerializableInterface
      */
     public function getBody();
 }
