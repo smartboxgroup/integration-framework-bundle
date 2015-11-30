@@ -2,9 +2,10 @@
 namespace Smartbox\Integration\FrameworkBundle\Drivers\Queue;
 
 
+use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessageInterface;
 
-interface QueueDriverInterface {
+interface QueueDriverInterface extends SerializableInterface {
     const FORMAT_JSON = 'json';
     const FORMAT_XML = 'xml';
     const DEFAULT_TTL = 86400;

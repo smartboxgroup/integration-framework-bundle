@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Events;
 
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 use JMS\Serializer\Annotation as JMS;
@@ -31,6 +32,30 @@ class ProcessEvent extends Event
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Messages\Exchange")
      */
     protected $exchange;
+
+    /**
+     * @var SerializableArray
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("Smartbox\CoreBundle\Type\SerializableArray")
+     */
+    protected $processingContext;
+
+    /**
+     * @return SerializableArray
+     */
+    public function getProcessingContext()
+    {
+        return $this->processingContext;
+    }
+
+    /**
+     * @param SerializableArray $processingContext
+     */
+    public function setProcessingContext($processingContext)
+    {
+        $this->processingContext = $processingContext;
+    }
 
     /**
      * @return Processor

@@ -5,12 +5,13 @@ namespace Smartbox\Integration\FrameworkBundle\Drivers\Queue;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessageInterface;
 use JMS\Serializer\Annotation as JMS;
+use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
  * Class ArrayQueueDriver
  * @package Smartbox\Integration\FrameworkBundle\Drivers\Queue
  */
-class ArrayQueueDriver implements QueueDriverInterface{
+class ArrayQueueDriver extends Service implements QueueDriverInterface{
 
     static $array = array();
 

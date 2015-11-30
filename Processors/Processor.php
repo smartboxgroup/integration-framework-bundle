@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Processors;
 
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidMessageException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
@@ -30,26 +31,24 @@ abstract class Processor extends Service implements ProcessorInterface
      */
     protected $description = "";
 
-    protected abstract function doProcess(Exchange $exchange);
+    protected abstract function doProcess(Exchange $exchange, SerializableArray $processingContext);
 
-    protected function triggerPreProcess(Exchange $exchange)
+    protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         $event = new ProcessEvent(ProcessEvent::TYPE_BEFORE);
         $event->setProcessor($this);
         $event->setExchange($exchange);
+        $event->setProcessingContext($processingContext);
         $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_BEFORE, $event);
-
-        return;
     }
 
-    protected function triggerPostProcess(Exchange $exchange)
+    protected function postProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         $event = new ProcessEvent(ProcessEvent::TYPE_AFTER);
         $event->setProcessor($this);
         $event->setExchange($exchange);
+        $event->setProcessingContext($processingContext);
         $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_AFTER, $event);
-
-        return;
     }
 
     /**
@@ -75,14 +74,16 @@ abstract class Processor extends Service implements ProcessorInterface
      */
     public function process(Exchange $exchange)
     {
+        $processingContext = new SerializableArray();
+
         // Pre process event
-        $this->triggerPreProcess($exchange);
+        $this->preProcess($exchange,$processingContext);
 
         // Process
-        $res = $this->doProcess($exchange);
+        $res = $this->doProcess($exchange, $processingContext);
 
         // Post process event
-        $this->triggerPostProcess($exchange);
+        $this->postProcess($exchange, $processingContext);
 
         return $res;
     }

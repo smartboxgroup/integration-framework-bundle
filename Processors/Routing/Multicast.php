@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Processors\Routing;
 
 
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
@@ -85,7 +86,7 @@ class Multicast extends Processor
      *
      * @param Exchange $mainExchange
      */
-    protected function doProcess(Exchange $mainExchange)
+    protected function doProcess(Exchange $mainExchange, SerializableArray $processingContext)
     {
         foreach($this->itineraries as $itinerary){
             $exchange = new Exchange();

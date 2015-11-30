@@ -21,6 +21,7 @@ abstract class Connector extends Service implements ConnectorInterface
     const OPTION_USERNAME = 'username';
     const OPTION_PASSWORD = 'password';
     const OPTION_EXCHANGE_PATTERN = 'exchangePattern';
+    const OPTION_TRACK = 'track';
 
     const EXCHANGE_PATTERN_IN_ONLY = 'inOnly';
     const EXCHANGE_PATTERN_IN_OUT = 'inOut';
@@ -34,7 +35,8 @@ abstract class Connector extends Service implements ConnectorInterface
             self::OPTION_RETRIES => 5,
             self::OPTION_USERNAME => '',
             self::OPTION_PASSWORD => '',
-            self::OPTION_EXCHANGE_PATTERN => self::EXCHANGE_PATTERN_IN_OUT
+            self::OPTION_EXCHANGE_PATTERN => self::EXCHANGE_PATTERN_IN_OUT,
+            self::OPTION_TRACK => false
         );
     }
 
@@ -97,6 +99,7 @@ abstract class Connector extends Service implements ConnectorInterface
             self::OPTION_RETRIES => array('Number of times that the messages should try to be redelivered to this connector', array()),
             self::OPTION_USERNAME => array('Username to authenticate in this connector', array()),
             self::OPTION_PASSWORD => array('Password to authenticate in this connector', array()),
+            self::OPTION_TRACK => array('Whether to track the events this endpoint or not', array()),
         );
     }
 }

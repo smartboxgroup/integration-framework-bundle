@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Processors\Routing;
 
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
@@ -53,7 +54,7 @@ class ContentRouter extends Processor
      * @param Exchange $exchange
      * @return bool
      */
-    protected function doProcess(Exchange $exchange)
+    protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         $evaluator = $this->getEvaluator();
 

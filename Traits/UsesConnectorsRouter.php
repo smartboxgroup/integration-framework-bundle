@@ -7,6 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Connectors\Connector;
 use Smartbox\Integration\FrameworkBundle\Connectors\ConnectorInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 trait UsesConnectorsRouter {
 
@@ -53,13 +54,7 @@ trait UsesConnectorsRouter {
         return $uri;
     }
 
-    /**
-     * @param Exchange $exchange
-     * @param $uri
-     * @throws \Exception
-     */
-    protected function sendTo(Exchange $exchange, $uri){
-        $uri = self::resolveURI($exchange,$uri);
+    public function resolveOptions($uri){
         $params = $this->getConnectorsRouter()->match($uri);
 
         if(!array_key_exists(InternalRouter::KEY_CONNECTOR,$params)){
@@ -68,14 +63,29 @@ trait UsesConnectorsRouter {
 
         $connector = $params[InternalRouter::KEY_CONNECTOR];
 
-        if($connector instanceof ConnectorInterface){
-            $options = array_merge($connector->getDefaultOptions(),$params);
+        if($connector instanceof ConnectorInterface) {
+            $options = array_merge($connector->getDefaultOptions(), $params);
             $options[InternalRouter::KEY_URI] = $uri;
             $connector->validateOptions($options,true);
-            $connector->send($exchange,$options);
+
+            return $options;
         }else{
             throw new \Exception("The connector must be an instance of Connector, for uri:".$uri);
         }
+    }
+
+    /**
+     * @param Exchange $exchange
+     * @param $uri
+     * @throws \Exception
+     */
+    protected function sendTo(Exchange $exchange, $uri){
+        $uri = self::resolveURI($exchange,$uri);
+        $options = $this->resolveOptions($uri);
+
+        /** @var ConnectorInterface $connector */
+        $connector = $options[InternalRouter::KEY_CONNECTOR];
+        $connector->send($exchange,$options);
 
         if($this->isInOnly($options)){
             $exchange->setOut(null);

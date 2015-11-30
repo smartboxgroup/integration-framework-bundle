@@ -73,6 +73,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                 case 'ActiveMQ':
                     $def = new Definition(ActiveMQStompQueueDriver::class,array());
 
+                    $def->addMethodCall('setId', array($driverName));
+
                     $def->addMethodCall('configure', array(
                         $driverConfig['host'],
                         $driverConfig['username'],

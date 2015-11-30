@@ -7,6 +7,7 @@ use CentralDesktop\Stomp\Frame;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
 use CentralDesktop\Stomp\ConnectionFactory\Simple as SimpleConnectionStrategy;
 use CentralDesktop\Stomp\Message\Bytes;
@@ -16,8 +17,7 @@ use JMS\Serializer\DeserializationContext;
  * Class ActiveMQStompQueueDriver
  * @package Smartbox\Integration\FrameworkBundle\Drivers\Queue
  */
-class ActiveMQStompQueueDriver implements QueueDriverInterface {
-
+class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
     use UsesSerializer;
 
     const READ_TIMEOUT = 2;
