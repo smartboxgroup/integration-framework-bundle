@@ -9,7 +9,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * Class JsonFilesValidationCommandTest
- * @package Smartbox\Integration\ServiceBusBundle\Tests\Unit\Command
+ * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Command
  */
 class JsonFilesValidationCommandTest extends BaseKernelTestCase
 {
