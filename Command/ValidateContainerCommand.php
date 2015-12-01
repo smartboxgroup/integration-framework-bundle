@@ -20,6 +20,8 @@ class ValidateContainerCommand extends ContainerAwareCommand {
 
     protected function execute(InputInterface $input, OutputInterface $output){
 
+        $exitCode = 0;
+
         // CHECK CONNECTOR ROUTES
         $output->writeln("Validating routes...");
         $routerConnectors = $this->getContainer()->get('smartesb.router.connectors');
@@ -27,6 +29,7 @@ class ValidateContainerCommand extends ContainerAwareCommand {
             $options = $route->getDefaults();
             if(!array_key_exists(InternalRouter::KEY_CONNECTOR,$options)){
                 $output->writeln("<error>Connector not defined for route '$name': ".$route->getPath()."</error>");
+                $exitCode = 1;
                 continue;
             }
 
@@ -34,6 +37,8 @@ class ValidateContainerCommand extends ContainerAwareCommand {
 
             if(!$this->getContainer()->has($connectorId)){
                 $output->writeln("<error>Connector '$connectorId' not found for route '$name'</error>");
+
+                $exitCode = 1;
                 continue;
             }
 
@@ -41,6 +46,8 @@ class ValidateContainerCommand extends ContainerAwareCommand {
 
             if(!$connector instanceof ConnectorInterface){
                 $output->writeln("<error>Connector '$connectorId' does not implement ConnectorInterface</error>");
+
+                $exitCode = 1;
                 continue;
             }
 
@@ -52,6 +59,8 @@ class ValidateContainerCommand extends ContainerAwareCommand {
                 $connector->validateOptions($options,false);
             }catch (InvalidOptionException $exception){
                 $output->writeln("<error>The route '$name' has an invalid option '".$exception->getFieldName()."' for connector ".$exception->getConnectorClass()." with message ".$exception->getMessage());
+
+                $exitCode = 1;
                 continue;
             }
         }
@@ -68,11 +77,15 @@ class ValidateContainerCommand extends ContainerAwareCommand {
                 $options = $routerConnectors->match($uri);
             }catch (ResourceNotFoundException $exception){
                 $output->writeln("<error>Route not found for URI: '$uri'</error>");
+
+                $exitCode = 1;
                 continue;
             }
 
             if(!array_key_exists(InternalRouter::KEY_CONNECTOR,$options)){
                 $output->writeln("<error>Connector not defined for URI '$uri'</error>");
+
+                $exitCode = 1;
                 continue;
             }
 
@@ -80,6 +93,8 @@ class ValidateContainerCommand extends ContainerAwareCommand {
 
             if(!$connector instanceof ConnectorInterface){
                 $output->writeln("<error>Connector '$connectorId' does not implement ConnectorInterface</error>");
+
+                $exitCode = 1;
                 continue;
             }
 
@@ -89,13 +104,17 @@ class ValidateContainerCommand extends ContainerAwareCommand {
                 $connector->validateOptions($options,true);
             }catch (InvalidOptionException $exception){
                 $output->writeln("<error>The URI: '$uri', has an invalid option ".$exception->getFieldName()." for connector ".$exception->getConnectorClass()." with message ".$exception->getMessage());
+
+                $exitCode = 1;
                 continue;
             }catch (\Exception $exception){
                 $output->writeln("<error>Error trying to validate options for URI '$uri', ".$exception->getMessage());
+                $exitCode = 1;
             }
         }
 
         $output->writeln("Validation finished");
+        return $exitCode;
     }
 
     /**
