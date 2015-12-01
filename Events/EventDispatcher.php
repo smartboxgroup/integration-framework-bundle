@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
  */
 class EventDispatcher extends ContainerAwareEventDispatcher{
 
-    public function shouldDefer(\Symfony\Component\EventDispatcher\Event $event){
+    protected function shouldDefer(\Symfony\Component\EventDispatcher\Event $event){
         if($event instanceof \Smartbox\Integration\FrameworkBundle\Events\Event){
 
             $filtersRegistry = $this->getContainer()->get('smartesb.registry.event_filters');
@@ -32,7 +32,7 @@ class EventDispatcher extends ContainerAwareEventDispatcher{
      *
      * @param Event $event
      */
-    public function enqueue(Event $event)
+    protected function enqueue(Event $event)
     {
         $queueDriver = $this->getContainer()->get('smartesb.drivers.events');
         $queueName = $this->getContainer()->getParameter('smartesb.events_queue_name');

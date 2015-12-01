@@ -36,10 +36,8 @@ class Transformer extends Processor
     {
         $evaluator = $this->getEvaluator();
 
-        $msgCopy = unserialize(serialize($exchange->getIn()));
-
         try {
-            $evaluator->evaluate($this->expression, array('msg' => $msgCopy));
+            $evaluator->evaluateWithExchange($this->expression, $exchange);
         } catch (\Exception $e) {
             throw new \InvalidArgumentException(
                 'Transformer could not evaluate expression: "' . $this->expression . '". ' . $e->getMessage(),
@@ -47,7 +45,5 @@ class Transformer extends Processor
                 $e
             );
         }
-
-        $exchange->setOut($msgCopy);
     }
 }
