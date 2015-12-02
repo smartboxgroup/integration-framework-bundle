@@ -62,8 +62,8 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcher */
         $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)->getMock();
 
-        /** @var Exchange $exchange */
         $exchange = $this->getMockBuilder(Exchange::class)->getMock();
+        $exchange->method('getItinerary')->willReturn(new Itinerary());
 
         $itineraries = [
             $this->getMock(Itinerary::class),

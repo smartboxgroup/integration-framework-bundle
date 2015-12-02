@@ -95,18 +95,24 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
         ;
         $evaluatorMock
             ->expects($this->any())
-            ->method('evaluate')
+            ->method('evaluateWithExchange')
             ->will(
-                $this->returnValueMap(
-                    [
-                        ['condition_which_fails_1', ['msg' => $exchangeMock->getIn()], false],
-                        ['condition_which_fails_2', ['msg' => $exchangeMock->getIn()], false],
-                        ['condition_which_passes_1', ['msg' => $exchangeMock->getIn()], true],
-                        ['condition_which_passes_2', ['msg' => $exchangeMock->getIn()], true],
-                    ]
-                )
+                $this->returnCallback(function($expression, $ex){
+                    switch($expression){
+                        case 'condition_which_fails_1':
+                        case 'condition_which_fails_2':
+                            return false;
+                            break;
+                        case 'condition_which_passes_1':
+                        case 'condition_which_passes_2':
+                            return true;
+                            break;
+
+                    }
+                })
             )
         ;
+
         $this->contentRouter->setEvaluator($evaluatorMock);
 
         $this->contentRouter->addWhen('condition_which_fails_1', new Itinerary());

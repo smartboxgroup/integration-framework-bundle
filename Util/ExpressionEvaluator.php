@@ -1,6 +1,8 @@
 <?php
 namespace Smartbox\Integration\FrameworkBundle\Util;
 
+use Smartbox\CoreBundle\Type\SerializableArray;
+use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 class ExpressionEvaluator
@@ -12,14 +14,33 @@ class ExpressionEvaluator
     {
         $cache = new ApcParserCache();
         $this->language = new ExpressionLanguage($cache);
-        // TODO: Register any providers here
+        // Register any providers here
     }
 
-    // TODO: Define behaviour for this if
-    public function evaluate($expression, $data = array())
+    public function getExchangeExposedVars(){
+        return array(
+            'exchange',
+            'msg',
+            'headers',
+            'body'
+        );
+    }
+
+    public function evaluateWithVars($expression, $vars)
     {
-        // TODO: Add here to $data any info that we wish to have always available in the expressions
-        return $this->language->evaluate($expression, $data);
+        return $this->language->evaluate($expression, $vars);
+    }
+
+    public function evaluateWithExchange($expression, Exchange $exchange)
+    {
+        $body = $exchange->getIn()->getBody();
+
+        return $this->language->evaluate($expression, array(
+            'exchange' => $exchange,
+            'msg' => $exchange->getIn(),
+            'headers' => $exchange->getIn()->getHeaders(),
+            'body' => $body,
+        ));
     }
 
     /**

@@ -80,14 +80,12 @@ class TransformerTest extends KernelTestCase
      */
     public function testItShouldChangeExchange(MessageInterface $inMessage, MessageInterface $outMessage, $expression)
     {
-        $msgBackup = unserialize(serialize($inMessage));
         $exchange = new Exchange($inMessage);
 
         $this->transformer->setExpression($expression);
         $this->transformer->process($exchange);
 
-        $this->assertEquals($msgBackup, $exchange->getIn(), 'Transformer should not change IN message.');
-        $this->assertEquals($outMessage, $exchange->getOut(), 'Transformer should transform message according to given expression.');
+        $this->assertEquals($outMessage, $exchange->getResult(), 'Transformer should transform message according to given expression.');
     }
 
     /**
