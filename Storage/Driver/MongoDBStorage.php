@@ -39,19 +39,15 @@ class MongoDBStorage implements StorageInterface
     {
         $optionsResolver = new OptionsResolver();
         $optionsResolver->setDefined(['host', 'database']);
+        $optionsResolver->setRequired(['host', 'database']);
 
         $optionsResolver
-            ->setAllowedTypes('host', ['null', 'string'])
-            ->setDefault('host', null);
-
-        $optionsResolver
-            ->setAllowedTypes('database', 'string');
-
-        $optionsResolver->setRequired(['database']);
+            ->setAllowedTypes('host', 'string')
+            ->setAllowedTypes('database', 'string')
+        ;
 
         try {
             $this->configuration = $optionsResolver->resolve($configuration);
-            $this->connect();
         } catch (\Exception $e) {
             throw new StorageException('Wrong configuration: ' . $e->getMessage(), $e->getCode(), $e);
         }
@@ -67,16 +63,12 @@ class MongoDBStorage implements StorageInterface
      */
     private function connect()
     {
-        try {
-            if (!is_array($this->configuration)) {
-                throw new StorageException('Can not connect to MongoDB because configuration for this driver was not provided.');
-            }
+        if (!isset($this->configuration['host']) || !isset($this->configuration['database'])) {
+            throw new StorageException('Can not connect to MongoDB because configuration for this driver was not provided.');
+        }
 
-            if ($this->configuration['host']) {
-                $this->connection = new \MongoClient($this->configuration['host']);
-            } else {
-                $this->connection = new \MongoClient();
-            }
+        try {
+            $this->connection = new \MongoClient($this->configuration['host']);
             $this->connection->connect();
         } catch(\Exception $e) {
             throw new StorageException('Can not connect to storage because of: ' . $e->getMessage(), $e->getCode(), $e);
@@ -92,7 +84,7 @@ class MongoDBStorage implements StorageInterface
         }
     }
 
-    protected function checkConnection()
+    protected function ensureConnection()
     {
         if (!$this->connection instanceof \MongoClient || !$this->connection->connected) {
             $this->connect();
@@ -104,7 +96,7 @@ class MongoDBStorage implements StorageInterface
      */
     public function save($collection, SerializableInterface $storageData)
     {
-        $this->checkConnection();
+        $this->ensureConnection();
 
         try {
             $data = $this->serializer->serialize($storageData, 'mongo_array');
@@ -124,7 +116,7 @@ class MongoDBStorage implements StorageInterface
      */
     public function findOne($collection, $id)
     {
-        $this->checkConnection();
+        $this->ensureConnection();
 
         if (! \MongoId::isValid($id)) {
             return null;
@@ -150,7 +142,7 @@ class MongoDBStorage implements StorageInterface
      */
     public function find($collection, StorageFilterInterface $filter)
     {
-        $this->checkConnection();
+        $this->ensureConnection();
 
         $queryParams = $filter->getQueryParams();
 
@@ -183,7 +175,7 @@ class MongoDBStorage implements StorageInterface
      */
     public function count($collection, StorageFilterInterface $filter)
     {
-        $this->checkConnection();
+        $this->ensureConnection();
 
         $queryParams = $filter->getQueryParams();
 
