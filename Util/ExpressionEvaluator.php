@@ -14,7 +14,7 @@ class ExpressionEvaluator
     {
         $cache = new ApcParserCache();
         $this->language = new ExpressionLanguage($cache);
-        // TODO: Register any providers here
+        // Register any providers here
     }
 
     public function getExchangeExposedVars(){
