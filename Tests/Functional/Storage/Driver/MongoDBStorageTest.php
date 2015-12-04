@@ -39,7 +39,7 @@ class MongoDBStorageTest extends KernelTestCase
 
         self::$serializer = self::$container->get('serializer');
         self::$storageDriver = new MongoDBStorage(self::$serializer);
-        self::$storageDriver->configure(['database' => 'tests']);
+        self::$storageDriver->configure(['host' => 'mongodb://localhost:27017', 'database' => 'tests']);
 
         parent::setUpBeforeClass();
     }
@@ -58,8 +58,6 @@ class MongoDBStorageTest extends KernelTestCase
         return [
             [['host' => 'mongodb://localhost:27017', 'database' => 'test_database']],
             [['host' => 'localhost', 'database' => 'test_database']],
-            [['database' => 'test1_database']],
-            [['database' => 'test2_database']],
         ];
     }
 
@@ -95,8 +93,7 @@ class MongoDBStorageTest extends KernelTestCase
             [['unknown_database_key' => 'test1_database']],
             [['unknown_host_key' => 'host', 'unknown_database_key' => 'database']],
             [['host' => 'mongodb://localhost:27017']],
-            [['host' => '---mongodb://localhost:27017', 'database' => 'test_database']],
-            [['host' => 'unknown_host', 'database' => 'test_database']],
+            [['database' => 'test_database']],
         ];
     }
 
