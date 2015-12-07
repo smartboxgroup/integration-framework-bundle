@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Events\Error;
 
 use Smartbox\Integration\FrameworkBundle\Events\Event;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 use JMS\Serializer\Annotation as JMS;
@@ -12,7 +13,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * Class ProcessingErrorEvent
  * @package Smartbox\Integration\FrameworkBundle\Events\Error
  */
-class ProcessingErrorEvent extends Event
+class ProcessingErrorEvent extends ProcessEvent
 {
     const EVENT_NAME = 'smartesb.event.error';
 
@@ -39,22 +40,6 @@ class ProcessingErrorEvent extends Event
      * @JMS\Expose
      */
     protected $requestStack;
-
-    /**
-     * @var array
-     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Messages\Exchange")
-     * @JMS\Groups({"logs"})
-     * @JMS\Expose
-     */
-    protected $exchange;
-
-    /**
-     * @var array
-     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Processors\Processor")
-     * @JMS\Groups({"logs"})
-     * @JMS\Expose
-     */
-    protected $processor;
 
     /**
      * @param Processor $processor

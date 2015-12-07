@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Handlers;
 use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
+use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\DeferredExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
@@ -174,7 +175,7 @@ class MessageHandler extends Service implements HandlerInterface
     }
 
     /**
-     * @param \Exception $exception
+     * @param ProcessingException $exception
      * @param Processor $processor
      * @param Exchange $exchangeBackup
      * @param $progress
@@ -182,9 +183,24 @@ class MessageHandler extends Service implements HandlerInterface
      * @throws HandlerException
      * @throws \Exception
      */
-    public function onHandleException(\Exception $exception, Processor $processor, Exchange $exchangeBackup, $progress, $retries){
+    public function onHandleException(ProcessingException $exception, Processor $processor, Exchange $exchangeBackup, $progress, $retries){
+
+        $originalException = $exception->getOriginalException();
+
+        // Dispatch event with error information
+        $event = new ProcessingErrorEvent($processor, $exchangeBackup, $originalException);
+        $event->setProcessingContext($exception->getProcessingContext());
+
+        if($this->shouldThrowExceptions()){
+            $event->mustThrowException();
+        }else{
+            $event->mustNotThrowException();
+        }
+
+        $this->getEventDispatcher()->dispatch(ProcessingErrorEvent::EVENT_NAME, $event);
+
         // Try to recover
-        if($exception instanceof RecoverableExceptionInterface && $retries < $this->retriesMax){
+        if($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax){
             $recoveryExchange = new Exchange(new RetryExchangeEnvelope($exchangeBackup,$retries+1));
 
             $retryUri = $this->retryURI;
@@ -200,15 +216,6 @@ class MessageHandler extends Service implements HandlerInterface
             $this->sendTo($failedExchange,$this->failedURI);
         }
 
-        // Dispatch event with error information
-        $event = new ProcessingErrorEvent($processor, $exchangeBackup, $exception);
-        if($this->shouldThrowExceptions()){
-            $event->mustThrowException();
-        }else{
-            $event->mustNotThrowException();
-        }
-
-        $this->getEventDispatcher()->dispatch(ProcessingErrorEvent::EVENT_NAME, $event);
     }
 
     /**
@@ -276,7 +283,7 @@ class MessageHandler extends Service implements HandlerInterface
                 $progress++;
                 $retries = 0;   // If we make any progress the retries count is restarted
                 $exchangeBackup = clone $exchange;
-            } catch (\Exception $exception) {
+            }catch (ProcessingException $exception) {
                 $this->onHandleException($exception, $processor, $exchangeBackup, $progress, $retries);
                 return null;
             }
