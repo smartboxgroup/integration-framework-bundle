@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Transformation;
 
+use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
@@ -118,6 +119,7 @@ class TransformerTest extends KernelTestCase
      *
      * @param MessageInterface $inMessage
      * @param $expression
+     * @throws \Exception
      */
     public function testItShouldThrowException(MessageInterface $inMessage, $expression)
     {
@@ -125,6 +127,10 @@ class TransformerTest extends KernelTestCase
         $exchange = new Exchange($inMessage);
 
         $this->transformer->setExpression($expression);
-        $this->transformer->process($exchange);
+        try{
+            $this->transformer->process($exchange);
+        }catch (ProcessingException $pe){
+            throw $pe->getOriginalException();
+        }
     }
 }

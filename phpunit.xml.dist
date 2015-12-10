@@ -10,4 +10,5 @@
     <testsuite name="Framework Bundle Suite">
         <directory>./Tests/</directory>
     </testsuite>
+
 </phpunit>
