@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Processors;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidMessageException;
+use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesValidator;
@@ -70,20 +71,31 @@ abstract class Processor extends Service implements ProcessorInterface
     /**
      * @param Exchange $exchange
      * @return bool
-     * @throws InvalidMessageException
+     * @throws ProcessingException
      */
     public function process(Exchange $exchange)
     {
         $processingContext = new SerializableArray();
 
-        // Pre process event
-        $this->preProcess($exchange,$processingContext);
+        try{
+            // Pre process event
+            $this->preProcess($exchange,$processingContext);
 
-        // Process
-        $res = $this->doProcess($exchange, $processingContext);
+            // Process
+            $res = $this->doProcess($exchange, $processingContext);
 
-        // Post process event
-        $this->postProcess($exchange, $processingContext);
+            // Post process event
+            $this->postProcess($exchange, $processingContext);
+
+        }catch (\Exception $ex){
+            $processingException =  new ProcessingException();
+            $processingException->setProcessingContext($processingContext);
+            $processingException->setExchange($exchange);
+            $processingException->setOriginalException($ex);
+            $processingException->setProcessor($this);
+
+            throw $processingException;
+        }
 
         return $res;
     }

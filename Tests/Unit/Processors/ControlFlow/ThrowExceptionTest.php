@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Processors\ControlFlow;
 
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidMessageException;
+use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Processors\ControlFlow\ThrowException;
@@ -70,7 +71,12 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase{
         $this->throwException->setExceptionClass(InvalidMessageException::class);
 
         $ex = new Exchange(new Message(new TestEntity()));
-        $this->throwException->process($ex);
+
+        try{
+            $this->throwException->process($ex);
+        }catch (ProcessingException $pe){
+            throw $pe->getOriginalException();
+        }
     }
 
 }
