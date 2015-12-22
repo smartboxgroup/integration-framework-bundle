@@ -16,6 +16,20 @@ interface StorageInterface
     public function configure(array $configuration);
 
     /**
+     * Open connection to storage driver
+     *
+     * @throws StorageException
+     */
+    public function connect();
+
+    /**
+     * Close connection to storage driver
+     *
+     * @return void
+     */
+    public function disconnect();
+
+    /**
      * @param string $storageName
      * @param SerializableInterface $data
      * @return string $id
