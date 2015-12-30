@@ -24,6 +24,11 @@ parameters:
 
   smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBDateHandler
 
+  smartesb.smoke_test.validate_connectors.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ValidateConnectorsSmokeTest
+  smartesb.smoke_test.check_storage_connection.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\StorageConnectionSmokeTest
+  smartesb.smoke_test.check_queue_driver_connection.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\QueueDriverConnectionSmokeTest
+  smartbox.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\FilePermissionsSmokeTest
+
   smartesb.router.itineraries.options:
       cache_dir: %kernel.cache_dir%
       debug: %kernel.debug%
@@ -143,3 +148,27 @@ services:
         - { name: kernel.event_listener, event: smartesb.event.error, method: onEvent }
         - { name: kernel.event_listener, event: smartesb.process.after_process, method: onEvent }
         - { name: kernel.event_listener, event: smartesb.handler.after_handle, method: onEvent }
+
+  smartesb.smoke_test.validate_connectors:
+      class: %smartesb.smoke_test.validate_connectors.class%
+      arguments: [@service_container]
+      tags:
+          - { name: smartbox.smoke_test }
+
+  smartesb.smoke_test.check_storage_connection:
+      class: %smartesb.smoke_test.check_storage_connection.class%
+      arguments: [@smartbox.storage]
+      tags:
+          - { name: smartbox.smoke_test }
+
+  smartesb.smoke_test.check_queue_driver_connection:
+      class: %smartesb.smoke_test.check_queue_driver_connection.class%
+      arguments: [@smartesb.default_queue_driver, @smartesb.events_queue_driver]
+      tags:
+          - { name: smartbox.smoke_test }
+
+  smartesb.smoke_test.file_permissions:
+      class: %smartbox.smoke_test.file_permissions.class%
+      arguments: [ '%kernel.root_dir%/cache' ]
+      tags:
+          - { name: smartbox.smoke_test }

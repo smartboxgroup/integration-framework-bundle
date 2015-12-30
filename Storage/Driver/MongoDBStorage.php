@@ -59,9 +59,9 @@ class MongoDBStorage implements StorageInterface
     }
 
     /**
-     * @throws StorageException
+     * {@inheritdoc}
      */
-    private function connect()
+    public function connect()
     {
         if (!isset($this->configuration['host']) || !isset($this->configuration['database'])) {
             throw new StorageException('Can not connect to MongoDB because configuration for this driver was not provided.');
@@ -77,7 +77,10 @@ class MongoDBStorage implements StorageInterface
         $this->db = $this->connection->selectDB($this->configuration['database']);
     }
 
-    private function disconnect()
+    /**
+     * {@inheritdoc}
+     */
+    public function disconnect()
     {
         if ($this->connection instanceof \MongoClient && $this->connection->connected)  {
             $this->connection->close(true);
