@@ -32,6 +32,11 @@ abstract class Processor extends Service implements ProcessorInterface
      */
     protected $description = "";
 
+    /**
+     * @var bool $runtimeBreakpoint
+     */
+    protected $runtimeBreakpoint = false;
+
     protected abstract function doProcess(Exchange $exchange, SerializableArray $processingContext);
 
     protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
@@ -69,12 +74,24 @@ abstract class Processor extends Service implements ProcessorInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function setRuntimeBreakpoint($runtimeBreakpoint)
+    {
+        $this->runtimeBreakpoint = (bool) $runtimeBreakpoint;
+    }
+
+    /**
      * @param Exchange $exchange
      * @return bool
      * @throws ProcessingException
      */
     public function process(Exchange $exchange)
     {
+        if ($this->runtimeBreakpoint && function_exists('xdebug_break')) {
+            xdebug_break();
+        }
+
         $processingContext = new SerializableArray();
 
         try{
