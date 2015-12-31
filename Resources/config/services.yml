@@ -4,7 +4,6 @@ parameters:
 
   smartesb.handler.main.class: Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler
   smartesb.handler.events.class: Smartbox\Integration\FrameworkBundle\Handlers\DeferredEventsHandler
-  smartbox.storage.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBStorage
   smartesb.event_listener.events_logger.class: Smartbox\Integration\FrameworkBundle\EventListener\EventsLoggerListener
 
   smartesb.processor.router.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter
@@ -13,7 +12,6 @@ parameters:
   smartesb.processor.throw_exception.class: Smartbox\Integration\FrameworkBundle\Processors\ControlFlow\ThrowException
 
   event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Events\EventDispatcher
-#  debug.event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Events\EventDispatcher
 
   smartesb.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Util\ExpressionEvaluator
   smartesb.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Serialization\ItineraryHandler
@@ -25,7 +23,6 @@ parameters:
   smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBDateHandler
 
   smartesb.smoke_test.validate_connectors.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ValidateConnectorsSmokeTest
-  smartesb.smoke_test.check_storage_connection.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\StorageConnectionSmokeTest
   smartesb.smoke_test.check_queue_driver_connection.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\QueueDriverConnectionSmokeTest
   smartbox.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\FilePermissionsSmokeTest
 
@@ -152,12 +149,6 @@ services:
   smartesb.smoke_test.validate_connectors:
       class: %smartesb.smoke_test.validate_connectors.class%
       arguments: [@service_container]
-      tags:
-          - { name: smartbox.smoke_test }
-
-  smartesb.smoke_test.check_storage_connection:
-      class: %smartesb.smoke_test.check_storage_connection.class%
-      arguments: [@smartbox.storage]
       tags:
           - { name: smartbox.smoke_test }
 
