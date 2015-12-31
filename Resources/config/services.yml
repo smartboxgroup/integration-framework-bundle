@@ -4,7 +4,6 @@ parameters:
 
   smartesb.handler.main.class: Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler
   smartesb.handler.events.class: Smartbox\Integration\FrameworkBundle\Handlers\DeferredEventsHandler
-  smartbox.storage.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBStorage
   smartesb.event_listener.events_logger.class: Smartbox\Integration\FrameworkBundle\EventListener\EventsLoggerListener
 
   smartesb.processor.router.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter
