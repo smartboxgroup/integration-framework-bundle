@@ -32,6 +32,11 @@ abstract class Processor extends Service implements ProcessorInterface
      */
     protected $description = "";
 
+    /**
+     * @var bool $runtimeBreakpoint
+     */
+    protected $runtimeBreakpoint = false;
+
     protected abstract function doProcess(Exchange $exchange, SerializableArray $processingContext);
 
     protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
@@ -69,12 +74,37 @@ abstract class Processor extends Service implements ProcessorInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function setRuntimeBreakpoint($runtimeBreakpoint)
+    {
+        $this->runtimeBreakpoint = (bool) $runtimeBreakpoint;
+    }
+
+    /**
      * @param Exchange $exchange
      * @return bool
      * @throws ProcessingException
      */
     public function process(Exchange $exchange)
     {
+        if ($this->runtimeBreakpoint && function_exists('xdebug_break')) {
+            xdebug_break();
+        }
+
+        /**
+         *
+         * DEBUGGING HINTS
+         *
+         * If you add a runtime breakpoint in a processor xml definition inside a flow you will break here.
+         *
+         * The following function calls preProcess, doProcess and postProcess contain the real code you want to debug.
+         *
+         * To debug in that way you can add this to your xml flow file, as part of the processor you want to debug:
+         *
+         *      <... runtime-breakpoint="1"/>
+         *
+         */
         $processingContext = new SerializableArray();
 
         try{

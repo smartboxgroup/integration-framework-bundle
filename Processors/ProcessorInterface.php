@@ -23,4 +23,8 @@ interface ProcessorInterface
      */
     public function process(Exchange $exchange);
 
+    /**
+     * @param bool $runtimeBreakpoint
+     */
+    public function setRuntimeBreakpoint($runtimeBreakpoint);
 }
