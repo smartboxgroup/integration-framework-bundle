@@ -92,6 +92,19 @@ abstract class Processor extends Service implements ProcessorInterface
             xdebug_break();
         }
 
+        /**
+         *
+         * DEBUGGING HINTS
+         *
+         * If you add a runtime breakpoint in a processor xml definition inside a flow you will break here.
+         *
+         * The following function calls preProcess, doProcess and postProcess contain the real code you want to debug.
+         *
+         * To debug in that way you can add this to your xml flow file, as part of the processor you want to debug:
+         *
+         *      <... runtime-breakpoint="1"/>
+         *
+         */
         $processingContext = new SerializableArray();
 
         try{
