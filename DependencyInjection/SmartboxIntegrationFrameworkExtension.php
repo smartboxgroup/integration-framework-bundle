@@ -5,12 +5,14 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
+use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers\MessageHandlerTest;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
@@ -25,6 +27,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const HANDLER_PREFIX = 'smartesb.handlers.';
     const CONSUMER_PREFIX = 'smartesb.consumers.';
 
+    protected $config;
+
+    public function getFlowsVersion()
+    {
+        return $this->config['flows_version'];
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -32,6 +41,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+        $this->config = $config;
+
+        $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
+        Message::setFlowsVersion($this->getFlowsVersion());
 
         $eventQueueName = $config['events_queue_name'];
         $eventsLogLevel = $config['events_log_level'];

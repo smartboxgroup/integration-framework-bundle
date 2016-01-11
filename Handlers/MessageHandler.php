@@ -127,6 +127,7 @@ class MessageHandler extends Service implements HandlerInterface
     public function setFailedURI($failedURI)
     {
         $this->failedURI = $failedURI;
+
     }
 
     protected function prepareExchange(Exchange $ex)
@@ -223,6 +224,13 @@ class MessageHandler extends Service implements HandlerInterface
      */
     public function handle(MessageInterface $message, $from = null)
     {
+        if($message->getHeader(Message::HEADER_VERSION) != Message::getFlowsVersion()){
+            throw new \Exception("Received message with wrong version in message handler. Expected: "
+                .Message::getFlowsVersion().", received: "
+                .$message->getHeader(Message::HEADER_VERSION)
+            );
+        }
+
         $retries = 0;
 
         // If this is an exchange envelope

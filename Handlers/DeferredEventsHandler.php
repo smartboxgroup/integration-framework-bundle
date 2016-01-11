@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Handlers;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\Traits\HasType;
 use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
+use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
 use Smartbox\Integration\FrameworkBundle\Helper\EndpointHelper;
@@ -26,6 +27,13 @@ class DeferredEventsHandler implements HandlerInterface
     {
         if(!$message instanceof EventMessage){
             throw new \InvalidArgumentException("Expected EventMessage as an argument");
+        }
+
+        if($message->getHeader(Message::HEADER_VERSION) != Message::getFlowsVersion()){
+            throw new \Exception("Received message with wrong version in deferred events handler. Expected: "
+                .Message::getFlowsVersion().", received: "
+                .$message->getHeader(Message::HEADER_VERSION)
+            );
         }
 
         $this->eventDispatcher->dispatch($message->getHeader(EventMessage::HEADER_EVENT_NAME).'.deferred', $message->getBody());

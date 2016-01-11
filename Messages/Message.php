@@ -15,13 +15,31 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Message implements MessageInterface
 {
-    use HasType;
-    use HasHeaders;
-
     const HEADER_EXPIRES = 'expires';
     const HEADER_VERSION = 'version';
     const HEADER_QUEUE = 'queue';
     const HEADER_FROM = 'from';
+
+    use HasType;
+    use HasHeaders;
+
+    static private $flowsVersion;
+
+    /**
+     * @param mixed $flowsVersion
+     */
+    public static function setFlowsVersion($flowsVersion)
+    {
+        self::$flowsVersion = (string) $flowsVersion;
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getFlowsVersion()
+    {
+        return (string) self::$flowsVersion;
+    }
 
     /**
      * @var Context
@@ -49,7 +67,8 @@ class Message implements MessageInterface
      */
     public function __construct(SerializableInterface $body = null, $headers = array(), Context $context = null)
     {
-        $this->setHeaders($headers);
+        $this->setHeader(self::HEADER_VERSION,self::$flowsVersion);
+        $this->addHeaders($headers);
         $this->setBody($body);
         $this->setContext($context);
     }
