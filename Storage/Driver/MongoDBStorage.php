@@ -143,7 +143,7 @@ class MongoDBStorage implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function find($collection, StorageFilterInterface $filter)
+    public function find($collection, StorageFilterInterface $filter, array $fields = [], $hydrateObject = true)
     {
         $this->ensureConnection();
 
@@ -151,7 +151,7 @@ class MongoDBStorage implements StorageInterface
 
         try {
             $cursor = $this->db->$collection
-                ->find($queryParams)
+                ->find($queryParams, $fields)
                 ->sort($filter->getSortParams())
                 ->limit($filter->getLimit())
                 ->skip($filter->getOffset())
@@ -167,9 +167,15 @@ class MongoDBStorage implements StorageInterface
                 $id = $item['_id'];
 
                 unset($item['_id']);
-                $result[(string) $id] = $this->serializer->deserialize($item, SerializableInterface::class, 'mongo_array');
+
+                $result[(string) $id] = $item;
+
+                if ($hydrateObject && isset($item['type'])) {
+                    $result[(string) $id] = $this->serializer->deserialize($item, SerializableInterface::class, 'mongo_array');
+                }
             }
         }
+
         return $result;
     }
 
@@ -192,5 +198,32 @@ class MongoDBStorage implements StorageInterface
         }
 
         return $count;
+    }
+
+    /**
+     * Executes an aggregation pipeline on a given collection
+     *
+     * @param string $collection
+     * @param array $pipeline
+     * @param array $options
+     *
+     * @return array
+     */
+    public function aggregate($collection, array $pipeline, array $options = [])
+    {
+        $this->ensureConnection();
+
+        $data = $this->db->$collection->aggregate($pipeline, $options);
+
+        if (!$data['ok']) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Cannot aggregate on collection "%s": %s (Code: %d)',
+                    $collection, $data['errmsg'], $data['code']
+                )
+            );
+        }
+
+        return $data['result'];
     }
 }

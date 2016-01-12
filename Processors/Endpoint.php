@@ -20,6 +20,7 @@ class Endpoint extends Processor
     const OPTION_USERNAME = 'username';
     const OPTION_PASSWORD = 'password';
 
+    const CONTEXT_ENDPOINT_REQUEST_ID = 'endpoint_request_id';
     const CONTEXT_RESOLVED_URI = 'resolved_uri';
     const CONTEXT_OPTIONS = 'options';
     const CONTEXT_CONNECTOR = 'connector';
@@ -64,6 +65,7 @@ class Endpoint extends Processor
         $processingContext->set('resolved_uri', $uri);
         $processingContext->set('options',$options);
         $processingContext->set('connector', $connector);
+        $processingContext->set(self::CONTEXT_ENDPOINT_REQUEST_ID, uniqid(null, true));
 
         parent::preProcess($exchange,$processingContext);
     }
