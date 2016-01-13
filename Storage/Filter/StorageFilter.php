@@ -2,6 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Storage\Filter;
 
+/**
+ * Class StorageFilter
+ * @package Smartbox\Integration\FrameworkBundle\Storage\Filter
+ */
 class StorageFilter implements StorageFilterInterface
 {
     CONST SORT_ASC = 1;
@@ -13,7 +17,7 @@ class StorageFilter implements StorageFilterInterface
     protected $sortParams = array();
 
     /**
-     * @return mixed
+     * {@inheritDoc}
      */
     public function getLimit()
     {
@@ -21,15 +25,18 @@ class StorageFilter implements StorageFilterInterface
     }
 
     /**
-     * @param mixed $limit
+     * @param int $limit
+     * @return $this
      */
     public function setLimit($limit)
     {
         $this->limit = $limit;
+
+        return $this;
     }
 
     /**
-     * @return mixed
+     * {@inheritDoc}
      */
     public function getOffset()
     {
@@ -37,15 +44,18 @@ class StorageFilter implements StorageFilterInterface
     }
 
     /**
-     * @param mixed $offset
+     * @param int $offset
+     * @return $this
      */
     public function setOffset($offset)
     {
         $this->offset = $offset;
+
+        return $this;
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
     public function getQueryParams()
     {
@@ -54,14 +64,17 @@ class StorageFilter implements StorageFilterInterface
 
     /**
      * @param array $queryParams
+     * @return $this
      */
     public function setQueryParams($queryParams)
     {
         $this->queryParams = $queryParams;
+
+        return $this;
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
     public function getSortParams()
     {
@@ -71,6 +84,7 @@ class StorageFilter implements StorageFilterInterface
     /**
      * @param $column
      * @param $type
+     * @return $this
      * @throws \Exception
      */
     public function addSorting($column, $type)
@@ -81,5 +95,7 @@ class StorageFilter implements StorageFilterInterface
         }
 
         $this->sortParams[$column] = $type;
+
+        return $this;
     }
 }

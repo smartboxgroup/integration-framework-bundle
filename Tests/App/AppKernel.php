@@ -19,6 +19,7 @@ class AppKernel extends Kernel
             new \BeSimple\SoapBundle\BeSimpleSoapBundle(),
             new \Smartbox\CoreBundle\SmartboxCoreBundle(),
             new \Smartbox\Integration\FrameworkBundle\SmartboxIntegrationFrameworkBundle(),
+            new \Snc\RedisBundle\SncRedisBundle(),
         );
     }
 

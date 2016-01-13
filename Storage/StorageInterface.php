@@ -46,9 +46,10 @@ interface StorageInterface
     /**
      * @param $collection
      * @param StorageFilterInterface $filter
-     * @return \MongoCursor|array
+     * @param array $fields
+     * @return array|\MongoCursor
      */
-    public function find($collection, StorageFilterInterface $filter);
+    public function find($collection, StorageFilterInterface $filter, array $fields = []);
 
     /**
      * @param $collection
