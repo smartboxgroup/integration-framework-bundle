@@ -22,7 +22,7 @@ class JsonFileLoaderConnectorTest extends BaseTestCase
     public function testSendShouldWork()
     {
         $pathFixtures = realpath(__DIR__.'/../../Fixtures');
-        $exchange = new Exchange(new Message(new EntityX(1)));
+        $exchange = new Exchange($this->createMessage(new EntityX(1)));
         $this->connector->send($exchange, array(
             JsonFileLoaderConnector::OPTION_BASE_PATH => $pathFixtures,
             JsonFileLoaderConnector::OPTION_FILENAME => 'entity_x.json'

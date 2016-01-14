@@ -15,7 +15,7 @@ trait HasHeaders {
      *
      * @var array
      */
-    protected $headers;
+    protected $headers = [];
 
     /**
      * @return mixed

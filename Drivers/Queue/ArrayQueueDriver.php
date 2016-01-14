@@ -2,6 +2,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Drivers\Queue;
 
 
+use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessageInterface;
 use JMS\Serializer\Annotation as JMS;
@@ -146,6 +147,8 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
         /**
          * This driver will ignore all the headers so it can use any message that implements QueueMessageInterface
          */
-        return new QueueMessage();
+        $msg = new QueueMessage();
+        $msg->setContext(new Context([Context::VERSION,$msg = $this->getFlowsVersion()]));
+        return $msg;
     }
 }

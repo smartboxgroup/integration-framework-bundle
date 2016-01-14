@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
+use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Connectors\QueueConnector;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ArrayQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
@@ -36,6 +37,23 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $this->handler->setEventDispatcher($this->eventDispatcherMock);
     }
 
+
+    /**
+     * @param SerializableInterface $body
+     * @param array $headers
+     * @param Context $context
+     * @return \Smartbox\Integration\FrameworkBundle\Messages\Message
+     */
+    protected function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null){
+        if(!$context){
+            $context = new Context([
+                Context::VERSION => 0
+            ]);
+        }
+
+        return new Message($body,$headers,$context);
+    }
+
     public function dataProviderForNumberOfProcessors()
     {
         return [
@@ -53,8 +71,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testHandle($numberOfProcessors)
     {
-        $message = new Message(new EntityX(2));
-        $message->setContext(new Context());
+        $message = $this->createMessage(new EntityX(2));
         $from = 'xxx';
         $itinerary = new Itinerary();
 
@@ -68,7 +85,6 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         ));
 
         $this->handler->setItinerariesRouter($itinerariesRouterMock);
-
 
         /** @var Exchange $exchangeProcessedManually */
         $exchangeProcessedManually =  new Exchange(unserialize(serialize($message)));
@@ -91,8 +107,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testHandleWithErrorLogging()
     {
-        $message = new Message(new EntityX(3));
-        $message->setContext(new Context());
+        $message = $this->createMessage(new EntityX(3));
         $itinerary = new Itinerary();
         $fromURI = 'xxx';
         $failedUri = 'failed';

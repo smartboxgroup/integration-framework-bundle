@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Drivers\Queue;
 use CentralDesktop\Stomp\Connection;
 use CentralDesktop\Stomp\Frame;
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Service;
@@ -413,6 +414,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
     public function createQueueMessage()
     {
         $msg = new QueueMessage();
+        $msg->setContext(new Context([Context::VERSION,$this->getFlowsVersion()]));
 
         /**
          * By default, messages created with this driver would be sent to the subscribed queue

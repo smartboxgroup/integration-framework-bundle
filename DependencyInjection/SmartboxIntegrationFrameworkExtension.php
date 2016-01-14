@@ -44,7 +44,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $this->config = $config;
 
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
-        Message::setFlowsVersion($this->getFlowsVersion());
 
         $eventQueueName = $config['events_queue_name'];
         $eventsLogLevel = $config['events_log_level'];
@@ -61,6 +60,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $def->addMethodCall('setConnectorsRouter', [new Reference('smartesb.router.connectors')]);
             $def->addMethodCall('setItinerariesRouter', [new Reference('smartesb.router.itineraries')]);
             $def->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
+            $def->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
             if($handlerConfig['retry_uri'] != 'original'){
                 $def->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
@@ -96,6 +96,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     ));
 
                     $def->addMethodCall('setSerializer', [new Reference('serializer')]);
+                    $def->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
                     $container->setDefinition($driverName,$def);
             }

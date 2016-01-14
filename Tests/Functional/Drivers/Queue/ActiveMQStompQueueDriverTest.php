@@ -253,10 +253,10 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
      */
     public function testShouldSelect(MessageInterface $msg){
         $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader(Message::HEADER_VERSION,'12345');
+        $msgIn->addHeader('test_header','12345');
         $this->driver->send($msgIn);
 
-        $this->driver->subscribe($this->queueName,'version = 12345');
+        $this->driver->subscribe($this->queueName,'test_header = 12345');
 
         $msgOut = $this->driver->receive();
         if($msgOut){
@@ -273,10 +273,10 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
      */
     public function testShouldNotSelect(MessageInterface $msg){
         $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader(Message::HEADER_VERSION,'12345');
+        $msgIn->addHeader('test_header','12345');
         $this->driver->send($msgIn);
 
-        $this->driver->subscribe($this->queueName,'version = 6666');
+        $this->driver->subscribe($this->queueName,'test_header = 6666');
 
         $msgOut = $this->driver->receive();
 
@@ -353,12 +353,12 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
     {
         $simple = $this->createSimpleEntity();
 
-        $item = new Message(new SerializableArray(array($simple, $simple)));
+        $item = $this->createMessage(new SerializableArray(array($simple, $simple)));
 
         $x = new EntityX(1);
-        $x1 = new Message($x);
+        $x1 = $this->createMessage($x);
 
-        $complex = new Message(new SerializableArray(array('x' => $x1, 'item' => $item, 'item2' => $item, 'item3' => $item)));
+        $complex = $this->createMessage(new SerializableArray(array('x' => $x1, 'item' => $item, 'item2' => $item, 'item3' => $item)));
 
         $complex->setHeader('tracking-test-id',uniqid());
         $x1->setHeader('tracking-test-id',uniqid());
@@ -375,7 +375,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $entity->setDescription($description);
         $entity->setTitle($title);
         $entity->setNote("Note here");
-        return new Message($entity);
+        return $this->createMessage($entity);
     }
 
     public static function mapTitle(QueueMessage $message) {
