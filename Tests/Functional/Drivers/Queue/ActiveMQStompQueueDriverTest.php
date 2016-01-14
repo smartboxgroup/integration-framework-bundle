@@ -70,6 +70,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $host = $this->getContainer()->getParameter('hostname');
         /** @var ActiveMQStompQueueDriver $processor */
         $driver = new ActiveMQStompQueueDriver();
+        $driver->setMessageFactory($this->getContainer()->get('smartesb.message_factory'));
         $driver->setSerializer($this->getContainer()->get('serializer'));
         $driver->configure($host,'','');
         $driver->connect();
@@ -353,12 +354,12 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
     {
         $simple = $this->createSimpleEntity();
 
-        $item = $this->createMessage(new SerializableArray(array($simple, $simple)));
+        $item = new Message(new SerializableArray(array($simple, $simple)));
 
         $x = new EntityX(1);
-        $x1 = $this->createMessage($x);
+        $x1 = new Message($x);
 
-        $complex = $this->createMessage(new SerializableArray(array('x' => $x1, 'item' => $item, 'item2' => $item, 'item3' => $item)));
+        $complex = new Message(new SerializableArray(array('x' => $x1, 'item' => $item, 'item2' => $item, 'item3' => $item)));
 
         $complex->setHeader('tracking-test-id',uniqid());
         $x1->setHeader('tracking-test-id',uniqid());
@@ -375,7 +376,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $entity->setDescription($description);
         $entity->setTitle($title);
         $entity->setNote("Note here");
-        return $this->createMessage($entity);
+        return new Message($entity);
     }
 
     public static function mapTitle(QueueMessage $message) {

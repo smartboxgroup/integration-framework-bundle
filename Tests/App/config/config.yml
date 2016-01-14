@@ -67,6 +67,8 @@ smartbox_integration_framework:
             driver: default
             handler: async
 
+    flows_version: 0
+
 snc_redis:
     clients:
         cache:
