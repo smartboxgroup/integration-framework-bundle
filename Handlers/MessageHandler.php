@@ -229,7 +229,7 @@ class MessageHandler extends Service implements HandlerInterface
         $version = $message->getContext()->get(Context::VERSION);
         $expectedVersion = $this->getFlowsVersion();
 
-        if($version != $expectedVersion){
+        if($version !== $expectedVersion){
             throw new \Exception("Received message with wrong version in message handler. Expected: "
                 .$expectedVersion
                 .", received: ".$version
