@@ -1,8 +1,13 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Messages\Queues;
 
 use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
 
+/**
+ * Interface QueueMessageInterface
+ * @package Smartbox\Integration\FrameworkBundle\Messages\Queues
+ */
 interface QueueMessageInterface extends MessageInterface
 {
     /**
