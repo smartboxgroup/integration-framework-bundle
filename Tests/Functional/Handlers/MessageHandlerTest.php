@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Connectors\QueueConnector;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ArrayQueueDriver;
+use Smartbox\Integration\FrameworkBundle\Exceptions\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
@@ -100,6 +101,33 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $result = $this->handler->handle($message,$from);
 
         $this->assertEquals($exchangeProcessedManually->getResult(), $result);
+    }
+
+    /**
+     * @covers ::handle
+     * @dataProvider dataProviderForNumberOfProcessors
+     *
+     */
+    public function testHandleWithWrongVersionMustFail()
+    {
+        $message = $this->createMessage(new EntityX(2));
+        $from = 'xxx';
+        $itinerary = new Itinerary();
+
+        $itinerariesRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
+        $itinerariesRouterMock
+            ->expects($this->once())
+            ->method('match')
+            ->with($from)
+            ->willReturn(array(
+                InternalRouter::KEY_ITINERARY => $itinerary
+            ));
+
+        $this->handler->setItinerariesRouter($itinerariesRouterMock);
+
+        $this->setExpectedException(HandlerException::class);
+
+        $this->handler->handle($message,$from);
     }
 
     /**
