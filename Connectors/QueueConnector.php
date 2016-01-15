@@ -8,7 +8,6 @@ use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
-use JMS\Serializer\Annotation as JMS;
 
 /**
  * Class QueueConnector
@@ -16,7 +15,6 @@ use JMS\Serializer\Annotation as JMS;
  */
 class QueueConnector extends Connector
 {
-
     use UsesSerializer;
 
     public static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY];

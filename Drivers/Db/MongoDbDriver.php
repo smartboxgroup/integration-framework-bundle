@@ -2,21 +2,25 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Drivers\Db;
 
-use Smartbox\Integration\FrameworkBundle\Messages\Db\DbMessageInterface;
-use Smartbox\Integration\FrameworkBundle\Messages\Db\MongoDbMessage;
+use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\CoreBundle\Type\Traits\HasType;
+use Smartbox\Integration\FrameworkBundle\Messages\Db\NoSQLMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Messages\Db\NoSQLMessage;
 use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBStorage;
 
 /**
  * Class MongoDbDriver
  * @package Smartbox\Integration\FrameworkBundle\Drivers\Db
  */
-class MongoDbDriver implements DbDriverInterface
+class MongoDbDriver implements NoSQLDriverInterface, SerializableInterface
 {
+    use HasType;
+
     /** @var MongoDBStorage */
     protected $mongoStorage;
 
     /**
-     * MongoDbDriver constructor.
+     * MongoNoSQLDriver constructor.
      * @param MongoDBStorage $mongoStorage
      */
     public function __construct(MongoDBStorage $mongoStorage)
@@ -25,19 +29,13 @@ class MongoDbDriver implements DbDriverInterface
     }
 
     /**
-     * @param DbMessageInterface $message
+     * @param NoSQLMessageInterface $message
      * @return bool
      * @throws \Exception
      * @throws \Smartbox\Integration\FrameworkBundle\Storage\Exception\DataStorageException
      */
-    public function send(DbMessageInterface $message)
+    public function send(NoSQLMessageInterface $message)
     {
-        if (!$message instanceof MongoDbMessage) {
-            throw new \Exception(
-                sprintf('Invalid message: expected instance of MongoDbMessage, "%s" given.', get_class($message))
-            );
-        }
-
         $collectionName = $message->getCollectionName();
         $this->mongoStorage->save($collectionName, $message);
 
@@ -49,7 +47,7 @@ class MongoDbDriver implements DbDriverInterface
      *
      * It requires to subscribe previously to a specific queue
      *
-     * @return DbMessageInterface|null
+     * @return NoSQLMessageInterface|null
      * @throws \Exception
      */
     public function receive()
@@ -59,12 +57,12 @@ class MongoDbDriver implements DbDriverInterface
     }
 
     /**
-     * @return MongoDbMessage
+     * @return NoSQLMessage
      */
     public function createMessage()
     {
-        $message = new MongoDbMessage();
-        $message->setTimestamp(new \DateTime());
+        $message = new NoSQLMessage();
+        $message->setCreatedAt(new \DateTime());
 
         return $message;
     }

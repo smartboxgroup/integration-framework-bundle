@@ -3,23 +3,39 @@
 namespace Smartbox\Integration\FrameworkBundle\Messages\Db;
 
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
+use JMS\Serializer\Annotation as JMS;
 
 /**
- * Class MongoDbMessage
+ * Class NoSQLMessage
  * @package Smartbox\Integration\FrameworkBundle\Messages\Db
  */
-class MongoDbMessage extends Message implements MongoDbMessageInterface
+class NoSQLMessage extends Message implements NoSQLMessageInterface
 {
     /** @var mixed */
     protected $id;
 
-    /** @var mixed */
-    protected $timestamp;
+    /**
+     * @var \DateTime
+     * @JMS\Type("DateTime")
+     * @JMS\Groups({"context", "logs"})
+     * @JMS\Expose
+     */
+    protected $createdAt;
 
-    /** @var string */
+    /**
+     * @var string
+     * @JMS\Type("string")
+     * @JMS\Groups({"context", "logs"})
+     * @JMS\Expose
+     */
     protected $databaseName;
 
-    /** @var string */
+    /**
+     * @var string
+     * @JMS\Type("string")
+     * @JMS\Groups({"context", "logs"})
+     * @JMS\Expose
+     */
     protected $collectionName;
 
     /**
@@ -42,17 +58,17 @@ class MongoDbMessage extends Message implements MongoDbMessageInterface
     /**
      * {@inheritDoc}
      */
-    public function getTimestamp()
+    public function getCreatedAt()
     {
-        return $this->timestamp;
+        return $this->createdAt;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setTimestamp($timestamp)
+    public function setCreatedAt(\DateTime $createdAt = null)
     {
-        $this->timestamp = $timestamp;
+        $this->createdAt = $createdAt;
         return $this;
     }
 

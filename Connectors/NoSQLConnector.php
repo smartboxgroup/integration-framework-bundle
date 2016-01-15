@@ -2,20 +2,19 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
-use JMS\Serializer\SerializerInterface;
-use Smartbox\Integration\FrameworkBundle\Drivers\Db\MongoDbDriver;
+use Smartbox\Integration\FrameworkBundle\Drivers\Db\NoSQLDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 
 /**
- * Class MongoDbConnector
+ * Class NoSQLConnector
  * @package Smartbox\Integration\FrameworkBundle\Connectors
  */
-class MongoDbConnector extends Connector
+class NoSQLConnector extends Connector
 {
-    const OPTION_MONGO_DB_DRIVER = 'db_driver';
+    const OPTION_NOSQL_DRIVER = 'nosql_driver';
     const OPTION_COLLECTION_PREFIX = 'prefix';
     const OPTION_COLLECTION_NAME = 'collection';
 
@@ -29,22 +28,23 @@ class MongoDbConnector extends Connector
      * Sends an exchange to the connector
      *
      * @param Exchange $ex
-     * @throws \Exception
+     * @param array $options
+     * @throws InvalidOptionException
      */
     public function send(Exchange $ex, array $options)
     {
         $msg = $ex->getIn();
 
-        /** @var MongoDbDriver $mongoDriver */
-        $mongoDriver = $options[self::OPTION_MONGO_DB_DRIVER];
+        /** @var NoSQLDriverInterface $driver */
+        $driver = $options[self::OPTION_NOSQL_DRIVER];
 
-        if(empty($mongoDriver) || !$mongoDriver instanceof MongoDbDriver){
-            throw new InvalidOptionException(self::class, self::OPTION_MONGO_DB_DRIVER, 'Expected MongoDbDriver instance');
+        if(empty($driver) || !$driver instanceof NoSQLDriverInterface){
+            throw new InvalidOptionException(self::class, self::OPTION_NOSQL_DRIVER, 'Expected NoSQLDriverInterface instance');
         }
 
         $collectionName = (@$options[self::OPTION_COLLECTION_PREFIX]).$options[self::OPTION_COLLECTION_NAME];
 
-        $message = $mongoDriver->createMessage();
+        $message = $driver->createMessage();
         $message->setBody($msg);
         $message->setCollectionName($collectionName);
         $message->setHeader(Message::HEADER_FROM, $options[InternalRouter::KEY_URI]);
@@ -56,7 +56,7 @@ class MongoDbConnector extends Connector
             }
         }
 
-        $success = $mongoDriver->send($message);
+        $success = $driver->send($message);
 
         if(!$success){
             throw new \RuntimeException("The message could not be delivered to the database");
@@ -82,7 +82,7 @@ class MongoDbConnector extends Connector
     function getAvailableOptions()
     {
         return array_merge(parent::getAvailableOptions(), [
-            self::OPTION_MONGO_DB_DRIVER    => ['The driver service to use to connect to the MongoDb instance', []],
+            self::OPTION_NOSQL_DRIVER    => ['The driver service to use to connect to the MongoDb instance', []],
             self::OPTION_COLLECTION_PREFIX  => ['A string prefix used for collection names', []],
             self::OPTION_COLLECTION_NAME    => ['The name of the collection in which the messages will be stored', []],
         ]);

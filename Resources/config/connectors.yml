@@ -4,7 +4,7 @@ parameters:
   smartesb.connectors.soap.class: Smartbox\Integration\FrameworkBundle\Connectors\SoapConnector
   smartesb.connectors.json_file.class: Smartbox\Integration\FrameworkBundle\Connectors\JsonFileLoaderConnector
   smartesb.connectors.queue.class: Smartbox\Integration\FrameworkBundle\Connectors\QueueConnector
-  smartesb.connectors.mongodb.class: Smartbox\Integration\FrameworkBundle\Connectors\MongoDbConnector
+  smartesb.connectors.nosql.class: Smartbox\Integration\FrameworkBundle\Connectors\NoSQLConnector
 
 services:
   ########## CONNECTORS  ##########
@@ -27,6 +27,6 @@ services:
       calls:
         - [setSerializer, [@serializer]]
 
-  # MongoDB
-  smartesb.connectors.mongodb:
-      class: %smartesb.connectors.mongodb.class%
+  # NoSQL
+  smartesb.connectors.nosql:
+      class: %smartesb.connectors.nosql.class%

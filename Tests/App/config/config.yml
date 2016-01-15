@@ -41,8 +41,11 @@ smartbox_integration_framework:
             password: ''
             format: json
 
+    nosql_drivers: ~
+
     events_queue_driver: events
     default_queue_driver: default
+    default_nosql_driver: ~
 
     message_handlers:
         sync:

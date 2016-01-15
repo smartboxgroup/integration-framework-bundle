@@ -18,10 +18,9 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root(self::NAME);
         $rootNode->children()
-            ->scalarNode('events_log_level')
+            ->enumNode('events_log_level')
                 ->defaultValue(LogLevel::DEBUG)
-                ->validate()
-                ->ifNotInArray([
+                ->values([
                     LogLevel::EMERGENCY,
                     LogLevel::ALERT,
                     LogLevel::CRITICAL,
@@ -31,8 +30,6 @@ class Configuration implements ConfigurationInterface
                     LogLevel::INFO,
                     LogLevel::DEBUG,
                 ])
-                ->thenInvalid('Invalid log level for events log: "%s"')
-            ->end()
             ->end()
 
             ->scalarNode('events_queue_name')
@@ -44,8 +41,12 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('default_queue_driver')
             ->isRequired()->end()
 
+            ->scalarNode('default_nosql_driver')
+            ->isRequired()->end()
+
             ->end()
             ->append($this->addQueueDriversNode())
+            ->append($this->addNoSQLDriversNode())
             ->append($this->addConsumersNode())
             ->append($this->addHandlersNode())
         ->end();
@@ -70,7 +71,6 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('type')
             ->info('Type of consumer (queue, file, db, ...)')
-            ->defaultValue(5)
             ->isRequired()
             ->end()
 
@@ -142,6 +142,7 @@ class Configuration implements ConfigurationInterface
     public function addQueueDriversNode()
     {
         $builder = new TreeBuilder();
+
         $node = $builder->root('queue_drivers');
         $node->info("Section where the queue drivers are defined");
 
@@ -149,36 +150,83 @@ class Configuration implements ConfigurationInterface
             ->prototype('array')
             ->children()
 
-            ->scalarNode('type')
-            ->info('Driver type (e.g.: ActiveMQ')
-            ->defaultValue("")
+                ->scalarNode('type')
+                    ->info('Driver type (e.g.: ActiveMQ')
+                    ->defaultValue("")
+                ->end()
+
+                ->scalarNode('description')
+                    ->info('This description will be used in the documentation.')
+                    ->defaultValue("")
+                ->end()
+
+                ->scalarNode('host')
+                    ->isRequired()
+                ->end()
+
+                ->scalarNode('username')
+                    ->isRequired()
+                ->end()
+
+                ->scalarNode('password')
+                    ->isRequired()
+                ->end()
+
+                ->scalarNode('format')
+                    ->isRequired()
+                ->end()
+
             ->end()
 
-            ->scalarNode('description')
-            ->info('This description will be used in the documentation.')
-            ->defaultValue("")
-            ->end()
-
-            ->scalarNode('host')
-            ->defaultValue(5)
-            ->isRequired()
-            ->end()
-
-            ->scalarNode('username')
-            ->isRequired()
-            ->end()
-
-            ->scalarNode('password')
-            ->isRequired()
-            ->end()
-
-            ->scalarNode('format')
-            ->isRequired()
-            ->end()
-
-            ->end()
             ->end()
             ->isRequired();
+
+        return $node;
+    }
+
+    public function addNoSQLDriversNode()
+    {
+        $builder = new TreeBuilder();
+        $node = $builder->root('nosql_drivers');
+        $node->info('Section where the nosql db drivers are defined');
+
+        $node->useAttributeAsKey('name')
+            ->prototype('array')
+            ->children()
+
+                ->scalarNode('type')
+                    ->info('Driver type (e.g.: MongoDB')
+                    ->defaultValue("")
+                ->end()
+
+                ->scalarNode('description')
+                    ->info('This description will be used in the documentation.')
+                    ->defaultValue("")
+                ->end()
+
+                ->scalarNode('host')
+                    ->isRequired()
+                ->end()
+
+                ->scalarNode('database')
+                    ->isRequired()
+                ->end()
+
+                ->variableNode('connection_options')
+                    ->defaultValue(null)
+                    ->validate()->ifTrue(
+                        function($value) {
+                            return !(is_array($value) || $value === null);
+                        })
+                        ->thenInvalid('Invalid connection options it should be an array or null')
+                    ->end()
+                ->end()
+
+            ->end()
+
+            ->end()
+            ->isRequired()
+        ;
 
         return $node;
     }

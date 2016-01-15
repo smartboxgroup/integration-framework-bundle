@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Storage\Driver;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\CoreBundle\Type\Traits\HasType;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\DataStorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
@@ -10,8 +11,14 @@ use Smartbox\Integration\FrameworkBundle\Storage\StorageInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use JMS\Serializer\SerializerInterface;
 
-class MongoDBStorage implements StorageInterface
+/**
+ * Class MongoDBStorage
+ * @package Smartbox\Integration\FrameworkBundle\Storage\Driver
+ */
+class MongoDBStorage implements StorageInterface, SerializableInterface
 {
+    use HasType;
+
     /** @var SerializerInterface */
     protected $serializer;
 
@@ -37,13 +44,23 @@ class MongoDBStorage implements StorageInterface
      */
     public function configure(array $configuration)
     {
-        $optionsResolver = new OptionsResolver();
-        $optionsResolver->setDefined(['host', 'database']);
-        $optionsResolver->setRequired(['host', 'database']);
+        // allows to use the default options when a null value is passed
+        if (array_key_exists('options', $configuration) && $configuration['options'] === null) {
+            unset($configuration['options']);
+        }
 
+        $optionsResolver = new OptionsResolver();
         $optionsResolver
+            ->setDefined(['host', 'database', 'options', 'driver_options'])
+            ->setDefaults([
+                'options' => ['connect' => false],
+                'driver_options' => []
+            ])
+            ->setRequired(['host', 'database'])
             ->setAllowedTypes('host', 'string')
             ->setAllowedTypes('database', 'string')
+            ->setAllowedTypes('options', 'array')
+            ->setAllowedTypes('driver_options', 'array')
         ;
 
         try {
@@ -68,7 +85,7 @@ class MongoDBStorage implements StorageInterface
         }
 
         try {
-            $this->connection = new \MongoClient($this->configuration['host']);
+            $this->connection = $this->createConnection();
             $this->connection->connect();
         } catch(\Exception $e) {
             throw new StorageException('Can not connect to storage because of: ' . $e->getMessage(), $e->getCode(), $e);
@@ -225,5 +242,20 @@ class MongoDBStorage implements StorageInterface
         }
 
         return $data['result'];
+    }
+
+    /**
+     * Creates a new configuration using the current configuration options specified using the {@link configure()}
+     * method
+     * @return \MongoClient
+     * @see configure()
+     */
+    protected function createConnection()
+    {
+        return new \MongoClient(
+            $this->configuration['host'],
+            $this->configuration['options'],
+            $this->configuration['driver_options']
+        );
     }
 }

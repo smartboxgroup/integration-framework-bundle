@@ -1,32 +1,32 @@
 <?php
 
 namespace Smartbox\Integration\FrameworkBundle\Drivers\Db;
-use Smartbox\Integration\FrameworkBundle\Messages\Db\DbMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Messages\Db\NoSQLMessageInterface;
 
 /**
- * Interface DbDriverInterface
+ * Interface NoSQLDriverInterface
  * @package Smartbox\Integration\FrameworkBundle\Drivers\Db
  */
-interface DbDriverInterface
+interface NoSQLDriverInterface
 {
     /**
-     * @param DbMessageInterface $message
+     * @param NoSQLMessageInterface $message
      * @return boolean
      */
-    public function send(DbMessageInterface $message);
+    public function send(NoSQLMessageInterface $message);
 
     /**
      * Returns One Serializable object from the queue
      *
      * It requires to subscribe previously to a specific queue
      *
-     * @return DbMessageInterface|null
+     * @return NoSQLMessageInterface|null
      * @throws \Exception
      */
     public function receive();
 
     /**
-     * @return DbMessageInterface
+     * @return NoSQLMessageInterface
      */
     public function createMessage();
 }

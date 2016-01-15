@@ -16,15 +16,13 @@ queues.generic:
   requirements:
     queue: "[a-zA-Z0-9/]+"
 
-db.mongo:
-  pattern: "mongo://{database}/{collection}"
+nosql.generic:
+  pattern: "nosql://{collection}"
   defaults:
-    _connector:
-    db_driver: @smartesb.connectors.mongodb
-    prefix: null
-    database: smartesb
+    _connector: @smartesb.connectors.nosql
+    nosql_driver: @smartesb.default_nosql_driver
+    prefix: db_
   requirements:
-    database: "[_\-a-zA-Z0-9/]+"
     collection: "[_\-a-zA-Z0-9/]+"
 
 direct:

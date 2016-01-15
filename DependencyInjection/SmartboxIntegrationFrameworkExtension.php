@@ -3,9 +3,11 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
+use Smartbox\Integration\FrameworkBundle\Drivers\Db\MongoDbDriver;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
-use Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers\MessageHandlerTest;
+use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBStorage;
+use Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,7 +23,8 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  */
 class SmartboxIntegrationFrameworkExtension extends Extension
 {
-    const DRIVER_PREFIX = 'smartesb.drivers.';
+    const QUEUE_DRIVER_PREFIX = 'smartesb.drivers.queue.';
+    const NOSQL_DRIVER_PREFIX = 'smartesb.drivers.nosql.';
     const HANDLER_PREFIX = 'smartesb.handlers.';
     const CONSUMER_PREFIX = 'smartesb.consumers.';
 
@@ -38,74 +41,128 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $container->setParameter('smartesb.events_queue_name', $eventQueueName);
         $container->setParameter('smartesb.event_listener.events_logger.log_level', $eventsLogLevel);
 
+        // Create services for message handlers
         foreach($config['message_handlers'] as $handlerName => $handlerConfig){
             $handlerName = self::HANDLER_PREFIX.$handlerName;
-            $def = new Definition(MessageHandler::class,array());
+            $driverDef = new Definition(MessageHandler::class,array());
 
-            $def->addMethodCall('setId', [$handlerName]);
-            $def->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
-            $def->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
-            $def->addMethodCall('setConnectorsRouter', [new Reference('smartesb.router.connectors')]);
-            $def->addMethodCall('setItinerariesRouter', [new Reference('smartesb.router.itineraries')]);
-            $def->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
+            $driverDef->addMethodCall('setId', [$handlerName]);
+            $driverDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
+            $driverDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
+            $driverDef->addMethodCall('setConnectorsRouter', [new Reference('smartesb.router.connectors')]);
+            $driverDef->addMethodCall('setItinerariesRouter', [new Reference('smartesb.router.itineraries')]);
+            $driverDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
 
             if($handlerConfig['retry_uri'] != 'original'){
-                $def->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
+                $driverDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
             }else{
-                $def->addMethodCall('setRetryURI', [false]);
+                $driverDef->addMethodCall('setRetryURI', [false]);
             }
 
-            $def->addMethodCall('setThrowExceptions',  [$handlerConfig['throw_exceptions']]);
-            $def->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
+            $driverDef->addMethodCall('setThrowExceptions',  [$handlerConfig['throw_exceptions']]);
+            $driverDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
 
-            $def->addTag('kernel.event_listener', array(
+            $driverDef->addTag('kernel.event_listener', array(
                 'event' => 'smartesb.exchange.new',
                 'method' => 'onNewExchangeEvent'
             ));
 
-            $container->setDefinition($handlerName,$def);
+            $container->setDefinition($handlerName,$driverDef);
         }
 
+        // Create services for queue drivers
         foreach($config['queue_drivers'] as $driverName => $driverConfig){
-            $driverName = self::DRIVER_PREFIX.$driverName;
+            $driverName = self::QUEUE_DRIVER_PREFIX.$driverName;
 
-            switch($driverConfig['type']){
-                case 'ActiveMQ':
-                    $def = new Definition(ActiveMQStompQueueDriver::class,array());
+            $type = strtolower($driverConfig['type']);
+            switch($type){
+                case 'activemq':
+                    $driverDef = new Definition(ActiveMQStompQueueDriver::class, array());
 
-                    $def->addMethodCall('setId', array($driverName));
+                    $driverDef->addMethodCall('setId', array($driverName));
 
-                    $def->addMethodCall('configure', array(
+                    $driverDef->addMethodCall('configure', array(
                         $driverConfig['host'],
                         $driverConfig['username'],
                         $driverConfig['password'],
                         $driverConfig['format'],
                     ));
 
-                    $def->addMethodCall('setSerializer', [new Reference('serializer')]);
+                    $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
 
-                    $container->setDefinition($driverName,$def);
+                    $container->setDefinition($driverName,$driverDef);
+
+                    break;
+
+                default:
+                    throw new InvalidDefinitionException(sprintf('Invalid queue driver type "%s"', $type));
             }
         }
 
+        // Create services for message consumers
         foreach($config['message_consumers'] as $consumerName => $consumerConfig){
             $consumerName = self::CONSUMER_PREFIX.$consumerName;
 
             switch($consumerConfig['type']){
                 case 'queue':
-                    $def = new Definition(QueueConsumer::class,array());
-                    $def->addMethodCall('setQueueDriver',[new Reference(self::DRIVER_PREFIX.$consumerConfig['driver'])]);
-                    $def->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
-                    $container->setDefinition($consumerName,$def);
+                    $driverDef = new Definition(QueueConsumer::class,array());
+                    $driverDef->addMethodCall('setQueueDriver',[new Reference(self::QUEUE_DRIVER_PREFIX.$consumerConfig['driver'])]);
+                    $driverDef->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
+                    $container->setDefinition($consumerName,$driverDef);
+
                     break;
             }
         }
 
-        $defaultQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$config['default_queue_driver']);
+        // Create services for NoSQL drivers
+        foreach($config['nosql_drivers'] as $driverName => $driverConfig) {
+            $serviceName = self::NOSQL_DRIVER_PREFIX.$driverName;
+
+            $type = strtolower($driverConfig['type']);
+            switch($type) {
+                case 'mongodb':
+
+                    $storageServiceName = $serviceName . '.storage';
+                    $storageDef = new Definition(MongoDBStorage::class, [new Reference('serializer')]);
+
+                    $mongoDriverOptions = [];
+                    $connectionOptions = $driverConfig['connection_options'];
+                    if (isset($connectionOptions['driver_options'])) {
+                        $mongoDriverOptions = $connectionOptions['driver_options'];
+                        unset($connectionOptions['driver_options']);
+                    }
+
+                    $storageDef->addMethodCall('configure', [[
+                        'host'      => $driverConfig['host'],
+                        'database'  => $driverConfig['database'],
+                        'options'   => $connectionOptions,
+                        'driver_options' => $mongoDriverOptions,
+                    ]]);
+                    $container->setDefinition($storageServiceName, $storageDef);
+
+                    $driverDef = new Definition(MongoDbDriver::class, [new Reference($storageServiceName)]);
+                    $container->setDefinition($serviceName, $driverDef);
+
+                    break;
+
+                default:
+                    throw new InvalidDefinitionException(sprintf('Invalid NoSQL driver type "%s"', $type));
+            }
+        }
+
+        // set default queue driver alias
+        $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$config['default_queue_driver']);
         $container->setAlias('smartesb.default_queue_driver',$defaultQueueDriverAlias);
 
-        $eventsQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$config['events_queue_driver']);
+        // set default events queue alias
+        $eventsQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$config['events_queue_driver']);
         $container->setAlias('smartesb.events_queue_driver',$eventsQueueDriverAlias);
+
+        // set the default nosql driver
+        if (null !== $config['default_nosql_driver']) {
+            $noSQLDriverAlias = new Alias(self::NOSQL_DRIVER_PREFIX.$config['default_nosql_driver']);
+            $container->setAlias('smartesb.default_nosql_driver', $noSQLDriverAlias);
+        }
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('exceptions.yml');
