@@ -8,6 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ArrayQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Exceptions\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
+use Smartbox\Integration\FrameworkBundle\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
@@ -31,11 +32,17 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject */
     public $eventDispatcherMock;
 
+    public $factory;
+
     public function setUp()
     {
         $this->eventDispatcherMock = $this->getMock(EventDispatcherInterface::class);
         $this->handler = new MessageHandler();
+        $this->handler->setId('test_id');
         $this->handler->setEventDispatcher($this->eventDispatcherMock);
+        $this->factory = new MessageFactory();
+        $this->factory->setFlowsVersion(0);
+        $this->handler->setMessageFactory($this->factory);
     }
 
 
@@ -152,7 +159,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ));
 
         $failedConnector = new QueueConnector();
+        $failedConnector->setMessageFactory($this->factory);
         $failedQueueDriver = new ArrayQueueDriver();
+        $failedQueueDriver->setMessageFactory($this->factory);
 
         // Connectors router mock
         $connectorsRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
