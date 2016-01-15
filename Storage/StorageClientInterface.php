@@ -6,7 +6,7 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
 
-interface StorageInterface
+interface StorageClientInterface
 {
     /**
      * @param array $configuration

@@ -2,55 +2,51 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Drivers\Db;
 
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\CoreBundle\Type\Traits\HasType;
 use Smartbox\Integration\FrameworkBundle\Messages\Db\NoSQLMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Db\NoSQLMessage;
-use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBStorage;
+use Smartbox\Integration\FrameworkBundle\Service;
+use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient;
 
 /**
  * Class MongoDbDriver
  * @package Smartbox\Integration\FrameworkBundle\Drivers\Db
  */
-class MongoDbDriver implements NoSQLDriverInterface, SerializableInterface
+class MongoDbDriver extends Service implements NoSQLDriverInterface, SerializableInterface
 {
-    use HasType;
-
-    /** @var MongoDBStorage */
-    protected $mongoStorage;
+    /** @var MongoDBClient */
+    protected $mongoClient;
 
     /**
      * MongoNoSQLDriver constructor.
-     * @param MongoDBStorage $mongoStorage
+     * @param MongoDBClient $mongoStorage
      */
-    public function __construct(MongoDBStorage $mongoStorage)
+    public function __construct(MongoDBClient $mongoStorage)
     {
-        $this->mongoStorage = $mongoStorage;
+        $this->mongoClient = $mongoStorage;
     }
 
     /**
-     * @param NoSQLMessageInterface $message
-     * @return bool
-     * @throws \Exception
-     * @throws \Smartbox\Integration\FrameworkBundle\Storage\Exception\DataStorageException
+     * {@inheritDoc}
      */
     public function send(NoSQLMessageInterface $message)
     {
+        // TODO figure out how to convert internal exception (e.g. no connection) to recoverable/non recoverable exceptions
+        // for the messaging layer
         $collectionName = $message->getCollectionName();
-        $this->mongoStorage->save($collectionName, $message);
+        $this->mongoClient->save($collectionName, new SerializableArray([
+            'message' => $message->getBody(),
+            'created_at' => $message->getCreatedAt()
+        ]));
 
         return true;
     }
 
     /**
-     * Returns One Serializable object from the queue
-     *
-     * It requires to subscribe previously to a specific queue
-     *
-     * @return NoSQLMessageInterface|null
-     * @throws \Exception
+     * {@inheritDoc}
      */
-    public function receive()
+    public function receive($collection, array $query = [], $options = [])
     {
         // TODO: Implement receive() method.
         throw new \Exception('Receiving from MongoDB is not yet implemented');

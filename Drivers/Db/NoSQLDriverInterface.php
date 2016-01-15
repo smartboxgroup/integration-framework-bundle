@@ -20,10 +20,12 @@ interface NoSQLDriverInterface
      *
      * It requires to subscribe previously to a specific queue
      *
-     * @return NoSQLMessageInterface|null
-     * @throws \Exception
+     * @param string $collection
+     * @param array $query
+     * @param array $options
+     * @return null|NoSQLMessageInterface
      */
-    public function receive();
+    public function receive($collection, array $query = [], $options = []);
 
     /**
      * @return NoSQLMessageInterface

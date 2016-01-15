@@ -7,6 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Traits\UsesDriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
 
 /**
@@ -16,6 +17,7 @@ use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
 class QueueConnector extends Connector
 {
     use UsesSerializer;
+    use UsesDriverRegistry;
 
     public static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY];
 
@@ -66,8 +68,14 @@ class QueueConnector extends Connector
     {
         $msg = $ex->getIn();
 
-        /** @var QueueDriverInterface $queueDriver */
-        $queueDriver = $options[self::OPTION_QUEUE_DRIVER];
+        $driverOption = $options[self::OPTION_QUEUE_DRIVER];
+        if(is_string($driverOption)){
+            /** @var QueueDriverInterface $queueDriver */
+            $queueDriver = $this->getDriverRegistry()->getDriver($driverOption);
+        }else{
+            /** @var QueueDriverInterface $queueDriver */
+            $queueDriver = $driverOption;
+        }
 
         if(empty($queueDriver) || !$queueDriver instanceof QueueDriverInterface){
             throw new InvalidOptionException(self::class,self::OPTION_QUEUE_DRIVER,'Expected QueueDriverInterface instance');

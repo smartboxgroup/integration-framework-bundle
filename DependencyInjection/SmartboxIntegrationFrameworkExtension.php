@@ -4,9 +4,10 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Db\MongoDbDriver;
+use Smartbox\Integration\FrameworkBundle\Drivers\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
-use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBStorage;
+use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient;
 use Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Alias;
@@ -70,34 +71,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $container->setDefinition($handlerName,$driverDef);
         }
 
-        // Create services for queue drivers
-        foreach($config['queue_drivers'] as $driverName => $driverConfig){
-            $driverName = self::QUEUE_DRIVER_PREFIX.$driverName;
-
-            $type = strtolower($driverConfig['type']);
-            switch($type){
-                case 'activemq':
-                    $driverDef = new Definition(ActiveMQStompQueueDriver::class, array());
-
-                    $driverDef->addMethodCall('setId', array($driverName));
-
-                    $driverDef->addMethodCall('configure', array(
-                        $driverConfig['host'],
-                        $driverConfig['username'],
-                        $driverConfig['password'],
-                        $driverConfig['format'],
-                    ));
-
-                    $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
-
-                    $container->setDefinition($driverName,$driverDef);
-
-                    break;
-
-                default:
-                    throw new InvalidDefinitionException(sprintf('Invalid queue driver type "%s"', $type));
-            }
-        }
 
         // Create services for message consumers
         foreach($config['message_consumers'] as $consumerName => $consumerConfig){
@@ -114,16 +87,52 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             }
         }
 
+        $queueDriverRegistry = new Definition(DriverRegistry::class);
+        $container->setDefinition(self::QUEUE_DRIVER_PREFIX.'_registry',$queueDriverRegistry);
+
+        // Create services for queue drivers
+        foreach($config['queue_drivers'] as $driverName => $driverConfig){
+            $driverId = self::QUEUE_DRIVER_PREFIX.$driverName;
+
+            $type = strtolower($driverConfig['type']);
+            switch($type){
+                case 'activemq':
+                    $driverDef = new Definition(ActiveMQStompQueueDriver::class, array());
+
+                    $driverDef->addMethodCall('setId', array($driverId));
+
+                    $driverDef->addMethodCall('configure', array(
+                        $driverConfig['host'],
+                        $driverConfig['username'],
+                        $driverConfig['password'],
+                        $driverConfig['format'],
+                    ));
+
+                    $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
+                    $queueDriverRegistry->addMethodCall('setDriver',[$driverName,new Reference($driverId)]);
+
+                    $container->setDefinition($driverId,$driverDef);
+
+                    break;
+
+                default:
+                    throw new InvalidDefinitionException(sprintf('Invalid queue driver type "%s"', $type));
+            }
+        }
+
+        $nosqlDriverRegistry = new Definition(DriverRegistry::class);
+        $container->setDefinition(self::NOSQL_DRIVER_PREFIX.'_registry',$nosqlDriverRegistry);
+
         // Create services for NoSQL drivers
         foreach($config['nosql_drivers'] as $driverName => $driverConfig) {
-            $serviceName = self::NOSQL_DRIVER_PREFIX.$driverName;
+            $driverId = self::NOSQL_DRIVER_PREFIX.$driverName;
 
             $type = strtolower($driverConfig['type']);
             switch($type) {
                 case 'mongodb':
 
-                    $storageServiceName = $serviceName . '.storage';
-                    $storageDef = new Definition(MongoDBStorage::class, [new Reference('serializer')]);
+                    $storageServiceName = $driverId . '.storage';
+                    $storageDef = new Definition(MongoDBClient::class, [new Reference('serializer')]);
 
                     $mongoDriverOptions = [];
                     $connectionOptions = $driverConfig['connection_options'];
@@ -141,7 +150,9 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $container->setDefinition($storageServiceName, $storageDef);
 
                     $driverDef = new Definition(MongoDbDriver::class, [new Reference($storageServiceName)]);
-                    $container->setDefinition($serviceName, $driverDef);
+                    $container->setDefinition($driverId, $driverDef);
+
+                    $nosqlDriverRegistry->addMethodCall('setDriver',[$driverName,new Reference($driverId)]);
 
                     break;
 

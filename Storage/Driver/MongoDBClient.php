@@ -7,15 +7,15 @@ use Smartbox\CoreBundle\Type\Traits\HasType;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\DataStorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
-use Smartbox\Integration\FrameworkBundle\Storage\StorageInterface;
+use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use JMS\Serializer\SerializerInterface;
 
 /**
- * Class MongoDBStorage
+ * Class MongoDBClient
  * @package Smartbox\Integration\FrameworkBundle\Storage\Driver
  */
-class MongoDBStorage implements StorageInterface, SerializableInterface
+class MongoDBClient implements StorageClientInterface, SerializableInterface
 {
     use HasType;
 

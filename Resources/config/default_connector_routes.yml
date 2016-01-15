@@ -8,19 +8,17 @@ queues.stomp:
     queue: "[a-zA-Z0-9/]+"
 
 queues.generic:
-  pattern: "queue://{host}/{queue}"
+  pattern: "queue://{queue_driver}/{queue}"
   defaults:
     _connector: @smartesb.connectors.queue
-    queue_driver: @smartesb.default_queue_driver
     prefix: null
   requirements:
     queue: "[a-zA-Z0-9/]+"
 
 nosql.generic:
-  pattern: "nosql://{collection}"
+  pattern: "nosql://{nosql_driver}/{collection}"
   defaults:
     _connector: @smartesb.connectors.nosql
-    nosql_driver: @smartesb.default_nosql_driver
     prefix: db_
   requirements:
     collection: "[_\-a-zA-Z0-9/]+"

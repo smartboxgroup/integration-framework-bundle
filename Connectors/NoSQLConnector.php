@@ -7,6 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Traits\UsesDriverRegistry;
 
 /**
  * Class NoSQLConnector
@@ -14,6 +15,8 @@ use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
  */
 class NoSQLConnector extends Connector
 {
+    use UsesDriverRegistry;
+
     const OPTION_NOSQL_DRIVER = 'nosql_driver';
     const OPTION_COLLECTION_PREFIX = 'prefix';
     const OPTION_COLLECTION_NAME = 'collection';
@@ -35,8 +38,14 @@ class NoSQLConnector extends Connector
     {
         $msg = $ex->getIn();
 
-        /** @var NoSQLDriverInterface $driver */
-        $driver = $options[self::OPTION_NOSQL_DRIVER];
+        $driverOption = $options[self::OPTION_NOSQL_DRIVER];
+        if(is_string($driverOption)){
+            /** @var NoSQLDriverInterface $driver */
+            $driver = $this->getDriverRegistry()->getDriver($driverOption);
+        }else{
+            /** @var NoSQLDriverInterface $driver */
+            $driver = $driverOption;
+        }
 
         if(empty($driver) || !$driver instanceof NoSQLDriverInterface){
             throw new InvalidOptionException(self::class, self::OPTION_NOSQL_DRIVER, 'Expected NoSQLDriverInterface instance');

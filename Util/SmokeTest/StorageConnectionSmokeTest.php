@@ -4,16 +4,16 @@ namespace Smartbox\Integration\FrameworkBundle\Util\SmokeTest;
 
 use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
-use Smartbox\Integration\FrameworkBundle\Storage\StorageInterface;
+use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
 
 class StorageConnectionSmokeTest implements SmokeTestInterface
 {
     /**
-     * @var StorageInterface
+     * @var StorageClientInterface
      */
     protected $storage;
 
-    public function __construct(StorageInterface $storage)
+    public function __construct(StorageClientInterface $storage)
     {
         $this->storage = $storage;
     }
