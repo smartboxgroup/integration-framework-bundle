@@ -16,9 +16,6 @@ class MongoDbMessage extends Message implements MongoDbMessageInterface
     /** @var mixed */
     protected $timestamp;
 
-    /** @var Message */
-    protected $message;
-
     /** @var string */
     protected $databaseName;
 
@@ -56,23 +53,6 @@ class MongoDbMessage extends Message implements MongoDbMessageInterface
     public function setTimestamp($timestamp)
     {
         $this->timestamp = $timestamp;
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getMessage()
-    {
-        return $this->message;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setMessage($message)
-    {
-        $this->message = $message;
         return $this;
     }
 

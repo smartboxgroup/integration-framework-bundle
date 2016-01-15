@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
+use JMS\Serializer\SerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Drivers\Db\MongoDbDriver;
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
@@ -14,9 +15,9 @@ use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
  */
 class MongoDbConnector extends Connector
 {
-    const OPTION_MONGO_DB_DRIVER = 'mongo_db_driver';
-    const OPTION_COLLECTION_PREFIX = 'collection_prefix';
-    const OPTION_COLLECTION_NAME = 'collection_name';
+    const OPTION_MONGO_DB_DRIVER = 'db_driver';
+    const OPTION_COLLECTION_PREFIX = 'prefix';
+    const OPTION_COLLECTION_NAME = 'collection';
 
     protected $headersToPropagate = [
         Message::HEADER_VERSION

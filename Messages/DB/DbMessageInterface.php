@@ -19,9 +19,4 @@ interface DbMessageInterface extends MessageInterface
      * @param $timestamp
      */
     public function setTimestamp($timestamp);
-
-    /**
-     * @param MessageInterface $message
-     */
-    public function setMessage(MessageInterface $message);
 }

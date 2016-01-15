@@ -16,6 +16,17 @@ queues.generic:
   requirements:
     queue: "[a-zA-Z0-9/]+"
 
+db.mongo:
+  pattern: "mongo://{database}/{collection}"
+  defaults:
+    _connector:
+    db_driver: @smartesb.connectors.mongodb
+    prefix: null
+    database: smartesb
+  requirements:
+    database: "[_\-a-zA-Z0-9/]+"
+    collection: "[_\-a-zA-Z0-9/]+"
+
 direct:
   pattern: "direct://{host}/{subroutine}"
   defaults:
