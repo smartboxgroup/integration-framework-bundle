@@ -6,6 +6,7 @@ use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Db\NoSQLMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Db\NoSQLMessage;
+use Smartbox\Integration\FrameworkBundle\Messages\NoSQLMessageEnvelope;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient;
 
@@ -32,13 +33,8 @@ class MongoDbDriver extends Service implements NoSQLDriverInterface, Serializabl
      */
     public function send(NoSQLMessageInterface $message)
     {
-        // TODO figure out how to convert internal exception (e.g. no connection) to recoverable/non recoverable exceptions
-        // for the messaging layer
         $collectionName = $message->getCollectionName();
-        $this->mongoClient->save($collectionName, new SerializableArray([
-            'message' => $message->getBody(),
-            'created_at' => $message->getCreatedAt()
-        ]));
+        $this->mongoClient->save($collectionName, $message->getBody());
 
         return true;
     }
@@ -58,7 +54,10 @@ class MongoDbDriver extends Service implements NoSQLDriverInterface, Serializabl
     public function createMessage()
     {
         $message = new NoSQLMessage();
-        $message->setCreatedAt(new \DateTime());
+        $t = microtime(true);
+        $micro = sprintf("%06d",($t - floor($t)) * 1000000);
+        $d = new \DateTime( date('Y-m-d H:i:s.'.$micro,$t) );
+        $message->setCreatedAt($d);
 
         return $message;
     }

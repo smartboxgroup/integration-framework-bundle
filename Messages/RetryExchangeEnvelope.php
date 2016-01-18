@@ -8,6 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class RetryExchangeEnvelope extends ExchangeEnvelope
 {
     const KEY_RETRIES = 'retries';
+    const HEADER_LAST_ERROR = 'last_error';
 
     public function __construct(Exchange $exchange = null, $retries = 0)
     {

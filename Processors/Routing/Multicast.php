@@ -8,6 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
+use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Exceptions\SampleRecoverableException;
 
 /**
  * Class Multicast
