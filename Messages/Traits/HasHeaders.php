@@ -15,7 +15,7 @@ trait HasHeaders {
      *
      * @var array
      */
-    protected $headers;
+    protected $headers = [];
 
     /**
      * @return mixed
@@ -27,7 +27,7 @@ trait HasHeaders {
 
     /**
      * @param string $headerKey
-     * @param string $headerValue
+     * @param string|int|double|boolean $headerValue
      * @return string
      */
     public function addHeader($headerKey, $headerValue)
@@ -36,8 +36,8 @@ trait HasHeaders {
             throw new \InvalidArgumentException("Expected headerKey to be a string");
         }
 
-        if(!is_string($headerValue)){
-            throw new \InvalidArgumentException("Expected headerValue to be a string");
+        if(!is_scalar($headerValue)){
+            throw new \InvalidArgumentException("Expected headerValue to be a scalar");
         }
 
         $oldValue = @$this->headers[$headerKey];
@@ -65,7 +65,7 @@ trait HasHeaders {
      */
     public function setHeader($key, $value)
     {
-        $this->headers[$key] = $value;
+        $this->addHeader($key,$value);
     }
 
     /**
@@ -76,6 +76,17 @@ trait HasHeaders {
     {
         $this->headers = array();
 
+        foreach($headers as $key => $value){
+            $this->addHeader($key,$value);
+        }
+    }
+
+    /**
+     * @param array $headers
+     * @throws \Exception
+     */
+    public function addHeaders(array $headers)
+    {
         foreach($headers as $key => $value){
             $this->addHeader($key,$value);
         }

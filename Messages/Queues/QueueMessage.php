@@ -33,10 +33,6 @@ class QueueMessage extends Message implements QueueMessageInterface
         $this->setExpires((time()+$ttl)*1000);
     }
 
-    public function setVersion($version){
-        $this->setHeader(self::HEADER_VERSION,$version);
-    }
-
     public function setMessageType($type){
         $this->setHeader(self::HEADER_TYPE,$type);
     }
@@ -70,7 +66,7 @@ class QueueMessage extends Message implements QueueMessageInterface
 
     public function getVersion()
     {
-        return $this->getHeader(self::HEADER_VERSION);
+        return $this->getContext()->get(Context::VERSION);
     }
 
     public function getMessageType()

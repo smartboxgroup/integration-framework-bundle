@@ -67,5 +67,7 @@ smartbox_integration_framework:
             driver: default
             handler: async
 
+    flows_version: 0
+
 parameters:
   hostname: real.smartesb.local

@@ -2,10 +2,14 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
+use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Connectors\QueueConnector;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ArrayQueueDriver;
+use Smartbox\Integration\FrameworkBundle\Exceptions\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
+use Smartbox\Integration\FrameworkBundle\Messages\MessageFactory;
+use Smartbox\Integration\FrameworkBundle\Messages\MessageFactoryInterface;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
@@ -29,11 +33,20 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject */
     public $eventDispatcherMock;
 
+    /**
+     * @var MessageFactoryInterface
+     */
+    public $factory;
+
     public function setUp()
     {
         $this->eventDispatcherMock = $this->getMock(EventDispatcherInterface::class);
         $this->handler = new MessageHandler();
+        $this->handler->setId('test_id');
         $this->handler->setEventDispatcher($this->eventDispatcherMock);
+        $this->factory = new MessageFactory();
+        $this->factory->setFlowsVersion(0);
+        $this->handler->setMessageFactory($this->factory);
     }
 
     public function dataProviderForNumberOfProcessors()
@@ -53,8 +66,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testHandle($numberOfProcessors)
     {
-        $message = new Message(new EntityX(2));
-        $message->setContext(new Context());
+        $message = $this->factory->createMessage(new EntityX(2));
         $from = 'xxx';
         $itinerary = new Itinerary();
 
@@ -68,7 +80,6 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         ));
 
         $this->handler->setItinerariesRouter($itinerariesRouterMock);
-
 
         /** @var Exchange $exchangeProcessedManually */
         $exchangeProcessedManually =  new Exchange(unserialize(serialize($message)));
@@ -88,11 +99,37 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::handle
+     * @dataProvider dataProviderForNumberOfProcessors
+     *
+     */
+    public function testHandleWithWrongVersionMustFail()
+    {
+        $message = $this->factory->createMessage(new EntityX(2));
+        $from = 'xxx';
+        $itinerary = new Itinerary();
+
+        $itinerariesRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
+        $itinerariesRouterMock
+            ->expects($this->once())
+            ->method('match')
+            ->with($from)
+            ->willReturn(array(
+                InternalRouter::KEY_ITINERARY => $itinerary
+            ));
+
+        $this->handler->setItinerariesRouter($itinerariesRouterMock);
+
+        $this->setExpectedException(HandlerException::class);
+
+        $this->handler->handle($message,$from);
+    }
+
+    /**
+     * @covers ::handle
      */
     public function testHandleWithErrorLogging()
     {
-        $message = new Message(new EntityX(3));
-        $message->setContext(new Context());
+        $message = $this->factory->createMessage(new EntityX(3));
         $itinerary = new Itinerary();
         $fromURI = 'xxx';
         $failedUri = 'failed';
@@ -109,7 +146,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ));
 
         $failedConnector = new QueueConnector();
+        $failedConnector->setMessageFactory($this->factory);
         $failedQueueDriver = new ArrayQueueDriver();
+        $failedQueueDriver->setMessageFactory($this->factory);
 
         // Connectors router mock
         $connectorsRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();

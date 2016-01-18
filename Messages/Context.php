@@ -16,6 +16,7 @@ class Context
     const USER = 'user';
     const IP = 'ip';
     const API_MODE = 'api_mode';
+    const VERSION = 'version';
 
     /**
      * @JMS\Type("Smartbox\CoreBundle\Type\SerializableArray")

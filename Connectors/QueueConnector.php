@@ -16,7 +16,6 @@ use JMS\Serializer\Annotation as JMS;
  */
 class QueueConnector extends Connector
 {
-
     use UsesSerializer;
 
     public static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY];
@@ -46,8 +45,7 @@ class QueueConnector extends Connector
     );
 
     protected $headersToPropagate = array(
-        Message::HEADER_EXPIRES,
-        Message::HEADER_VERSION
+        Message::HEADER_EXPIRES
     );
 
     /**
