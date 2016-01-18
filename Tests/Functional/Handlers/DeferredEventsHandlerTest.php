@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
 use Smartbox\Integration\FrameworkBundle\Events\Event;
 use Smartbox\Integration\FrameworkBundle\Handlers\DeferredEventsHandler;
+use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -26,6 +27,7 @@ class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
         $this->eventDispatcherMock = $this->getMock(EventDispatcherInterface::class);
         $this->handler = new DeferredEventsHandler();
         $this->handler->setEventDispatcher($this->eventDispatcherMock);
+        $this->handler->setFlowsVersion(0);
     }
 
     /**
@@ -35,7 +37,7 @@ class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
     {
         /** @var Event|\PHPUnit_Framework_MockObject_MockObject $eventMock */
         $eventMock = $this->getMockForAbstractClass(Event::class,array('test'));
-        $message = new EventMessage($eventMock, [EventMessage::HEADER_EVENT_NAME => 'test']);
+        $message = new EventMessage($eventMock, [EventMessage::HEADER_EVENT_NAME => 'test'], new Context([Context::VERSION => 0]));
 
         $this->eventDispatcherMock
             ->expects($this->once())

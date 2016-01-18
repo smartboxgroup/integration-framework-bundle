@@ -3,8 +3,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional;
 
+use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Connectors\APIConnector;
 use Smartbox\Integration\FrameworkBundle\Connectors\DirectConnector;
+use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Tests\App\AppKernel;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\SpyProcessor;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEvaluator;
@@ -116,5 +118,15 @@ abstract class BaseTestCase extends KernelTestCase
         $this->getContainer()->set($id,$instance);
 
         return $instance;
+    }
+
+    /**
+     * @param SerializableInterface $body
+     * @param array $headers
+     * @param Context $context
+     * @return \Smartbox\Integration\FrameworkBundle\Messages\Message
+     */
+    protected function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null){
+        return $this->getContainer()->get('smartesb.message_factory')->createMessage($body,$headers,$context);
     }
 }

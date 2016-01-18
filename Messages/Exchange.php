@@ -72,8 +72,8 @@ class Exchange implements SerializableInterface
      */
     public function getOut()
     {
-        if (!$this->out) {
-            $this->out = new Message();
+        if (!$this->out && $this->getIn()) {
+            $this->out = new Message(null,array(),$this->getIn()->getContext());
         }
 
         return $this->out;

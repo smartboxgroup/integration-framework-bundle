@@ -44,6 +44,12 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('default_queue_driver')
             ->isRequired()->end()
 
+            ->scalarNode('flows_version')
+            ->isRequired()->cannotBeEmpty()->end()
+
+            ->scalarNode('latest_flows_version')
+            ->defaultValue(0)->end()
+
             ->end()
             ->append($this->addQueueDriversNode())
             ->append($this->addConsumersNode())
