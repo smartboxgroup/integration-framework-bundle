@@ -37,10 +37,13 @@ class DeferredEventsHandler implements HandlerInterface
         $version = $message->getContext()->get(Context::VERSION);
         $expectedVersion = $this->getFlowsVersion();
 
-        if($version != $expectedVersion){
-            throw new \Exception("Received message with wrong version in deferred events handler. Expected: "
-                .$expectedVersion
-                .", received: ".$version
+        if($version !== $expectedVersion){
+            throw new \Exception(
+                sprintf(
+                    'Received message with wrong version in deferred events handler. Expected: %s, received: %s',
+                    $expectedVersion,
+                    $version
+                )
             );
         }
 

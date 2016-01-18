@@ -148,7 +148,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
          * This driver will ignore all the headers so it can use any message that implements QueueMessageInterface
          */
         $msg = new QueueMessage();
-        $msg->setContext(new Context([Context::VERSION, $this->getFlowsVersion()]));
+        $msg->setContext(new Context([Context::VERSION => $this->getFlowsVersion()]));
         return $msg;
     }
 }

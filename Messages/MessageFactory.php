@@ -14,7 +14,7 @@ class MessageFactory implements MessageFactoryInterface  {
      */
     public function getFlowsVersion()
     {
-        return $this->flowsVersion;
+        return (string) $this->flowsVersion;
     }
 
     /**
