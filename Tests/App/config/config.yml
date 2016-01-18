@@ -69,16 +69,5 @@ smartbox_integration_framework:
 
     flows_version: 0
 
-snc_redis:
-    clients:
-        cache:
-            type: predis
-            alias: cache
-            dsn: redis://localhost
-            options:
-                profile: 2.2
-                connection_timeout: 10
-                read_write_timeout: 30
-
 parameters:
   hostname: real.smartesb.local
