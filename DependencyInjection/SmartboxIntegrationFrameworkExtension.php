@@ -7,6 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers\MessageHandlerTest;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -34,6 +35,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         return $this->config['flows_version'];
     }
 
+    public function getLatestFlowsVersion()
+    {
+        return $this->config['latest_flows_version'];
+    }
+
+
     /**
      * {@inheritdoc}
      */
@@ -42,6 +49,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
         $this->config = $config;
+
+        if($this->getFlowsVersion() > $this->getLatestFlowsVersion()){
+            throw new InvalidConfigurationException(
+                sprintf("The flows version number(%s) can not be bigger than the latest version available(%s)",
+                    $this->getFlowsVersion(),
+                    $this->getLatestFlowsVersion()));
+        }
 
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
 
