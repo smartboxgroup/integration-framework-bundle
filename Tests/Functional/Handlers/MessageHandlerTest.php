@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\MessageFactory;
+use Smartbox\Integration\FrameworkBundle\Messages\MessageFactoryInterface;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
@@ -32,6 +33,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject */
     public $eventDispatcherMock;
 
+    /**
+     * @var MessageFactoryInterface
+     */
     public $factory;
 
     public function setUp()
@@ -43,23 +47,6 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $this->factory = new MessageFactory();
         $this->factory->setFlowsVersion(0);
         $this->handler->setMessageFactory($this->factory);
-    }
-
-
-    /**
-     * @param SerializableInterface $body
-     * @param array $headers
-     * @param Context $context
-     * @return \Smartbox\Integration\FrameworkBundle\Messages\Message
-     */
-    protected function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null){
-        if(!$context){
-            $context = new Context([
-                Context::VERSION => 0
-            ]);
-        }
-
-        return new Message($body,$headers,$context);
     }
 
     public function dataProviderForNumberOfProcessors()
@@ -79,7 +66,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testHandle($numberOfProcessors)
     {
-        $message = $this->createMessage(new EntityX(2));
+        $message = $this->factory->createMessage(new EntityX(2));
         $from = 'xxx';
         $itinerary = new Itinerary();
 
@@ -117,7 +104,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testHandleWithWrongVersionMustFail()
     {
-        $message = $this->createMessage(new EntityX(2));
+        $message = $this->factory->createMessage(new EntityX(2));
         $from = 'xxx';
         $itinerary = new Itinerary();
 
@@ -142,7 +129,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testHandleWithErrorLogging()
     {
-        $message = $this->createMessage(new EntityX(3));
+        $message = $this->factory->createMessage(new EntityX(3));
         $itinerary = new Itinerary();
         $fromURI = 'xxx';
         $failedUri = 'failed';
