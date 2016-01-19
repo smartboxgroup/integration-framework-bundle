@@ -25,20 +25,26 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const HANDLER_PREFIX = 'smartesb.handlers.';
     const CONSUMER_PREFIX = 'smartesb.consumers.';
 
+    protected $config;
+
+    public function getConnectorsPath(){
+        return @$this->config['connectors_path'];
+    }
+
     /**
      * {@inheritdoc}
      */
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
+        $this->config = $this->processConfiguration($configuration, $configs);
 
-        $eventQueueName = $config['events_queue_name'];
-        $eventsLogLevel = $config['events_log_level'];
+        $eventQueueName = $this->config['events_queue_name'];
+        $eventsLogLevel = $this->config['events_log_level'];
         $container->setParameter('smartesb.events_queue_name', $eventQueueName);
         $container->setParameter('smartesb.event_listener.events_logger.log_level', $eventsLogLevel);
 
-        foreach($config['message_handlers'] as $handlerName => $handlerConfig){
+        foreach($this->config['message_handlers'] as $handlerName => $handlerConfig){
             $handlerName = self::HANDLER_PREFIX.$handlerName;
             $def = new Definition(MessageHandler::class,array());
 
@@ -66,7 +72,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $container->setDefinition($handlerName,$def);
         }
 
-        foreach($config['queue_drivers'] as $driverName => $driverConfig){
+        foreach($this->config['queue_drivers'] as $driverName => $driverConfig){
             $driverName = self::DRIVER_PREFIX.$driverName;
 
             switch($driverConfig['type']){
@@ -88,7 +94,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             }
         }
 
-        foreach($config['message_consumers'] as $consumerName => $consumerConfig){
+        foreach($this->config['message_consumers'] as $consumerName => $consumerConfig){
             $consumerName = self::CONSUMER_PREFIX.$consumerName;
 
             switch($consumerConfig['type']){
@@ -101,10 +107,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             }
         }
 
-        $defaultQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$config['default_queue_driver']);
+        $defaultQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$this->config['default_queue_driver']);
         $container->setAlias('smartesb.default_queue_driver',$defaultQueueDriverAlias);
 
-        $eventsQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$config['events_queue_driver']);
+        $eventsQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$this->config['events_queue_driver']);
         $container->setAlias('smartesb.events_queue_driver',$eventsQueueDriverAlias);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));

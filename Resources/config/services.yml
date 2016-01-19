@@ -53,6 +53,8 @@ parameters:
 services:
   smartesb.util.evaluator:
       class: %smartesb.util.evaluator.class%
+      calls:
+        - [setSerializer, [@serializer]]
 
   smartesb.serialization.handler.itinerary:
       class:  %smartesb.serialization.handler.itinerary.class%

@@ -44,6 +44,9 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('default_queue_driver')
             ->isRequired()->end()
 
+            ->scalarNode('connectors_path')
+            ->isRequired()->end()
+
             ->end()
             ->append($this->addQueueDriversNode())
             ->append($this->addConsumersNode())
