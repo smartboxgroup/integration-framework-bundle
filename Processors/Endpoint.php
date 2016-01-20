@@ -62,9 +62,9 @@ class Endpoint extends Processor
         /** @var ConnectorInterface $connector */
         $connector = $options[InternalRouter::KEY_CONNECTOR];
 
-        $processingContext->set('resolved_uri', $uri);
-        $processingContext->set('options',$options);
-        $processingContext->set('connector', $connector);
+        $processingContext->set(self::CONTEXT_RESOLVED_URI, $uri);
+        $processingContext->set(self::CONTEXT_OPTIONS,$options);
+        $processingContext->set(self::CONTEXT_CONNECTOR, $connector);
         $processingContext->set(self::CONTEXT_ENDPOINT_REQUEST_ID, uniqid(null, true));
 
         parent::preProcess($exchange,$processingContext);

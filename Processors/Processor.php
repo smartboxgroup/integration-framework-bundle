@@ -19,6 +19,8 @@ use JMS\Serializer\Annotation as JMS;
 abstract class Processor extends Service implements ProcessorInterface
 {
     const TYPE = "Processor";
+    const CONTEXT_PROCESSOR_ID = 'processor_id';
+    const CONTEXT_PROCESSOR_DESCRIPTION = 'processor_description';
 
     use UsesValidator;
     use UsesEventDispatcher;
@@ -44,6 +46,8 @@ abstract class Processor extends Service implements ProcessorInterface
         $event = new ProcessEvent(ProcessEvent::TYPE_BEFORE);
         $event->setProcessor($this);
         $event->setExchange($exchange);
+        $processingContext->set(self::CONTEXT_PROCESSOR_ID, $this->getId());
+        $processingContext->set(self::CONTEXT_PROCESSOR_DESCRIPTION, $this->getDescription());
         $event->setProcessingContext($processingContext);
         $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_BEFORE, $event);
     }
@@ -118,7 +122,7 @@ abstract class Processor extends Service implements ProcessorInterface
             $this->postProcess($exchange, $processingContext);
 
         }catch (\Exception $ex){
-            $processingException =  new ProcessingException();
+            $processingException = new ProcessingException();
             $processingException->setProcessingContext($processingContext);
             $processingException->setExchange($exchange);
             $processingException->setOriginalException($ex);

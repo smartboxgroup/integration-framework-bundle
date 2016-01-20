@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\DeferredExchangeEnvelope;
+use Smartbox\Integration\FrameworkBundle\Messages\ErrorExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\ExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Messages\FailedExchangeEnvelope;
@@ -200,96 +201,49 @@ class MessageHandler extends Service implements HandlerInterface
 
         $this->getEventDispatcher()->dispatch(ProcessingErrorEvent::EVENT_NAME, $event);
 
-        $errorDescription = $this->createErrorDescriptionForException($exception, $processor, $exchangeBackup, $retries);
-
         // Try to recover
-        if($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax){
-            $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup,$retries+1);
-            $retryExchangeEnvelope->setHeader(RetryExchangeEnvelope::HEADER_LAST_ERROR, $errorDescription);
+        if ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
+            $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries+1);
+
+            $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $retries);
             $recoveryExchange = new Exchange($retryExchangeEnvelope);
-            $recoveryExchange->setHeader(FailedExchangeEnvelope::HEADER_ERROR_MESSAGE, $errorDescription);
 
             $retryUri = $this->retryURI;
-            if(!$retryUri){
+            if (!$retryUri) {
                 $retryUri = $exchangeBackup->getHeader(Exchange::HEADER_FROM);
             }
 
             $this->sendTo($recoveryExchange,$retryUri);
         }
         // Or not..
-        else{
-            $envelope = new FailedExchangeEnvelope($exchangeBackup);
-            $envelope->setHeader(FailedExchangeEnvelope::HEADER_CREATED_AT, round(microtime(true) * 1000));
-            $envelope->setHeader(FailedExchangeEnvelope::HEADER_ERROR_MESSAGE, $errorDescription);
+        else {
+            $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
+            $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $retries);
+
             $failedExchange = new Exchange($envelope);
             $this->sendTo($failedExchange,$this->failedURI);
         }
     }
 
     /**
-     * Helper function that builds a descriptive message for a processing exception
-     *
+     * @param ErrorExchangeEnvelope $envelope
      * @param ProcessingException $exception
-     * @param Processor $processor
-     * @param Exchange $exchangeBackup
      * @param int $retries
-     *
-     * @return string
      */
-    protected function createErrorDescriptionForException(
-        ProcessingException $exception,
-        Processor $processor,
-        Exchange $exchangeBackup,
-        $retries
-    ) {
+    private function addCommonErrorHeadersToEnvelope(ErrorExchangeEnvelope $envelope, ProcessingException $exception, $retries)
+    {
         $originalException = $exception->getOriginalException();
+        $errorDescription = $originalException ? $originalException->getMessage() : $exception->getMessage();
 
-        // exception class name (short)...
-        $shortClassName = (new \ReflectionClass($exception))->getShortName();
-        $message = $shortClassName;
-
-        // extra details (recoverable, number of retry attempts)...
-        $extras = [];
-        if ($originalException instanceof  RecoverableExceptionInterface) {
-            $extras[] = 'Recoverable';
+        if ($envelope instanceof RetryExchangeEnvelope) {
+            $envelope->setHeader(RetryExchangeEnvelope::HEADER_LAST_ERROR, $errorDescription);
         }
 
-        if ($retries > 0) {
-            $extras[] = sprintf('retried %s', $retries == 1 ? '1 time' : "${retries} times");
-        }
-
-        if ($extras) {
-            $message .= sprintf(' (%s)', implode(', ', $extras));
-        }
-
-        // from ...
-        $requestOriginatedAt = $exchangeBackup->getIn()->getContext()->get(Context::ORIGINAL_FROM);
-        $from = $exchangeBackup->getHeader(Message::HEADER_FROM);
-        $message .= sprintf(' from "%s"', $from);
-        if ($requestOriginatedAt && $requestOriginatedAt !== $from) {
-            $message .= sprintf(' (originated at "%s")', $requestOriginatedAt);
-        }
-
-        // in processor ...
-        $processorDescription = $processor->getDescription();
-        $message .= sprintf(
-            ' in processor "%s" (%s%s)',
-            $processor->getId(),
-            (new \ReflectionClass($processor))->getShortName(),
-            ($processorDescription ? ": ${$processorDescription}" : '')
-        );
-
-        // exception message...
-        $message .= ': ';
-        if ($originalException) {
-            $message .= $originalException->getMessage();
-        } else if ($exception->getMessage()) {
-            $message .= $exception->getMessage();
-        } else {
-            $message .= '<no message>';
-        }
-
-        return $message;
+        $envelope->setHeader(ErrorExchangeEnvelope::HEADER_CREATED_AT, round(microtime(true) * 1000));
+        $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_MESSAGE, $errorDescription);
+        $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_PROCESSOR_ID, $exception->getProcessingContext()->get(Processor::CONTEXT_PROCESSOR_ID));
+        $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_PROCESSOR_DESCRIPTION, $exception->getProcessingContext()->get(Processor::CONTEXT_PROCESSOR_DESCRIPTION));
+        $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_NUM_RETRY, $retries);
     }
 
     /**

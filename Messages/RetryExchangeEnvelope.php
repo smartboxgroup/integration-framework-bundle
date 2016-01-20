@@ -2,17 +2,21 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Messages;
 
-
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class RetryExchangeEnvelope extends ExchangeEnvelope
+/**
+ * Class RetryExchangeEnvelope
+ * @package Smartbox\Integration\FrameworkBundle\Messages
+ */
+class RetryExchangeEnvelope extends ErrorExchangeEnvelope
 {
     const KEY_RETRIES = 'retries';
     const HEADER_LAST_ERROR = 'last_error';
 
-    public function __construct(Exchange $exchange = null, $retries = 0)
+    public function __construct(Exchange $exchange = null, SerializableArray $processingContext = null, $retries = 0)
     {
-        parent::__construct($exchange);
+        parent::__construct($exchange, $processingContext);
         $this->setRetries($retries);
     }
     /**
