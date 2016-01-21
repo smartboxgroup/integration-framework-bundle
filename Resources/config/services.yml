@@ -10,6 +10,7 @@ parameters:
   smartesb.processor.multicast.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\Multicast
   smartesb.processor.transformer.class: Smartbox\Integration\FrameworkBundle\Processors\Transformation\Transformer
   smartesb.processor.throw_exception.class: Smartbox\Integration\FrameworkBundle\Processors\ControlFlow\ThrowException
+  smartesb.processor.stop.class: Smartbox\Integration\FrameworkBundle\Processors\Miscellaneous\Stop
 
   event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Events\EventDispatcher
 

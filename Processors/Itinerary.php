@@ -71,7 +71,7 @@ class Itinerary implements SerializableInterface
     /**
      * @param Processor[] $processors
      */
-    public function setProcessors($processors)
+    public function setProcessors(array $processors)
     {
         $this->processors = $processors;
     }
