@@ -22,7 +22,7 @@ trait UsesSerializer
     /**
      * @param SerializerInterface $serializer
      */
-    public function setSerializer($serializer)
+    public function setSerializer(SerializerInterface $serializer)
     {
         $this->serializer = $serializer;
     }

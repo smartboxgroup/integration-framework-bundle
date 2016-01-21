@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
+use Smartbox\Integration\FrameworkBundle\Connectors\ConfigurableConnectorInterface;
 use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
@@ -12,6 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Form\Exception\InvalidConfigurationException;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
@@ -29,6 +31,36 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
     public function getConnectorsPath(){
         return @$this->config['connectors_path'];
+    }
+
+    public function loadConnectors(ContainerBuilder $container){
+        foreach ($this->config['connectors'] as $connectorName => $connectorConfig) {
+            $class = $connectorConfig['class'];
+            $methodsSteps = $connectorConfig['methods'];
+            $options = $connectorConfig['options'];
+
+            if (!$class || !in_array(ConfigurableConnectorInterface::class, class_implements($class))) {
+                throw new InvalidConfigurationException(
+                    "Invalid class given for connector $connectorName. The class must implement ConfigurableConnectorInterface, '$class' given."
+                );
+            }
+
+            $definition = new Definition($class);
+            $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
+            $definition->addMethodCall('setDefaultOptions', [$options]);
+            $definition->addMethodCall('setEvaluator',[new Reference('smartesb.util.evaluator')]);
+            $definition->addMethodCall('setSerializer',[new Reference('serializer')]);
+
+            $container->setDefinition('smartesb.connectors.'.$connectorName, $definition);
+        }
+    }
+
+    public function loadMappings(ContainerBuilder $container){
+        $mappings = $this->config['mappings'];
+        if(!empty($mappings)){
+            $mapper = $container->getDefinition('smartesb.util.mapper');
+            $mapper->addMethodCall('addMappings',[$mappings]);
+        }
     }
 
     /**
@@ -117,5 +149,9 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $loader->load('exceptions.yml');
         $loader->load('connectors.yml');
         $loader->load('services.yml');
+
+
+        $this->loadConnectors($container);
+        $this->loadMappings($container);
     }
 }

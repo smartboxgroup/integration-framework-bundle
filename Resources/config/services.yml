@@ -14,6 +14,7 @@ parameters:
   event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Events\EventDispatcher
 
   smartesb.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Util\ExpressionEvaluator
+  smartesb.util.mapper.class: Smartbox\Integration\FrameworkBundle\Util\Mapper
   smartesb.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Serialization\ItineraryHandler
   smartesb.internal_router.class: Smartbox\Integration\FrameworkBundle\Routing\InternalRouter
   smartesb.map.itineraries.class: Smartbox\Integration\FrameworkBundle\Routing\ItinerariesMap
@@ -55,6 +56,12 @@ services:
       class: %smartesb.util.evaluator.class%
       calls:
         - [setSerializer, [@serializer]]
+        - [setMapper, [@smartesb.util.mapper]]
+
+  smartesb.util.mapper:
+      class: %smartesb.util.mapper.class%
+      calls:
+        - [setEvaluator, [@smartesb.util.evaluator]]
 
   smartesb.serialization.handler.itinerary:
       class:  %smartesb.serialization.handler.itinerary.class%
