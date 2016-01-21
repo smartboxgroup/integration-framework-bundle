@@ -21,11 +21,6 @@ interface QueueMessageInterface extends MessageInterface
     public function setTTL($ttl);
 
     /**
-     * @param string $version
-     */
-    public function setVersion($version);
-
-    /**
      * @param string $type
      */
     public function setMessageType($type);

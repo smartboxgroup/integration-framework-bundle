@@ -19,7 +19,6 @@ class Message implements MessageInterface
     use HasHeaders;
 
     const HEADER_EXPIRES = 'expires';
-    const HEADER_VERSION = 'version';
     const HEADER_QUEUE = 'queue';
     const HEADER_FROM = 'from';
 
@@ -49,7 +48,7 @@ class Message implements MessageInterface
      */
     public function __construct(SerializableInterface $body = null, $headers = array(), Context $context = null)
     {
-        $this->setHeaders($headers);
+        $this->addHeaders($headers);
         $this->setBody($body);
         $this->setContext($context);
     }

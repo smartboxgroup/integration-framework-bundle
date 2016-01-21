@@ -6,7 +6,6 @@ use Smartbox\Integration\FrameworkBundle\Connectors\ConfigurableConnectorInterfa
 use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
-use Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers\MessageHandlerTest;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -28,6 +27,16 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const CONSUMER_PREFIX = 'smartesb.consumers.';
 
     protected $config;
+
+    public function getFlowsVersion()
+    {
+        return $this->config['flows_version'];
+    }
+
+    public function getLatestFlowsVersion()
+    {
+        return $this->config['latest_flows_version'];
+    }
 
     public function getConnectorsPath(){
         return @$this->config['connectors_path'];
@@ -71,6 +80,15 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $configuration = new Configuration();
         $this->config = $this->processConfiguration($configuration, $configs);
 
+        if($this->getFlowsVersion() > $this->getLatestFlowsVersion()){
+            throw new InvalidConfigurationException(
+                sprintf("The flows version number(%s) can not be bigger than the latest version available(%s)",
+                    $this->getFlowsVersion(),
+                    $this->getLatestFlowsVersion()));
+        }
+
+        $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
+
         $eventQueueName = $this->config['events_queue_name'];
         $eventsLogLevel = $this->config['events_log_level'];
         $container->setParameter('smartesb.events_queue_name', $eventQueueName);
@@ -86,6 +104,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $def->addMethodCall('setConnectorsRouter', [new Reference('smartesb.router.connectors')]);
             $def->addMethodCall('setItinerariesRouter', [new Reference('smartesb.router.itineraries')]);
             $def->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
+            $def->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
             if($handlerConfig['retry_uri'] != 'original'){
                 $def->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
@@ -121,6 +140,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     ));
 
                     $def->addMethodCall('setSerializer', [new Reference('serializer')]);
+                    $def->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
                     $container->setDefinition($driverName,$def);
             }
@@ -149,8 +169,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $loader->load('exceptions.yml');
         $loader->load('connectors.yml');
         $loader->load('services.yml');
-
-
+        
         $this->loadConnectors($container);
         $this->loadMappings($container);
     }

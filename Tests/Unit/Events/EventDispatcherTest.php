@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Events\EventDispatcher;
 use Smartbox\Integration\FrameworkBundle\Events\EventFilterInterface;
 use Smartbox\Integration\FrameworkBundle\Events\EventFiltersRegistry;
 use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
+use Smartbox\Integration\FrameworkBundle\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
 use Symfony\Component\DependencyInjection\Container;
 
@@ -21,13 +22,18 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $filtersRegistry = new EventFiltersRegistry();
         $filtersRegistry->addDeferringFilter($filterPass);
 
+        $messageFactory = new MessageFactory();
+        $messageFactory->setFlowsVersion(0);
+
         $queueDriver = new ArrayQueueDriver();
+        $queueDriver->setMessageFactory($messageFactory);
 
         $event = new HandlerEvent();
 
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
         $container->set('smartesb.drivers.events',$queueDriver);
+        $container->setParameter('smartesb.flows_version',0);
 
         $container->setParameter('smartesb.events_queue_name', 'test_queue');
 

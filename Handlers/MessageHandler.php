@@ -7,6 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
 use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterface;
+use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\DeferredExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\ExchangeEnvelope;
@@ -17,6 +18,7 @@ use Smartbox\Integration\FrameworkBundle\Messages\RetryExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Service;
+use Smartbox\Integration\FrameworkBundle\Traits\FlowsVersionAware;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesConnectorsRouter;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
 use JMS\Serializer\Annotation as JMS;
@@ -127,6 +129,7 @@ class MessageHandler extends Service implements HandlerInterface
     public function setFailedURI($failedURI)
     {
         $this->failedURI = $failedURI;
+
     }
 
     protected function prepareExchange(Exchange $ex)
@@ -223,6 +226,16 @@ class MessageHandler extends Service implements HandlerInterface
      */
     public function handle(MessageInterface $message, $from = null)
     {
+        $version = $message->getContext()->get(Context::VERSION);
+        $expectedVersion = $this->getFlowsVersion();
+
+        if($version !== $expectedVersion){
+            throw new HandlerException(
+                "Received message with wrong version. Expected: $expectedVersion, received: $version"
+                ,$message
+            );
+        }
+
         $retries = 0;
 
         // If this is an exchange envelope

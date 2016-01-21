@@ -64,6 +64,8 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
 
         $exchange = $this->getMockBuilder(Exchange::class)->getMock();
         $exchange->method('getItinerary')->willReturn(new Itinerary());
+        $exchange->method('getHeader')->willReturn('xxxx');
+        $exchange->method('getId')->willReturn('123');
 
         $itineraries = [
             $this->getMock(Itinerary::class),
