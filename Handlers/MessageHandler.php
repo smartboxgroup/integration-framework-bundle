@@ -7,7 +7,6 @@ use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
 use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterface;
-use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\DeferredExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Messages\ErrorExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
