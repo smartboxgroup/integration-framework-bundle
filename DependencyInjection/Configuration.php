@@ -44,9 +44,6 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('default_queue_driver')
             ->isRequired()->end()
 
-            ->scalarNode('connectors_path')
-            ->isRequired()->end()
-
             ->scalarNode('flows_version')
             ->isRequired()->cannotBeEmpty()->end()
 
@@ -196,8 +193,7 @@ class Configuration implements ConfigurationInterface
             ->end()
 
             ->end()
-            ->end()
-            ->isRequired();
+            ->end();
 
         return $node;
     }

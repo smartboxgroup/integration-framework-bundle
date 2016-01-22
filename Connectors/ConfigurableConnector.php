@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Exceptions\ConnectorRecoverableException;
 use Smartbox\Integration\FrameworkBundle\Exceptions\ConnectorUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
@@ -29,11 +30,15 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
     const KEY_RESPONSES = 'responses';
     const KEY_RESPONSE = 'response';
     const KEY_VALIDATIONS = 'validations';
+    const KEY_DESCRIPTION = 'description';
     const KEY_RULE = 'rule';
     const KEY_MESSAGE = 'message';
     const KEY_RECOVERABLE = 'recoverable';
+    const KEY_STEPS = 'steps';
+    const STEP_DEFINE = 'define';
+    const STEP_REQUEST = 'request';
 
-    public static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_OUT];
+    public static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY, self::EXCHANGE_PATTERN_IN_OUT];
 
     protected $methodsConfiguration;
 
@@ -126,7 +131,7 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
         /**
          * PROCESSING
          */
-        foreach ($methodConf['steps'] as $step) {
+        foreach ($methodConf[self::KEY_STEPS] as $step) {
             foreach ($step as $stepAction => $stepActionParams) {
                 $this->executeStep($stepAction, $stepActionParams, $options, $context);
             }
@@ -150,9 +155,6 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
                     }
                 }
             }
-            $resultConfig = $methodConf[self::KEY_RESPONSE];
-            $result = $this->resolve($resultConfig,$context);
-            $exchange->getOut()->setBody($result);
         }
 
         /**
@@ -162,6 +164,10 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
             &&  array_key_exists(self::KEY_RESPONSE,$methodConf)){
             $resultConfig = $methodConf[self::KEY_RESPONSE];
             $result = $this->resolve($resultConfig,$context);
+
+            if(is_array($result)){
+                $result = new SerializableArray($result);
+            }
             $exchange->getOut()->setBody($result);
         }
     }
@@ -169,10 +175,10 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
     public function executeStep($stepAction, $stepActionParams, $options, array &$context)
     {
         switch ($stepAction) {
-            case 'define':
+            case self::STEP_DEFINE:
                 $this->define($stepActionParams, $context);
                 break;
-            case 'request':
+            case self::STEP_REQUEST:
                 $this->request($stepActionParams, $options, $context);
                 break;
         }
@@ -206,9 +212,12 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
                 $replacements['{'.$key.'}'] = $value;
             }
         }
-        foreach ($context[self::KEY_VARS] as $key => $value) {
-            if (is_scalar($value)) {
-                $replacements['{'.$key.'}'] = $value;
+
+        if(array_key_exists(self::KEY_VARS,$context)){
+            foreach ($context[self::KEY_VARS] as $key => $value) {
+                if (is_scalar($value)) {
+                    $replacements['{'.$key.'}'] = $value;
+                }
             }
         }
 
@@ -221,6 +230,10 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
             throw new InvalidConfigurationException(
                 "Step 'define' in ConfigurableConnector expected an array as configuration"
             );
+        }
+
+        if(!array_key_exists(self::KEY_VARS,$context)){
+            $context[self::KEY_VARS] = [];
         }
 
         foreach ($definitions as $key => $definition) {
