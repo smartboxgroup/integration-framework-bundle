@@ -8,6 +8,7 @@ parameters:
 
   smartesb.processor.router.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter
   smartesb.processor.multicast.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\Multicast
+  smartesb.processor.pipeline.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\Pipeline
   smartesb.processor.transformer.class: Smartbox\Integration\FrameworkBundle\Processors\Transformation\Transformer
   smartesb.processor.throw_exception.class: Smartbox\Integration\FrameworkBundle\Processors\ControlFlow\ThrowException
 
