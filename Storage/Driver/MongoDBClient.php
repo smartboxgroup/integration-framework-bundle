@@ -6,6 +6,7 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasType;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\DataStorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
+use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilter;
 use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -129,6 +130,40 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         }
 
         return (string) $data['_id'];
+    }
+
+    /**
+     * Delete all the objects matching a given $filter
+     *
+     * @param string $collection
+     * @param StorageFilterInterface $filter
+     * @return array|bool
+     */
+    public function delete($collection, StorageFilterInterface $filter)
+    {
+        $this->ensureConnection();
+        return $this->db->$collection->remove($filter->getQueryParams());
+    }
+
+    /**
+     * Helper function to delete a single record given a mongo id
+     *
+     * @param string $collection
+     * @param string|\MongoId $id
+     * @return array|bool
+     */
+    public function deleteById($collection, $id)
+    {
+        if (is_string($id)) {
+            $id = new \MongoId($id);
+        }
+
+        $filter = new StorageFilter();
+        $filter->setQueryParams([
+            '_id' => $id
+        ]);
+
+        return $this->delete($collection, $filter);
     }
 
     /**
