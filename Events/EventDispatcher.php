@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Events;
 
+use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
 use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
 
@@ -36,13 +37,14 @@ class EventDispatcher extends ContainerAwareEventDispatcher{
     {
         $queueDriver = $this->getContainer()->get('smartesb.drivers.queue.events');
         $queueName = $this->getContainer()->getParameter('smartesb.events_queue_name');
+        $flowsVersion = $this->getContainer()->getParameter('smartesb.flows_version');
 
         if(!$queueDriver->isConnected()){
             $queueDriver->connect();
         }
 
         $message = $queueDriver->createQueueMessage();
-        $message->setBody(new EventMessage($event));
+        $message->setBody(new EventMessage($event, [], new Context([Context::VERSION => $flowsVersion])));
         $message->setQueue($queueName);
 
         $queueDriver->send($message);

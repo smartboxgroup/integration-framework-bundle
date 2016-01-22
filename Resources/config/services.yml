@@ -8,6 +8,7 @@ parameters:
 
   smartesb.processor.router.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter
   smartesb.processor.multicast.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\Multicast
+  smartesb.processor.pipeline.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\Pipeline
   smartesb.processor.transformer.class: Smartbox\Integration\FrameworkBundle\Processors\Transformation\Transformer
   smartesb.processor.throw_exception.class: Smartbox\Integration\FrameworkBundle\Processors\ControlFlow\ThrowException
 
@@ -135,6 +136,7 @@ services:
       class: %smartesb.handler.events.class%
       calls:
         - [setEventDispatcher, [@event_dispatcher]]
+        - [setFlowsVersion, [%smartesb.flows_version%]]
 
   smartesb.event_listener.events_logger:
       class: %smartesb.event_listener.events_logger.class%
@@ -146,6 +148,12 @@ services:
         - { name: kernel.event_listener, event: smartesb.process.after_process, method: onEvent }
         - { name: kernel.event_listener, event: smartesb.handler.after_handle, method: onEvent }
 
+  smartesb.message_factory:
+      class: Smartbox\Integration\FrameworkBundle\Messages\MessageFactory
+      calls:
+          - [ setFlowsVersion, [ %smartesb.flows_version% ] ]
+
+  ## SMOKE TESTS ##
   smartesb.smoke_test.validate_connectors:
       class: %smartesb.smoke_test.validate_connectors.class%
       arguments: [@service_container]
@@ -163,3 +171,4 @@ services:
       arguments: [ '%kernel.root_dir%/cache' ]
       tags:
           - { name: smartbox.smoke_test }
+

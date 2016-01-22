@@ -46,8 +46,7 @@ class QueueConnector extends Connector
     );
 
     protected $headersToPropagate = array(
-        Message::HEADER_EXPIRES,
-        Message::HEADER_VERSION
+        Message::HEADER_EXPIRES
     );
 
     /**

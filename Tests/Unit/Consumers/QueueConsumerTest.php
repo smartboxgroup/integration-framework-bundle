@@ -41,21 +41,21 @@ class QueueConsumerTest extends BaseKernelTestCase
         $driver = $container->get('smartesb.default_queue_driver');
         $driver->connect();
 
-        $message1 = new Message(new EntityX(111));
+        $message1 = $this->createMessage(new EntityX(111));
         $msg = $driver->createQueueMessage();
         $msg->setQueue(self::queue1);
         $msg->setHeader(Message::HEADER_FROM,self::queue1);
         $msg->setBody($message1);
         $driver->send($msg);
 
-        $message2 = new Message(new EntityX(222));
+        $message2 = $this->createMessage(new EntityX(222));
         $msg = $driver->createQueueMessage();
         $msg->setQueue(self::queue2);
         $msg->setHeader(Message::HEADER_FROM,self::queue2);
         $msg->setBody($message2);
         $driver->send($msg);
 
-        $message3 = new Message(new EntityX(333));
+        $message3 = $this->createMessage(new EntityX(333));
         $msg = $driver->createQueueMessage();
         $msg->setQueue(self::queue3);
         $msg->setHeader(Message::HEADER_FROM,self::queue3);

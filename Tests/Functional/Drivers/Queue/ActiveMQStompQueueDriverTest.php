@@ -70,6 +70,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $host = $this->getContainer()->getParameter('hostname');
         /** @var ActiveMQStompQueueDriver $processor */
         $driver = new ActiveMQStompQueueDriver();
+        $driver->setMessageFactory($this->getContainer()->get('smartesb.message_factory'));
         $driver->setSerializer($this->getContainer()->get('serializer'));
         $driver->configure($host,'','');
         $driver->connect();
@@ -253,10 +254,10 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
      */
     public function testShouldSelect(MessageInterface $msg){
         $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader(Message::HEADER_VERSION,'12345');
+        $msgIn->addHeader('test_header','12345');
         $this->driver->send($msgIn);
 
-        $this->driver->subscribe($this->queueName,'version = 12345');
+        $this->driver->subscribe($this->queueName,'test_header = 12345');
 
         $msgOut = $this->driver->receive();
         if($msgOut){
@@ -273,10 +274,10 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
      */
     public function testShouldNotSelect(MessageInterface $msg){
         $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader(Message::HEADER_VERSION,'12345');
+        $msgIn->addHeader('test_header','12345');
         $this->driver->send($msgIn);
 
-        $this->driver->subscribe($this->queueName,'version = 6666');
+        $this->driver->subscribe($this->queueName,'test_header = 6666');
 
         $msgOut = $this->driver->receive();
 
