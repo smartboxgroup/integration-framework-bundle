@@ -19,7 +19,6 @@ use Smartbox\Integration\FrameworkBundle\Messages\RetryExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Service;
-use Smartbox\Integration\FrameworkBundle\Traits\FlowsVersionAware;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesConnectorsRouter;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
 use JMS\Serializer\Annotation as JMS;

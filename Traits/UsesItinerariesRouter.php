@@ -2,12 +2,15 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Traits;
 
-
 use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
+/**
+ * Class UsesItinerariesRouter
+ * @package Smartbox\Integration\FrameworkBundle\Traits
+ */
 trait UsesItinerariesRouter {
 
     /** @var  InternalRouter */
@@ -29,6 +32,11 @@ trait UsesItinerariesRouter {
         $this->itinerariesRouter = $itinerariesRouter;
     }
 
+    /**
+     * @param string $from
+     * @return array
+     * @throws \Exception
+     */
     public function findItineraryParams($from){
 
         // Find itinerary
@@ -49,7 +57,6 @@ trait UsesItinerariesRouter {
         return $params;
     }
 
-
     /**
      * Returns the parameters that should be propagated throught the route using the exchange headers
      * @param $params
@@ -66,5 +73,4 @@ trait UsesItinerariesRouter {
 
         return $res;
     }
-
 }

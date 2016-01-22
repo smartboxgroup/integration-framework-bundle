@@ -19,44 +19,27 @@ class ItineraryHandler implements SubscribingHandlerInterface, ContainerAwareInt
 
     public static function getSubscribingMethods()
     {
-        return array(
-            array(
+        $supportedFormats = ['json','xml','array','mongo_array'];
+
+        $res = [];
+
+        foreach($supportedFormats as $format){
+            $res[] = [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
-                'format' => 'json',
+                'format' => $format,
                 'type' => Itinerary::class,
                 'method' => 'serializeItinerary',
-            ),
-            array(
-                'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
-                'format' => 'xml',
-                'type' => Itinerary::class,
-                'method' => 'serializeItinerary',
-            ),
-            array(
-                'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
-                'format' => 'array',
-                'type' => Itinerary::class,
-                'method' => 'serializeItinerary',
-            ),
-            array(
+            ];
+
+            $res[] = [
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
-                'format' => 'json',
+                'format' => $format,
                 'type' => Itinerary::class,
                 'method' => 'deserializeItinerary',
-            ),
-            array(
-                'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
-                'format' => 'xml',
-                'type' => Itinerary::class,
-                'method' => 'deserializeItinerary',
-            ),
-            array(
-                'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
-                'format' => 'array',
-                'type' => Itinerary::class,
-                'method' => 'deserializeItinerary',
-            ),
-        );
+            ];
+        }
+
+        return $res;
     }
 
     /**
