@@ -151,7 +151,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         if (!empty($result)) {
             unset($result['_id']);
 
-            return $this->serializer->deserialize($result, SerializableInterface::class, 'mongo_array');
+            return $this->hydrateResult($result);
         }
 
         return null;
@@ -162,20 +162,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
      */
     public function find($collection, StorageFilterInterface $filter, array $fields = [], $hydrateObject = true)
     {
-        $this->ensureConnection();
-
-        $queryParams = $filter->getQueryParams();
-
-        try {
-            $cursor = $this->db->$collection
-                ->find($queryParams, $fields)
-                ->sort($filter->getSortParams())
-                ->limit($filter->getLimit())
-                ->skip($filter->getOffset())
-            ;
-        } catch(\Exception $e) {
-            throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
-        }
+        $cursor = $this->findWithCursor($collection, $filter, $fields);
 
         $result = [];
         if ($cursor->count() > 0) {
@@ -188,12 +175,33 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
                 $result[(string) $id] = $item;
 
                 if ($hydrateObject && isset($item['type'])) {
-                    $result[(string) $id] = $this->serializer->deserialize($item, SerializableInterface::class, 'mongo_array');
+                    $result[(string) $id] = $this->hydrateResult($item);
                 }
             }
         }
 
         return $result;
+    }
+
+    public function findWithCursor($collection, StorageFilterInterface $filter, array $fields = [])
+    {
+        $this->ensureConnection();
+
+        $queryParams = $filter->getQueryParams();
+
+        try {
+            $cursor = $this->db->$collection
+                ->find($queryParams, $fields)
+                ->sort($filter->getSortParams())
+                ->limit($filter->getLimit())
+                ->skip($filter->getOffset())
+            ;
+
+            return $cursor;
+
+        } catch(\Exception $e) {
+            throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
@@ -215,6 +223,17 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         }
 
         return $count;
+    }
+
+    /**
+     * Hydrates a resulting array object from a query
+     *
+     * @param array $result
+     * @return array|\JMS\Serializer\scalar|object
+     */
+    public function hydrateResult(array $result)
+    {
+        return $this->serializer->deserialize($result, SerializableInterface::class, 'mongo_array');
     }
 
     /**
