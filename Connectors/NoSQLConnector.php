@@ -21,10 +21,6 @@ class NoSQLConnector extends Connector
     const OPTION_COLLECTION_PREFIX = 'prefix';
     const OPTION_COLLECTION_NAME = 'collection';
 
-    protected $headersToPropagate = [
-        Message::HEADER_VERSION
-    ];
-
     protected $defaultOptions = [];
 
     /**
@@ -57,13 +53,6 @@ class NoSQLConnector extends Connector
         $message->setBody($msg);
         $message->setCollectionName($collectionName);
         $message->setHeader(Message::HEADER_FROM, $options[InternalRouter::KEY_URI]);
-
-        // Take other headers from msg
-        foreach($this->headersToPropagate as $header){
-            if($msg->getHeader($header)){
-                $message->setHeader($header,$msg->getHeader($header));
-            }
-        }
 
         $success = $driver->send($message);
 
