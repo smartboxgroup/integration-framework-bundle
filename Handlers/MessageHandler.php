@@ -200,8 +200,6 @@ class MessageHandler extends Service implements HandlerInterface
             $event->mustNotThrowException();
         }
 
-        $this->getEventDispatcher()->dispatch(ProcessingErrorEvent::EVENT_NAME, $event);
-
         // Try to recover
         if ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
             $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries+1);
@@ -224,6 +222,8 @@ class MessageHandler extends Service implements HandlerInterface
             $failedExchange = new Exchange($envelope);
             $this->sendTo($failedExchange,$this->failedURI);
         }
+
+        $this->getEventDispatcher()->dispatch(ProcessingErrorEvent::EVENT_NAME, $event);
     }
 
     /**
