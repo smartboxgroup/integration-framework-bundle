@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesDriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * Class QueueConnector
@@ -19,7 +20,11 @@ class QueueConnector extends Connector
     use UsesSerializer;
     use UsesDriverRegistry;
 
-    public static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY];
+    /**
+     * @JMS\Exclude
+     * @var array
+     */
+    protected static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY];
 
     /** @var QueueDriverInterface */
     protected $queueDriver;
