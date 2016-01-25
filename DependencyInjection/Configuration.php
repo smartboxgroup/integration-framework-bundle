@@ -51,9 +51,11 @@ class Configuration implements ConfigurationInterface
             ->defaultValue(0)->end()
 
             ->end()
+            ->append($this->addConnectorsNode())
             ->append($this->addQueueDriversNode())
             ->append($this->addConsumersNode())
             ->append($this->addHandlersNode())
+            ->append($this->addMappingsNode())
         ->end();
 
         return $treeBuilder;
@@ -93,6 +95,105 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->end()
             ->isRequired();
+
+        return $node;
+    }
+
+    public function addMappingsNode(){
+
+        $builder = new TreeBuilder();
+        $node = $builder->root('mappings');
+
+        $node
+            ->info('Mappings to translate messages')
+            ->useAttributeAsKey('name')
+                ->prototype('variable')
+                ->end()
+            ->end();
+
+        return $node;
+    }
+
+    public function addConnectorsNode()
+    {
+        $builder = new TreeBuilder();
+        $node = $builder->root('connectors');
+        $node->info("Section where the connectors are defined.");
+
+        $node->useAttributeAsKey('name')
+            ->prototype('array')
+            ->children()
+
+            ->scalarNode('description')
+            ->info('This description will be used in the documentation.')
+            ->isRequired()
+            ->end()
+
+            ->scalarNode('class')
+            ->info('Class to be used for the connector, you can use a generic class like RESTConnector or create a custom class implementing ConfigurableConnectorInterface')
+            ->isRequired()
+            ->end()
+
+            ->arrayNode('options')
+            ->useAttributeAsKey('name')
+            ->prototype('variable')
+            ->end()
+            ->info('Default options for this connector')
+            ->isRequired()
+            ->end()
+
+            ->arrayNode('methods')
+            ->info('List of methods with their configuration')
+            ->useAttributeAsKey('name')
+            ->prototype('array')
+
+            ->children()
+                ->scalarNode('description')
+                ->info('This description will be used in the documentation.')
+                ->isRequired()
+                ->end()
+
+                ->arrayNode('steps')
+                    ->info('This are the steps to execute as part of this method')
+                    ->prototype('variable')->end()
+                    ->isRequired()
+                ->end()
+
+                ->arrayNode('response')
+                    ->info('This defines how to generate the response')
+                    ->prototype('variable')->end()
+                ->end()
+
+                ->arrayNode('validations')
+                    ->info('Here you can specify validation rules with their related error message')
+                    ->prototype('array')
+                        ->children()
+                            ->scalarNode('rule')
+                                ->info('This is a Symfony expression that must evaluate to true to pass the validation')
+                                ->isRequired()
+                            ->end()
+                            ->scalarNode('message')
+                                ->info('This is the error message that should go in the generated exception')
+                                ->isRequired()
+                            ->end()
+                            ->booleanNode('recoverable')
+                                ->info('This is marks this error as recoverable or not')
+                                ->isRequired()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+
+            ->end()
+            ->isRequired()
+
+            ->end()
+            ->info('Methods specification')
+            ->isRequired()
+            ->end()
+
+            ->end()
+            ->end();
 
         return $node;
     }

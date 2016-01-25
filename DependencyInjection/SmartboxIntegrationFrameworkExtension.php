@@ -2,19 +2,17 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
+use Smartbox\Integration\FrameworkBundle\Connectors\ConfigurableConnectorInterface;
 use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers\MessageHandlerTest;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader;
-use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Form\Exception\InvalidConfigurationException;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
@@ -40,6 +38,39 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         return $this->config['latest_flows_version'];
     }
 
+    public function getConnectorsPath(){
+        return @$this->config['connectors_path'];
+    }
+
+    public function loadConnectors(ContainerBuilder $container){
+        foreach ($this->config['connectors'] as $connectorName => $connectorConfig) {
+            $class = $connectorConfig['class'];
+            $methodsSteps = $connectorConfig['methods'];
+            $options = $connectorConfig['options'];
+
+            if (!$class || !in_array(ConfigurableConnectorInterface::class, class_implements($class))) {
+                throw new InvalidConfigurationException(
+                    "Invalid class given for connector $connectorName. The class must implement ConfigurableConnectorInterface, '$class' given."
+                );
+            }
+
+            $definition = new Definition($class);
+            $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
+            $definition->addMethodCall('setDefaultOptions', [$options]);
+            $definition->addMethodCall('setEvaluator',[new Reference('smartesb.util.evaluator')]);
+            $definition->addMethodCall('setSerializer',[new Reference('serializer')]);
+
+            $container->setDefinition('smartesb.connectors.'.$connectorName, $definition);
+        }
+    }
+
+    public function loadMappings(ContainerBuilder $container){
+        $mappings = $this->config['mappings'];
+        if(!empty($mappings)){
+            $mapper = $container->getDefinition('smartesb.util.mapper');
+            $mapper->addMethodCall('addMappings',[$mappings]);
+        }
+    }
 
     /**
      * {@inheritdoc}
@@ -47,8 +78,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
-        $this->config = $config;
+        $this->config = $this->processConfiguration($configuration, $configs);
 
         if($this->getFlowsVersion() > $this->getLatestFlowsVersion()){
             throw new InvalidConfigurationException(
@@ -59,12 +89,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
 
-        $eventQueueName = $config['events_queue_name'];
-        $eventsLogLevel = $config['events_log_level'];
+        $eventQueueName = $this->config['events_queue_name'];
+        $eventsLogLevel = $this->config['events_log_level'];
         $container->setParameter('smartesb.events_queue_name', $eventQueueName);
         $container->setParameter('smartesb.event_listener.events_logger.log_level', $eventsLogLevel);
 
-        foreach($config['message_handlers'] as $handlerName => $handlerConfig){
+        foreach($this->config['message_handlers'] as $handlerName => $handlerConfig){
             $handlerName = self::HANDLER_PREFIX.$handlerName;
             $def = new Definition(MessageHandler::class,array());
 
@@ -93,7 +123,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $container->setDefinition($handlerName,$def);
         }
 
-        foreach($config['queue_drivers'] as $driverName => $driverConfig){
+        foreach($this->config['queue_drivers'] as $driverName => $driverConfig){
             $driverName = self::DRIVER_PREFIX.$driverName;
 
             switch($driverConfig['type']){
@@ -116,7 +146,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             }
         }
 
-        foreach($config['message_consumers'] as $consumerName => $consumerConfig){
+        foreach($this->config['message_consumers'] as $consumerName => $consumerConfig){
             $consumerName = self::CONSUMER_PREFIX.$consumerName;
 
             switch($consumerConfig['type']){
@@ -129,15 +159,18 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             }
         }
 
-        $defaultQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$config['default_queue_driver']);
+        $defaultQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$this->config['default_queue_driver']);
         $container->setAlias('smartesb.default_queue_driver',$defaultQueueDriverAlias);
 
-        $eventsQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$config['events_queue_driver']);
+        $eventsQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$this->config['events_queue_driver']);
         $container->setAlias('smartesb.events_queue_driver',$eventsQueueDriverAlias);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('exceptions.yml');
         $loader->load('connectors.yml');
         $loader->load('services.yml');
+        
+        $this->loadConnectors($container);
+        $this->loadMappings($container);
     }
 }

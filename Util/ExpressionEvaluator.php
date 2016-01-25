@@ -1,12 +1,16 @@
 <?php
 namespace Smartbox\Integration\FrameworkBundle\Util;
 
-use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
+use Smartbox\Integration\FrameworkBundle\Traits\UsesMapper;
+use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 class ExpressionEvaluator
 {
+    use UsesSerializer;
+    use UsesMapper;
+
     /** @var ExpressionLanguage */
     protected $language;
 
@@ -22,12 +26,19 @@ class ExpressionEvaluator
             'exchange',
             'msg',
             'headers',
-            'body'
+            'body',
+            'serializer',
+            'mapper'
         );
     }
 
     public function evaluateWithVars($expression, $vars)
     {
+        $vars = array_merge($vars,[
+            'serializer' => $this->getSerializer(),
+            'mapper' => $this->getMapper()
+        ]);
+
         return $this->language->evaluate($expression, $vars);
     }
 
@@ -40,6 +51,8 @@ class ExpressionEvaluator
             'msg' => $exchange->getIn(),
             'headers' => $exchange->getIn()->getHeaders(),
             'body' => $body,
+            'serializer' => $this->getSerializer(),
+            'mapper' => $this->getMapper()
         ));
     }
 

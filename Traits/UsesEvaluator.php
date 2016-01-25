@@ -21,7 +21,7 @@ trait UsesEvaluator
     /**
      * @param ExpressionEvaluator $evaluator
      */
-    public function setEvaluator($evaluator)
+    public function setEvaluator(ExpressionEvaluator $evaluator)
     {
         $this->evaluator = $evaluator;
     }
