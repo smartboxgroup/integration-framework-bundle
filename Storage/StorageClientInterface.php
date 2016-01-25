@@ -6,6 +6,11 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
 
+/**
+ * Interface StorageClientInterface
+ *
+ * @package Smartbox\Integration\FrameworkBundle\Storage
+ */
 interface StorageClientInterface
 {
     /**
@@ -37,19 +42,28 @@ interface StorageClientInterface
     public function save($storageName, SerializableInterface $data);
 
     /**
-     * @param string $storageName
-     * @param string $id
-     * @return SerializableInterface|null
-     */
-    public function findOne($storageName, $id);
-
-    /**
      * @param $collection
      * @param StorageFilterInterface $filter
      * @param array $fields
      * @return array|\MongoCursor
      */
     public function find($collection, StorageFilterInterface $filter, array $fields = []);
+
+    /**
+     * @param                                                                             $collection
+     * @param \Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface $filter
+     * @param array                                                                       $fields
+     *
+     * @return mixed
+     */
+    public function findOne($collection, StorageFilterInterface $filter, $fields = []);
+
+    /**
+     * @param string $storageName
+     * @param string $id
+     * @return SerializableInterface|null
+     */
+    public function findOneById($storageName, $id);
 
     /**
      * @param $collection

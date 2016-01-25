@@ -169,27 +169,39 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     /**
      * {@inheritdoc}
      */
-    public function findOne($collection, $id)
+    public function findOne($collection, StorageFilterInterface $filter, $fields = [], $hydrateObject = true)
     {
         $this->ensureConnection();
 
-        if (! \MongoId::isValid($id)) {
-            return null;
-        }
-
         try {
-            $result = $this->db->$collection->findOne(['_id' => new \MongoId($id)]);
+            $result = $this->db->$collection->findOne($filter->getQueryParams(), $fields);
         } catch(\Exception $e) {
             throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
-        if (!empty($result)) {
+        if (!empty($result) && $hydrateObject) {
             unset($result['_id']);
-
             return $this->hydrateResult($result);
         }
 
         return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneById($collection, $id, $fields = [], $hydrateObject = true)
+    {
+        if (! \MongoId::isValid($id)) {
+            return null;
+        }
+
+        $filter = new StorageFilter();
+        $filter->setQueryParams([
+            '_id' => new \MongoId($id)
+        ]);
+
+        return $this->findOne($collection, $filter, $fields, $hydrateObject);
     }
 
     /**
