@@ -136,9 +136,9 @@ class MongoDBClientTest extends KernelTestCase
      * @dataProvider dataProviderForStorageDriver
      *
      * @covers ::save
-     * @covers ::findOne
+     * @covers ::findOneById
      */
-    public function testSaveAndFindOne(SerializableInterface $data)
+    public function testSaveAndFindOneById(SerializableInterface $data)
     {
         $id = self::$storageDriver->save('test_collection', $data);
 
@@ -164,11 +164,11 @@ class MongoDBClientTest extends KernelTestCase
      *
      * @dataProvider dataProviderForNotExistingData
      *
-     * @covers ::findOne
+     * @covers ::findOneById
      */
-    public function testFindOneForNotExistingData($id)
+    public function testFindOneByIdForNotExistingData($id)
     {
-        $restoredData = self::$storageDriver->findOne('test_collection', $id);
+        $restoredData = self::$storageDriver->findOneById('test_collection', $id);
 
         $this->assertNull($restoredData);
     }
