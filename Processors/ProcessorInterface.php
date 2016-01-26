@@ -6,6 +6,12 @@ use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 
 interface ProcessorInterface
 {
+
+    /**
+     * @return string
+     */
+    public function getId();
+
     /**
      * @return string
      */

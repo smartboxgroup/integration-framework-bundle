@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\DeferredExchangeEnvelope;
+use Smartbox\Integration\FrameworkBundle\Messages\ErrorExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\ExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Messages\FailedExchangeEnvelope;
@@ -16,9 +17,9 @@ use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\RetryExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
+use Smartbox\Integration\FrameworkBundle\Processors\ProcessorInterface;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Service;
-use Smartbox\Integration\FrameworkBundle\Traits\FlowsVersionAware;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesConnectorsRouter;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
 use JMS\Serializer\Annotation as JMS;
@@ -200,25 +201,51 @@ class MessageHandler extends Service implements HandlerInterface
             $event->mustNotThrowException();
         }
 
-        $this->getEventDispatcher()->dispatch(ProcessingErrorEvent::EVENT_NAME, $event);
-
         // Try to recover
-        if($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax){
-            $recoveryExchange = new Exchange(new RetryExchangeEnvelope($exchangeBackup,$retries+1));
+        if ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
+            $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries+1);
+
+            $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
+            $recoveryExchange = new Exchange($retryExchangeEnvelope);
 
             $retryUri = $this->retryURI;
-            if(!$retryUri){
+            if (!$retryUri) {
                 $retryUri = $exchangeBackup->getHeader(Exchange::HEADER_FROM);
             }
 
             $this->sendTo($recoveryExchange,$retryUri);
         }
         // Or not..
-        else{
-            $failedExchange = new Exchange(new FailedExchangeEnvelope($exchangeBackup));
+        else {
+            $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
+            $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
+
+            $failedExchange = new Exchange($envelope);
             $this->sendTo($failedExchange,$this->failedURI);
         }
 
+        $this->getEventDispatcher()->dispatch(ProcessingErrorEvent::EVENT_NAME, $event);
+    }
+
+    /**
+     * @param ErrorExchangeEnvelope $envelope
+     * @param ProcessingException $exception
+     * @param int $retries
+     */
+    private function addCommonErrorHeadersToEnvelope(ErrorExchangeEnvelope $envelope, ProcessingException $exception, ProcessorInterface $processor, $retries)
+    {
+        $originalException = $exception->getOriginalException();
+        $errorDescription = $originalException ? $originalException->getMessage() : $exception->getMessage();
+
+        if ($envelope instanceof RetryExchangeEnvelope) {
+            $envelope->setHeader(RetryExchangeEnvelope::HEADER_LAST_ERROR, $errorDescription);
+        }
+
+        $envelope->setHeader(ErrorExchangeEnvelope::HEADER_CREATED_AT, round(microtime(true) * 1000));
+        $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_MESSAGE, $errorDescription);
+        $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_PROCESSOR_ID, $processor->getId());
+        $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_PROCESSOR_DESCRIPTION, $processor->getDescription());
+        $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_NUM_RETRY, $retries);
     }
 
     /**

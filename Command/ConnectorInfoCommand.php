@@ -57,7 +57,7 @@ class ConnectorInfoCommand extends ContainerAwareCommand {
             $optionsExplained .= "\t- <comment>$key: </comment><info>$description</info>\n";
 
             if(array_key_exists($key,$defaults)){
-                $default = $defaults[$key];
+                $default = var_export($defaults[$key],true);
                 $optionsExplained .= "\t\t- <comment>Default: </comment><info>$default</info>\n";
             }
 

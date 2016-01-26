@@ -69,7 +69,7 @@ class ProcessingException extends \Exception {
     }
 
     /**
-     * @return mixed
+     * @return SerializableArray
      */
     public function getProcessingContext()
     {
@@ -77,7 +77,7 @@ class ProcessingException extends \Exception {
     }
 
     /**
-     * @param mixed $processingContext
+     * @param SerializableArray $processingContext
      */
     public function setProcessingContext($processingContext)
     {

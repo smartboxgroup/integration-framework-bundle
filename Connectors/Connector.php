@@ -15,7 +15,11 @@ use Smartbox\Integration\FrameworkBundle\Service;
  */
 abstract class Connector extends Service implements ConnectorInterface
 {
-    public static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY, self::EXCHANGE_PATTERN_IN_OUT];
+    /**
+     * @JMS\Exclude
+     * @var array
+     */
+    protected static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY, self::EXCHANGE_PATTERN_IN_OUT];
 
     const OPTION_RETRIES = 'retries';
     const OPTION_USERNAME = 'username';

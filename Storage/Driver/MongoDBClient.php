@@ -3,15 +3,23 @@
 namespace Smartbox\Integration\FrameworkBundle\Storage\Driver;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\CoreBundle\Type\Traits\HasType;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\DataStorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
+use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilter;
 use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
-use Smartbox\Integration\FrameworkBundle\Storage\StorageInterface;
+use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use JMS\Serializer\SerializerInterface;
 
-class MongoDBStorage implements StorageInterface
+/**
+ * Class MongoDBClient
+ * @package Smartbox\Integration\FrameworkBundle\Storage\Driver
+ */
+class MongoDBClient implements StorageClientInterface, SerializableInterface
 {
+    use HasType;
+
     /** @var SerializerInterface */
     protected $serializer;
 
@@ -37,13 +45,23 @@ class MongoDBStorage implements StorageInterface
      */
     public function configure(array $configuration)
     {
-        $optionsResolver = new OptionsResolver();
-        $optionsResolver->setDefined(['host', 'database']);
-        $optionsResolver->setRequired(['host', 'database']);
+        // allows to use the default options when a null value is passed
+        if (array_key_exists('options', $configuration) && $configuration['options'] === null) {
+            unset($configuration['options']);
+        }
 
+        $optionsResolver = new OptionsResolver();
         $optionsResolver
+            ->setDefined(['host', 'database', 'options', 'driver_options'])
+            ->setDefaults([
+                'options' => ['connect' => false],
+                'driver_options' => []
+            ])
+            ->setRequired(['host', 'database'])
             ->setAllowedTypes('host', 'string')
             ->setAllowedTypes('database', 'string')
+            ->setAllowedTypes('options', 'array')
+            ->setAllowedTypes('driver_options', 'array')
         ;
 
         try {
@@ -68,7 +86,7 @@ class MongoDBStorage implements StorageInterface
         }
 
         try {
-            $this->connection = new \MongoClient($this->configuration['host']);
+            $this->connection = $this->createConnection();
             $this->connection->connect();
         } catch(\Exception $e) {
             throw new StorageException('Can not connect to storage because of: ' . $e->getMessage(), $e->getCode(), $e);
@@ -115,26 +133,55 @@ class MongoDBStorage implements StorageInterface
     }
 
     /**
+     * Delete all the objects matching a given $filter
+     *
+     * @param string $collection
+     * @param StorageFilterInterface $filter
+     * @return array|bool
+     */
+    public function delete($collection, StorageFilterInterface $filter)
+    {
+        $this->ensureConnection();
+        return $this->db->$collection->remove($filter->getQueryParams());
+    }
+
+    /**
+     * Helper function to delete a single record given a mongo id
+     *
+     * @param string $collection
+     * @param string|\MongoId $id
+     * @return array|bool
+     */
+    public function deleteById($collection, $id)
+    {
+        if (is_string($id)) {
+            $id = new \MongoId($id);
+        }
+
+        $filter = new StorageFilter();
+        $filter->setQueryParams([
+            '_id' => $id
+        ]);
+
+        return $this->delete($collection, $filter);
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function findOne($collection, $id)
+    public function findOne($collection, StorageFilterInterface $filter, $fields = [], $hydrateObject = true)
     {
         $this->ensureConnection();
 
-        if (! \MongoId::isValid($id)) {
-            return null;
-        }
-
         try {
-            $result = $this->db->$collection->findOne(['_id' => new \MongoId($id)]);
+            $result = $this->db->$collection->findOne($filter->getQueryParams(), $fields);
         } catch(\Exception $e) {
             throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
-        if (!empty($result)) {
+        if (!empty($result) && $hydrateObject) {
             unset($result['_id']);
-
-            return $this->serializer->deserialize($result, SerializableInterface::class, 'mongo_array');
+            return $this->hydrateResult($result);
         }
 
         return null;
@@ -143,22 +190,26 @@ class MongoDBStorage implements StorageInterface
     /**
      * {@inheritdoc}
      */
+    public function findOneById($collection, $id, $fields = [], $hydrateObject = true)
+    {
+        if (! \MongoId::isValid($id)) {
+            return null;
+        }
+
+        $filter = new StorageFilter();
+        $filter->setQueryParams([
+            '_id' => new \MongoId($id)
+        ]);
+
+        return $this->findOne($collection, $filter, $fields, $hydrateObject);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function find($collection, StorageFilterInterface $filter, array $fields = [], $hydrateObject = true)
     {
-        $this->ensureConnection();
-
-        $queryParams = $filter->getQueryParams();
-
-        try {
-            $cursor = $this->db->$collection
-                ->find($queryParams, $fields)
-                ->sort($filter->getSortParams())
-                ->limit($filter->getLimit())
-                ->skip($filter->getOffset())
-            ;
-        } catch(\Exception $e) {
-            throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
-        }
+        $cursor = $this->findWithCursor($collection, $filter, $fields);
 
         $result = [];
         if ($cursor->count() > 0) {
@@ -171,12 +222,33 @@ class MongoDBStorage implements StorageInterface
                 $result[(string) $id] = $item;
 
                 if ($hydrateObject && isset($item['type'])) {
-                    $result[(string) $id] = $this->serializer->deserialize($item, SerializableInterface::class, 'mongo_array');
+                    $result[(string) $id] = $this->hydrateResult($item);
                 }
             }
         }
 
         return $result;
+    }
+
+    public function findWithCursor($collection, StorageFilterInterface $filter, array $fields = [])
+    {
+        $this->ensureConnection();
+
+        $queryParams = $filter->getQueryParams();
+
+        try {
+            $cursor = $this->db->$collection
+                ->find($queryParams, $fields)
+                ->sort($filter->getSortParams())
+                ->limit($filter->getLimit())
+                ->skip($filter->getOffset())
+            ;
+
+            return $cursor;
+
+        } catch(\Exception $e) {
+            throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
@@ -198,6 +270,17 @@ class MongoDBStorage implements StorageInterface
         }
 
         return $count;
+    }
+
+    /**
+     * Hydrates a resulting array object from a query
+     *
+     * @param array $result
+     * @return array|\JMS\Serializer\scalar|object
+     */
+    public function hydrateResult(array $result)
+    {
+        return $this->serializer->deserialize($result, SerializableInterface::class, 'mongo_array');
     }
 
     /**
@@ -225,5 +308,20 @@ class MongoDBStorage implements StorageInterface
         }
 
         return $data['result'];
+    }
+
+    /**
+     * Creates a new configuration using the current configuration options specified using the {@link configure()}
+     * method
+     * @return \MongoClient
+     * @see configure()
+     */
+    protected function createConnection()
+    {
+        return new \MongoClient(
+            $this->configuration['host'],
+            $this->configuration['options'],
+            $this->configuration['driver_options']
+        );
     }
 }

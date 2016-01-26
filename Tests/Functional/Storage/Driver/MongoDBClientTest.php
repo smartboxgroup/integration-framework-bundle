@@ -5,9 +5,9 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Storage\Driver;
 use JMS\Serializer\SerializerInterface;
 use Smartbox\CoreBundle\Type\Integer;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBStorage;
+use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
-use Smartbox\Integration\FrameworkBundle\Storage\StorageInterface;
+use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\Entity\SerializableSimpleEntity;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\SimpleObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -17,9 +17,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Class MongoDBStorageTest
  * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Storage\Driver
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBStorage
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient
  */
-class MongoDBStorageTest extends KernelTestCase
+class MongoDBClientTest extends KernelTestCase
 {
     /** @var ContainerInterface */
     protected static $container;
@@ -27,7 +27,7 @@ class MongoDBStorageTest extends KernelTestCase
     /** @var SerializerInterface */
     protected static $serializer;
 
-    /** @var StorageInterface */
+    /** @var StorageClientInterface */
     protected static $storageDriver;
 
     public static function setUpBeforeClass()
@@ -38,7 +38,7 @@ class MongoDBStorageTest extends KernelTestCase
         self::$container = $kernel->getContainer();
 
         self::$serializer = self::$container->get('serializer');
-        self::$storageDriver = new MongoDBStorage(self::$serializer);
+        self::$storageDriver = new MongoDBClient(self::$serializer);
         self::$storageDriver->configure(['host' => 'mongodb://localhost:27017', 'database' => 'tests']);
 
         parent::setUpBeforeClass();
@@ -70,7 +70,7 @@ class MongoDBStorageTest extends KernelTestCase
      */
     public function testConfigureForCorrectConfiguration(array $configuration)
     {
-        $storageDriver = new MongoDBStorage(self::$serializer);
+        $storageDriver = new MongoDBClient(self::$serializer);
         $storageDriver->configure($configuration);
 
         $data = new SerializableSimpleEntity();
@@ -107,7 +107,7 @@ class MongoDBStorageTest extends KernelTestCase
     {
         $this->setExpectedException(StorageException::class);
 
-        $storageDriver = new MongoDBStorage(self::$serializer);
+        $storageDriver = new MongoDBClient(self::$serializer);
         $storageDriver->configure($configuration);
 
         unset($storageDriver);
@@ -136,13 +136,13 @@ class MongoDBStorageTest extends KernelTestCase
      * @dataProvider dataProviderForStorageDriver
      *
      * @covers ::save
-     * @covers ::findOne
+     * @covers ::findOneById
      */
-    public function testSaveAndFindOne(SerializableInterface $data)
+    public function testSaveAndFindOneById(SerializableInterface $data)
     {
         $id = self::$storageDriver->save('test_collection', $data);
 
-        $restoredData = self::$storageDriver->findOne('test_collection', $id);
+        $restoredData = self::$storageDriver->findOneById('test_collection', $id);
 
         $this->assertEquals($data, $restoredData);
     }
@@ -164,11 +164,11 @@ class MongoDBStorageTest extends KernelTestCase
      *
      * @dataProvider dataProviderForNotExistingData
      *
-     * @covers ::findOne
+     * @covers ::findOneById
      */
-    public function testFindOneForNotExistingData($id)
+    public function testFindOneByIdForNotExistingData($id)
     {
-        $restoredData = self::$storageDriver->findOne('test_collection', $id);
+        $restoredData = self::$storageDriver->findOneById('test_collection', $id);
 
         $this->assertNull($restoredData);
     }

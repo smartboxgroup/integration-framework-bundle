@@ -13,7 +13,11 @@ use Smartbox\Integration\FrameworkBundle\Traits\UsesItinerariesRouter;
  */
 class DirectConnector extends Connector
 {
-    public static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_OUT];
+    /**
+     * @JMS\Exclude
+     * @var array
+     */
+    protected static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_OUT];
 
     use UsesItinerariesRouter;
 

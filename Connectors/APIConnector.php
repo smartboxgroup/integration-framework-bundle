@@ -15,7 +15,12 @@ use Smartbox\Integration\FrameworkBundle\Processors\Endpoint;
 abstract class APIConnector extends Connector
 {
     const OPTION_TIMEOUT = 'timeout';
-    public static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_OUT];
+
+    /**
+     * @JMS\Exclude
+     * @var array
+     */
+    protected static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_OUT];
 
     protected $defaultOptions = array(
         self::OPTION_RETRIES => 5,

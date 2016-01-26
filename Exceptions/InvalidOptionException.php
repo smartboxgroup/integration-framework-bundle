@@ -11,7 +11,6 @@ use JMS\Serializer\Annotation as JMS;
 class InvalidOptionException extends \Exception
 {
     /**
-     * @Assert\Type(type="string")
      * @JMS\Expose
      * @JMS\Type("string")
      * @JMS\Groups({"logs"})
@@ -20,7 +19,6 @@ class InvalidOptionException extends \Exception
     protected $connectorClass;
 
     /**
-     * @Assert\Type(type="string")
      * @JMS\Expose
      * @JMS\Type("string")
      * @JMS\Groups({"logs"})

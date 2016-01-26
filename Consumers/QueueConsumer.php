@@ -2,14 +2,18 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Consumers;
 
-
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Handlers\HandlerInterface;
 use CentralDesktop\Stomp\Exception as StompException;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
 
-class QueueConsumer {
-
+/**
+ * Class QueueConsumer
+ * @package Smartbox\Integration\FrameworkBundle\Consumers
+ */
+class QueueConsumer implements QueueConsumerInterface
+{
+    /** @var bool */
     protected $stop = false;
 
     /** @var  HandlerInterface */
@@ -110,5 +114,4 @@ class QueueConsumer {
         $this->getQueueDriver()->unSubscribe();
         $this->getQueueDriver()->disconnect();
     }
-
 }

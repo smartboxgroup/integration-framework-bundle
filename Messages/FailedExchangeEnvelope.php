@@ -2,8 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Messages;
 
-use Symfony\Component\Validator\Constraints as Assert;
-
-class FailedExchangeEnvelope extends ExchangeEnvelope
+/**
+ * Class FailedExchangeEnvelope
+ * @package Smartbox\Integration\FrameworkBundle\Messages
+ */
+class FailedExchangeEnvelope extends ErrorExchangeEnvelope
 {
 }

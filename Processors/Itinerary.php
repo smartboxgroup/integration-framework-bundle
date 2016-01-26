@@ -6,6 +6,10 @@ use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasType;
 
+/**
+ * Class Itinerary
+ * @package Smartbox\Integration\FrameworkBundle\Processors
+ */
 class Itinerary implements SerializableInterface
 {
     use HasType;
@@ -45,7 +49,7 @@ class Itinerary implements SerializableInterface
     /**
      * @JMS\VirtualProperty
      * @JMS\SerializedName("processors")
-     * @JMS\Type("array<Smartbox\Integration\FrameworkBundle\Processors\Itinerary>")
+     * @JMS\Type("array<string>")
      * @JMS\Expose
      * @JMS\Groups({"metadata"})
      * @return array

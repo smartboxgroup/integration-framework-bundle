@@ -17,6 +17,16 @@ class StorageFilter implements StorageFilterInterface
     protected $sortParams = array();
 
     /**
+     * StorageFilter constructor.
+     *
+     * @param array $queryParams
+     */
+    public function __construct(array $queryParams = [])
+    {
+        $this->queryParams = $queryParams;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function getLimit()
