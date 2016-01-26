@@ -20,8 +20,25 @@ class NoSQLConnector extends Connector
     const OPTION_NOSQL_DRIVER = 'nosql_driver';
     const OPTION_COLLECTION_PREFIX = 'prefix';
     const OPTION_COLLECTION_NAME = 'collection';
+    const OPTION_ACTION = 'action';
 
-    protected $defaultOptions = [];
+    const ACTION_CREATE = 'create';
+    const ACTION_UPDATE = 'update';
+    const ACTION_DELETE = 'delete';
+    const ACTION_GET = 'get';
+
+    /**
+     * Get the connector default options
+     * @return array
+     */
+    public function getDefaultOptions() {
+        return array_merge(
+            parent::getDefaultOptions(),
+            [
+                self::OPTION_ACTION => self::ACTION_CREATE
+            ]
+        );
+    }
 
     /**
      * Sends an exchange to the connector
@@ -29,6 +46,7 @@ class NoSQLConnector extends Connector
      * @param Exchange $ex
      * @param array $options
      * @throws InvalidOptionException
+     * @throws \Exception
      */
     public function send(Exchange $ex, array $options)
     {
@@ -54,22 +72,26 @@ class NoSQLConnector extends Connector
         $message->setCollectionName($collectionName);
         $message->setHeader(Message::HEADER_FROM, $options[InternalRouter::KEY_URI]);
 
-        $success = $driver->send($message);
+        $success = false;
+
+        switch($options[self::OPTION_ACTION]){
+            case self::ACTION_CREATE:
+                $success = $driver->create($message);
+                break;
+            case self::ACTION_DELETE:
+                $success = $driver->delete($message);
+                break;
+            case self::ACTION_UPDATE:
+                $success = $driver->update($message);
+                break;
+            case self::ACTION_GET:
+                throw new \Exception("Receiving from NOSQLConnector is not yet implemented");
+                break;
+        }
 
         if(!$success){
-            throw new \RuntimeException("The message could not be delivered to the database");
+            throw new \RuntimeException("The message could not be processed by NOSQLConnector");
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDefaultOptions()
-    {
-        return array_merge(
-            parent::getDefaultOptions(),
-            $this->defaultOptions
-        );
     }
 
     /**
@@ -83,6 +105,12 @@ class NoSQLConnector extends Connector
             self::OPTION_NOSQL_DRIVER    => ['The driver service to use to connect to the MongoDb instance', []],
             self::OPTION_COLLECTION_PREFIX  => ['A string prefix used for collection names', []],
             self::OPTION_COLLECTION_NAME    => ['The name of the collection in which the messages will be stored', []],
+            self::OPTION_ACTION => ['Action to execute in the database',[
+                self::ACTION_CREATE => 'Creates a record',
+                self::ACTION_UPDATE => 'Updates a record (not supported yet)',
+                self::ACTION_DELETE => 'Deletes a record (not supported yet)',
+                self::ACTION_GET => 'Gets a record (not supported yet)',
+            ]]
         ]);
     }
 }

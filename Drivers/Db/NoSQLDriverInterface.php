@@ -11,9 +11,21 @@ interface NoSQLDriverInterface
 {
     /**
      * @param NoSQLMessageInterface $message
+     * @return string Id of the created record
+     */
+    public function create(NoSQLMessageInterface $message);
+
+    /**
+     * @param NoSQLMessageInterface $message
      * @return boolean
      */
-    public function send(NoSQLMessageInterface $message);
+    public function update(NoSQLMessageInterface $message);
+
+    /**
+     * @param NoSQLMessageInterface $message
+     * @return boolean
+     */
+    public function delete(NoSQLMessageInterface $message);
 
     /**
      * Returns One Serializable object from the queue
@@ -25,7 +37,7 @@ interface NoSQLDriverInterface
      * @param array $options
      * @return null|NoSQLMessageInterface
      */
-    public function receive($collection, array $query = [], $options = []);
+    public function read($collection, array $query = [], $options = []);
 
     /**
      * @return NoSQLMessageInterface

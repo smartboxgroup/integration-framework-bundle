@@ -73,7 +73,7 @@ class Context implements \ArrayAccess
      */
     public function offsetSet($offset, $value)
     {
-        $this->values[$offset] = $value;
+        throw new \Exception("You can not mutate the context once is created");
     }
 
     /**
@@ -81,6 +81,6 @@ class Context implements \ArrayAccess
      */
     public function offsetUnset($offset)
     {
-        unset($this->values[$offset]);
+        throw new \Exception("You can not mutate the context once is created");
     }
 }

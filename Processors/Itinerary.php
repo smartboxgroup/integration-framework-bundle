@@ -50,6 +50,7 @@ class Itinerary implements SerializableInterface
      * @JMS\VirtualProperty
      * @JMS\SerializedName("processors")
      * @JMS\Type("array<string>")
+     * @JMS\Expose
      * @JMS\Groups({"metadata"})
      * @return array
      */
