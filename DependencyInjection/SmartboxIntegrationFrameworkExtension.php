@@ -18,6 +18,7 @@ use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
@@ -97,11 +98,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
 
-        $eventQueueName = $this->config['events_queue_name'];
-        $eventsLogLevel = $this->config['events_log_level'];
+        $eventQueueName = $config['events_queue_name'];
+        $eventsLogLevel = $config['events_log_level'];
         $container->setParameter('smartesb.events_queue_name', $eventQueueName);
         $container->setParameter('smartesb.event_listener.events_logger.log_level', $eventsLogLevel);
 
+        // Create services for message handlers
         foreach($config['message_handlers'] as $handlerName => $handlerConfig){
             $handlerName = self::HANDLER_PREFIX.$handlerName;
             $driverDef = new Definition(MessageHandler::class,array());
@@ -134,8 +136,9 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $queueDriverRegistry = new Definition(DriverRegistry::class);
         $container->setDefinition(self::QUEUE_DRIVER_PREFIX.'_registry',$queueDriverRegistry);
 
+        // Create services for queue drivers
         foreach($config['queue_drivers'] as $driverName => $driverConfig){
-            $driverName = self::DRIVER_PREFIX.$driverName;
+            $driverId = self::QUEUE_DRIVER_PREFIX.$driverName;
 
             $type = strtolower($driverConfig['type']);
             switch($type){
@@ -217,11 +220,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     throw new InvalidDefinitionException(sprintf('Invalid NoSQL driver type "%s"', $type));
             }
         }
-        
-        $defaultQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$config['default_queue_driver']);
+
+        // set default queue driver alias
+        $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$config['default_queue_driver']);
         $container->setAlias('smartesb.default_queue_driver',$defaultQueueDriverAlias);
 
-        $eventsQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$config['events_queue_driver']);
+        // set default events queue alias
+        $eventsQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$config['events_queue_driver']);
         $container->setAlias('smartesb.events_queue_driver',$eventsQueueDriverAlias);
 
         // set the default nosql driver
