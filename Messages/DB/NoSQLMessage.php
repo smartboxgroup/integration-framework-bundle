@@ -11,39 +11,16 @@ use JMS\Serializer\Annotation as JMS;
  */
 class NoSQLMessage extends Message implements NoSQLMessageInterface
 {
-    /** @var mixed */
-    protected $id;
-
-    /**
-     * @var \DateTime
-     * @JMS\Type("DateTime")
-     * @JMS\Groups({"context", "logs"})
-     * @JMS\Expose
-     */
-    protected $createdAt;
-
-    /**
-     * @var string
-     * @JMS\Type("string")
-     * @JMS\Groups({"context", "logs"})
-     * @JMS\Expose
-     */
-    protected $databaseName;
-
-    /**
-     * @var string
-     * @JMS\Type("string")
-     * @JMS\Groups({"context", "logs"})
-     * @JMS\Expose
-     */
-    protected $collectionName;
+    const HEADER_COLLECTION_NAME = 'collection_name';
+    const HEADER_DATABASE_NAME = 'database_name';
+    const HEADER_MONGO_ID = 'mongo_id';
 
     /**
      * {@inheritDoc}
      */
     public function getId()
     {
-        return $this->id;
+        return $this->getHeader(self::HEADER_MONGO_ID);
     }
 
     /**
@@ -51,24 +28,7 @@ class NoSQLMessage extends Message implements NoSQLMessageInterface
      */
     public function setId($id)
     {
-        $this->id = $id;
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCreatedAt()
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setCreatedAt(\DateTime $createdAt = null)
-    {
-        $this->createdAt = $createdAt;
+        $this->setHeader(self::HEADER_MONGO_ID,$id);
         return $this;
     }
 
@@ -77,7 +37,7 @@ class NoSQLMessage extends Message implements NoSQLMessageInterface
      */
     public function getDatabaseName()
     {
-        return $this->databaseName;
+        return $this->getHeader(self::HEADER_DATABASE_NAME);
     }
 
     /**
@@ -85,7 +45,7 @@ class NoSQLMessage extends Message implements NoSQLMessageInterface
      */
     public function setDatabaseName($databaseName)
     {
-        $this->databaseName = $databaseName;
+        $this->setHeader(self::HEADER_DATABASE_NAME,$databaseName);
         return $this;
     }
 
@@ -94,7 +54,7 @@ class NoSQLMessage extends Message implements NoSQLMessageInterface
      */
     public function getCollectionName()
     {
-        return $this->collectionName;
+        return $this->getHeader(self::HEADER_COLLECTION_NAME);
     }
 
     /**
@@ -102,7 +62,7 @@ class NoSQLMessage extends Message implements NoSQLMessageInterface
      */
     public function setCollectionName($collectionName)
     {
-        $this->collectionName = $collectionName;
+        $this->setHeader(self::HEADER_COLLECTION_NAME,$collectionName);
         return $this;
     }
 }

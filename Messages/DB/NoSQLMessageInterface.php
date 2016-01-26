@@ -24,19 +24,6 @@ interface NoSQLMessageInterface extends MessageInterface
     public function setId($id);
 
     /**
-     * Get the creation date timestamp
-     * @return mixed
-     */
-    public function getCreatedAt();
-
-    /**
-     * Set the creation date timestamp
-     * @param \DateTime|null $timestamp
-     * @return $this
-     */
-    public function setCreatedAt(\DateTime $timestamp = null);
-
-    /**
      * Get the database name
      * @return string
      */

@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Drivers\Db;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\Db\NoSQLMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Db\NoSQLMessage;
 use Smartbox\Integration\FrameworkBundle\Messages\NoSQLMessageEnvelope;
@@ -54,10 +55,7 @@ class MongoDbDriver extends Service implements NoSQLDriverInterface, Serializabl
     public function createMessage()
     {
         $message = new NoSQLMessage();
-        $t = microtime(true);
-        $micro = sprintf("%06d",($t - floor($t)) * 1000000);
-        $d = new \DateTime( date('Y-m-d H:i:s.'.$micro,$t) );
-        $message->setCreatedAt($d);
+        $message->setContext(new Context([Context::VERSION => $this->getFlowsVersion()]));
 
         return $message;
     }

@@ -16,6 +16,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Parameter;
@@ -80,80 +81,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function load(array $configs, ContainerBuilder $container)
-    {
-        $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
-        $this->config = $config;
-
-        if($this->getFlowsVersion() > $this->getLatestFlowsVersion()){
-            throw new InvalidConfigurationException(
-                sprintf("The flows version number(%s) can not be bigger than the latest version available(%s)",
-                    $this->getFlowsVersion(),
-                    $this->getLatestFlowsVersion()));
-        }
-
-        $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
-
-        $eventQueueName = $config['events_queue_name'];
-        $eventsLogLevel = $config['events_log_level'];
-        $container->setParameter('smartesb.events_queue_name', $eventQueueName);
-        $container->setParameter('smartesb.event_listener.events_logger.log_level', $eventsLogLevel);
-
-        // Create services for message handlers
-        foreach($config['message_handlers'] as $handlerName => $handlerConfig){
-            $handlerName = self::HANDLER_PREFIX.$handlerName;
-            $driverDef = new Definition(MessageHandler::class,array());
-
-            $driverDef->addMethodCall('setId', [$handlerName]);
-            $driverDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
-            $driverDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
-            $driverDef->addMethodCall('setConnectorsRouter', [new Reference('smartesb.router.connectors')]);
-            $driverDef->addMethodCall('setItinerariesRouter', [new Reference('smartesb.router.itineraries')]);
-            $driverDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
-            $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
-
-            if($handlerConfig['retry_uri'] != 'original'){
-                $driverDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
-            }else{
-                $driverDef->addMethodCall('setRetryURI', [false]);
-            }
-
-            $driverDef->addMethodCall('setThrowExceptions',  [$handlerConfig['throw_exceptions']]);
-            $driverDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
-
-            $driverDef->addTag('kernel.event_listener', array(
-                'event' => 'smartesb.exchange.new',
-                'method' => 'onNewExchangeEvent'
-            ));
-
-            $container->setDefinition($handlerName,$driverDef);
-        }
-
-
-        // Create services for message consumers
-        foreach($config['message_consumers'] as $consumerName => $consumerConfig){
-            $consumerName = self::CONSUMER_PREFIX.$consumerName;
-
-            switch($consumerConfig['type']){
-                case 'queue':
-                    $driverDef = new Definition(QueueConsumer::class,array());
-                    $driverDef->addMethodCall('setQueueDriver',[new Reference(self::QUEUE_DRIVER_PREFIX.$consumerConfig['driver'])]);
-                    $driverDef->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
-                    $container->setDefinition($consumerName,$driverDef);
-
-                    break;
-            }
-        }
-
+    protected function loadQueueDrivers(ContainerBuilder $container){
         $queueDriverRegistry = new Definition(DriverRegistry::class);
         $container->setDefinition(self::QUEUE_DRIVER_PREFIX.'_registry',$queueDriverRegistry);
 
         // Create services for queue drivers
-        foreach($config['queue_drivers'] as $driverName => $driverConfig){
+        foreach($this->config['queue_drivers'] as $driverName => $driverConfig){
             $driverId = self::QUEUE_DRIVER_PREFIX.$driverName;
 
             $type = strtolower($driverConfig['type']);
@@ -183,11 +116,21 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             }
         }
 
+        // set default queue driver alias
+        $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$this->config['default_queue_driver']);
+        $container->setAlias('smartesb.default_queue_driver',$defaultQueueDriverAlias);
+
+        // set default events queue alias
+        $eventsQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$this->config['events_queue_driver']);
+        $container->setAlias('smartesb.events_queue_driver',$eventsQueueDriverAlias);
+    }
+
+    protected function loadNoSQLDrivers(ContainerBuilder $container){
         $nosqlDriverRegistry = new Definition(DriverRegistry::class);
         $container->setDefinition(self::NOSQL_DRIVER_PREFIX.'_registry',$nosqlDriverRegistry);
 
         // Create services for NoSQL drivers
-        foreach($config['nosql_drivers'] as $driverName => $driverConfig) {
+        foreach($this->config['nosql_drivers'] as $driverName => $driverConfig) {
             $driverId = self::NOSQL_DRIVER_PREFIX.$driverName;
 
             $type = strtolower($driverConfig['type']);
@@ -213,6 +156,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $container->setDefinition($storageServiceName, $storageDef);
 
                     $driverDef = new Definition(MongoDbDriver::class, [new Reference($storageServiceName)]);
+                    $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
                     $container->setDefinition($driverId, $driverDef);
 
                     $nosqlDriverRegistry->addMethodCall('setDriver',[$driverName,new Reference($driverId)]);
@@ -224,19 +168,89 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             }
         }
 
-        // set default queue driver alias
-        $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$config['default_queue_driver']);
-        $container->setAlias('smartesb.default_queue_driver',$defaultQueueDriverAlias);
-
-        // set default events queue alias
-        $eventsQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$config['events_queue_driver']);
-        $container->setAlias('smartesb.events_queue_driver',$eventsQueueDriverAlias);
-
         // set the default nosql driver
-        if (null !== $config['default_nosql_driver']) {
-            $noSQLDriverAlias = new Alias(self::NOSQL_DRIVER_PREFIX.$config['default_nosql_driver']);
+        if (null !== $this->config['default_nosql_driver']) {
+            $noSQLDriverAlias = new Alias(self::NOSQL_DRIVER_PREFIX.$this->config['default_nosql_driver']);
             $container->setAlias('smartesb.default_nosql_driver', $noSQLDriverAlias);
         }
+    }
+
+    protected function loadConsumers(ContainerBuilder $container){
+        // Create services for message consumers
+        foreach($this->config['message_consumers'] as $consumerName => $consumerConfig){
+            $consumerName = self::CONSUMER_PREFIX.$consumerName;
+
+            switch($consumerConfig['type']){
+                case 'queue':
+                    $driverDef = new Definition(QueueConsumer::class,array());
+                    $driverDef->addMethodCall('setQueueDriver',[new Reference(self::QUEUE_DRIVER_PREFIX.$consumerConfig['driver'])]);
+                    $driverDef->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
+                    $container->setDefinition($consumerName,$driverDef);
+
+                    break;
+            }
+        }
+    }
+
+    protected function loadHandlers(ContainerBuilder $container){
+        // Create services for message handlers
+        foreach($this->config['message_handlers'] as $handlerName => $handlerConfig){
+            $handlerName = self::HANDLER_PREFIX.$handlerName;
+            $driverDef = new Definition(MessageHandler::class,array());
+
+            $driverDef->addMethodCall('setId', [$handlerName]);
+            $driverDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
+            $driverDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
+            $driverDef->addMethodCall('setConnectorsRouter', [new Reference('smartesb.router.connectors')]);
+            $driverDef->addMethodCall('setItinerariesRouter', [new Reference('smartesb.router.itineraries')]);
+            $driverDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
+            $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+
+            if($handlerConfig['retry_uri'] != 'original'){
+                $driverDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
+            }else{
+                $driverDef->addMethodCall('setRetryURI', [false]);
+            }
+
+            $driverDef->addMethodCall('setThrowExceptions',  [$handlerConfig['throw_exceptions']]);
+            $driverDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
+
+            $driverDef->addTag('kernel.event_listener', array(
+                'event' => 'smartesb.exchange.new',
+                'method' => 'onNewExchangeEvent'
+            ));
+
+            $container->setDefinition($handlerName,$driverDef);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function load(array $configs, ContainerBuilder $container)
+    {
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+        $this->config = $config;
+
+        if($this->getFlowsVersion() > $this->getLatestFlowsVersion()){
+            throw new InvalidConfigurationException(
+                sprintf("The flows version number(%s) can not be bigger than the latest version available(%s)",
+                    $this->getFlowsVersion(),
+                    $this->getLatestFlowsVersion()));
+        }
+
+        $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
+
+        $eventQueueName = $config['events_queue_name'];
+        $eventsLogLevel = $config['events_log_level'];
+        $container->setParameter('smartesb.events_queue_name', $eventQueueName);
+        $container->setParameter('smartesb.event_listener.events_logger.log_level', $eventsLogLevel);
+
+        $this->loadHandlers($container);
+        $this->loadConsumers($container);
+        $this->loadQueueDrivers($container);
+        $this->loadNoSQLDrivers($container);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('exceptions.yml');
