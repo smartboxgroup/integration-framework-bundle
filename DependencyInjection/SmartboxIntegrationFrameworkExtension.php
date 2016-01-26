@@ -132,7 +132,23 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
             $container->setDefinition($handlerName,$driverDef);
         }
-        
+
+
+        // Create services for message consumers
+        foreach($config['message_consumers'] as $consumerName => $consumerConfig){
+            $consumerName = self::CONSUMER_PREFIX.$consumerName;
+
+            switch($consumerConfig['type']){
+                case 'queue':
+                    $driverDef = new Definition(QueueConsumer::class,array());
+                    $driverDef->addMethodCall('setQueueDriver',[new Reference(self::QUEUE_DRIVER_PREFIX.$consumerConfig['driver'])]);
+                    $driverDef->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
+                    $container->setDefinition($consumerName,$driverDef);
+
+                    break;
+            }
+        }
+
         $queueDriverRegistry = new Definition(DriverRegistry::class);
         $container->setDefinition(self::QUEUE_DRIVER_PREFIX.'_registry',$queueDriverRegistry);
 
@@ -164,19 +180,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                 default:
                     throw new InvalidDefinitionException(sprintf('Invalid queue driver type "%s"', $type));
-            }
-        }
-
-        foreach($config['message_consumers'] as $consumerName => $consumerConfig){
-            $consumerName = self::CONSUMER_PREFIX.$consumerName;
-
-            switch($consumerConfig['type']){
-                case 'queue':
-                    $def = new Definition(QueueConsumer::class,array());
-                    $def->addMethodCall('setQueueDriver',[new Reference(self::DRIVER_PREFIX.$consumerConfig['driver'])]);
-                    $def->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
-                    $container->setDefinition($consumerName,$def);
-                    break;
             }
         }
 
