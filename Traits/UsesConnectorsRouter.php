@@ -45,6 +45,8 @@ trait UsesConnectorsRouter {
     }
 
     static public function resolveURI(Exchange $exchange, $uri){
+        $uri = preg_replace('/\s+/', '',$uri);
+
         if(strpos($uri,'{') !== false){
             foreach($exchange->getHeaders() as $key => $value){
                 $uri = str_replace('{'.$key.'}',$value,$uri);

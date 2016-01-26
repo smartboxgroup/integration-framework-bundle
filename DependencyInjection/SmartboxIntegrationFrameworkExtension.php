@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
+use Smartbox\Integration\FrameworkBundle\Connectors\ConfigurableConnectorInterface;
 use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Db\MongoDbDriver;
 use Smartbox\Integration\FrameworkBundle\Drivers\DriverRegistry;
@@ -17,7 +18,6 @@ use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader;
-use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
@@ -45,6 +45,39 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         return $this->config['latest_flows_version'];
     }
 
+    public function getConnectorsPath(){
+        return @$this->config['connectors_path'];
+    }
+
+    public function loadConnectors(ContainerBuilder $container){
+        foreach ($this->config['connectors'] as $connectorName => $connectorConfig) {
+            $class = $connectorConfig['class'];
+            $methodsSteps = $connectorConfig['methods'];
+            $options = $connectorConfig['options'];
+
+            if (!$class || !in_array(ConfigurableConnectorInterface::class, class_implements($class))) {
+                throw new InvalidConfigurationException(
+                    "Invalid class given for connector $connectorName. The class must implement ConfigurableConnectorInterface, '$class' given."
+                );
+            }
+
+            $definition = new Definition($class);
+            $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
+            $definition->addMethodCall('setDefaultOptions', [$options]);
+            $definition->addMethodCall('setEvaluator',[new Reference('smartesb.util.evaluator')]);
+            $definition->addMethodCall('setSerializer',[new Reference('serializer')]);
+
+            $container->setDefinition('smartesb.connectors.'.$connectorName, $definition);
+        }
+    }
+
+    public function loadMappings(ContainerBuilder $container){
+        $mappings = $this->config['mappings'];
+        if(!empty($mappings)){
+            $mapper = $container->getDefinition('smartesb.util.mapper');
+            $mapper->addMethodCall('addMappings',[$mappings]);
+        }
+    }
 
     /**
      * {@inheritdoc}
@@ -64,12 +97,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
 
-        $eventQueueName = $config['events_queue_name'];
-        $eventsLogLevel = $config['events_log_level'];
+        $eventQueueName = $this->config['events_queue_name'];
+        $eventsLogLevel = $this->config['events_log_level'];
         $container->setParameter('smartesb.events_queue_name', $eventQueueName);
         $container->setParameter('smartesb.event_listener.events_logger.log_level', $eventsLogLevel);
 
-        // Create services for message handlers
         foreach($config['message_handlers'] as $handlerName => $handlerConfig){
             $handlerName = self::HANDLER_PREFIX.$handlerName;
             $driverDef = new Definition(MessageHandler::class,array());
@@ -98,29 +130,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
             $container->setDefinition($handlerName,$driverDef);
         }
-
-
-        // Create services for message consumers
-        foreach($config['message_consumers'] as $consumerName => $consumerConfig){
-            $consumerName = self::CONSUMER_PREFIX.$consumerName;
-
-            switch($consumerConfig['type']){
-                case 'queue':
-                    $driverDef = new Definition(QueueConsumer::class,array());
-                    $driverDef->addMethodCall('setQueueDriver',[new Reference(self::QUEUE_DRIVER_PREFIX.$consumerConfig['driver'])]);
-                    $driverDef->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
-                    $container->setDefinition($consumerName,$driverDef);
-
-                    break;
-            }
-        }
-
+        
         $queueDriverRegistry = new Definition(DriverRegistry::class);
         $container->setDefinition(self::QUEUE_DRIVER_PREFIX.'_registry',$queueDriverRegistry);
 
-        // Create services for queue drivers
         foreach($config['queue_drivers'] as $driverName => $driverConfig){
-            $driverId = self::QUEUE_DRIVER_PREFIX.$driverName;
+            $driverName = self::DRIVER_PREFIX.$driverName;
 
             $type = strtolower($driverConfig['type']);
             switch($type){
@@ -146,6 +161,19 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                 default:
                     throw new InvalidDefinitionException(sprintf('Invalid queue driver type "%s"', $type));
+            }
+        }
+
+        foreach($config['message_consumers'] as $consumerName => $consumerConfig){
+            $consumerName = self::CONSUMER_PREFIX.$consumerName;
+
+            switch($consumerConfig['type']){
+                case 'queue':
+                    $def = new Definition(QueueConsumer::class,array());
+                    $def->addMethodCall('setQueueDriver',[new Reference(self::DRIVER_PREFIX.$consumerConfig['driver'])]);
+                    $def->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
+                    $container->setDefinition($consumerName,$def);
+                    break;
             }
         }
 
@@ -189,13 +217,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     throw new InvalidDefinitionException(sprintf('Invalid NoSQL driver type "%s"', $type));
             }
         }
-
-        // set default queue driver alias
-        $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$config['default_queue_driver']);
+        
+        $defaultQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$config['default_queue_driver']);
         $container->setAlias('smartesb.default_queue_driver',$defaultQueueDriverAlias);
 
-        // set default events queue alias
-        $eventsQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$config['events_queue_driver']);
+        $eventsQueueDriverAlias = new Alias(self::DRIVER_PREFIX.$config['events_queue_driver']);
         $container->setAlias('smartesb.events_queue_driver',$eventsQueueDriverAlias);
 
         // set the default nosql driver
@@ -208,5 +234,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $loader->load('exceptions.yml');
         $loader->load('connectors.yml');
         $loader->load('services.yml');
+        
+        $this->loadConnectors($container);
+        $this->loadMappings($container);
     }
 }

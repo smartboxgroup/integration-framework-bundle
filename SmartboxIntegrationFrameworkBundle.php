@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle;
 
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\ConnectorsCompilerPass;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\EventDeferringCompilerPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
