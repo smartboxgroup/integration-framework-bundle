@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Util;
 
 use JMS\Serializer\SerializerInterface;
-use Smartbox\Integration\FrameworkBundle\Tests\App\AppKernel;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Util\JMSSerializerFormatter;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -32,10 +31,6 @@ class JMSSerializerFormatterTest extends WebTestCase
     public function tearDown(){
         parent::tearDown();
         self::$class = null;
-    }
-
-    public static function getKernelClass(){
-        return AppKernel::class;
     }
 
     public function dataProviderForFormatter()
