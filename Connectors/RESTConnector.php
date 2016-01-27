@@ -48,12 +48,13 @@ class RESTConnector extends ConfigurableConnector
         $httpMethod = $executionOptions[self::REQUEST_HTTP_VERB];
         $body = $this->resolve($executionOptions[self::REQUEST_BODY], $context);
         $headers = $this->resolve($executionOptions[self::OPTION_HEADERS], $context);
+        $baseUri = $this->resolve($executionOptions[self::OPTION_BASE_URI], $context);
         $resolvedURI = $this->replaceTemplateVars($executionOptions[self::REQUEST_URI], $context);
         $auth = $executionOptions[self::OPTION_AUTH];
 
         $restClient = new Client(
             [
-                'base_uri' => $executionOptions[self::OPTION_BASE_URI],
+                'base_uri' => $baseUri,
                 'timeout' => 0,
                 'allow_redirects' => false
             ]
