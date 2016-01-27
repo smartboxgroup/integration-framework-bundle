@@ -1,7 +1,5 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\App;
-
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
 
