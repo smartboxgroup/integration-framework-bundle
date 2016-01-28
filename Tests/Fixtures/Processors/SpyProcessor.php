@@ -31,6 +31,4 @@ class SpyProcessor extends Processor{
     {
         $this->receivedExchanges = $receivedExchanges;
     }
-
-
 }
