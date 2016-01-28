@@ -41,8 +41,8 @@ class TransformerTest extends KernelTestCase
         $data = [];
 
         $entity = new SerializableSimpleEntity();
-        $entity->setGroup('common group');
-        $entity->setVersion('v1');
+        $entity->setEntityGroup('common group');
+        $entity->setAPIVersion('v1');
         $entity->setTitle('common title');
         $entity->setDescription('common description');
         $entity->setNote('common note');
@@ -97,8 +97,8 @@ class TransformerTest extends KernelTestCase
         $data = [];
 
         $entity = new SerializableSimpleEntity();
-        $entity->setGroup('common group');
-        $entity->setVersion('v1');
+        $entity->setEntityGroup('common group');
+        $entity->setAPIVersion('v1');
         $entity->setTitle('common title');
         $entity->setDescription('common description');
         $entity->setNote('common note');

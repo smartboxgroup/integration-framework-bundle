@@ -5,7 +5,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class RESTConnector extends ConfigurableConnector
+class ConfigurableRESTConnector extends ConfigurableConnector
 {
     const AUTH_BASIC = 'basic';
     const OPTION_AUTH = 'authentication';
