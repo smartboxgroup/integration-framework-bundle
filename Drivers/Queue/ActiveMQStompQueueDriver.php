@@ -166,6 +166,12 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
         $this->stompVersion = $version;
     }
 
+    public function __destruct()
+    {
+        $this->disconnectRead();
+        $this->disconnectWrite();
+    }
+
     /**
      * @param int $seconds
      * @param int $milliseconds
