@@ -134,6 +134,11 @@ class Configuration implements ConfigurationInterface
             ->isRequired()
             ->end()
 
+            ->arrayNode('calls')
+            ->prototype('variable')->end()
+            ->info('Additional calls to inject dependencies to the connector')
+            ->end()
+
             ->arrayNode('options')
             ->useAttributeAsKey('name')
             ->prototype('variable')

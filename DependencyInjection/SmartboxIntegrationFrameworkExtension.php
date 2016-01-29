@@ -18,6 +18,7 @@ use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
@@ -64,6 +65,24 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             }
 
             $definition = new Definition($class);
+
+            if(array_key_exists('calls',$connectorConfig)){
+                foreach($connectorConfig['calls'] as $call){
+                    $method = $call[0];
+                    $arguments = $call[1];
+                    $resolvedArguments = [];
+                    foreach($arguments as $index => $arg){
+                        if(strpos($arg,'@') === 0){
+                            $resolvedArguments[$index] = new Reference(substr($arg,1));
+                        }else{
+                            $resolvedArguments[$index] = $arg;
+                        }
+                    }
+
+                    $definition->addMethodCall($method,$resolvedArguments);
+                }
+            }
+
             $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
             $definition->addMethodCall('setDefaultOptions', [$options]);
             $definition->addMethodCall('setEvaluator',[new Reference('smartesb.util.evaluator')]);

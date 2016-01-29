@@ -3,10 +3,13 @@ namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use Smartbox\Integration\FrameworkBundle\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 class ConfigurableRESTConnector extends ConfigurableConnector
 {
+    use UsesGuzzleHttpClient;
+
     const AUTH_BASIC = 'basic';
     const OPTION_AUTH = 'authentication';
     const OPTION_ENCODING = 'encoding';
@@ -48,16 +51,18 @@ class ConfigurableRESTConnector extends ConfigurableConnector
         $httpMethod = $executionOptions[self::REQUEST_HTTP_VERB];
         $body = $this->resolve($executionOptions[self::REQUEST_BODY], $context);
         $headers = $this->resolve($executionOptions[self::OPTION_HEADERS], $context);
-        $resolvedURI = $this->replaceTemplateVars($executionOptions[self::REQUEST_URI], $context);
+        $resolvedURI = $executionOptions[self::OPTION_BASE_URI];
+        $resolvedURI .= $this->replaceTemplateVars($executionOptions[self::REQUEST_URI], $context);
         $auth = $executionOptions[self::OPTION_AUTH];
 
-        $restClient = new Client(
-            [
-                'base_uri' => $executionOptions[self::OPTION_BASE_URI],
+        // Init rest client if not done
+        if(!$this->getHttpClient()){
+            $restClient = new Client([
                 'timeout' => 0,
                 'allow_redirects' => false
-            ]
-        );
+            ]);
+            $this->setHttpClient($restClient);
+        }
 
         $restOptions = $this->getBasicHTTPOptions($executionOptions, $context);
         $restOptions['body'] = $this->getSerializer()->serialize($body, $executionOptions['encoding']);
@@ -75,7 +80,7 @@ class ConfigurableRESTConnector extends ConfigurableConnector
         $httpMethod = strtoupper($httpMethod);
 
         /** @var Response $response */
-        $response = $restClient->request($httpMethod, $resolvedURI, $restOptions);
+        $response = $this->getHttpClient()->request($httpMethod, $resolvedURI, $restOptions);
 
         $context[self::KEY_RESPONSES][$name] = [
             'statusCode' => $response->getStatusCode(),
