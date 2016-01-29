@@ -112,6 +112,5 @@ class QueueConsumer implements QueueConsumerInterface
         }
 
         $this->getQueueDriver()->unSubscribe();
-        $this->getQueueDriver()->disconnect();
     }
 }

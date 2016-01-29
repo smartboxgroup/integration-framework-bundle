@@ -26,15 +26,11 @@ class QueueConnector extends Connector
      */
     protected static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY];
 
-    /** @var QueueDriverInterface */
-    protected $queueDriver;
-
     const OPTION_PREFIX = 'prefix';
     const OPTION_PERSISTENT = 'persistent';
     const OPTION_TTL = 'ttl';
     const OPTION_TYPE = 'type';
     const OPTION_PRIORITY = 'priority';
-    const OPTION_AUTO_DISCONNECT = 'auto-disconnect';
     const OPTION_QUEUE_NAME = 'queue';
     const OPTION_QUEUE_DRIVER = 'queue_driver';
 
@@ -45,7 +41,6 @@ class QueueConnector extends Connector
         self::OPTION_PASSWORD => '',
         self::OPTION_PERSISTENT => true,
         self::OPTION_PRIORITY => 4,
-        self::OPTION_AUTO_DISCONNECT => true,
         self::OPTION_EXCHANGE_PATTERN => self::EXCHANGE_PATTERN_IN_ONLY,
         self::OPTION_TRACK => true
     );
@@ -114,10 +109,6 @@ class QueueConnector extends Connector
         }
 
         $success = $queueDriver->send($queueMessage);
-
-        if(!$wasConnected && @$options[self::OPTION_AUTO_DISCONNECT]){
-            $queueDriver->disconnect();
-        }
 
         if(!$success){
             throw new \RuntimeException("The message could not be delivered to the queue");
