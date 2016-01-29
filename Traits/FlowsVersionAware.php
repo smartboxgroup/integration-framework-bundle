@@ -1,17 +1,17 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Traits;
 
-
-trait FlowsVersionAware {
-
+trait FlowsVersionAware
+{
     protected $flowsVersion;
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getFlowsVersion()
     {
-        return $this->flowsVersion;
+        return (string) $this->flowsVersion;
     }
 
     /**
@@ -21,5 +21,4 @@ trait FlowsVersionAware {
     {
         $this->flowsVersion = $flowsVersion;
     }
-
 }
