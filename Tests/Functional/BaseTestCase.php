@@ -7,36 +7,17 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Connectors\APIConnector;
 use Smartbox\Integration\FrameworkBundle\Connectors\DirectConnector;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\Tests\App\AppKernel;
+use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\SpyProcessor;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesValidator;
 use Smartbox\Integration\FrameworkBundle\Service;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\DependencyInjection\Container;
 
 // @todo move cration methods to factory
-abstract class BaseTestCase extends KernelTestCase
+abstract class BaseTestCase extends BaseKernelTestCase
 {
-    public static function getKernelClass(){
-        return AppKernel::class;
-    }
-
-    /**
-     * @return Container
-     */
-    protected function getContainer()
-    {
-        return self::$kernel->getContainer();
-    }
-
-    public function setUp()
-    {
-        $this->bootKernel();
-    }
-
     /**
      * @return APIConnector
      */
