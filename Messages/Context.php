@@ -83,4 +83,13 @@ class Context implements \ArrayAccess
     {
         throw new \Exception("You can not mutate the context once is created");
     }
+
+    /**
+     * Convert the context to an associative array
+     * @return \Smartbox\CoreBundle\Type\SerializableArray
+     */
+    public function toArray()
+    {
+        return $this->values->toArray();
+    }
 }
