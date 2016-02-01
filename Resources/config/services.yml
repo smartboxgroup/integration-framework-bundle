@@ -130,11 +130,6 @@ services:
   smartesb.registry.endpoints:
       class: %smartesb.registry.endpoints.class%
 
-  smartesb.event_listener.fatal_error:
-      class: %smartesb.event_listener.fatal_error.class%
-      tags:
-        - { name: kernel.event_listener, event: smartesb.event.error, method: onErrorEvent }
-
   smartbox.consumers.queue.events:
       class: Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer
       calls:

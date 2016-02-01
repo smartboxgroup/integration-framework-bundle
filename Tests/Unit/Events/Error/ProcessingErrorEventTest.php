@@ -58,15 +58,6 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($this->name, $this->event->getEventName());
     }
 
-    public function testItShouldSpecifyWhetherToThrowAnException()
-    {
-        $this->event->mustThrowException();
-        $this->assertTrue($this->event->shouldThrowException());
-
-        $this->event->mustNotThrowException();
-        $this->assertFalse($this->event->shouldThrowException());
-    }
-
     public function testItShouldSetAndGetARequestStack()
     {
         /** @var RequestStack $requestStack */
