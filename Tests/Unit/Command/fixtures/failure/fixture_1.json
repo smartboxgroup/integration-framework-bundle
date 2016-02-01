@@ -1,7 +1,7 @@
 {
-  "type":"Smartbox\\Integration\\FrameworkBundle\\Tests\\Unit\\Command\\fixtures\\Entity\\BasicResponse",
-  "group":"public",
-  "version":"v1",
+  "_type":"Smartbox\\Integration\\FrameworkBundle\\Tests\\Unit\\Command\\fixtures\\Entity\\BasicResponse",
+  "_group":"public",
+  "_apiVersion":"v1",
   "code":"",
   "message":""
 }

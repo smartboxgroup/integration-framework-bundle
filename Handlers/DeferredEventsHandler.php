@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Handlers;
 
 use JMS\Serializer\Annotation as JMS;
-use Smartbox\CoreBundle\Type\Traits\HasType;
+use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
@@ -19,7 +19,7 @@ use Smartbox\Integration\FrameworkBundle\Helper\EndpointHelper;
  */
 class DeferredEventsHandler implements HandlerInterface
 {
-    use HasType;
+    use HasInternalType;
     use UsesEventDispatcher;
     use FlowsVersionAware;
 
