@@ -37,7 +37,7 @@ class EventDispatcher extends ContainerAwareEventDispatcher{
     {
         $queueDriver = $this->getContainer()->get('smartesb.drivers.queue.events');
         $queueName = $this->getContainer()->getParameter('smartesb.events_queue_name');
-        $flowsVersion = (string) $this->getContainer()->getParameter('smartesb.flows_version');
+        $flowsVersion = $this->getContainer()->getParameter('smartesb.flows_version');
 
         if(!$queueDriver->isConnected()){
             $queueDriver->connect();
