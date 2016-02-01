@@ -4,25 +4,16 @@ namespace Smartbox\Integration\FrameworkBundle\Tests;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\Tests\App\AppKernel;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * Class BaseKernelTestCase
  * @package Smartbox\Integration\FrameworkBundle\Tests
  */
-class BaseKernelTestCase extends KernelTestCase {
-
-    public static function getKernelClass(){
-        return AppKernel::class;
-    }
-
+class BaseKernelTestCase extends KernelTestCase
+{
     public function setUp(){
         $this->bootKernel();
-    }
-
-    public function tearDown(){
-        parent::tearDown();
     }
 
     public function getContainer(){

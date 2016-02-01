@@ -1,12 +1,12 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Messages\Db;
+namespace Smartbox\Integration\FrameworkBundle\Messages\DB;
 
 use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
 
 /**
  * Interface NoSQLMessageInterface
- * @package Smartbox\Integration\FrameworkBundle\Messages\Db
+ * @package Smartbox\Integration\FrameworkBundle\Messages\DB
  */
 interface NoSQLMessageInterface extends MessageInterface
 {
