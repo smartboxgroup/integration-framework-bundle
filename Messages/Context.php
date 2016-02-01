@@ -11,12 +11,8 @@ use Smartbox\CoreBundle\Type\SerializableArray;
  */
 class Context implements \ArrayAccess
 {
-    const TRANSACTION_ID = 'transaction_id';
     const ORIGINAL_FROM = 'from';
     const ORIGINAL_TIMESTAMP = 'timestamp';
-    const USER = 'user';
-    const IP = 'ip';
-    const API_MODE = 'api_mode';
     const VERSION = 'version';
 
     /**
@@ -86,7 +82,7 @@ class Context implements \ArrayAccess
 
     /**
      * Convert the context to an associative array
-     * @return \Smartbox\CoreBundle\Type\SerializableArray
+     * @return array
      */
     public function toArray()
     {
