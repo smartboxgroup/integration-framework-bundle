@@ -40,7 +40,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
     public function getFlowsVersion()
     {
-        return $this->config['flows_version'];
+        return (string) $this->config['flows_version'];
     }
 
     public function getLatestFlowsVersion()

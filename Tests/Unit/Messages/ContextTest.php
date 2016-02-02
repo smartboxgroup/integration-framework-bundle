@@ -16,19 +16,19 @@ class ContextTest extends \PHPUnit_Framework_TestCase
     public function testItShouldBeConstructedWithASerializableArray()
     {
         $values = new SerializableArray([
-            'foo' => new String('bar')
+            Context::USER => new String('bar')
         ]);
 
         $context = new Context($values);
-        $this->assertEquals('bar', $context->get('foo'));
+        $this->assertEquals('bar', $context->get(Context::USER));
     }
 
     public function testItShouldBeConstructedWithAnArray()
     {
-        $values = ['foo' => 'bar'];
+        $values = [Context::USER => 'bar'];
 
         $context = new Context($values);
-        $this->assertEquals('bar', $context->get('foo'));
+        $this->assertEquals('bar', $context->get(Context::USER));
     }
 
     /**

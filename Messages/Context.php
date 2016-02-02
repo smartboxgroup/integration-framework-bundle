@@ -16,7 +16,6 @@ class Context implements \ArrayAccess
     const ORIGINAL_TIMESTAMP = 'timestamp';
     const USER = 'user';
     const IP = 'ip';
-    const API_MODE = 'api_mode';
     const VERSION = 'version';
 
     /**
