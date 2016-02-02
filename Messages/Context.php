@@ -4,7 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Messages;
 
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class Context
@@ -33,26 +32,12 @@ class Context implements \ArrayAccess
     public function __construct($values = [])
     {
         if ($values instanceof SerializableArray) {
-            $values = $this->getOptionsResolver()->resolve($values->toArray());
+            $this->values = $values;
         } else if (is_array($values)) {
-            $values = $this->getOptionsResolver()->resolve($values);
+            $this->values = new SerializableArray($values);
         } else {
             throw new \InvalidArgumentException("Invalid value, expected array or SerializableArray");
         }
-
-        $this->values = new SerializableArray($values);
-    }
-
-    /**
-     * @return OptionsResolver
-     */
-    protected function getOptionsResolver()
-    {
-        $resolver = new OptionsResolver();
-        $resolver->setDefined([self::TRANSACTION_ID, self::ORIGINAL_FROM, self::ORIGINAL_TIMESTAMP, self::USER, self::IP, self::VERSION]);
-        $resolver->setAllowedTypes(self::VERSION, ['string']);
-
-        return $resolver;
     }
 
     /**
