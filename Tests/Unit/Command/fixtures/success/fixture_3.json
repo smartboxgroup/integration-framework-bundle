@@ -1,33 +1,33 @@
 {
-  "type":"Smartbox\\CoreBundle\\Type\\SerializableArray",
+  "_type":"Smartbox\\CoreBundle\\Type\\SerializableArray",
   "array":{
     "response":{
-      "type":"Smartbox\\ApiBundle\\Entity\\BasicResponse",
-      "group":"A",
-      "version":"v1",
+      "_type":"Smartbox\\ApiBundle\\Entity\\BasicResponse",
+      "_group":"A",
+      "_apiVersion":"v1",
       "code":200,
       "message":"Hi"
     },
     "response2":{
-      "type":"Smartbox\\ApiBundle\\Entity\\BasicResponse",
-      "group":"A",
-      "version":"v1",
+      "_type":"Smartbox\\ApiBundle\\Entity\\BasicResponse",
+      "_group":"A",
+      "_apiVersion":"v1",
       "code":200,
       "message":"Hi"
     },
     "number":{
-      "type":"Smartbox\\CoreBundle\\Type\\Integer",
+      "_type":"Smartbox\\CoreBundle\\Type\\Integer",
       "value":2
     },
     "string":{
-      "type":"Smartbox\\CoreBundle\\Type\\String",
+      "_type":"Smartbox\\CoreBundle\\Type\\String",
       "value":"Lorem ipsum"
     },
     "other":{
-      "type":"Smartbox\\CoreBundle\\Type\\SerializableArray",
+      "_type":"Smartbox\\CoreBundle\\Type\\SerializableArray",
       "array":{
         "AAAA":{
-          "type":"Smartbox\\CoreBundle\\Type\\String",
+          "_type":"Smartbox\\CoreBundle\\Type\\String",
           "value":"XXXXXXX"
         }
       }

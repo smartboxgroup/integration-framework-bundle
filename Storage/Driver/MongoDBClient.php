@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Storage\Driver;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\CoreBundle\Type\Traits\HasType;
+use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\DataStorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilter;
@@ -18,7 +18,7 @@ use JMS\Serializer\SerializerInterface;
  */
 class MongoDBClient implements StorageClientInterface, SerializableInterface
 {
-    use HasType;
+    use HasInternalType;
 
     /** @var SerializerInterface */
     protected $serializer;
@@ -221,7 +221,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
 
                 $result[(string) $id] = $item;
 
-                if ($hydrateObject && isset($item['type'])) {
+                if ($hydrateObject && isset($item['_type'])) {
                     $result[(string) $id] = $this->hydrateResult($item);
                 }
             }

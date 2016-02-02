@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Processors;
 
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\CoreBundle\Type\Traits\HasType;
+use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 
 /**
  * Class Itinerary
@@ -12,7 +12,7 @@ use Smartbox\CoreBundle\Type\Traits\HasType;
  */
 class Itinerary implements SerializableInterface
 {
-    use HasType;
+    use HasInternalType;
 
     /**
      * @JMS\Type("string")

@@ -41,8 +41,8 @@ class TransformerTest extends KernelTestCase
         $data = [];
 
         $entity = new SerializableSimpleEntity();
-        $entity->setGroup('common group');
-        $entity->setVersion('v1');
+        $entity->setEntityGroup('common group');
+        $entity->setAPIVersion('v1');
         $entity->setTitle('common title');
         $entity->setDescription('common description');
         $entity->setNote('common note');
@@ -67,7 +67,7 @@ class TransformerTest extends KernelTestCase
         $transformedEntity2 = clone($entity);
         $transformedEntity2->setTitle('title for v1');
         $outMessage2 = new Message($transformedEntity2);
-        $data[] = [$inMessage2, $outMessage2, 'msg.getBody().getVersion() == "v1" ? msg.getBody().setTitle("title for v1") : msg.getBody().setTitle("title for non v1")'];
+        $data[] = [$inMessage2, $outMessage2, 'msg.getBody().getAPIVersion() == "v1" ? msg.getBody().setTitle("title for v1") : msg.getBody().setTitle("title for non v1")'];
 
         return $data;
     }
@@ -97,8 +97,8 @@ class TransformerTest extends KernelTestCase
         $data = [];
 
         $entity = new SerializableSimpleEntity();
-        $entity->setGroup('common group');
-        $entity->setVersion('v1');
+        $entity->setEntityGroup('common group');
+        $entity->setAPIVersion('v1');
         $entity->setTitle('common title');
         $entity->setDescription('common description');
         $entity->setNote('common note');
