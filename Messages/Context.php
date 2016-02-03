@@ -11,11 +11,8 @@ use Smartbox\CoreBundle\Type\SerializableArray;
  */
 class Context implements \ArrayAccess
 {
-    const TRANSACTION_ID = 'transaction_id';
     const ORIGINAL_FROM = 'from';
     const ORIGINAL_TIMESTAMP = 'timestamp';
-    const USER = 'user';
-    const IP = 'ip';
     const VERSION = 'version';
 
     /**
@@ -81,5 +78,14 @@ class Context implements \ArrayAccess
     public function offsetUnset($offset)
     {
         throw new \Exception("You can not mutate the context once is created");
+    }
+
+    /**
+     * Convert the context to an associative array
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->values->toArray();
     }
 }
