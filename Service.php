@@ -4,8 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle;
 
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\CoreBundle\Type\Traits\HasType;
-use Smartbox\Integration\FrameworkBundle\Traits\FlowsVersionAware;
+use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Traits\MessageFactoryAware;
 
 /**
@@ -14,7 +13,7 @@ use Smartbox\Integration\FrameworkBundle\Traits\MessageFactoryAware;
  */
 abstract class Service implements SerializableInterface
 {
-    use HasType;
+    use HasInternalType;
     use MessageFactoryAware;
 
     /**

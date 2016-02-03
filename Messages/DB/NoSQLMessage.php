@@ -1,13 +1,13 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Messages\Db;
+namespace Smartbox\Integration\FrameworkBundle\Messages\DB;
 
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use JMS\Serializer\Annotation as JMS;
 
 /**
  * Class NoSQLMessage
- * @package Smartbox\Integration\FrameworkBundle\Messages\Db
+ * @package Smartbox\Integration\FrameworkBundle\Messages\DB
  */
 class NoSQLMessage extends Message implements NoSQLMessageInterface
 {

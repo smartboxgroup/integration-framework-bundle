@@ -1,7 +1,5 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\App;
-
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
 
@@ -17,6 +15,7 @@ class AppKernel extends Kernel
             new \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new \JMS\SerializerBundle\JMSSerializerBundle(),
             new \BeSimple\SoapBundle\BeSimpleSoapBundle(),
+
             new \Smartbox\CoreBundle\SmartboxCoreBundle(),
             new \Smartbox\Integration\FrameworkBundle\SmartboxIntegrationFrameworkBundle(),
         );

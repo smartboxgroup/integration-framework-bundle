@@ -33,7 +33,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
         $container->set('smartesb.drivers.queue.events',$queueDriver);
-        $container->setParameter('smartesb.flows_version',0);
+        $container->setParameter('smartesb.flows_version', '0');
 
         $container->setParameter('smartesb.events_queue_name', 'test_queue');
 

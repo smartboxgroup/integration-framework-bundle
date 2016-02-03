@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Messages;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\CoreBundle\Type\Traits\HasType;
+use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Messages\Traits\HasHeaders;
 use Smartbox\Integration\FrameworkBundle\Messages\Traits\HasItinerary;
 use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
@@ -20,7 +20,7 @@ class Exchange implements SerializableInterface
     const HEADER_HANDLER = 'handler';
     const HEADER_FROM = 'from';
 
-    use HasType;
+    use HasInternalType;
     use HasItinerary;
     use HasHeaders;
 

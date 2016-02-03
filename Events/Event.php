@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Events;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\CoreBundle\Type\Traits\HasType;
+use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Symfony\Component\EventDispatcher\Event as BaseEvent;
 use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
@@ -14,7 +14,7 @@ use JMS\Serializer\Annotation as JMS;
  */
 abstract class Event extends BaseEvent implements SerializableInterface
 {
-    use HasType;
+    use HasInternalType;
 
     /**
      * @JMS\Expose
