@@ -58,6 +58,16 @@ trait UsesItinerariesRouter {
     }
 
     /**
+     * @param string $from
+     * @return Itinerary
+     * @throws \Exception
+     */
+    public function getItineraryForURI($from){
+        $params = $this->findItineraryParams($from);
+        return $params[InternalRouter::KEY_ITINERARY];
+    }
+
+    /**
      * Returns the parameters that should be propagated throught the route using the exchange headers
      * @param $params
      * @return array

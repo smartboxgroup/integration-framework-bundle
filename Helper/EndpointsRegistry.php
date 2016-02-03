@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Helper;
 
 /**
  * Class EndpointsRegistry
+ * @deprecated Do not use this!!
  * @package Smartbox\Integration\FrameworkBundle\Helper
  */
 class EndpointsRegistry
@@ -17,6 +18,10 @@ class EndpointsRegistry
     public function register($endpointId, $uri)
     {
         $this->endpoints[$uri] = $endpointId;
+    }
+
+    public function getEndpoint(){
+
     }
 
     /**

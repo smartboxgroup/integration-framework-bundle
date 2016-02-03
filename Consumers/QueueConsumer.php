@@ -11,13 +11,12 @@ use Smartbox\Integration\FrameworkBundle\Messages\Message;
  * Class QueueConsumer
  * @package Smartbox\Integration\FrameworkBundle\Consumers
  */
-class QueueConsumer implements QueueConsumerInterface
+class QueueConsumer implements QueueConsumerInterface, UsesMessageHandlerInterface
 {
+    use UsesMessageHandler;
+
     /** @var bool */
     protected $stop = false;
-
-    /** @var  HandlerInterface */
-    protected $handler;
 
     /** @var  QueueDriverInterface */
     protected $queueDriver;
@@ -64,20 +63,6 @@ class QueueConsumer implements QueueConsumerInterface
         return $this->stop || $this->expirationCount == 0;
     }
 
-    /**
-     * @param HandlerInterface $handler
-     */
-    public function setHandler(HandlerInterface $handler){
-        $this->handler = $handler;
-    }
-
-    /**
-     * @return HandlerInterface
-     */
-    public function getHandler(){
-        return $this->handler;
-    }
-
     public function consume($queue){
         $this->getQueueDriver()->connect();
         $this->getQueueDriver()->subscribe($queue);
@@ -98,7 +83,7 @@ class QueueConsumer implements QueueConsumerInterface
                     $message = $queueMessage->getBody();
 
                     // Handle
-                    $this->getHandler()->handle($message,$queueMessage->getHeader(Message::HEADER_FROM));
+                    $this->getHandler()->handle($message,$queueMessage->getDestinationURI());
 
                     // Ack
                     $this->getQueueDriver()->ack();

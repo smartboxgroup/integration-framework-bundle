@@ -39,39 +39,4 @@ class EndpointHelper extends ContainerAware
     {
         return EndpointHelper::ENDPOINT_PREFIX.EndpointHelper::slugify($uri);
     }
-
-    /**
-     * @param $uri
-     * @return Connector
-     */
-    public function getEndpointByURI($uri)
-    {
-        $id = self::getIdForURI($uri);
-
-        return $this->container->get($id);
-    }
-
-    /**
-     * @param $identifier
-     * @return Connector
-     */
-    public function getEndpoint($identifier)
-    {
-        if ($this->container->has($identifier)) {
-            return $this->container->get($identifier);
-        } else {
-            return $this->getEndpointByURI($identifier);
-        }
-    }
-
-    /**
-     * @param $scheme
-     * @param $host
-     * @param $path
-     * @return Connector
-     */
-    public function getEndpointByParams($scheme, $host, $path)
-    {
-        return $this->getEndpointByURI($scheme."://".$host.$path);
-    }
 }

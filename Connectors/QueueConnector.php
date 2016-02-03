@@ -88,7 +88,7 @@ class QueueConnector extends Connector
         $queueMessage->setQueue($queueName);
         $queueMessage->setPersistent($options[self::OPTION_PERSISTENT]);
         $queueMessage->setPriority($options[self::OPTION_PRIORITY]);
-        $queueMessage->setHeader(Message::HEADER_FROM, $options[InternalRouter::KEY_URI]);
+        $queueMessage->setDestinationURI($options[InternalRouter::KEY_URI]);
 
         if ($type = @$options[self::OPTION_TYPE]) {
             $queueMessage->setMessageType($type);

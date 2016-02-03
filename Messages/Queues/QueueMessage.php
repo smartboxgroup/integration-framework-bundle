@@ -14,6 +14,7 @@ class QueueMessage extends Message implements QueueMessageInterface
     const HEADER_EXPIRES = 'expires';
     const HEADER_TYPE = 'type';
     const HEADER_PRIORITY = 'priority';
+    const HEADER_REASON_FOR_FAILURE = 'dlqDeliveryFailureCause';
 
     public function __construct(SerializableInterface $body = null, $headers = array(), Context $context = null){
         parent::__construct($body,$headers,$context);
@@ -49,6 +50,11 @@ class QueueMessage extends Message implements QueueMessageInterface
         }
     }
 
+    public function setReasonForFailure($reason)
+    {
+        $this->setHeader(self::HEADER_REASON_FOR_FAILURE, $reason);
+    }
+
     public function getQueue()
     {
         return $this->getHeader(self::HEADER_QUEUE);
@@ -82,5 +88,24 @@ class QueueMessage extends Message implements QueueMessageInterface
     public function getPersistent()
     {
         return $this->getHeader(self::HEADER_PERSISTENT);
+    }
+
+    public function getReasonForFailure()
+    {
+        return $this->getHeader(self::HEADER_REASON_FOR_FAILURE);
+    }
+
+    /**
+     * @param $uri
+     */
+    public function setDestinationURI($uri){
+        $this->setHeader(Message::HEADER_FROM, $uri);
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getDestinationURI(){
+        return $this->getHeader(Message::HEADER_FROM);
     }
 }
