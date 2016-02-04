@@ -1,5 +1,4 @@
 parameters:
-  smartesb.registry.endpoints.class: Smartbox\Integration\FrameworkBundle\Helper\EndpointsRegistry
   smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Processors\Itinerary
 
   smartesb.handler.main.class: Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler
@@ -126,9 +125,6 @@ services:
       class: %smartbox.monolog.formatter.json.class%
       calls:
           - [setSerializer, [@serializer]]
-
-  smartesb.registry.endpoints:
-      class: %smartesb.registry.endpoints.class%
 
   smartesb.event_listener.fatal_error:
       class: %smartesb.event_listener.fatal_error.class%
