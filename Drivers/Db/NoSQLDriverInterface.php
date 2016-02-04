@@ -1,7 +1,7 @@
 <?php
 
 namespace Smartbox\Integration\FrameworkBundle\Drivers\Db;
-use Smartbox\Integration\FrameworkBundle\Messages\Db\NoSQLMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Messages\DB\NoSQLMessageInterface;
 
 /**
  * Interface NoSQLDriverInterface

@@ -7,6 +7,10 @@
          colors="true"
          bootstrap="./Tests/App/autoload.php"
 >
+    <php>
+        <server name="KERNEL_DIR" value="Tests/App/" />
+    </php>
+
     <testsuite name="Framework Bundle Suite">
         <directory>./Tests/</directory>
     </testsuite>

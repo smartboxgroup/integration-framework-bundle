@@ -10,9 +10,11 @@ use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 class SpyProcessor extends Processor{
 
     protected $receivedExchanges = [];
+    protected $reached = false;
 
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
+        $this->reached = true;
         $this->receivedExchanges[] = $exchange;
     }
 
@@ -32,5 +34,12 @@ class SpyProcessor extends Processor{
         $this->receivedExchanges = $receivedExchanges;
     }
 
-
+    /**
+     * Check if the processor was reached during the last flow execution
+     * @return bool
+     */
+    public function wasReached()
+    {
+        return $this->reached;
+    }
 }
