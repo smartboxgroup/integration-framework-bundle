@@ -90,7 +90,7 @@ services:
       class: %smartesb.internal_router.class%
       arguments:
         - @service_container
-        - "%kernel.root_dir%/config/routing_connectors.yml"
+        - "%kernel.root_dir%/config/routing_connectors_%kernel.environment%.yml"
         - %smartesb.router.connectors.options%
       tags:
         - { name: monolog.logger, channel: "router.connectors" }
@@ -129,11 +129,6 @@ services:
 
   smartesb.registry.endpoints:
       class: %smartesb.registry.endpoints.class%
-
-  smartesb.event_listener.fatal_error:
-      class: %smartesb.event_listener.fatal_error.class%
-      tags:
-        - { name: kernel.event_listener, event: smartesb.event.error, method: onErrorEvent }
 
   smartbox.consumers.queue.events:
       class: Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer

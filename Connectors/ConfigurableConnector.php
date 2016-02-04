@@ -196,10 +196,23 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
 
             return $res;
         } elseif (is_string($obj)) {
-            return $this->evaluator->evaluateWithVars($obj, array_merge($context, $context[self::KEY_VARS]));
+            return $this->evaluateStringOrExpression($obj, array_merge($context, $context[self::KEY_VARS]));
         } else {
             return $obj;
         }
+    }
+
+    protected function evaluateStringOrExpression($string, $context)
+    {
+        $regex = '/^eval: (?P<expr>.+)$/i';
+        $success = preg_match($regex, $string, $matches);
+
+        if (!$success) {
+            return $string;
+        }
+
+        $expression = $matches['expr'];
+        return $this->evaluator->evaluateWithVars($expression, $context);
     }
 
     protected function replaceTemplateVars($string, $context){

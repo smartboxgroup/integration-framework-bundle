@@ -26,36 +26,36 @@ class ConfigurableConnectorTest extends BaseTestCase{
               ConfigurableConnector::KEY_DESCRIPTION => 'Description here',
               ConfigurableConnector::KEY_STEPS => [
                     [ConfigurableConnector::STEP_DEFINE => [
-                      'x' => '1 + 2',
-                      'val' => 'msg.getBody().get("value")'
+                      'x' => 'eval: 1 + 2',
+                      'val' => 'eval: msg.getBody().get("value")'
                     ]],
                       [ConfigurableConnector::STEP_REQUEST => [
                           'name' => 'test'
                       ]],
                     [ConfigurableConnector::STEP_DEFINE => [
-                      'result' => 'x + val + responses["test"]'
+                      'result' => 'eval: x + val + responses["test"]'
                     ]]
               ],
               ConfigurableConnector::KEY_VALIDATIONS => [
                   [
-                      'rule' => 'x == 3',
+                      'rule' => 'eval: x == 3',
                       'message' => 'Define does not work!',
                       'recoverable' => true,
                   ],
                   [
-                      'rule' => 'val != 666',
+                      'rule' => 'eval: val != 666',
                       'message' => 'Ugly number!!',
                       'recoverable' => true,
                   ],
                   [
-                      'rule' => 'val != 1313666',
+                      'rule' => 'eval: val != 1313666',
                       'message' => 'Too ugly number!!',
                       'recoverable' => false,
                   ]
               ],
               ConfigurableConnector::KEY_RESPONSE => [
-                  'result' => 'result'
-              ],       // Should be (1+2) + msg.get('value') + 10
+                  'result' => 'eval: 1 + 2 + msg.getBody().get(\'value\') + 10'
+              ],
           ]
     ];
 
@@ -106,15 +106,15 @@ class ConfigurableConnectorTest extends BaseTestCase{
         ];
 
         $this->configurableConnector->executeStep('define', [
-            'r1' => 'x + y',
+            'r1' => 'eval: x + y',
             'r2' => [
                 'sub1' => [
-                    'a' => 'x*10',
-                    'b' => 'y*10'
+                    'a' => 'eval: x*10',
+                    'b' => 'eval: y*10'
                 ],
                 'sub2' => [
-                    'a' => 'x+10',
-                    'b' => 'y+10'
+                    'a' => 'eval: x+10',
+                    'b' => 'eval: y+10'
                 ]
             ]
         ], [],$context);

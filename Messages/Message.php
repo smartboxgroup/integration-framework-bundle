@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Messages;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\Entity;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\CoreBundle\Type\Traits\HasType;
+use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Messages\Traits\HasHeaders;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Message implements MessageInterface
 {
-    use HasType;
+    use HasInternalType;
     use HasHeaders;
 
     const HEADER_EXPIRES = 'expires';
