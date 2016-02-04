@@ -11,7 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Traits\FlowsVersionAware;
 use Smartbox\Integration\FrameworkBundle\Traits\MessageFactoryAware;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
-use Smartbox\Integration\FrameworkBundle\Helper\EndpointHelper;
+use Smartbox\Integration\FrameworkBundle\Helper\SlugHelper;
 
 /**
  * Class DeferredEventsHandler

@@ -7,10 +7,8 @@ namespace Smartbox\Integration\FrameworkBundle\Helper;
 use Smartbox\Integration\FrameworkBundle\Connectors\Connector;
 use Symfony\Component\DependencyInjection\ContainerAware;
 
-class EndpointHelper extends ContainerAware
+class SlugHelper extends ContainerAware
 {
-    const ENDPOINT_PREFIX = "endpoint.";
-
     static public function slugify($text)
     {
         // replace non letter or digits by -
@@ -33,10 +31,5 @@ class EndpointHelper extends ContainerAware
         }
 
         return $text;
-    }
-
-    public static function getIdForURI($uri)
-    {
-        return EndpointHelper::ENDPOINT_PREFIX.EndpointHelper::slugify($uri);
     }
 }
