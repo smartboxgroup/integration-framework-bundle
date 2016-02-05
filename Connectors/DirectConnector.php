@@ -2,8 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
+use Smartbox\Integration\FrameworkBundle\Exceptions\ConnectorUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use JMS\Serializer\Annotation as JMS;
+use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesItinerariesRouter;
 
@@ -25,7 +27,7 @@ class DirectConnector extends Connector
     public function send(Exchange $ex, array $options)
     {
         if(!array_key_exists(InternalRouter::KEY_URI,$options)){
-            throw new \Exception("Connector: URI not found in options");
+            throw new ConnectorUnrecoverableException("URI not found in options");
         }
 
         $uri = $options[InternalRouter::KEY_URI];
@@ -38,7 +40,6 @@ class DirectConnector extends Connector
         foreach ($headersToPropagate as $key => $value) {
             $ex->setHeader($key,$value);
         }
-
     }
 
     public function getAvailableOptions(){
