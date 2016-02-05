@@ -89,7 +89,7 @@ services:
       class: %smartesb.internal_router.class%
       arguments:
         - @service_container
-        - "%kernel.root_dir%/config/routing_connectors.yml"
+        - "%kernel.root_dir%/config/routing_connectors_%kernel.environment%.yml"
         - %smartesb.router.connectors.options%
       tags:
         - { name: monolog.logger, channel: "router.connectors" }

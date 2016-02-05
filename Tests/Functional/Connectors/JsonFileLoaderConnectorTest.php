@@ -29,7 +29,7 @@ class JsonFileLoaderConnectorTest extends BaseTestCase
         ));
 
         $sample = new EntityX();
-        $sample->setVersion('v1');
+        $sample->setAPIVersion('v1');
         $sample->setX(100);
 
         $content = $exchange->getResult()->getBody();

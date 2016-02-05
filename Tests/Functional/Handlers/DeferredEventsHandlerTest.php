@@ -37,7 +37,7 @@ class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
     {
         /** @var Event|\PHPUnit_Framework_MockObject_MockObject $eventMock */
         $eventMock = $this->getMockForAbstractClass(Event::class,array('test'));
-        $message = new EventMessage($eventMock, [EventMessage::HEADER_EVENT_NAME => 'test'], new Context([Context::VERSION => 0]));
+        $message = new EventMessage($eventMock, [EventMessage::HEADER_EVENT_NAME => 'test'], new Context([Context::VERSION => '0']));
 
         $this->eventDispatcherMock
             ->expects($this->once())

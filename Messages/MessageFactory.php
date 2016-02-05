@@ -4,26 +4,11 @@ namespace Smartbox\Integration\FrameworkBundle\Messages;
 
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Traits\FlowsVersionAware;
 
 class MessageFactory implements MessageFactoryInterface  {
 
-    protected $flowsVersion;
-
-    /**
-     * @return mixed
-     */
-    public function getFlowsVersion()
-    {
-        return (string) $this->flowsVersion;
-    }
-
-    /**
-     * @param mixed $flowsVersion
-     */
-    public function setFlowsVersion($flowsVersion)
-    {
-        $this->flowsVersion = $flowsVersion;
-    }
+    use FlowsVersionAware;
 
     /**
      * @param SerializableInterface $body
