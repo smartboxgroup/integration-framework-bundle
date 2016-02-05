@@ -10,7 +10,7 @@
     "require": {
         "php": ">=5.5",
         "ext-pcntl": "*",
-        "ext-mongo": "~1.6",
+        "ext-mongodb": "~1.0",
         "centraldesktop/stomp": "^2.0",
         "symfony/symfony": "2.7.*",
         "doctrine/annotations": "1.2.*",
