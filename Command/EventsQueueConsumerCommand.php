@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
 /**
- * Class EventsQueueConsumerCommand
+ * Class DLQConsumerCommand
  * @package Smartbox\Integration\FrameworkBundle\Command
  */
 class EventsQueueConsumerCommand extends QueueConsumerCommand
