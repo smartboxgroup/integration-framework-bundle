@@ -21,7 +21,8 @@
         "incenteev/composer-parameter-handler": "~2.0",
         "jms/serializer-bundle": "^0.13.0",
         "besimple/soap": "^0.2.6",
-        "smartbox/core-bundle": "dev-master"
+        "smartbox/core-bundle": "dev-master",
+        "mongodb/mongodb": "~1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "4.7.*",
