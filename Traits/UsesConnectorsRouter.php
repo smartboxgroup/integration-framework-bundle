@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Traits;
 
 use Smartbox\Integration\FrameworkBundle\Connectors\Connector;
 use Smartbox\Integration\FrameworkBundle\Connectors\ConnectorInterface;
+use Smartbox\Integration\FrameworkBundle\Exceptions\ConnectorUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -44,12 +45,18 @@ trait UsesConnectorsRouter {
         return $this->getExchangePattern($options) == Connector::EXCHANGE_PATTERN_IN_ONLY;
     }
 
-    static public function resolveURI(Exchange $exchange, $uri){
-        $uri = preg_replace('/\s+/', '',$uri);
+    static public function resolveURIParams(Exchange $exchange, $uri){
+        preg_match_all('/\\{([^{}]+)\\}/', $uri, $matches);
+        $params = $matches[1];
+        $headers = $exchange->getHeaders();
 
-        if(strpos($uri,'{') !== false){
-            foreach($exchange->getHeaders() as $key => $value){
-                $uri = str_replace('{'.$key.'}',$value,$uri);
+        if(!empty($params)){
+            foreach($params as $param){
+                if(array_key_exists($param,$headers)){
+                    $uri = str_replace('{'.$param.'}',$headers[$param],$uri);
+                }else{
+                    throw new ConnectorUnrecoverableException("Missing exchange header \"$param\" required to resolve the uri \"$uri\"");
+                }
             }
         }
 
@@ -82,7 +89,7 @@ trait UsesConnectorsRouter {
      * @throws \Exception
      */
     protected function sendTo(Exchange $exchange, $uri){
-        $uri = self::resolveURI($exchange,$uri);
+        $uri = self::resolveURIParams($exchange,$uri);
         $options = $this->resolveOptions($uri);
 
         /** @var ConnectorInterface $connector */

@@ -57,7 +57,7 @@ class Endpoint extends Processor
      */
     protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
     {
-        $uri = self::resolveURI($exchange,$this->uri);
+        $uri = self::resolveURIParams($exchange,$this->uri);
         $options = $this->resolveOptions($uri);
         /** @var ConnectorInterface $connector */
         $connector = $options[InternalRouter::KEY_CONNECTOR];

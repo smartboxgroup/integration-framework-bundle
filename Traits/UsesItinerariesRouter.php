@@ -2,6 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Traits;
 
+use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
+use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;

@@ -283,18 +283,7 @@ class MessageHandler extends Service implements HandlerInterface
                 throw new HandlerException("Missing FROM header while trying to handle a message",$message);
             }
 
-
-            $params = $this->findItineraryParams($from);
-
-            $itinerary = $params[InternalRouter::KEY_ITINERARY];
-
-            $exchange = new Exchange($message, clone $itinerary);
-            $exchange->setHeader(Exchange::HEADER_HANDLER,$this->getId());
-            $exchange->setHeader(Exchange::HEADER_FROM,$from);
-
-            foreach ($this->filterItineraryParamsToPropagate($params) as $key => $value) {
-               $exchange->setHeader($key,$value);
-            }
+            $exchange = $this->createExchangeForMessageFromURI($message,$from);
         }
 
         $this->onHandleStart($exchange);
@@ -302,6 +291,21 @@ class MessageHandler extends Service implements HandlerInterface
         $this->onHandleSuccess($exchange);
 
         return $result;
+    }
+
+    protected function createExchangeForMessageFromURI(MessageInterface $message, $from){
+        $params = $this->findItineraryParams($from);
+        $itinerary = $params[InternalRouter::KEY_ITINERARY];
+
+        $exchange = new Exchange($message, clone $itinerary);
+        $exchange->setHeader(Exchange::HEADER_HANDLER,$this->getId());
+        $exchange->setHeader(Exchange::HEADER_FROM,$from);
+
+        foreach ($this->filterItineraryParamsToPropagate($params) as $key => $value) {
+            $exchange->setHeader($key,$value);
+        }
+
+        return $exchange;
     }
 
     public function processExchange(Exchange $exchange, $retries = 0){
