@@ -28,7 +28,8 @@ class ExpressionEvaluator
             'headers',
             'body',
             'serializer',
-            'mapper'
+            'mapper',
+            'now'
         );
     }
 
@@ -52,7 +53,8 @@ class ExpressionEvaluator
             'headers' => $exchange->getIn()->getHeaders(),
             'body' => $body,
             'serializer' => $this->getSerializer(),
-            'mapper' => $this->getMapper()
+            'mapper' => $this->getMapper(),
+            'now' => new \DateTime(),
         ));
     }
 

@@ -26,14 +26,6 @@ class ProcessingErrorEvent extends ProcessEvent
     protected $exception;
 
     /**
-     * @var boolean
-     * @JMS\Type("boolean")
-     * @JMS\Groups({"logs"})
-     * @JMS\Expose
-     */
-    protected $throwException = false;
-
-    /**
      * @var RequestStack
      * @JMS\Type("Symfony\Component\HttpFoundation\RequestStack")
      * @JMS\Groups({"logs"})
@@ -77,24 +69,6 @@ class ProcessingErrorEvent extends ProcessEvent
     public function getException()
     {
         return $this->exception;
-    }
-
-    public function mustThrowException()
-    {
-        $this->throwException = true;
-    }
-
-    public function mustNotThrowException()
-    {
-        $this->throwException = false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function shouldThrowException()
-    {
-        return $this->throwException;
     }
 
     /**
