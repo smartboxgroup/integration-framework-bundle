@@ -2,12 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Consumers;
 
-use Smartbox\Integration\FrameworkBundle\Drivers\Queue\QueueDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Handlers\HandlerInterface;
-use CentralDesktop\Stomp\Exception as StompException;
-use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessageInterface;
 
 /**
  * Class QueueConsumer
@@ -17,7 +12,10 @@ class QueueConsumer extends AbstractQueueConsumer implements QueueConsumerInterf
 {
     use UsesMessageHandler;
 
-    protected function process(QueueMessage $message)
+    /**
+     * {@inheritDoc}
+     */
+    protected function process(QueueMessageInterface $message)
     {
         $this->getHandler()->handle($message->getBody(),$message->getDestinationURI());
     }

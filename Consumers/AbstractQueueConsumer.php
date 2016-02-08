@@ -2,11 +2,14 @@
 namespace Smartbox\Integration\FrameworkBundle\Consumers;
 
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\QueueDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Handlers\HandlerInterface;
 use CentralDesktop\Stomp\Exception as StompException;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessageInterface;
 
+/**
+ * Class AbstractQueueConsumer
+ *
+ * @package Smartbox\Integration\FrameworkBundle\Consumers
+ */
 abstract class AbstractQueueConsumer implements QueueConsumerInterface {
 
     /** @var bool */
@@ -34,6 +37,9 @@ abstract class AbstractQueueConsumer implements QueueConsumerInterface {
         $this->queueDriver = $queueDriver;
     }
 
+    /**
+     * Signal the consumer to stop before processing the next message
+     */
     public function stop()
     {
         $this->stop = true;
@@ -53,12 +59,25 @@ abstract class AbstractQueueConsumer implements QueueConsumerInterface {
         return $this->expirationCount;
     }
 
+    /**
+     * Checks if it should stop at the current iteration
+     *
+     * @return bool
+     */
     public function shouldStop(){
         return $this->stop || $this->expirationCount == 0;
     }
 
-    protected abstract function process(QueueMessage $message);
+    /**
+     * @param QueueMessageInterface $message
+     *
+     * @return mixed
+     */
+    protected abstract function process(QueueMessageInterface $message);
 
+    /**
+     * {@inheritDoc}
+     */
     public function consume($queue){
         $this->getQueueDriver()->connect();
         $this->getQueueDriver()->subscribe($queue);

@@ -2,7 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Consumers;
 
-use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessageInterface;
 
 
 /**
@@ -13,7 +13,10 @@ class QueueEventsConsumer extends AbstractQueueConsumer implements QueueConsumer
 {
     use UsesDeferredEventsHandler;
 
-    protected function process(QueueMessage $message)
+    /**
+     * {@inheritDoc}
+     */
+    protected function process(QueueMessageInterface $message)
     {
         $this->getHandler()->handle($message->getBody());
     }
