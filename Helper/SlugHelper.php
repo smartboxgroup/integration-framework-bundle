@@ -1,14 +1,20 @@
 <?php
 
-
 namespace Smartbox\Integration\FrameworkBundle\Helper;
 
-
-use Smartbox\Integration\FrameworkBundle\Connectors\Connector;
-use Symfony\Component\DependencyInjection\ContainerAware;
-
-class SlugHelper extends ContainerAware
+/**
+ * Class SlugHelper
+ *
+ * @package Smartbox\Integration\FrameworkBundle\Helper
+ */
+class SlugHelper
 {
+    /**
+     * Slugifies a string
+     * @param string $text
+     *
+     * @return string
+     */
     static public function slugify($text)
     {
         // replace non letter or digits by -
