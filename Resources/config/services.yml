@@ -1,5 +1,4 @@
 parameters:
-  smartesb.registry.endpoints.class: Smartbox\Integration\FrameworkBundle\Helper\EndpointsRegistry
   smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Processors\Itinerary
 
   smartesb.handler.main.class: Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler
@@ -127,11 +126,8 @@ services:
       calls:
           - [setSerializer, [@serializer]]
 
-  smartesb.registry.endpoints:
-      class: %smartesb.registry.endpoints.class%
-
   smartbox.consumers.queue.events:
-      class: Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer
+      class: Smartbox\Integration\FrameworkBundle\Consumers\QueueEventsConsumer
       calls:
           - [ setQueueDriver, [ @smartesb.events_queue_driver ] ]
           - [ setHandler, [ @smartbox.handler.events ] ]

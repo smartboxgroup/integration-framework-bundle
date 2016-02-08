@@ -21,7 +21,7 @@ abstract class ErrorExchangeEnvelope extends ExchangeEnvelope
      * @param Exchange|null $exchange
      * @param SerializableArray|null $processingContext
      */
-    public function __construct(Exchange $exchange = null, SerializableArray $processingContext = null)
+    public function __construct(Exchange $exchange, SerializableArray $processingContext = null)
     {
         parent::__construct($exchange);
         $this->processingContext = $processingContext;
