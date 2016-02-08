@@ -8,6 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Connectors\ConnectorInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 trait UsesConnectorsRouter {
 
@@ -57,10 +58,15 @@ trait UsesConnectorsRouter {
     }
 
     public function resolveOptions($uri){
-        $params = $this->getConnectorsRouter()->match($uri);
+        try{
+            $params = $this->getConnectorsRouter()->match($uri);
+        }catch(RouteNotFoundException $exception)
+        {
+            throw new RouteNotFoundException("Connector not found for Endpoint with URI $uri",0,$exception);
+        }
 
         if(!array_key_exists(InternalRouter::KEY_CONNECTOR,$params)){
-            throw new \Exception("Endpoint: Connector not found for uri: ".$uri);
+            throw new RouteNotFoundException("Connector not found for Endpoint with URI $uri");
         }
 
         $connector = $params[InternalRouter::KEY_CONNECTOR];
