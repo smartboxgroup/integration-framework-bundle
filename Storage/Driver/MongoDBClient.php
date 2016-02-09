@@ -26,10 +26,10 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     /** @var array */
     protected $configuration;
 
-    /** @var \MongoClient */
+    /** @var \MongoDB\Client */
     protected $connection;
 
-    /** @var \MongoDB */
+    /** @var \MongoDB\Database */
     protected $db;
 
     /**
@@ -55,7 +55,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             ->setDefined(['host', 'database', 'options', 'driver_options'])
             ->setDefaults([
                 'options' => ['connect' => false],
-                'driver_options' => []
+                'driver_options' => [],
             ])
             ->setRequired(['host', 'database'])
             ->setAllowedTypes('host', 'string')
@@ -86,13 +86,16 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         }
 
         try {
-            $this->connection = $this->createConnection();
-            $this->connection->connect();
+            $this->connection = new \MongoDB\Client(
+                $this->configuration['host'],
+                $this->configuration['options'],
+                $this->configuration['driver_options']
+            );
         } catch(\Exception $e) {
             throw new StorageException('Can not connect to storage because of: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
-        $this->db = $this->connection->selectDB($this->configuration['database']);
+        $this->db = $this->connection->selectDatabase($this->configuration['database']);
     }
 
     /**
@@ -100,14 +103,14 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
      */
     public function disconnect()
     {
-        if ($this->connection instanceof \MongoClient && $this->connection->connected)  {
-            $this->connection->close(true);
+        if ($this->connection instanceof \MongoDB\Client && $this->connection->connected)  {
+            $this->connection = null;
         }
     }
 
     protected function ensureConnection()
     {
-        if (!$this->connection instanceof \MongoClient || !$this->connection->connected) {
+        if (!$this->connection instanceof \MongoDB\Client || !$this->connection->connected) {
             $this->connect();
         }
     }
@@ -121,7 +124,8 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
 
         try {
             $data = $this->serializer->serialize($storageData, 'mongo_array');
-            $this->db->$collection->insert($data);
+            /** @var \MongoDB\InsertOneResult $insertOneResult */
+            $insertOneResult = $this->db->$collection->insertOne($data);
         } catch(\Exception $e) {
             $exception = new DataStorageException('Can not save data to storage: ' . $e->getMessage(), $e->getCode(), $e);
             $exception->setStorageData($storageData);
@@ -129,7 +133,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             throw $exception;
         }
 
-        return (string) $data['_id'];
+        return (string) $insertOneResult->getInsertedId();
     }
 
     /**
@@ -160,7 +164,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
 
         $filter = new StorageFilter();
         $filter->setQueryParams([
-            '_id' => $id
+            '_id' => $id,
         ]);
 
         return $this->delete($collection, $filter);
@@ -198,7 +202,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
 
         $filter = new StorageFilter();
         $filter->setQueryParams([
-            '_id' => new \MongoId($id)
+            '_id' => new \MongoId($id),
         ]);
 
         return $this->findOne($collection, $filter, $fields, $hydrateObject);
@@ -212,18 +216,16 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         $cursor = $this->findWithCursor($collection, $filter, $fields);
 
         $result = [];
-        if ($cursor->count() > 0) {
-            while($cursor->hasNext()) {
-                $item = $cursor->getNext();
-                $id = $item['_id'];
+        /** @var \MongoDB\Model\BSONDocument $item */
+        foreach ($cursor as $item) {
+            $id = $item['_id'];
 
-                unset($item['_id']);
+            unset($item['_id']);
 
-                $result[(string) $id] = $item;
+            $result[(string) $id] = $item;
 
-                if ($hydrateObject && isset($item['_type'])) {
-                    $result[(string) $id] = $this->hydrateResult($item);
-                }
+            if ($hydrateObject && isset($item['_type'])) {
+                $result[(string) $id] = $this->hydrateResult($item);
             }
         }
 
@@ -235,14 +237,22 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         $this->ensureConnection();
 
         $queryParams = $filter->getQueryParams();
+//        $queryParams['$orderby'] = $filter->getSortParams();
+//        $queryParams['$limit'] = $filter->getLimit();
+//        $queryParams['$skip'] = $filter->getOffset();
 
         try {
-            $cursor = $this->db->$collection
+            /** @var \MongoDB\Collection $collection */
+            $collection = $this->db->$collection;
+
+            /** @var \MongoDB\Driver\Cursor $cursor */
+            $cursor = $collection
                 ->find($queryParams, $fields)
-                ->sort($filter->getSortParams())
-                ->limit($filter->getLimit())
-                ->skip($filter->getOffset())
+//                ->sort($filter->getSortParams())
+//                ->limit($filter->getLimit())
+//                ->skip($filter->getOffset())
             ;
+            $cursor->setTypeMap(['root' => 'array']);
 
             return $cursor;
 
@@ -261,10 +271,9 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         $queryParams = $filter->getQueryParams();
 
         try {
-            $count = $this->db->$collection
-                ->find($queryParams)
-                ->count()
-            ;
+            /** @var \MongoDB\Collection $collection */
+            $collection = $this->db->$collection;
+            $count = $collection->count($queryParams);
         } catch(\Exception $e) {
             throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
         }
@@ -308,20 +317,5 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         }
 
         return $data['result'];
-    }
-
-    /**
-     * Creates a new configuration using the current configuration options specified using the {@link configure()}
-     * method
-     * @return \MongoClient
-     * @see configure()
-     */
-    protected function createConnection()
-    {
-        return new \MongoClient(
-            $this->configuration['host'],
-            $this->configuration['options'],
-            $this->configuration['driver_options']
-        );
     }
 }

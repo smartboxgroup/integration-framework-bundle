@@ -20,13 +20,13 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'mongo_array',
                 'type' => 'DateTime',
-                'method' => 'convertDateTimeToMongoDate',
+                'method' => 'convertFromDateTimeToMongoFormat',
             ),
             array(
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
                 'format' => 'mongo_array',
                 'type' => 'DateTime',
-                'method' => 'convertMongoDateToDateTime',
+                'method' => 'convertFromMongoFormatToDateTime',
             ),
         );
     }
@@ -36,21 +36,21 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
      * @param \DateTime $date
      * @param array $type
      * @param Context $context
-     * @return \MongoDate
+     * @return \MongoDB\BSON\UTCDateTime
      */
-    public function convertDateTimeToMongoDate(VisitorInterface $visitor, \DateTime $date, array $type, Context $context)
+    public function convertFromDateTimeToMongoFormat(VisitorInterface $visitor, \DateTime $date, array $type, Context $context)
     {
-        return new \MongoDate($date->getTimestamp(), $date->format('u'));
+        return new \MongoDB\BSON\UTCDateTime($date->format('u'));
     }
 
     /**
      * @param VisitorInterface $visitor
-     * @param \MongoDate $date
+     * @param \MongoDB\BSON\UTCDateTime $date
      * @param array $type
      * @param Context $context
      * @return \DateTime
      */
-    public function convertMongoDateToDateTime(VisitorInterface $visitor, \MongoDate $date, array $type, Context $context)
+    public function convertFromMongoFormatToDateTime(VisitorInterface $visitor, \MongoDB\BSON\UTCDateTime $date, array $type, Context $context)
     {
         return $date->toDateTime();
     }

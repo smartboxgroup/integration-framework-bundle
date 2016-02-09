@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Storage\Driver;
 
 use JMS\Serializer\SerializerInterface;
+use Smartbox\CoreBundle\Type\Date;
 use Smartbox\CoreBundle\Type\Integer;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient;
@@ -14,7 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class MongoDBStorageTest
+ * Class MongoDBClientTest
  * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Storage\Driver
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient
@@ -124,6 +125,9 @@ class MongoDBClientTest extends KernelTestCase
             $object->setIntegerValue($i);
             $object->setDoubleValue($i / 100);
             $object->setArrayOfIntegers([new Integer(1), new Integer(2)]);
+            $object->setArrayOfDates([
+                new Date(),
+            ]);
             $dataSets[] = [$object];
         }
 
