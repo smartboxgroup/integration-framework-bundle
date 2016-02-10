@@ -35,40 +35,58 @@ interface StorageClientInterface
     public function disconnect();
 
     /**
-     * @param string $storageName
+     * @param string $storageResourceName
      * @param SerializableInterface $data
      * @return string $id
      */
-    public function save($storageName, SerializableInterface $data);
+    public function save($storageResourceName, SerializableInterface $data);
 
     /**
-     * @param $collection
+     * @param string $storageResourceName
      * @param StorageFilterInterface $filter
      * @param array $fields
-     * @return array|\MongoCursor
+     * @return SerializableInterface[]|SerializableInterface|null
      */
-    public function find($collection, StorageFilterInterface $filter, array $fields = []);
+    public function find($storageResourceName, StorageFilterInterface $filter, array $fields = []);
 
     /**
-     * @param                                                                             $collection
-     * @param \Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface $filter
-     * @param array                                                                       $fields
+     * @param string    $storageResourceName
+     * @param StorageFilterInterface $filter
+     * @param array $fields
      *
-     * @return mixed
+     * @return SerializableInterface|null
      */
-    public function findOne($collection, StorageFilterInterface $filter, $fields = []);
+    public function findOne($storageResourceName, StorageFilterInterface $filter, array $fields = []);
 
     /**
-     * @param string $storageName
+     * @param string $storageResourceName
      * @param string $id
      * @return SerializableInterface|null
      */
-    public function findOneById($storageName, $id);
+    public function findOneById($storageResourceName, $id);
 
     /**
-     * @param $collection
+     * Count items matching a given $filter
+     *
+     * @param string $storageResourceName
      * @param StorageFilterInterface $filter
      * @return int
      */
-    public function count($collection, StorageFilterInterface $filter);
+    public function count($storageResourceName, StorageFilterInterface $filter);
+
+    /**
+     * Delete all items matching a given $filter
+     *
+     * @param string $storageResourceName
+     * @param StorageFilterInterface $filter
+     */
+    public function delete($storageResourceName, StorageFilterInterface $filter);
+
+    /**
+     * Delete a single record matching a given $id
+     *
+     * @param string $storageResourceName
+     * @param string $id
+     */
+    public function deleteById($storageResourceName, $id);
 }

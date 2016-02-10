@@ -124,6 +124,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
 
         try {
             $data = $this->serializer->serialize($storageData, 'mongo_array');
+
             /** @var \MongoDB\InsertOneResult $insertOneResult */
             $insertOneResult = $this->db->$collection->insertOne($data);
         } catch(\Exception $e) {
@@ -137,29 +138,23 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     }
 
     /**
-     * Delete all the objects matching a given $filter
-     *
-     * @param string $collection
-     * @param StorageFilterInterface $filter
-     * @return array|bool
+     * {@inheritdoc}
      */
     public function delete($collection, StorageFilterInterface $filter)
     {
         $this->ensureConnection();
-        return $this->db->$collection->remove($filter->getQueryParams());
+        $this->db->$collection->deleteMany($filter->getQueryParams());
     }
 
     /**
-     * Helper function to delete a single record given a mongo id
-     *
-     * @param string $collection
-     * @param string|\MongoId $id
-     * @return array|bool
+     * {@inheritdoc}
      */
     public function deleteById($collection, $id)
     {
-        if (is_string($id)) {
-            $id = new \MongoId($id);
+        try {
+            $id = new \MongoDB\BSON\ObjectID((string) $id);
+        } catch (\Exception $e) {
+            return null;
         }
 
         $filter = new StorageFilter();
@@ -167,13 +162,16 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             '_id' => $id,
         ]);
 
-        return $this->delete($collection, $filter);
+        $this->ensureConnection();
+        $this->db->$collection->deleteOne($filter->getQueryParams());
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @TODO $hydrateObject argument should be removed as it's not in an interface
      */
-    public function findOne($collection, StorageFilterInterface $filter, $fields = [], $hydrateObject = true)
+    public function findOne($collection, StorageFilterInterface $filter, array $fields = [], $hydrateObject = true)
     {
         $this->ensureConnection();
 
@@ -183,6 +181,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
+        $result = (array) $result;
         if (!empty($result) && $hydrateObject) {
             unset($result['_id']);
             return $this->hydrateResult($result);
@@ -194,15 +193,17 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     /**
      * {@inheritdoc}
      */
-    public function findOneById($collection, $id, $fields = [], $hydrateObject = true)
+    public function findOneById($collection, $id, array $fields = [], $hydrateObject = true)
     {
-        if (! \MongoId::isValid($id)) {
+        try {
+            $id = new \MongoDB\BSON\ObjectID((string) $id);
+        } catch (\Exception $e) {
             return null;
         }
 
         $filter = new StorageFilter();
         $filter->setQueryParams([
-            '_id' => new \MongoId($id),
+            '_id' => $id,
         ]);
 
         return $this->findOne($collection, $filter, $fields, $hydrateObject);
@@ -216,8 +217,9 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         $cursor = $this->findWithCursor($collection, $filter, $fields);
 
         $result = [];
-        /** @var \MongoDB\Model\BSONDocument $item */
+
         foreach ($cursor as $item) {
+            $item = (array) $item;
             $id = $item['_id'];
 
             unset($item['_id']);
@@ -252,7 +254,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
 //                ->limit($filter->getLimit())
 //                ->skip($filter->getOffset())
             ;
-            $cursor->setTypeMap(['root' => 'array']);
+//            $cursor->setTypeMap(['root' => 'array']);
 
             return $cursor;
 
@@ -285,9 +287,9 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
      * Hydrates a resulting array object from a query
      *
      * @param array $result
-     * @return array|\JMS\Serializer\scalar|object
+     * @return SerializableInterface[]|SerializableInterface
      */
-    public function hydrateResult(array $result)
+    protected function hydrateResult(array $result)
     {
         return $this->serializer->deserialize($result, SerializableInterface::class, 'mongo_array');
     }
