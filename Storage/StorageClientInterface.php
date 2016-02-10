@@ -71,4 +71,9 @@ interface StorageClientInterface
      * @return int
      */
     public function count($collection, StorageFilterInterface $filter);
+
+    /**
+     * Clean all the opened resources, must be called just before terminating the current request
+     */
+    public function doDestroy();
 }

@@ -13,6 +13,8 @@ use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
 use CentralDesktop\Stomp\ConnectionFactory\Simple as SimpleConnectionStrategy;
 use CentralDesktop\Stomp\Message\Bytes;
 use JMS\Serializer\DeserializationContext;
+use Symfony\Component\Console\Event\ConsoleTerminateEvent;
+use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 
 /**
  * Class ActiveMQStompQueueDriver
@@ -430,5 +432,34 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
         }
 
         return $msg;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function doDestroy()
+    {
+        $this->disconnect();
+        $this->unSubscribe();
+    }
+
+    /**
+     * Close the opened connections on kernel terminate
+     *
+     * @param PostResponseEvent $event
+     */
+    public function onKernelTerminate(PostResponseEvent $event)
+    {
+        $this->doDestroy();
+    }
+
+    /**
+     * Calls the doDestroy method on console.terminate event
+     *
+     * @param ConsoleTerminateEvent $event
+     */
+    public function onConsoleTerminate(ConsoleTerminateEvent $event)
+    {
+        $this->doDestroy();
     }
 }
