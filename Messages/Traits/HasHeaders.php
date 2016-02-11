@@ -40,7 +40,11 @@ trait HasHeaders {
             throw new \InvalidArgumentException("Expected headerValue to be a scalar");
         }
 
-        $oldValue = @$this->headers[$headerKey];
+        $oldValue = null;
+        if(array_key_exists($headerKey,$this->headers)){
+            $oldValue = $this->headers[$headerKey];
+        }
+
         $this->headers[$headerKey] = $headerValue;
 
         return $oldValue;
