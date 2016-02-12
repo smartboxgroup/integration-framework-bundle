@@ -28,6 +28,8 @@ parameters:
   smartesb.smoke_test.check_queue_driver_connection.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\QueueDriverConnectionSmokeTest
   smartbox.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\FilePermissionsSmokeTest
 
+  smartesb.helper.class: Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper
+
   smartesb.router.itineraries.options:
       cache_dir: %kernel.cache_dir%
       debug: %kernel.debug%
@@ -173,3 +175,7 @@ services:
       tags:
           - { name: smartbox.smoke_test }
 
+  smartesb.helper:
+      class: %smartesb.helper.class%
+      calls:
+          - [ setContainer, [ @service_container ] ]

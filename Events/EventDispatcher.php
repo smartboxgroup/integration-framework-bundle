@@ -35,19 +35,19 @@ class EventDispatcher extends ContainerAwareEventDispatcher{
      */
     protected function enqueue(Event $event)
     {
-        $queueDriver = $this->getContainer()->get('smartesb.drivers.queue.events');
+        $queueDriverName = $this->getContainer()->get('smartesb.helper')->getQueueDriver('events');
         $queueName = $this->getContainer()->getParameter('smartesb.events_queue_name');
         $flowsVersion = $this->getContainer()->getParameter('smartesb.flows_version');
 
-        if(!$queueDriver->isConnected()){
-            $queueDriver->connect();
+        if(!$queueDriverName->isConnected()){
+            $queueDriverName->connect();
         }
 
-        $message = $queueDriver->createQueueMessage();
+        $message = $queueDriverName->createQueueMessage();
         $message->setBody(new EventMessage($event, [], new Context([Context::VERSION => $flowsVersion])));
         $message->setQueue($queueName);
 
-        $queueDriver->send($message);
+        $queueDriverName->send($message);
     }
 
     /** {@inheritdoc} */
