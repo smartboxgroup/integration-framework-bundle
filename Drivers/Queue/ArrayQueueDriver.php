@@ -151,4 +151,13 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
         $msg->setContext(new Context([Context::VERSION => $this->getFlowsVersion()]));
         return $msg;
     }
+
+    /**
+     * Clean all the opened resources, must be called just before terminating the current request
+     */
+    public function doDestroy()
+    {
+        // TODO: Implement doDestroy() method.
+        // I have no time to do destroy the world.
+    }
 }
