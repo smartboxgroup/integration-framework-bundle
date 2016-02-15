@@ -2,6 +2,9 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Helper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
+use Smartbox\Integration\FrameworkBundle\Drivers\Db\NoSQLDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Drivers\Queue\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -15,9 +18,9 @@ class SmartesbHelper implements ContainerAwareInterface
     use ContainerAwareTrait;
 
     /**
-     * @return object
+     * @return NoSQLDriverInterface
      */
-    public function getStorageDriver($storageName)
+    public function getNoSQLDriver($storageName)
     {
         $prefix = SmartboxIntegrationFrameworkExtension::NOSQL_DRIVER_PREFIX.$storageName;
         return $this->container->get($prefix);
@@ -25,7 +28,7 @@ class SmartesbHelper implements ContainerAwareInterface
 
     /**
      * @param string $queueName
-     * @return object
+     * @return QueueDriverInterface
      */
     public function getQueueDriver($queueName)
     {
@@ -36,9 +39,9 @@ class SmartesbHelper implements ContainerAwareInterface
 
     /**
      * @param $handlerName
-     * @return object
+     * @return MessageHandler
      */
-    public function getHandlerDriver($handlerName)
+    public function getHandler($handlerName)
     {
         $prefix = SmartboxIntegrationFrameworkExtension::HANDLER_PREFIX.$handlerName;
         return $this->container->get($prefix);
@@ -48,7 +51,7 @@ class SmartesbHelper implements ContainerAwareInterface
      * @param $consumerName
      * @return object
      */
-    public function getConsumerDriver($consumerName)
+    public function getConsumer($consumerName)
     {
         $prefix = SmartboxIntegrationFrameworkExtension::CONSUMER_PREFIX.$consumerName;
         return $this->container->get($prefix);
