@@ -56,11 +56,6 @@ class MongoDBClientTest extends KernelTestCase
         parent::tearDownAfterClass();
     }
 
-    public function setUp()
-    {
-//        self::$storageDriver->delete(self::MONGO_COLLECTION, new StorageFilter());
-    }
-
     /**
      * @return array
      */
@@ -68,7 +63,7 @@ class MongoDBClientTest extends KernelTestCase
     {
         return [
             [['host' => 'mongodb://localhost:27017', 'database' => 'test_database']],
-            [['host' => 'localhost', 'database' => 'test_database']],
+            [['host' => 'mongodb://localhost', 'database' => 'test_database']],
         ];
     }
 
