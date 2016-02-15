@@ -58,6 +58,6 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
 
     public static function convertDateTimeToMongoFormat(\DateTime $date)
     {
-        return new \MongoDB\BSON\UTCDatetime((intval($date->format('U')) * 1000) + intval($date->format('u')));
+        return new \MongoDB\BSON\UTCDateTime((intval($date->format('U')) * 1000) + intval($date->format('u')));
     }
 }

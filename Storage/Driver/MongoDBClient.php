@@ -287,7 +287,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
      * @param array $result
      * @return SerializableInterface[]|SerializableInterface
      */
-    protected function hydrateResult(array $result)
+    public function hydrateResult(array $result)
     {
         return $this->serializer->deserialize($result, SerializableInterface::class, 'mongo_array');
     }
