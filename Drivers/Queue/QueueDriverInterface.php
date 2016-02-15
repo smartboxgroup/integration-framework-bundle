@@ -96,4 +96,9 @@ interface QueueDriverInterface extends SerializableInterface {
      * @return QueueMessageInterface
      */
     public function createQueueMessage();
+
+    /**
+     * Clean all the opened resources, must be called just before terminating the current request
+     */
+    public function doDestroy();
 }

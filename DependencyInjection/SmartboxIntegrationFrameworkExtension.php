@@ -10,10 +10,10 @@ use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient;
 use Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers\MessageHandlerTest;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -23,6 +23,7 @@ use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -125,6 +126,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
                     $queueDriverRegistry->addMethodCall('setDriver',[$driverName,new Reference($driverId)]);
+                    $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
+                    $driverDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
 
                     $container->setDefinition($driverId,$driverDef);
 
@@ -172,6 +175,9 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         'options'   => $connectionOptions,
                         'driver_options' => $mongoDriverOptions,
                     ]]);
+                    $storageDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
+                    $storageDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
+
                     $container->setDefinition($storageServiceName, $storageDef);
 
                     $driverDef = new Definition(MongoDbDriver::class, [new Reference($storageServiceName)]);
