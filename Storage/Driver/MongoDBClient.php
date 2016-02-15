@@ -11,6 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use JMS\Serializer\SerializerInterface;
+use MongoDB\BSON\ObjectID;
 
 /**
  * Class MongoDBClient
@@ -55,7 +56,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             ->setDefined(['host', 'database', 'options', 'driver_options'])
             ->setDefaults([
                 'options' => ['connect' => false],
-                'driver_options' => [],
+                'driver_options' => ['typeMap' => ['root' => 'array', 'document' => 'array', 'array' => 'array']],
             ])
             ->setRequired(['host', 'database'])
             ->setAllowedTypes('host', 'string')
@@ -152,7 +153,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     public function deleteById($collection, $id)
     {
         try {
-            $id = new \MongoDB\BSON\ObjectID((string) $id);
+            $id = new ObjectID((string) $id);
         } catch (\Exception $e) {
             return null;
         }
@@ -196,7 +197,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     public function findOneById($collection, $id, array $fields = [], $hydrateObject = true)
     {
         try {
-            $id = new \MongoDB\BSON\ObjectID((string) $id);
+            $id = new ObjectID((string) $id);
         } catch (\Exception $e) {
             return null;
         }
@@ -239,25 +240,22 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         $this->ensureConnection();
 
         $queryParams = $filter->getQueryParams();
-//        $queryParams['$orderby'] = $filter->getSortParams();
-//        $queryParams['$limit'] = $filter->getLimit();
-//        $queryParams['$skip'] = $filter->getOffset();
+        $options = [
+            'sort' => $filter->getSortParams(),
+            'limit' => $filter->getLimit(),
+            'skip' => $filter->getOffset(),
+        ];
+
+        if (!empty($fields)) {
+            $options['projection'] = $fields;
+        }
 
         try {
-            /** @var \MongoDB\Collection $collection */
-            $collection = $this->db->$collection;
-
-            /** @var \MongoDB\Driver\Cursor $cursor */
-            $cursor = $collection
-                ->find($queryParams, $fields)
-//                ->sort($filter->getSortParams())
-//                ->limit($filter->getLimit())
-//                ->skip($filter->getOffset())
+            $cursor = $this->db->$collection
+                ->find($queryParams, $options)
             ;
-//            $cursor->setTypeMap(['root' => 'array']);
 
             return $cursor;
-
         } catch(\Exception $e) {
             throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
         }
@@ -307,17 +305,23 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     {
         $this->ensureConnection();
 
-        $data = $this->db->$collection->aggregate($pipeline, $options);
-
-        if (!$data['ok']) {
+        try {
+            $data = $this->db->$collection->aggregate($pipeline, $options);
+        } catch (\Exception $e) {
             throw new \RuntimeException(
                 sprintf(
                     'Cannot aggregate on collection "%s": %s (Code: %d)',
-                    $collection, $data['errmsg'], $data['code']
+                    $collection, $e->getMessage(), $e->getCode()
                 )
             );
         }
 
-        return $data['result'];
+        $result = [];
+
+        foreach ($data as $item) {
+            $result[] = (array) $item;
+        }
+
+        return $result;
     }
 }

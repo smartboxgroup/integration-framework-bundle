@@ -40,7 +40,7 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
      */
     public function convertFromDateTimeToMongoFormat(VisitorInterface $visitor, \DateTime $date, array $type, Context $context)
     {
-        return new \MongoDB\BSON\UTCDateTime($date->format('u'));
+        return self::convertDateTimeToMongoFormat($date);
     }
 
     /**
@@ -53,5 +53,11 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
     public function convertFromMongoFormatToDateTime(VisitorInterface $visitor, \MongoDB\BSON\UTCDateTime $date, array $type, Context $context)
     {
         return $date->toDateTime();
+    }
+
+
+    public static function convertDateTimeToMongoFormat(\DateTime $date)
+    {
+        return new \MongoDB\BSON\UTCDatetime((intval($date->format('U')) * 1000) + intval($date->format('u')));
     }
 }
