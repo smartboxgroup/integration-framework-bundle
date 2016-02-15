@@ -2,6 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Traits;
 
+use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
+use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -55,6 +57,16 @@ trait UsesItinerariesRouter {
         }
 
         return $params;
+    }
+
+    /**
+     * @param string $from
+     * @return Itinerary
+     * @throws \Exception
+     */
+    public function getItineraryForURI($from){
+        $params = $this->findItineraryParams($from);
+        return $params[InternalRouter::KEY_ITINERARY];
     }
 
     /**

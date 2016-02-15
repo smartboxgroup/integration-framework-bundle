@@ -42,16 +42,6 @@ interface QueueConsumerInterface
     public function shouldStop();
 
     /**
-     * @param HandlerInterface $handler
-     */
-    public function setHandler(HandlerInterface $handler);
-
-    /**
-     * @return HandlerInterface
-     */
-    public function getHandler();
-
-    /**
      * @param string $queue
      */
     public function consume($queue);

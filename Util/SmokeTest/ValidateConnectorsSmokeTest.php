@@ -6,10 +6,10 @@ use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\Integration\FrameworkBundle\Connectors\ConnectorInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
-use Smartbox\Integration\FrameworkBundle\Helper\EndpointsRegistry;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Routing\RouteCollection;
 
 class ValidateConnectorsSmokeTest implements SmokeTestInterface
 {
@@ -84,10 +84,11 @@ class ValidateConnectorsSmokeTest implements SmokeTestInterface
 
         // CHECK CONNECTOR ROUTES URIs
 
-        /** @var EndpointsRegistry $endpointRepo */
-        $endpointRepo = $this->getContainer()->get('smartesb.registry.endpoints');
-        foreach($endpointRepo->getRegisteredEndpointsUris() as $uri){
-
+        $connectorRoutes = $this->getContainer()->get('smartesb.router.connectors');
+        /** @var RouteCollection $collection */
+        $collection = $connectorRoutes->getRouteCollection();
+        foreach($collection->all() as $route){
+            $uri = substr($route->getPath(),1);
             $uri = preg_replace("/{[^{}]+}/",'xxx',$uri);
 
             try{

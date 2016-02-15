@@ -41,6 +41,11 @@ interface QueueMessageInterface extends MessageInterface
     public function setPersistent($persistent);
 
     /**
+     * @param string $reason
+     */
+    public function setReasonForFailure($reason);
+
+    /**
      * @return string
      */
     public function getQueue();
@@ -76,8 +81,23 @@ interface QueueMessageInterface extends MessageInterface
     public function getPersistent();
 
     /**
+     * @return string
+     */
+    public function getReasonForFailure();
+
+    /**
      * @return MessageInterface
      */
     public function getBody();
+
+    /**
+     * @param string $uri
+     */
+    public function setDestinationURI($uri);
+
+    /**
+     * @return null|string
+     */
+    public function getDestinationURI();
 
 }

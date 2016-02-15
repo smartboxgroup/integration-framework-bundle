@@ -79,9 +79,15 @@ class ItineraryHandler implements SubscribingHandlerInterface, ContainerAwareInt
         }
 
         foreach ($processorsIds as $processorId) {
-            $processor = $this->container->get($processorId);
-            if (!$processor) {
-                throw new \Exception("Processor $processorId not found");
+            if ($this->container->has($processorId)) {
+                $processor = $this->container->get($processorId);
+            }else{
+                $processor = new InexistentProcessorMock();
+                $processor->setId($processorId);
+                $processor->setRuntimeBreakpoint(true);
+                $processor->setEventDispatcher($this->container->get('event_dispatcher'));
+                $processor->setMessageFactory($this->container->get('smartesb.message_factory'));
+                $processor->setValidator($this->container->get('validator'));
             }
 
             $itinerary->addProcessor($processor);
