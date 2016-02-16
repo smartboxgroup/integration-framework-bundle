@@ -125,16 +125,6 @@ class MongoDBClientTest extends KernelTestCase
     public function dataProviderForStorageDriver()
     {
         $dataSets = [];
-//        for ($i = 0; $i < 5; $i++) {
-//            $object = new SimpleObject();
-//            $object->setIntegerValue($i);
-//            $object->setDoubleValue($i / 100);
-//            $object->setArrayOfIntegers([new Integer(1), new Integer(2)]);
-//            $object->setArrayOfDates([
-//                new \DateTime(),
-//            ]);
-//            $dataSets[] = [$object];
-//        }
 
         for ($i = 0; $i < 5; $i++) {
             $object = new FakeEvent();
