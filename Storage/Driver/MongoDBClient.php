@@ -13,6 +13,7 @@ use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use JMS\Serializer\SerializerInterface;
+use MongoDB\BSON\ObjectID;
 
 /**
  * Class MongoDBClient
@@ -28,10 +29,10 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     /** @var array */
     protected $configuration;
 
-    /** @var \MongoClient */
+    /** @var \MongoDB\Client */
     protected $connection;
 
-    /** @var \MongoDB */
+    /** @var \MongoDB\Database */
     protected $db;
 
     /**
@@ -57,13 +58,14 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             ->setDefined(['host', 'database', 'options', 'driver_options'])
             ->setDefaults([
                 'options' => ['connect' => false],
-                'driver_options' => []
+                'driver_options' => ['typeMap' => ['root' => 'array', 'document' => 'array', 'array' => 'array']],
             ])
             ->setRequired(['host', 'database'])
             ->setAllowedTypes('host', 'string')
             ->setAllowedTypes('database', 'string')
             ->setAllowedTypes('options', 'array')
-            ->setAllowedTypes('driver_options', 'array');
+            ->setAllowedTypes('driver_options', 'array')
+        ;
 
         try {
             $this->configuration = $optionsResolver->resolve($configuration);
@@ -87,13 +89,16 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         }
 
         try {
-            $this->connection = $this->createConnection();
-            $this->connection->connect();
-        } catch (\Exception $e) {
+            $this->connection = new \MongoDB\Client(
+                $this->configuration['host'],
+                $this->configuration['options'],
+                $this->configuration['driver_options']
+            );
+        } catch(\Exception $e) {
             throw new StorageException('Can not connect to storage because of: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
-        $this->db = $this->connection->selectDB($this->configuration['database']);
+        $this->db = $this->connection->selectDatabase($this->configuration['database']);
     }
 
     /**
@@ -101,14 +106,14 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
      */
     public function disconnect()
     {
-        if ($this->connection instanceof \MongoClient && $this->connection->connected) {
-            $this->connection->close(true);
+        if ($this->connection instanceof \MongoDB\Client && $this->connection->connected)  {
+            $this->connection = null;
         }
     }
 
     protected function ensureConnection()
     {
-        if (!$this->connection instanceof \MongoClient || !$this->connection->connected) {
+        if (!$this->connection instanceof \MongoDB\Client || !$this->connection->connected) {
             $this->connect();
         }
     }
@@ -122,66 +127,64 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
 
         try {
             $data = $this->serializer->serialize($storageData, 'mongo_array');
-            $this->db->$collection->insert($data);
-        } catch (\Exception $e) {
+
+            /** @var \MongoDB\InsertOneResult $insertOneResult */
+            $insertOneResult = $this->db->$collection->insertOne($data);
+        } catch(\Exception $e) {
             $exception = new DataStorageException('Can not save data to storage: ' . $e->getMessage(), $e->getCode(), $e);
             $exception->setStorageData($storageData);
 
             throw $exception;
         }
 
-        return (string)$data['_id'];
-    }
-
-    /**
-     * Delete all the objects matching a given $filter
-     *
-     * @param string                 $collection
-     * @param StorageFilterInterface $filter
-     *
-     * @return array|bool
-     */
-    public function delete($collection, StorageFilterInterface $filter)
-    {
-        $this->ensureConnection();
-        return $this->db->$collection->remove($filter->getQueryParams());
-    }
-
-    /**
-     * Helper function to delete a single record given a mongo id
-     *
-     * @param string          $collection
-     * @param string|\MongoId $id
-     *
-     * @return array|bool
-     */
-    public function deleteById($collection, $id)
-    {
-        if (is_string($id)) {
-            $id = new \MongoId($id);
-        }
-
-        $filter = new StorageFilter();
-        $filter->setQueryParams([
-            '_id' => $id
-        ]);
-
-        return $this->delete($collection, $filter);
+        return (string) $insertOneResult->getInsertedId();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findOne($collection, StorageFilterInterface $filter, $fields = [], $hydrateObject = true)
+    public function delete($collection, StorageFilterInterface $filter)
+    {
+        $this->ensureConnection();
+        $this->db->$collection->deleteMany($filter->getQueryParams());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteById($collection, $id)
+    {
+        try {
+            $id = new ObjectID((string) $id);
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        $filter = new StorageFilter();
+        $filter->setQueryParams([
+            '_id' => $id,
+        ]);
+
+        $this->ensureConnection();
+        $this->db->$collection->deleteOne($filter->getQueryParams());
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @TODO $hydrateObject argument should be removed as it's not in an interface
+     */
+    public function findOne($collection, StorageFilterInterface $filter, array $fields = [], $hydrateObject = true)
     {
         $this->ensureConnection();
 
         try {
             $result = $this->db->$collection->findOne($filter->getQueryParams(), $fields);
-        } catch (\Exception $e) {
+        } catch(\Exception $e) {
             throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
+        $result = (array) $result;
         if (!empty($result) && $hydrateObject) {
             unset($result['_id']);
             return $this->hydrateResult($result);
@@ -193,15 +196,17 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     /**
      * {@inheritdoc}
      */
-    public function findOneById($collection, $id, $fields = [], $hydrateObject = true)
+    public function findOneById($collection, $id, array $fields = [], $hydrateObject = true)
     {
-        if (!\MongoId::isValid($id)) {
+        try {
+            $id = new ObjectID((string) $id);
+        } catch (\Exception $e) {
             return null;
         }
 
         $filter = new StorageFilter();
         $filter->setQueryParams([
-            '_id' => new \MongoId($id)
+            '_id' => $id,
         ]);
 
         return $this->findOne($collection, $filter, $fields, $hydrateObject);
@@ -215,18 +220,17 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         $cursor = $this->findWithCursor($collection, $filter, $fields);
 
         $result = [];
-        if ($cursor->count() > 0) {
-            while ($cursor->hasNext()) {
-                $item = $cursor->getNext();
-                $id = $item['_id'];
 
-                unset($item['_id']);
+        foreach ($cursor as $item) {
+            $item = (array) $item;
+            $id = $item['_id'];
 
-                $result[(string)$id] = $item;
+            unset($item['_id']);
 
-                if ($hydrateObject && isset($item['_type'])) {
-                    $result[(string)$id] = $this->hydrateResult($item);
-                }
+            $result[(string) $id] = $item;
+
+            if ($hydrateObject && isset($item['_type'])) {
+                $result[(string) $id] = $this->hydrateResult($item);
             }
         }
 
@@ -238,17 +242,23 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         $this->ensureConnection();
 
         $queryParams = $filter->getQueryParams();
+        $options = [
+            'sort' => $filter->getSortParams(),
+            'limit' => $filter->getLimit(),
+            'skip' => $filter->getOffset(),
+        ];
+
+        if (!empty($fields)) {
+            $options['projection'] = $fields;
+        }
 
         try {
             $cursor = $this->db->$collection
-                ->find($queryParams, $fields)
-                ->sort($filter->getSortParams())
-                ->limit($filter->getLimit())
-                ->skip($filter->getOffset());
+                ->find($queryParams, $options)
+            ;
 
             return $cursor;
-
-        } catch (\Exception $e) {
+        } catch(\Exception $e) {
             throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
@@ -263,10 +273,10 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         $queryParams = $filter->getQueryParams();
 
         try {
-            $count = $this->db->$collection
-                ->find($queryParams)
-                ->count();
-        } catch (\Exception $e) {
+            /** @var \MongoDB\Collection $collection */
+            $collection = $this->db->$collection;
+            $count = $collection->count($queryParams);
+        } catch(\Exception $e) {
             throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
@@ -277,8 +287,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
      * Hydrates a resulting array object from a query
      *
      * @param array $result
-     *
-     * @return array|\JMS\Serializer\scalar|object
+     * @return SerializableInterface[]|SerializableInterface
      */
     public function hydrateResult(array $result)
     {
@@ -289,8 +298,8 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
      * Executes an aggregation pipeline on a given collection
      *
      * @param string $collection
-     * @param array  $pipeline
-     * @param array  $options
+     * @param array $pipeline
+     * @param array $options
      *
      * @return array
      */
@@ -298,34 +307,26 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     {
         $this->ensureConnection();
 
-        $data = $this->db->$collection->aggregate($pipeline, $options);
-
-        if (!$data['ok']) {
+        try {
+            $data = $this->db->$collection->aggregate($pipeline, $options);
+        } catch (\Exception $e) {
             throw new \RuntimeException(
                 sprintf(
                     'Cannot aggregate on collection "%s": %s (Code: %d)',
-                    $collection, $data['errmsg'], $data['code']
+                    $collection,
+                    $e->getMessage(),
+                    $e->getCode()
                 )
             );
         }
 
-        return $data['result'];
-    }
+        $result = [];
 
-    /**
-     * Creates a new configuration using the current configuration options specified using the {@link configure()}
-     * method
-     *
-     * @return \MongoClient
-     * @see configure()
-     */
-    protected function createConnection()
-    {
-        return new \MongoClient(
-            $this->configuration['host'],
-            $this->configuration['options'],
-            $this->configuration['driver_options']
-        );
+        foreach ($data as $item) {
+            $result[] = (array)$item;
+        }
+
+        return $result;
     }
 
     /**
