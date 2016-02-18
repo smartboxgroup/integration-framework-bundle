@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -12,8 +13,13 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  */
 class BaseKernelTestCase extends KernelTestCase
 {
+    /** @var  SmartesbHelper */
+    protected $helper;
+
     public function setUp(){
         $this->bootKernel();
+        $this->helper = $this->getContainer()->get('smartesb.helper');
+
     }
 
     public function getContainer(){

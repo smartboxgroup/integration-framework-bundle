@@ -9,6 +9,8 @@ use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilter;
 use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
+use Symfony\Component\Console\Event\ConsoleTerminateEvent;
+use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use JMS\Serializer\SerializerInterface;
 use MongoDB\BSON\ObjectID;
@@ -311,7 +313,9 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             throw new \RuntimeException(
                 sprintf(
                     'Cannot aggregate on collection "%s": %s (Code: %d)',
-                    $collection, $e->getMessage(), $e->getCode()
+                    $collection,
+                    $e->getMessage(),
+                    $e->getCode()
                 )
             );
         }
@@ -319,9 +323,37 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         $result = [];
 
         foreach ($data as $item) {
-            $result[] = (array) $item;
+            $result[] = (array)$item;
         }
 
         return $result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function doDestroy()
+    {
+        $this->disconnect();
+    }
+
+    /**
+     * Calls the doDestroy method on kernel.terminate event
+     *
+     * @param PostResponseEvent $event
+     */
+    public function onKernelTerminate(PostResponseEvent $event)
+    {
+        $this->doDestroy();
+    }
+
+    /**
+     * Calls the doDestroy method on console.terminate event
+     *
+     * @param ConsoleTerminateEvent $event
+     */
+    public function onConsoleTerminate(ConsoleTerminateEvent $event)
+    {
+        $this->doDestroy();
     }
 }

@@ -89,4 +89,9 @@ interface StorageClientInterface
      * @param string $id
      */
     public function deleteById($storageResourceName, $id);
+
+    /**
+     * Clean all the opened resources, must be called just before terminating the current request
+     */
+    public function doDestroy();
 }

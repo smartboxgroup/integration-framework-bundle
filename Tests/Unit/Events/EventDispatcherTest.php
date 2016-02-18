@@ -3,11 +3,13 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Events;
 
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ArrayQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Events\EventDispatcher;
 use Smartbox\Integration\FrameworkBundle\Events\EventFilterInterface;
 use Smartbox\Integration\FrameworkBundle\Events\EventFiltersRegistry;
+use Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
 use Smartbox\Integration\FrameworkBundle\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
@@ -29,13 +31,16 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $queueDriver->setMessageFactory($messageFactory);
 
         $event = new HandlerEvent();
+        $helper = new SmartesbHelper();
 
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
-        $container->set('smartesb.drivers.queue.events',$queueDriver);
+        $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events',$queueDriver);
+        $container->set('smartesb.helper',$helper);
         $container->setParameter('smartesb.flows_version', '0');
 
         $container->setParameter('smartesb.events_queue_name', 'test_queue');
+        $helper->setContainer($container);
 
         $dispatcher = new EventDispatcher($container);
         $dispatcher->dispatch("test_event", $event);
@@ -67,7 +72,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
 
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
-        $container->set('smartesb.drivers.queue.events',$queueDriver);
+        $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events',$queueDriver);
 
         $container->setParameter('smartesb.events_queue_name', 'test_queue');
 
@@ -93,7 +98,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
 
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
-        $container->set('smartesb.drivers.queue.events',$queueDriver);
+        $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events',$queueDriver);
 
         $container->setParameter('smartesb.events_queue_name', 'test_queue');
 
