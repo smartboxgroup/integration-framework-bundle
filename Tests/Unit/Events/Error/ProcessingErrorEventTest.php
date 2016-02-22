@@ -36,6 +36,7 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
         $this->name = 'some_name';
 
         $this->event = new ProcessingErrorEvent($this->processor, $this->exchange, $this->exception, $this->name);
+        $this->event->setTimestampToCurrent();
     }
 
     public function testItShouldBeConstructedWithAnExchange()

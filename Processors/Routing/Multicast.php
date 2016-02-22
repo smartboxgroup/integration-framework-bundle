@@ -109,7 +109,9 @@ class Multicast extends Processor
             $msgCopy = unserialize(serialize($mainExchange->getIn()));
             $exchange->setIn($msgCopy);
 
-            $this->eventDispatcher->dispatch(NewExchangeEvent::TYPE_NEW_EXCHANGE_EVENT,new NewExchangeEvent($exchange));
+            $event = new NewExchangeEvent($exchange);
+            $event->setTimestampToCurrent();
+            $this->eventDispatcher->dispatch(NewExchangeEvent::TYPE_NEW_EXCHANGE_EVENT,$event);
         }
     }
 }
