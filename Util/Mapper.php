@@ -5,19 +5,21 @@ namespace Smartbox\Integration\FrameworkBundle\Util;
 
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEvaluator;
 
-class Mapper implements MapperInterface {
+class Mapper implements MapperInterface
+{
 
     use UsesEvaluator;
 
     protected $mappings = [];
 
     protected $dictionary = [
-        'ISO8601' => \DateTime::ISO8601
+        'ISO8601' => \DateTime::ISO8601,
+        'ISO8601Micro' => 'Y-m-d\TH:i:s.000'
     ];
 
     public function addMappings(array $mappings)
     {
-        foreach($mappings as $mappingName => $mapping){
+        foreach ($mappings as $mappingName => $mapping) {
             $this->mappings[$mappingName] = $mapping;
         }
     }
@@ -29,7 +31,7 @@ class Mapper implements MapperInterface {
      */
     public function map($obj, $mappingName)
     {
-        if (!$mappingName || !array_key_exists($mappingName, $this->mappings)){
+        if (!$mappingName || !array_key_exists($mappingName, $this->mappings)) {
             throw new \InvalidArgumentException("Invalid mapping name");
         }
 
@@ -39,11 +41,11 @@ class Mapper implements MapperInterface {
 
         $mapping = @$this->mappings[$mappingName];
 
-        $dictionary = array_merge($this->dictionary,['obj' => $obj]);
+        $dictionary = array_merge($this->dictionary, ['obj' => $obj]);
 
         $res = [];
         foreach ($mapping as $key => $expression) {
-            $res[$key] = $this->evaluator->evaluateWithVars($expression,$dictionary);
+            $res[$key] = $this->evaluator->evaluateWithVars($expression, $dictionary);
         }
 
         return $res;
@@ -66,5 +68,11 @@ class Mapper implements MapperInterface {
 
             return $res;
         }
+    }
+
+    public function stringToDate($date)
+    {
+        $res = new \DateTime($date);
+        return $res;
     }
 }
