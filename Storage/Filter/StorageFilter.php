@@ -40,7 +40,7 @@ class StorageFilter implements StorageFilterInterface
      */
     public function setLimit($limit)
     {
-        $this->limit = $limit;
+        $this->limit = intval($limit);
 
         return $this;
     }
@@ -59,7 +59,7 @@ class StorageFilter implements StorageFilterInterface
      */
     public function setOffset($offset)
     {
-        $this->offset = $offset;
+        $this->offset = intval($offset);
 
         return $this;
     }

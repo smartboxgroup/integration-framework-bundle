@@ -3,24 +3,30 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Storage\Driver;
 
 use JMS\Serializer\SerializerInterface;
+use Smartbox\CoreBundle\Type\Date;
 use Smartbox\CoreBundle\Type\Integer;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
+use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilter;
 use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
+use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Events\FakeEvent;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\Entity\SerializableSimpleEntity;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\SimpleObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class MongoDBStorageTest
+ * Class MongoDBClientTest
  * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Storage\Driver
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient
  */
 class MongoDBClientTest extends KernelTestCase
 {
+    const MONGO_DATABASE = 'tests';
+    const MONGO_COLLECTION = 'tests_collection';
+
     /** @var ContainerInterface */
     protected static $container;
 
@@ -39,7 +45,7 @@ class MongoDBClientTest extends KernelTestCase
 
         self::$serializer = self::$container->get('serializer');
         self::$storageDriver = new MongoDBClient(self::$serializer);
-        self::$storageDriver->configure(['host' => 'mongodb://localhost:27017', 'database' => 'tests']);
+        self::$storageDriver->configure(['host' => 'mongodb://localhost:27017', 'database' => self::MONGO_DATABASE]);
 
         parent::setUpBeforeClass();
     }
@@ -57,7 +63,7 @@ class MongoDBClientTest extends KernelTestCase
     {
         return [
             [['host' => 'mongodb://localhost:27017', 'database' => 'test_database']],
-            [['host' => 'localhost', 'database' => 'test_database']],
+            [['host' => 'mongodb://localhost', 'database' => 'test_database']],
         ];
     }
 
@@ -78,7 +84,7 @@ class MongoDBClientTest extends KernelTestCase
         $data->setDescription('some description');
         $data->setNote('some note');
 
-        $this->assertNotNull($storageDriver->save('test_collection', $data));
+        $this->assertNotNull($storageDriver->save(self::MONGO_COLLECTION, $data));
 
         unset($storageDriver);
     }
@@ -119,11 +125,11 @@ class MongoDBClientTest extends KernelTestCase
     public function dataProviderForStorageDriver()
     {
         $dataSets = [];
+
         for ($i = 0; $i < 5; $i++) {
-            $object = new SimpleObject();
-            $object->setIntegerValue($i);
-            $object->setDoubleValue($i / 100);
-            $object->setArrayOfIntegers([new Integer(1), new Integer(2)]);
+            $object = new FakeEvent();
+            $object->setTimestamp(new \DateTime());
+            $object->setName('test_' . $i);
             $dataSets[] = [$object];
         }
 
@@ -140,9 +146,9 @@ class MongoDBClientTest extends KernelTestCase
      */
     public function testSaveAndFindOneById(SerializableInterface $data)
     {
-        $id = self::$storageDriver->save('test_collection', $data);
+        $id = self::$storageDriver->save(self::MONGO_COLLECTION, $data);
 
-        $restoredData = self::$storageDriver->findOneById('test_collection', $id);
+        $restoredData = self::$storageDriver->findOneById(self::MONGO_COLLECTION, $id);
 
         $this->assertEquals($data, $restoredData);
     }
@@ -155,7 +161,7 @@ class MongoDBClientTest extends KernelTestCase
             ['not_existing_id'],
             [''],
             [null],
-            [123],
+            [000000000000],
         ];
     }
 
@@ -168,7 +174,7 @@ class MongoDBClientTest extends KernelTestCase
      */
     public function testFindOneByIdForNotExistingData($id)
     {
-        $restoredData = self::$storageDriver->findOneById('test_collection', $id);
+        $restoredData = self::$storageDriver->findOneById(self::MONGO_COLLECTION, $id);
 
         $this->assertNull($restoredData);
     }
