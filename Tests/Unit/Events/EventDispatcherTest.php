@@ -31,6 +31,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $queueDriver->setMessageFactory($messageFactory);
 
         $event = new HandlerEvent();
+        $event->setTimestampToCurrent();
         $helper = new SmartesbHelper();
 
         $container = new Container();
@@ -69,6 +70,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $queueDriver = new ArrayQueueDriver();
 
         $event = new HandlerEvent();
+        $event->setTimestampToCurrent();
 
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
@@ -95,6 +97,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $queueDriver = new ArrayQueueDriver();
 
         $event = new HandlerEvent();
+        $event->setTimestampToCurrent();
 
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);

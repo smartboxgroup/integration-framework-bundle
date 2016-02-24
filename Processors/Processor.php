@@ -44,6 +44,7 @@ abstract class Processor extends Service implements ProcessorInterface
     protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         $event = new ProcessEvent(ProcessEvent::TYPE_BEFORE);
+        $event->setTimestampToCurrent();
         $event->setProcessor($this);
         $event->setExchange($exchange);
         $event->setProcessingContext($processingContext);
@@ -53,6 +54,7 @@ abstract class Processor extends Service implements ProcessorInterface
     protected function postProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         $event = new ProcessEvent(ProcessEvent::TYPE_AFTER);
+        $event->setTimestampToCurrent();
         $event->setProcessor($this);
         $event->setExchange($exchange);
         $event->setProcessingContext($processingContext);

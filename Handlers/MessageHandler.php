@@ -147,6 +147,7 @@ class MessageHandler extends Service implements HandlerInterface
      */
     public function onHandleStart(Exchange $exchange){
         $beforeHandleEvent = new HandlerEvent(HandlerEvent::BEFORE_HANDLE_EVENT_NAME);
+        $beforeHandleEvent->setTimestampToCurrent();
         $beforeHandleEvent->setExchange($exchange);
         $this->eventDispatcher->dispatch(HandlerEvent::BEFORE_HANDLE_EVENT_NAME, $beforeHandleEvent);
     }
@@ -156,6 +157,7 @@ class MessageHandler extends Service implements HandlerInterface
      */
     public function onHandleSuccess(Exchange $exchange){
         $afterHandleEvent = new HandlerEvent(HandlerEvent::AFTER_HANDLE_EVENT_NAME);
+        $afterHandleEvent->setTimestampToCurrent();
         $afterHandleEvent->setExchange($exchange);
         $this->eventDispatcher->dispatch(HandlerEvent::BEFORE_HANDLE_EVENT_NAME, $afterHandleEvent);
     }
@@ -193,6 +195,7 @@ class MessageHandler extends Service implements HandlerInterface
 
         // Dispatch event with error information
         $event = new ProcessingErrorEvent($processor, $exchangeBackup, $originalException);
+        $event->setTimestampToCurrent();
         $event->setProcessingContext($exception->getProcessingContext());
 
         // Try to recover

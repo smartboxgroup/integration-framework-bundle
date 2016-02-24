@@ -46,16 +46,4 @@ class EventTest extends \PHPUnit_Framework_TestCase
         $this->event->setTimestamp($timestamp);
         $this->assertSame($timestamp, $this->event->getTimestamp());
     }
-
-    public function testItShouldHaveADefaultTimestamp()
-    {
-        $this->assertNotNull($this->event->getTimestamp());
-
-        $currentTime = new \DateTime();
-        $eventTime = $this->event->getTimestamp();
-
-        $diff = $currentTime->diff($eventTime);
-
-        $this->assertTrue($diff->s < 1);
-    }
 }

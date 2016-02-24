@@ -36,11 +36,6 @@ abstract class Event extends BaseEvent implements SerializableInterface
     {
         $this->setName($eventName);
         $this->eventName = $eventName;
-
-        // Generates the date time including microseconds correctly
-        $t = microtime(true);
-        $micro = sprintf("%06d",($t - floor($t)) * 1000000);
-        $this->timestamp = new \DateTime(date('Y-m-d H:i:s.'.$micro,$t));
     }
 
     /**
@@ -57,6 +52,13 @@ abstract class Event extends BaseEvent implements SerializableInterface
     public function setTimestamp(\DateTime $timestamp = null)
     {
         $this->timestamp = $timestamp;
+    }
+
+    public function setTimestampToCurrent(){
+        // Generates the date time including microseconds correctly
+        $t = microtime(true);
+        $micro = sprintf("%06d",($t - floor($t)) * 1000000);
+        $this->setTimestamp(new \DateTime(date('Y-m-d H:i:s.'.$micro,$t)));
     }
 
     /**
