@@ -164,9 +164,8 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                 ->end()
 
-                ->arrayNode('response')
+                ->variableNode('response')
                     ->info('This defines how to generate the response')
-                    ->prototype('variable')->end()
                 ->end()
 
                 ->arrayNode('validations')
