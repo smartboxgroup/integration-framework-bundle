@@ -55,9 +55,18 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
         return $date->toDateTime();
     }
 
-
     public static function convertDateTimeToMongoFormat(\DateTime $date)
     {
-        return new \MongoDB\BSON\UTCDateTime((intval($date->format('U')) * 1000) + intval($date->format('u')));
+        return new \MongoDB\BSON\UTCDateTime(self::getUnixTimestampWithMilliseconds($date));
+    }
+
+    protected static function getDateMilliseconds(\DateTime $dateTime){
+        return intval($dateTime->format('u')/1000);
+    }
+
+    protected static function getUnixTimestampWithMilliseconds(\DateTime $dateTime){
+        $timestampWithMillisTo0 = intval($dateTime->format('U')) * 1000;
+        $timestampWithMillis =  $timestampWithMillisTo0 + self::getDateMilliseconds($dateTime);
+        return $timestampWithMillis;
     }
 }
