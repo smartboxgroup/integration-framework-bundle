@@ -32,7 +32,7 @@ class Mapper implements MapperInterface
     public function map($obj, $mappingName)
     {
         if (!$mappingName || !array_key_exists($mappingName, $this->mappings)) {
-            throw new \InvalidArgumentException("Invalid mapping name");
+            throw new \InvalidArgumentException(sprintf('Invalid mapping name "%s"', $mappingName));
         }
 
         if (empty($obj)) {

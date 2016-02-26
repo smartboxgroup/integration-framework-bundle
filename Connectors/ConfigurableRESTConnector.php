@@ -2,6 +2,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -31,7 +32,47 @@ class ConfigurableRESTConnector extends ConfigurableConnector
         ];
     }
 
-    protected function request(array $stepActionParams, array $connectorOptions, array &$context)
+    /**
+     * @return ClientInterface
+     */
+    public function getOrCreateHttpClient()
+    {
+        if(!$this->httpClient){
+            // Init rest client if not done
+            $restClient = new Client([
+                'timeout' => 0,
+                'allow_redirects' => false
+            ]);
+
+            $this->httpClient = $restClient;
+        }
+
+        return $this->httpClient;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function executeStep($stepAction, $stepActionParams, $options, array &$context)
+    {
+        if(!parent::executeStep($stepAction,$stepActionParams,$options,$context)){
+            switch ($stepAction){
+                case self::STEP_REQUEST:
+                    $this->request($this->getOrCreateHttpClient(), $stepActionParams, $options, $context);
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param \GuzzleHttp\ClientInterface $client
+     * @param array                       $stepActionParams
+     * @param array                       $connectorOptions
+     * @param array                       $context
+     */
+    protected function request(ClientInterface $client, array $stepActionParams, array $connectorOptions, array &$context)
     {
         if (!is_array($stepActionParams)) {
             throw new InvalidConfigurationException(
@@ -55,15 +96,6 @@ class ConfigurableRESTConnector extends ConfigurableConnector
         $resolvedURI .= $this->replaceTemplateVars($executionOptions[self::REQUEST_URI], $context);
         $auth = $executionOptions[self::OPTION_AUTH];
 
-        // Init rest client if not done
-        if(!$this->getHttpClient()){
-            $restClient = new Client([
-                'timeout' => 0,
-                'allow_redirects' => false
-            ]);
-            $this->setHttpClient($restClient);
-        }
-
         $restOptions = $this->getBasicHTTPOptions($executionOptions, $context);
         $restOptions['body'] = $this->getSerializer()->serialize($body, $executionOptions['encoding']);
 
@@ -80,12 +112,13 @@ class ConfigurableRESTConnector extends ConfigurableConnector
         $httpMethod = strtoupper($httpMethod);
 
         /** @var Response $response */
-        $response = $this->getHttpClient()->request($httpMethod, $resolvedURI, $restOptions);
+        $response = $client->request($httpMethod, $resolvedURI, $restOptions);
+        $responseContent = $response->getBody()->getContents();
 
         $context[self::KEY_RESPONSES][$name] = [
             'statusCode' => $response->getStatusCode(),
             'body' => $this->getSerializer()->deserialize(
-                $response->getBody()->getContents(),
+                $responseContent,
                 'array',
                 $executionOptions['encoding']
             ),
