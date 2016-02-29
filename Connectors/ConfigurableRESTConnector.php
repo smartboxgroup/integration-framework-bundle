@@ -3,6 +3,7 @@ namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -112,7 +113,8 @@ class ConfigurableRESTConnector extends ConfigurableConnector
         $httpMethod = strtoupper($httpMethod);
 
         /** @var Response $response */
-        $response = $client->request($httpMethod, $resolvedURI, $restOptions);
+        $request = new Request($httpMethod, $resolvedURI, $headers);
+        $response = $client->send($request, $restOptions);
         $responseContent = $response->getBody()->getContents();
 
         $context[self::KEY_RESPONSES][$name] = [

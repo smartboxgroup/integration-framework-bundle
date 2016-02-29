@@ -1,14 +1,24 @@
 <?php
 namespace Smartbox\Integration\FrameworkBundle\Exceptions;
 
-
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
+use JMS\Serializer\Annotation as JMS;
 
+/**
+ * Class ProcessingException
+ *
+ * @package Smartbox\Integration\FrameworkBundle\Exceptions
+ */
 class ProcessingException extends \Exception {
 
-    /** @var  \Exception */
+    /**
+     * @var \Exception
+     * @JMS\Expose
+     * @JMS\Type("Exception")
+     * @JMS\Groups({"logs"})
+     */
     protected $originalException;
 
     /** @var  Exchange */
@@ -83,6 +93,4 @@ class ProcessingException extends \Exception {
     {
         $this->processingContext = $processingContext;
     }
-
-
 }
