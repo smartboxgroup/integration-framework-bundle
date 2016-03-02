@@ -2,12 +2,18 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Exceptions;
 
+use JMS\Serializer\Annotation as JMS;
+use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 
-class SoapConnectorException extends ConnectorRecoverableException {
+class SoapConnectorException extends \Exception implements SerializableInterface {
+
+    use HasInternalType;
 
     /**
      * @JMS\Type("string")
      * @JMS\Expose
+     * @JMS\Groups({"logs"})
      * @var string
      */
     protected $rawRequest;
@@ -15,6 +21,7 @@ class SoapConnectorException extends ConnectorRecoverableException {
     /**
      * @JMS\Type("string")
      * @JMS\Expose
+     * @JMS\Groups({"logs"})
      * @var string
      */
     protected $rawResponse;
