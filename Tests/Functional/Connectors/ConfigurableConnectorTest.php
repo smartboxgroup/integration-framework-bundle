@@ -29,11 +29,8 @@ class ConfigurableConnectorTest extends BaseTestCase{
                       'x' => 'eval: 1 + 2',
                       'val' => 'eval: msg.getBody().get("value")'
                     ]],
-                      [ConfigurableConnector::STEP_REQUEST => [
-                          'name' => 'test'
-                      ]],
                     [ConfigurableConnector::STEP_DEFINE => [
-                      'result' => 'eval: x + val + responses["test"]'
+                      'result' => 'eval: x + val'
                     ]]
               ],
               ConfigurableConnector::KEY_VALIDATIONS => [
@@ -59,33 +56,16 @@ class ConfigurableConnectorTest extends BaseTestCase{
           ]
     ];
 
-    public function dummyRequestMethod(array $stepActionParams, array $connectorOptions, array &$context){
-        if (!is_array($stepActionParams)) {
-            throw new \InvalidArgumentException(
-                "Step 'request' in ConfigurableConnector expected an array as configuration"
-            );
-        }
-
-        if(!array_key_exists('name',$stepActionParams)){
-            throw new \InvalidArgumentException("Expected key name under configuration passed to ConfigurableConnector");
-        }
-
-        $context['responses'][$stepActionParams['name']] = 10;
-    }
-
     public function setUp()
     {
         parent::setUp();
 
-        $this->configurableConnector = $this->getMockBuilder(ConfigurableConnector::class)->setMethods([
-            'request',
-        ])->getMock();
+        $this->configurableConnector = $this->getMockBuilder(ConfigurableConnector::class)->setMethods(null)->getMock();
 
         $this->configurableConnector->setEvaluator($this->getContainer()->get('smartesb.util.evaluator'));
         $this->configurableConnector->setSerializer($this->getContainer()->get('serializer'));
         $this->configurableConnector->setDefaultOptions($this->defaultOptions);
 
-        $this->configurableConnector->method('request')->willReturnCallback(array($this,'dummyRequestMethod'));
         $this->configurableConnector->setMethodsConfiguration($this->simpleMethodsConfig);
     }
 
