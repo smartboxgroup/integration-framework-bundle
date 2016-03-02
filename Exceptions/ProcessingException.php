@@ -2,6 +2,8 @@
 namespace Smartbox\Integration\FrameworkBundle\Exceptions;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
+use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 use JMS\Serializer\Annotation as JMS;
@@ -11,7 +13,8 @@ use JMS\Serializer\Annotation as JMS;
  *
  * @package Smartbox\Integration\FrameworkBundle\Exceptions
  */
-class ProcessingException extends \Exception {
+class ProcessingException extends \Exception implements SerializableInterface {
+    use HasInternalType;
 
     /**
      * @var \Exception
@@ -21,13 +24,28 @@ class ProcessingException extends \Exception {
      */
     protected $originalException;
 
-    /** @var  Exchange */
+    /**
+     * @var Exchange
+     * @JMS\Expose
+     * @JMS\Type("Exchange")
+     * @JMS\Groups({"logs"})
+     */
     protected $exchange;
 
-    /** @var  Processor */
+    /**
+     * @var Processor
+     * @JMS\Expose
+     * @JMS\Type("Processor")
+     * @JMS\Groups({"logs"})
+     */
     protected $processor;
 
-    /** @var SerializableArray */
+    /**
+     * @var SerializableArray
+     * @JMS\Expose
+     * @JMS\Type("SerializableArray")
+     * @JMS\Groups({"logs"})
+     */
     protected $processingContext;
 
     /**
