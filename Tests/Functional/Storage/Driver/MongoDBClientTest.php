@@ -8,7 +8,7 @@ use Smartbox\CoreBundle\Type\Integer;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
-use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilter;
+use Smartbox\Integration\FrameworkBundle\Storage\Query\QueryOptions;
 use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Events\FakeEvent;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\Entity\SerializableSimpleEntity;

@@ -1,12 +1,12 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Storage\Filter;
+namespace Smartbox\Integration\FrameworkBundle\Storage\Query;
 
 /**
- * Class StorageFilter
- * @package Smartbox\Integration\FrameworkBundle\Storage\Filter
+ * Class QueryOptions
+ * @package Smartbox\Integration\FrameworkBundle\Storage\Query
  */
-class StorageFilter implements StorageFilterInterface
+class QueryOptions implements QueryOptionsInterface
 {
     CONST SORT_ASC = 1;
     CONST SORT_DESC = -1;

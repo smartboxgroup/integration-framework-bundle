@@ -6,8 +6,8 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\DataStorageException;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
-use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilter;
-use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
+use Smartbox\Integration\FrameworkBundle\Storage\Query\QueryOptions;
+use Smartbox\Integration\FrameworkBundle\Storage\Query\QueryOptionsInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
@@ -143,10 +143,10 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     /**
      * {@inheritdoc}
      */
-    public function delete($collection, StorageFilterInterface $filter)
+    public function delete($collection, QueryOptionsInterface $queryOptions)
     {
         $this->ensureConnection();
-        $this->db->$collection->deleteMany($filter->getQueryParams());
+        $this->db->$collection->deleteMany($queryOptions->getQueryParams());
     }
 
     /**
@@ -160,13 +160,13 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             return null;
         }
 
-        $filter = new StorageFilter();
-        $filter->setQueryParams([
+        $queryOptions = new QueryOptions();
+        $queryOptions->setQueryParams([
             '_id' => $id,
         ]);
 
         $this->ensureConnection();
-        $this->db->$collection->deleteOne($filter->getQueryParams());
+        $this->db->$collection->deleteOne($queryOptions->getQueryParams());
     }
 
     /**
@@ -174,12 +174,12 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
      *
      * @TODO $hydrateObject argument should be removed as it's not in an interface
      */
-    public function findOne($collection, StorageFilterInterface $filter, array $fields = [], $hydrateObject = true)
+    public function findOne($collection, QueryOptionsInterface $queryOptions, array $fields = [], $hydrateObject = true)
     {
         $this->ensureConnection();
 
         try {
-            $result = $this->db->$collection->findOne($filter->getQueryParams(), $fields);
+            $result = $this->db->$collection->findOne($queryOptions->getQueryParams(), $fields);
         } catch(\Exception $e) {
             throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
         }
@@ -204,20 +204,20 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             return null;
         }
 
-        $filter = new StorageFilter();
-        $filter->setQueryParams([
+        $queryOptions = new QueryOptions();
+        $queryOptions->setQueryParams([
             '_id' => $id,
         ]);
 
-        return $this->findOne($collection, $filter, $fields, $hydrateObject);
+        return $this->findOne($collection, $queryOptions, $fields, $hydrateObject);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function find($collection, StorageFilterInterface $filter, array $fields = [], $hydrateObject = true)
+    public function find($collection, QueryOptionsInterface $queryOptions, array $fields = [], $hydrateObject = true)
     {
-        $cursor = $this->findWithCursor($collection, $filter, $fields);
+        $cursor = $this->findWithCursor($collection, $queryOptions, $fields);
 
         $result = [];
 
@@ -237,15 +237,15 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         return $result;
     }
 
-    public function findWithCursor($collection, StorageFilterInterface $filter, array $fields = [])
+    public function findWithCursor($collection, QueryOptionsInterface $queryOptions, array $fields = [])
     {
         $this->ensureConnection();
 
-        $queryParams = $filter->getQueryParams();
+        $queryParams = $queryOptions->getQueryParams();
         $options = [
-            'sort' => $filter->getSortParams(),
-            'limit' => $filter->getLimit(),
-            'skip' => $filter->getOffset(),
+            'sort' => $queryOptions->getSortParams(),
+            'limit' => $queryOptions->getLimit(),
+            'skip' => $queryOptions->getOffset(),
         ];
 
         if (!empty($fields)) {
@@ -266,11 +266,11 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     /**
      * {@inheritdoc}
      */
-    public function count($collection, StorageFilterInterface $filter)
+    public function count($collection, QueryOptionsInterface $queryOptions)
     {
         $this->ensureConnection();
 
-        $queryParams = $filter->getQueryParams();
+        $queryParams = $queryOptions->getQueryParams();
 
         try {
             /** @var \MongoDB\Collection $collection */
