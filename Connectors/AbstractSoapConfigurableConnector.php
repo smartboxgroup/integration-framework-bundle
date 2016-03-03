@@ -61,6 +61,13 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
         return $soapClient->__soapCall($methodName, $params, $soapOptions, $soapHeaders);
     }
 
+    /**
+     * @param array $stepActionParams
+     * @param array $connectorOptions
+     * @param array $context
+     *
+     * @throws \Smartbox\Integration\FrameworkBundle\Exceptions\SoapConnectorException
+     */
     protected function request(array $stepActionParams, array $connectorOptions, array &$context)
     {
         $paramsResolver = new OptionsResolver();
@@ -83,8 +90,6 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
 
-        $soapClient = $this->getSoapClient($connectorOptions);
-
         // creates a proper set of SoapHeader objects
         $processedSoapHeaders = array_map(function($header){
             if (is_array($header)) {
@@ -104,7 +109,8 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
         try{
             $result = $this->performRequest($soapMethodName,$soapMethodParams,$connectorOptions, $soapOptions, $processedSoapHeaders);
         }catch (\Exception $ex){
-            $exception = new SoapConnectorException($ex->getMessage());
+            $soapClient = $this->getSoapClient($connectorOptions);
+            $exception = new SoapConnectorException($ex->getMessage(), $ex->getCode(), $ex);
             $exception->setRawRequest($soapClient->__getLastRequest());
             $exception->setRawResponse($soapClient->__getLastResponse());
             throw $exception;
