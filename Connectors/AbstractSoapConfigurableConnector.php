@@ -52,13 +52,29 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
      *
      * @return \stdClass
      */
-    protected function performRequest($methodName, $params, array $connectorOptions, array $soapOptions = null, array $soapHeaders = null){
+    protected function performRequest($methodName, $params, array $connectorOptions, array $soapOptions = [], array $soapHeaders = []){
         $soapClient = $this->getSoapClient($connectorOptions);
         if(!$soapClient){
             throw new \RuntimeException("SoapConfigurableConnector requires a SoapClient as a dependency");
         }
 
-        return $soapClient->__soapCall($methodName, $params, $soapOptions, $soapHeaders);
+        // creates a proper set of SoapHeader objects
+        $processedSoapHeaders = array_map(function($header){
+            if (is_array($header)) {
+                $header = new \SoapHeader($header[0], $header[1], $header[2]);
+            }
+            if (!$header instanceof \SoapHeader) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Invalid soap header "%s". Expected instance of \SoapHeader or array containing 3 values representing'.
+                    ' "namespace", "header name" and "header value"',
+                    json_encode($header)
+                ));
+            }
+
+            return $header;
+        }, $soapHeaders);
+
+        return $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
     }
 
     /**
@@ -66,6 +82,7 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
      * @param array $connectorOptions
      * @param array $context
      *
+     * @return \stdClass
      * @throws \Smartbox\Integration\FrameworkBundle\Exceptions\SoapConnectorException
      */
     protected function request(array $stepActionParams, array $connectorOptions, array &$context)
@@ -90,24 +107,8 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
 
-        // creates a proper set of SoapHeader objects
-        $processedSoapHeaders = array_map(function($header){
-            if (is_array($header)) {
-                $header = new \SoapHeader($header[0], $header[1], $header[2]);
-            }
-            if (!$header instanceof \SoapHeader) {
-                throw new \InvalidArgumentException(sprintf(
-                    'Invalid soap header "%s". Expected instance of \SoapHeader or array containing 3 values representing'.
-                    ' "namespace", "header name" and "header value"',
-                    json_encode($header)
-                ));
-            }
-
-            return $header;
-        }, $soapHeaders);
-
         try{
-            $result = $this->performRequest($soapMethodName,$soapMethodParams,$connectorOptions, $soapOptions, $processedSoapHeaders);
+            $result = $this->performRequest($soapMethodName,$soapMethodParams,$connectorOptions, $soapOptions, $soapHeaders);
         }catch (\Exception $ex){
             $soapClient = $this->getSoapClient($connectorOptions);
             $exception = new SoapConnectorException($ex->getMessage(), $ex->getCode(), $ex);
@@ -117,5 +118,7 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
         }
 
         $context[self::KEY_RESPONSES][$requestName] = $result;
+
+        return $result;
     }
 }
