@@ -1,12 +1,12 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Storage\Filter;
+namespace Smartbox\Integration\FrameworkBundle\Storage\Query;
 
 /**
- * Interface StorageFilterInterface
- * @package Smartbox\Integration\FrameworkBundle\Storage\Filter
+ * Interface QueryOptionsInterface
+ * @package Smartbox\Integration\FrameworkBundle\Storage\Query
  */
-interface StorageFilterInterface
+interface QueryOptionsInterface
 {
     /**
      * @return array

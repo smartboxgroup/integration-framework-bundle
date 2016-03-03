@@ -106,8 +106,9 @@ class Configuration implements ConfigurationInterface
 
         $node
             ->info('Mappings to translate messages')
-            ->useAttributeAsKey('name')
-                ->prototype('variable')
+            ->useAttributeAsKey('__mapping_name')
+                ->prototype('array')
+                    ->prototype('scalar')->end()
                 ->end()
             ->end();
 

@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
+use GuzzleHttp\ClientInterface;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Exceptions\ConnectorRecoverableException;
 use Smartbox\Integration\FrameworkBundle\Exceptions\ConnectorUnrecoverableException;
@@ -172,15 +173,24 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
         }
     }
 
+    /**
+     * Returns true if the step was executed, false if the step was not recognized
+     *
+     * @param       $stepAction
+     * @param       $stepActionParams
+     * @param       $options
+     * @param array $context
+     *
+     * @return bool
+     */
     public function executeStep($stepAction, $stepActionParams, $options, array &$context)
     {
         switch ($stepAction) {
             case self::STEP_DEFINE:
                 $this->define($stepActionParams, $context);
-                break;
-            case self::STEP_REQUEST:
-                $this->request($stepActionParams, $options, $context);
-                break;
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -254,5 +264,4 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
         }
     }
 
-    protected abstract function request(array $stepActionParams, array $connectorOptions, array &$context);
 }

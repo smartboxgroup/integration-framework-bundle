@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Storage;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
-use Smartbox\Integration\FrameworkBundle\Storage\Filter\StorageFilterInterface;
+use Smartbox\Integration\FrameworkBundle\Storage\Query\QueryOptionsInterface;
 
 /**
  * Interface StorageClientInterface
@@ -43,20 +43,20 @@ interface StorageClientInterface
 
     /**
      * @param string $storageResourceName
-     * @param StorageFilterInterface $filter
+     * @param QueryOptionsInterface $queryOptions
      * @param array $fields
      * @return SerializableInterface[]|SerializableInterface|null
      */
-    public function find($storageResourceName, StorageFilterInterface $filter, array $fields = []);
+    public function find($storageResourceName, QueryOptionsInterface $queryOptions, array $fields = []);
 
     /**
      * @param string    $storageResourceName
-     * @param StorageFilterInterface $filter
+     * @param QueryOptionsInterface $queryOptions
      * @param array $fields
      *
      * @return SerializableInterface|null
      */
-    public function findOne($storageResourceName, StorageFilterInterface $filter, array $fields = []);
+    public function findOne($storageResourceName, QueryOptionsInterface $queryOptions, array $fields = []);
 
     /**
      * @param string $storageResourceName
@@ -69,18 +69,18 @@ interface StorageClientInterface
      * Count items matching a given $filter
      *
      * @param string $storageResourceName
-     * @param StorageFilterInterface $filter
+     * @param QueryOptionsInterface $queryOptions
      * @return int
      */
-    public function count($storageResourceName, StorageFilterInterface $filter);
+    public function count($storageResourceName, QueryOptionsInterface $queryOptions);
 
     /**
      * Delete all items matching a given $filter
      *
      * @param string $storageResourceName
-     * @param StorageFilterInterface $filter
+     * @param QueryOptionsInterface $queryOptions
      */
-    public function delete($storageResourceName, StorageFilterInterface $filter);
+    public function delete($storageResourceName, QueryOptionsInterface $queryOptions);
 
     /**
      * Delete a single record matching a given $id
