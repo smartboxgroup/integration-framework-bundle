@@ -2,7 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
-use Smartbox\Integration\FrameworkBundle\Exceptions\SoapConnectorException;
+use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableSoapException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -79,14 +79,14 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
 
     /**
      * @param array $stepActionParams
-     * @param array $connectorOptions
+     * @param array $options
      * @param array $context
-     *
      * @return \stdClass
-     * @throws \Smartbox\Integration\FrameworkBundle\Exceptions\SoapConnectorException
+     * @throws RecoverableSoapException
      */
-    protected function request(array $stepActionParams, array $connectorOptions, array &$context)
+    protected function request(array $stepActionParams, array $options, array &$context)
     {
+        $soapClient = $this->getSoapClient($options);
         $paramsResolver = new OptionsResolver();
         $paramsResolver->setRequired([
             self::SOAP_METHOD_NAME,
@@ -108,12 +108,19 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
 
         try{
-            $result = $this->performRequest($soapMethodName,$soapMethodParams,$connectorOptions, $soapOptions, $soapHeaders);
+            $result = $this->performRequest($soapMethodName,$soapMethodParams,$options, $soapOptions, $soapHeaders);
         }catch (\Exception $ex){
-            $soapClient = $this->getSoapClient($connectorOptions);
-            $exception = new SoapConnectorException($ex->getMessage(), $ex->getCode(), $ex);
-            $exception->setRawRequest($soapClient->__getLastRequest());
-            $exception->setRawResponse($soapClient->__getLastResponse());
+            /** @var \SoapClient $soapClient */
+            $exception = new RecoverableSoapException(
+                $ex->getMessage(),
+                $soapClient->__getLastRequestHeaders(),
+                $soapClient->__getLastRequest(),
+                $soapClient->__getLastResponseHeaders(),
+                $soapClient->__getLastResponse(),
+                $ex->getCode(),
+                $ex
+            );
+
             throw $exception;
         }
 
