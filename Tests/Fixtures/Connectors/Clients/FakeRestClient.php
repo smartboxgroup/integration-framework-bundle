@@ -79,11 +79,13 @@ class FakeRestClient extends Client
             [
                 'status' => $response->getStatusCode(),
                 'headers' => $response->getHeaders(),
-                'body' => $response->getBody(),
+                'body' => $response->getBody()->getContents(),
                 'version' => $response->getProtocolVersion(),
                 'reason' => $response->getReasonPhrase(),
             ]
         );
+
+        $response->getBody()->rewind();
 
         $this->trait_setResponseInCache($resource, $content, $suffix);
     }

@@ -45,7 +45,8 @@ trait FakeClientTrait
 
     protected function getResponseFromCache($resource, $suffix = null)
     {
-        $fixturePath = $this->fileLocator->locate($this->cacheDir . DIRECTORY_SEPARATOR . $resource . (($suffix)? '.' . $suffix : null));
+        $file = $this->cacheDir . DIRECTORY_SEPARATOR . $resource . (($suffix)? '.' . $suffix : null);
+        $fixturePath = $this->fileLocator->locate($file);
         return file_get_contents($fixturePath);
     }
 
