@@ -2,6 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
+use Smartbox\CoreBundle\Utils\SmokeTest\Generic\ConnectivityCheckSmokeTest;
+use Smartbox\CoreBundle\Utils\SmokeTest\Generic\ConnectivityCheckSmokeTestItemInterface;
 use Smartbox\Integration\FrameworkBundle\Connectors\ConfigurableConnectorInterface;
 use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Db\MongoDbDriver;
@@ -13,14 +15,10 @@ use Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\ConsoleEvents;
-use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Loader;
-use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -88,8 +86,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setDefaultOptions', [$options]);
             $definition->addMethodCall('setEvaluator',[new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer',[new Reference('serializer')]);
+//            $definition->setLazy(true);
 
             $container->setDefinition('smartesb.connectors.'.$connectorName, $definition);
+
+            if (in_array(ConnectivityCheckSmokeTestItemInterface::class, class_implements($definition->getClass()))) {
+                $definition->addTag(ConnectivityCheckSmokeTest::TAG_ITEM);
+            }
         }
     }
 

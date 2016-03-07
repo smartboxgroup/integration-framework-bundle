@@ -2,10 +2,14 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
+use ProxyManager\Proxy\LazyLoadingInterface;
+use Smartbox\CoreBundle\Utils\SmokeTest\Generic\ConnectivityCheckSmokeTestItemInterface;
+use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\Integration\FrameworkBundle\Exceptions\SoapConnectorException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
+abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector implements ConnectivityCheckSmokeTestItemInterface
+{
     const REQUEST_PARAMETERS = 'parameters';
     const REQUEST_NAME = 'name';
     const SOAP_METHOD_NAME = 'soap_method';
@@ -13,6 +17,10 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
     /** @var  \SoapClient */
     protected $soapClient;
 
+    /**
+     * @param $connectorOptions
+     * @return \SoapClient
+     */
     public abstract function getSoapClient($connectorOptions);
 
     /**
@@ -67,5 +75,37 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
         }
 
         $context[self::KEY_RESPONSES][$requestName] = $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function checkConnectivityForSmokeTest(array $config = null)
+    {
+        $output = new SmokeTestOutput();
+
+        try {
+            $client = $this->getSoapClient($config);
+            if ($client instanceof LazyLoadingInterface) {
+                $client->initializeProxy();
+            }
+            $output->setCode($output::OUTPUT_CODE_SUCCESS);
+            $output->addMessage('Connection was successfully established.');
+        } catch (\SoapFault $e) {
+            $output->setCode($output::OUTPUT_CODE_FAILURE);
+            $output->addMessage(
+                sprintf(
+                    'Could not establish connection. Error: %s',
+                    $e->getMessage()
+                )
+            );
+        }
+
+        return $output;
+    }
+
+    public function soapFatalErrorHandler()
+    {
+        echo 'rte';
     }
 }
