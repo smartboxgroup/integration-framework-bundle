@@ -131,7 +131,7 @@ class Configuration implements ConfigurationInterface
             ->end()
 
             ->scalarNode('class')
-            ->info('Class to be used for the connector, you can use a generic class like ConfigurableRESTConnector or create a custom class implementing ConfigurableConnectorInterface')
+            ->info('Class to be used for the connector, you can use a generic class like RESTConfigurableConnector or create a custom class implementing ConfigurableConnectorInterface')
             ->isRequired()
             ->end()
 

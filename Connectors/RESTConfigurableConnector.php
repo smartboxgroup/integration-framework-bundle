@@ -8,7 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class ConfigurableRESTConnector extends ConfigurableConnector
+class RESTConfigurableConnector extends ConfigurableConnector
 {
     use UsesGuzzleHttpClient;
 
@@ -34,24 +34,6 @@ class ConfigurableRESTConnector extends ConfigurableConnector
     }
 
     /**
-     * @return ClientInterface
-     */
-    public function getOrCreateHttpClient()
-    {
-        if(!$this->httpClient){
-            // Init rest client if not done
-            $restClient = new Client([
-                'timeout' => 0,
-                'allow_redirects' => false
-            ]);
-
-            $this->httpClient = $restClient;
-        }
-
-        return $this->httpClient;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function executeStep($stepAction, $stepActionParams, $options, array &$context)
@@ -59,7 +41,7 @@ class ConfigurableRESTConnector extends ConfigurableConnector
         if(!parent::executeStep($stepAction,$stepActionParams,$options,$context)){
             switch ($stepAction){
                 case self::STEP_REQUEST:
-                    $this->request($this->getOrCreateHttpClient(), $stepActionParams, $options, $context);
+                    $this->request($this->getHttpClient(), $stepActionParams, $options, $context);
                     return true;
             }
         }
