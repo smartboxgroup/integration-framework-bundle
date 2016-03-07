@@ -2,17 +2,29 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
-use Smartbox\Integration\FrameworkBundle\Exceptions\SoapConnectorException;
+use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableSoapException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class AbstractSoapConfigurableConnector
+ *
+ * @package Smartbox\Integration\FrameworkBundle\Connectors
+ */
 abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
     const REQUEST_PARAMETERS = 'parameters';
     const REQUEST_NAME = 'name';
     const SOAP_METHOD_NAME = 'soap_method';
+    const SOAP_OPTIONS = 'soap_options';
+    const SOAP_HEADERS = 'soap_headers';
 
     /** @var  \SoapClient */
     protected $soapClient;
 
+    /**
+     * @param $connectorOptions
+     *
+     * @return \SoapClient
+     */
     public abstract function getSoapClient($connectorOptions);
 
     /**
@@ -31,17 +43,50 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
         return false;
     }
 
-    protected function performRequest($methodName,$params,$connectorOptions){
+    /**
+     * @param string $methodName
+     * @param array  $params
+     * @param array  $connectorOptions
+     * @param array  $soapOptions
+     * @param array  $soapHeaders
+     *
+     * @return \stdClass
+     */
+    protected function performRequest($methodName, $params, array $connectorOptions, array $soapOptions = [], array $soapHeaders = []){
         $soapClient = $this->getSoapClient($connectorOptions);
         if(!$soapClient){
             throw new \RuntimeException("SoapConfigurableConnector requires a SoapClient as a dependency");
         }
 
-        return $soapClient->__call($methodName,$params);
+        // creates a proper set of SoapHeader objects
+        $processedSoapHeaders = array_map(function($header){
+            if (is_array($header)) {
+                $header = new \SoapHeader($header[0], $header[1], $header[2]);
+            }
+            if (!$header instanceof \SoapHeader) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Invalid soap header "%s". Expected instance of \SoapHeader or array containing 3 values representing'.
+                    ' "namespace", "header name" and "header value"',
+                    json_encode($header)
+                ));
+            }
+
+            return $header;
+        }, $soapHeaders);
+
+        return $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
     }
 
-    protected function request(array $stepActionParams, array $connectorOptions, array &$context)
+    /**
+     * @param array $stepActionParams
+     * @param array $options
+     * @param array $context
+     * @return \stdClass
+     * @throws RecoverableSoapException
+     */
+    protected function request(array $stepActionParams, array $options, array &$context)
     {
+        $soapClient = $this->getSoapClient($options);
         $paramsResolver = new OptionsResolver();
         $paramsResolver->setRequired([
             self::SOAP_METHOD_NAME,
@@ -49,23 +94,38 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
             self::REQUEST_NAME
         ]);
 
+        $paramsResolver->setDefined([
+            self::SOAP_OPTIONS,
+            self::SOAP_HEADERS,
+        ]);
+
         $params = $paramsResolver->resolve($stepActionParams);
 
         $requestName = $params[self::REQUEST_NAME];
         $soapMethodName = $params[self::SOAP_METHOD_NAME];
         $soapMethodParams = $this->resolve($params[self::REQUEST_PARAMETERS], $context);
-
-        $soapClient = $this->getSoapClient($connectorOptions);
+        $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
+        $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
 
         try{
-            $result = $this->performRequest($soapMethodName,$soapMethodParams,$connectorOptions);
+            $result = $this->performRequest($soapMethodName,$soapMethodParams,$options, $soapOptions, $soapHeaders);
         }catch (\Exception $ex){
-            $exception = new SoapConnectorException($ex->getMessage());
-            $exception->setRawRequest($soapClient->__getLastRequest());
-            $exception->setRawResponse($soapClient->__getLastResponse());
+            /** @var \SoapClient $soapClient */
+            $exception = new RecoverableSoapException(
+                $ex->getMessage(),
+                $soapClient->__getLastRequestHeaders(),
+                $soapClient->__getLastRequest(),
+                $soapClient->__getLastResponseHeaders(),
+                $soapClient->__getLastResponse(),
+                $ex->getCode(),
+                $ex
+            );
+
             throw $exception;
         }
 
         $context[self::KEY_RESPONSES][$requestName] = $result;
+
+        return $result;
     }
 }

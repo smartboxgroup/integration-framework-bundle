@@ -4,7 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Processors;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
-use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidMessageException;
 use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
