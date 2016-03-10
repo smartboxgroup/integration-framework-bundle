@@ -23,6 +23,7 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
     use UsesSerializer;
 
     const OPTION_TIMEOUT = 'timeout';
+    const OPTION_CONNECT_TIMEOUT = 'connect_timeout';
     const OPTION_METHOD = 'method';
 
     const KEY_VARS = 'vars';
@@ -50,7 +51,8 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
 
     protected $localDefaultOptions = array(
         self::OPTION_RETRIES => 5,
-        self::OPTION_TIMEOUT => 500,        // ms
+        self::OPTION_TIMEOUT => 1,        // seconds
+        self::OPTION_CONNECT_TIMEOUT => 1,        // seconds
     );
 
     public function __construct(){
@@ -89,7 +91,8 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
 
         return array_merge(parent::getAvailableOptions(),[
             self::OPTION_METHOD => ['Method to be executed in the connector',$methods],
-            self::OPTION_TIMEOUT => ['Timeout in seconds',[]]
+            self::OPTION_TIMEOUT => ['Timeout of the request in seconds. Use 0 to wait indefinitely.',[]],
+            self::OPTION_CONNECT_TIMEOUT => ['Timeout to establish the connection in seconds. Use 0 to wait indefinitely.',[]]
         ]);
     }
 

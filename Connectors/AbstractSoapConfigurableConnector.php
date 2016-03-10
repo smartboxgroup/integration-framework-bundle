@@ -107,6 +107,8 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
 
+        $soapOptions['connection_timeout'] = $options[ConfigurableConnector::OPTION_CONNECT_TIMEOUT];
+
         try{
             $result = $this->performRequest($soapMethodName,$soapMethodParams,$options, $soapOptions, $soapHeaders);
         }catch (\Exception $ex){
