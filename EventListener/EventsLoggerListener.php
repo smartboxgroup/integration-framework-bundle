@@ -6,6 +6,8 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
+use Smartbox\Integration\FrameworkBundle\Processors\Endpoint;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -48,9 +50,40 @@ class EventsLoggerListener
     {
         if($event instanceof ProcessingErrorEvent){
             $event->setRequestStack($this->requestStack);
+            $message = 'Exception: ' . $event->getException()->getMessage();
+        } else {
+            $message = sprintf('Event "%s" occurred', $event->getEventName());
         }
 
-        $message = sprintf('Event "%s" occurred', $event->getEventName());
-        $this->logger->log($this->logLevel, $message, ['event' => $event]);
+        $context = ['event_details' => $event];
+
+        $transactionContextDetails = $event->getExchange()->getIn()->getContext();
+        $context['transaction'] = [
+            'id' => $transactionContextDetails->get('transaction_id'),
+            'user' => $transactionContextDetails->get('user'),
+            'ip' => $transactionContextDetails->get('ip'),
+            'uri' => $transactionContextDetails->get('from'),
+            'timestamp' => $transactionContextDetails->get('timestamp'),
+        ];
+
+        $transactionHeadersDetails = $event->getExchange();
+        $context['exchange'] = [
+            'id' => $transactionHeadersDetails->getId(),
+            'uri' => $transactionHeadersDetails->getHeader('from'),
+            'type' => ($transactionHeadersDetails->getHeader('async') === true)? 'async' : 'sync',
+        ];
+
+        if ($event instanceof ProcessEvent) {
+            $endpointUri = $event->getProcessingContext()->get('resolved_uri');
+            if ($endpointUri) {
+                $context['endpoint_uri'] = $endpointUri;
+            }
+        }
+
+        if($event instanceof ProcessingErrorEvent){
+            $context['exception'] = $event->getException();
+        }
+
+        $this->logger->log($this->logLevel, $message, $context);
     }
 }
