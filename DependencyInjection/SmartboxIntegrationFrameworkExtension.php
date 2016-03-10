@@ -2,8 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
-use Smartbox\CoreBundle\Utils\SmokeTest\Generic\ConnectivityCheckSmokeTest;
-use Smartbox\CoreBundle\Utils\SmokeTest\Generic\ConnectivityCheckSmokeTestItemInterface;
+use  Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ConnectivityCheckSmokeTest;
+use  Smartbox\Integration\FrameworkBundle\Util\SmokeTest\CanCheckConnectivityInterface;
 use Smartbox\Integration\FrameworkBundle\Connectors\ConfigurableConnectorInterface;
 use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Db\MongoDbDriver;
@@ -90,8 +90,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
             $container->setDefinition('smartesb.connectors.'.$connectorName, $definition);
 
-            if (in_array(ConnectivityCheckSmokeTestItemInterface::class, class_implements($definition->getClass()))) {
-                $definition->addTag(ConnectivityCheckSmokeTest::TAG_ITEM);
+            if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {
+                $definition->addTag(ConnectivityCheckSmokeTest::TAG_TEST_CONNECTIVITY);
             }
         }
     }

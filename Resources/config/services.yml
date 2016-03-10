@@ -28,6 +28,7 @@ parameters:
   smartbox.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\FilePermissionsSmokeTest
 
   smartesb.helper.class: Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper
+  smartesb.smoke_test.connectivity_check.class:  Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ConnectivityCheckSmokeTest
 
   smartesb.router.itineraries.options:
       cache_dir: %kernel.cache_dir%
@@ -178,3 +179,7 @@ services:
       class: %smartesb.helper.class%
       calls:
           - [ setContainer, [ @service_container ] ]
+
+  # CONNECTIVITY SMOKE TESTS
+  smartesb.smoke_test.connectivity_check:
+      class: %smartesb.smoke_test.connectivity_check.class%

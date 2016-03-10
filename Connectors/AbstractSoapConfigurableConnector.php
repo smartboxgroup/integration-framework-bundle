@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableSoapException;
 use ProxyManager\Proxy\LazyLoadingInterface;
-use Smartbox\CoreBundle\Utils\SmokeTest\Generic\ConnectivityCheckSmokeTestItemInterface;
+use Smartbox\Integration\FrameworkBundle\Util\SmokeTest\CanCheckConnectivityInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -13,7 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @package Smartbox\Integration\FrameworkBundle\Connectors
  */
-abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector implements ConnectivityCheckSmokeTestItemInterface
+abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector implements CanCheckConnectivityInterface
 {
     const REQUEST_PARAMETERS = 'parameters';
     const REQUEST_NAME = 'name';
