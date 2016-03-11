@@ -86,7 +86,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setDefaultOptions', [$options]);
             $definition->addMethodCall('setEvaluator',[new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer',[new Reference('serializer')]);
-//            $definition->setLazy(true);
 
             $container->setDefinition('smartesb.connectors.'.$connectorName, $definition);
 
