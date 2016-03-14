@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
+use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Processors\Endpoint;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -57,21 +58,26 @@ class EventsLoggerListener
 
         $context = ['event_details' => $event];
 
-        $transactionContextDetails = $event->getExchange()->getIn()->getContext();
-        $context['transaction'] = [
-            'id' => $transactionContextDetails->get('transaction_id'),
-            'user' => $transactionContextDetails->get('user'),
-            'ip' => $transactionContextDetails->get('ip'),
-            'uri' => $transactionContextDetails->get('from'),
-            'timestamp' => $transactionContextDetails->get('timestamp'),
-        ];
+        if (
+            $event instanceof HandlerEvent ||
+            $event instanceof ProcessEvent
+        ) {
+            $contextTransactionDetails = $event->getExchange()->getIn()->getContext();
+            $context['transaction'] = [
+                'id' => $contextTransactionDetails->get('transaction_id'),
+                'user' => $contextTransactionDetails->get('user'),
+                'ip' => $contextTransactionDetails->get('ip'),
+                'uri' => $contextTransactionDetails->get('from'),
+                'timestamp' => $contextTransactionDetails->get('timestamp'),
+            ];
 
-        $transactionHeadersDetails = $event->getExchange();
-        $context['exchange'] = [
-            'id' => $transactionHeadersDetails->getId(),
-            'uri' => $transactionHeadersDetails->getHeader('from'),
-            'type' => ($transactionHeadersDetails->getHeader('async') === true)? 'async' : 'sync',
-        ];
+            $contextExchangeDetails = $event->getExchange();
+            $context['exchange'] = [
+                'id' => $contextExchangeDetails->getId(),
+                'uri' => $contextExchangeDetails->getHeader('from'),
+                'type' => ($contextExchangeDetails->getHeader('async') === true)? 'async' : 'sync',
+            ];
+        }
 
         if ($event instanceof ProcessEvent) {
             $endpointUri = $event->getProcessingContext()->get('resolved_uri');
