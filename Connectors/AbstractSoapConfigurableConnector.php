@@ -3,6 +3,9 @@
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableSoapException;
+use ProxyManager\Proxy\LazyLoadingInterface;
+use Smartbox\Integration\FrameworkBundle\Util\SmokeTest\CanCheckConnectivityInterface;
+use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -10,7 +13,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @package Smartbox\Integration\FrameworkBundle\Connectors
  */
-abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
+abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector implements CanCheckConnectivityInterface
+{
     const REQUEST_PARAMETERS = 'parameters';
     const REQUEST_NAME = 'name';
     const SOAP_METHOD_NAME = 'soap_method';
@@ -22,7 +26,6 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
 
     /**
      * @param $connectorOptions
-     *
      * @return \SoapClient
      */
     public abstract function getSoapClient($connectorOptions);
@@ -127,5 +130,32 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector {
         $context[self::KEY_RESPONSES][$requestName] = $result;
 
         return $result;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function checkConnectivityForSmokeTest(array $config = null)
+    {
+        $output = new SmokeTestOutput();
+
+        try {
+            $client = $this->getSoapClient($config);
+            if ($client instanceof LazyLoadingInterface) {
+                $client->initializeProxy();
+            }
+            $output->setCode($output::OUTPUT_CODE_SUCCESS);
+            $output->addMessage('Connection was successfully established.');
+        } catch (\SoapFault $e) {
+            $output->setCode($output::OUTPUT_CODE_FAILURE);
+            $output->addMessage(
+                sprintf(
+                    'Could not establish connection. Error: %s',
+                    $e->getMessage()
+                )
+            );
+        }
+
+        return $output;
     }
 }
