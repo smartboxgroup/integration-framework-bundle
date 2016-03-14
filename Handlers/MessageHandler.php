@@ -224,7 +224,7 @@ class MessageHandler extends Service implements HandlerInterface
         $this->getEventDispatcher()->dispatch(ProcessingErrorEvent::EVENT_NAME, $event);
 
         if($this->shouldThrowExceptions()){
-            throw $exception;
+            throw $originalException;
         }
     }
 
