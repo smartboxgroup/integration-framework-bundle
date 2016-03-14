@@ -158,9 +158,4 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector i
 
         return $output;
     }
-
-    public function soapFatalErrorHandler()
-    {
-        echo 'rte';
-    }
 }

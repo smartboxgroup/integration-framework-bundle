@@ -3,22 +3,17 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ConnectivityCheckSmokeTest;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * Class EventDeferringCompilerPass
+ * Class SmokeTestConnectivityCompilerPass
+ *
  * @package Smartbox\Integration\FrameworkBundle\DependencyInjection
  */
 class SmokeTestConnectivityCompilerPass implements CompilerPassInterface
 {
-    const TAG_EVENTS_FILTER = 'smartesb.events.deferring_filter';
-
     /**
      * You can modify the container here before it is dumped to PHP code.
      *
