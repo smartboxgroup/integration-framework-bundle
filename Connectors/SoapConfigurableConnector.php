@@ -7,7 +7,7 @@ class SoapConfigurableConnector extends AbstractSoapConfigurableConnector {
     /** @var  \SoapClient */
     protected $soapClient;
 
-    public function getSoapClient($connectorOptions){
+    public function getSoapClient(array &$connectorOptions){
         return $this->soapClient;
     }
 
