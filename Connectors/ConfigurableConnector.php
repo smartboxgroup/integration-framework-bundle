@@ -26,6 +26,8 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
     const OPTION_CONNECT_TIMEOUT = 'connect_timeout';
     const OPTION_METHOD = 'method';
 
+    const DEFAULT_TIMEOUT = 10;
+
     const KEY_VARS = 'vars';
     const KEY_CONNECTOR = 'connector';
     const KEY_CONNECTOR_SHORT = 'c';
@@ -51,8 +53,8 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
 
     protected $localDefaultOptions = array(
         self::OPTION_RETRIES => 5,
-        self::OPTION_TIMEOUT => 1,        // seconds
-        self::OPTION_CONNECT_TIMEOUT => 1,    // ms
+        self::OPTION_TIMEOUT => self::DEFAULT_TIMEOUT,
+        self::OPTION_CONNECT_TIMEOUT => self::DEFAULT_TIMEOUT,
         self::OPTION_TRACK => true,
     );
 

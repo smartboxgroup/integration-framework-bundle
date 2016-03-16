@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Connectors;
 
+use BeSimple\SoapClient\SoapClient;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableSoapException;
 use ProxyManager\Proxy\LazyLoadingInterface;
 use Smartbox\Integration\FrameworkBundle\Util\SmokeTest\CanCheckConnectivityInterface;
@@ -21,12 +22,12 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector i
     const SOAP_OPTIONS = 'soap_options';
     const SOAP_HEADERS = 'soap_headers';
 
-    /** @var  \SoapClient */
+    /** @var  SoapClient */
     protected $soapClient;
 
     /**
      * @param $connectorOptions
-     * @return \SoapClient
+     * @return SoapClient
      */
     public abstract function getSoapClient(array &$connectorOptions);
 
@@ -78,7 +79,9 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector i
                 return $header;
             }, $soapHeaders);
 
+            $soapClient->setExecutionTimeout($connectorOptions[self::OPTION_TIMEOUT]);
             return $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
+
         }catch (\Exception $ex){
             $this->throwSoapConnectorException($soapClient, $ex->getMessage(), $ex->getCode(),$ex);
         }
