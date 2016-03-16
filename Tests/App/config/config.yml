@@ -11,11 +11,11 @@ monolog:
         syslog:
             type: syslog
             level: error
-            formatter: smartbox.monolog.formatter.json
+            formatter: smartcore.monolog.formatter.json
         syslog_tracking:
             type: syslog
             level: debug
-            formatter: smartbox.monolog.formatter.json
+            formatter: smartcore.monolog.formatter.json
             channels: [tracking]
 
 smartbox_core:
