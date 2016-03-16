@@ -6,6 +6,9 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
+use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
+use Smartbox\Integration\FrameworkBundle\Processors\Endpoint;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -48,9 +51,45 @@ class EventsLoggerListener
     {
         if($event instanceof ProcessingErrorEvent){
             $event->setRequestStack($this->requestStack);
+            $message = 'Exception: ' . $event->getException()->getMessage();
+        } else {
+            $message = sprintf('Event "%s" occurred', $event->getEventName());
         }
 
-        $message = sprintf('Event "%s" occurred', $event->getEventName());
-        $this->logger->log($this->logLevel, $message, ['event' => $event]);
+        $context = ['event_details' => $event];
+
+        if (
+            $event instanceof HandlerEvent ||
+            $event instanceof ProcessEvent
+        ) {
+            $contextTransactionDetails = $event->getExchange()->getIn()->getContext();
+            $context['transaction'] = [
+                'id' => $contextTransactionDetails->get('transaction_id'),
+                'user' => $contextTransactionDetails->get('user'),
+                'ip' => $contextTransactionDetails->get('ip'),
+                'uri' => $contextTransactionDetails->get('from'),
+                'timestamp' => $contextTransactionDetails->get('timestamp'),
+            ];
+
+            $contextExchangeDetails = $event->getExchange();
+            $context['exchange'] = [
+                'id' => $contextExchangeDetails->getId(),
+                'uri' => $contextExchangeDetails->getHeader('from'),
+                'type' => ($contextExchangeDetails->getHeader('async') === true)? 'async' : 'sync',
+            ];
+        }
+
+        if ($event instanceof ProcessEvent) {
+            $endpointUri = $event->getProcessingContext()->get('resolved_uri');
+            if ($endpointUri) {
+                $context['endpoint_uri'] = $endpointUri;
+            }
+        }
+
+        if($event instanceof ProcessingErrorEvent){
+            $context['exception'] = $event->getException();
+        }
+
+        $this->logger->log($this->logLevel, $message, $context);
     }
 }
