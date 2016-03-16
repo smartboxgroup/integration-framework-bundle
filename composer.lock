@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f048f7968d9fd56163dec7cddaf56a54",
-    "content-hash": "e6f774f20be82219994052bac268de67",
+    "hash": "82e2ae1ffeaf5346e58eea398cda405d",
+    "content-hash": "7fc570f495a24a6d5150974aa92c3711",
     "packages": [
         {
             "name": "ass/xmlsecurity",
@@ -1358,19 +1358,19 @@
         },
         {
             "name": "smartbox/besimple/soap",
-            "version": "v0.2.6",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "git@gitlab.production.smartbox.com:smartesb/BeSimpleSoap.git",
-                "reference": "fb56d51bd8c70ae6d7092f90fd7fec23520477df"
+                "reference": "c89302e2f9497b9e9f8fcc9c68e5cedf1ebc6587"
             },
             "require": {
                 "ass/xmlsecurity": "~1.0",
                 "ext-curl": "*",
                 "ext-soap": "*",
                 "php": ">=5.3.0",
-                "symfony/framework-bundle": "~2.0",
-                "symfony/twig-bundle": "~2.0",
+                "symfony/framework-bundle": "~2.6",
+                "symfony/twig-bundle": "~2.6",
                 "zendframework/zend-mime": "2.1.*"
             },
             "replace": {
@@ -1383,18 +1383,18 @@
             "require-dev": {
                 "ext-mcrypt": "*",
                 "mikey179/vfsstream": "~1.0",
-                "symfony/filesystem": "~2.0",
+                "symfony/filesystem": "~2.3",
                 "symfony/process": "~2.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.2-dev"
+                    "dev-master": "0.3-dev"
                 }
             },
             "autoload": {
                 "psr-0": {
-                    "BeSimple\\": "src/"
+                    "BeSimple\\": "src"
                 }
             },
             "license": [
@@ -1419,7 +1419,7 @@
             "keywords": [
                 "soap"
             ],
-            "time": "2015-03-27 15:07:42"
+            "time": "2016-03-16 14:03:31"
         },
         {
             "name": "smartbox/core-bundle",
@@ -1427,7 +1427,7 @@
             "source": {
                 "type": "git",
                 "url": "git@gitlab.production.smartbox.com:smartesb/core-bundle.git",
-                "reference": "4e081326187451e771aa8f342339ec30ef65f834"
+                "reference": "0bd9416bc13943b5ced9dbfee30c5d861364f4f0"
             },
             "require": {
                 "doctrine/annotations": "1.2.*",
@@ -1454,7 +1454,7 @@
             "license": [
                 "MIT"
             ],
-            "time": "2016-03-14 10:59:17"
+            "time": "2016-03-16 15:15:26"
         },
         {
             "name": "symfony/assetic-bundle",
@@ -2940,6 +2940,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "smartbox/besimple/soap": 20,
         "smartbox/core-bundle": 20
     },
     "prefer-stable": true,
