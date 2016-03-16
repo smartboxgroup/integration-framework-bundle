@@ -28,7 +28,7 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector i
      * @param $connectorOptions
      * @return \SoapClient
      */
-    public abstract function getSoapClient($connectorOptions);
+    public abstract function getSoapClient(array &$connectorOptions);
 
     /**
      * {@inheritDoc}
@@ -57,27 +57,31 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector i
      */
     protected function performRequest($methodName, $params, array $connectorOptions, array $soapOptions = [], array $soapHeaders = []){
         $soapClient = $this->getSoapClient($connectorOptions);
-        if(!$soapClient){
-            throw new \RuntimeException("SoapConfigurableConnector requires a SoapClient as a dependency");
+        try{
+            if(!$soapClient){
+                throw new \RuntimeException("SoapConfigurableConnector requires a SoapClient as a dependency");
+            }
+
+            // creates a proper set of SoapHeader objects
+            $processedSoapHeaders = array_map(function($header){
+                if (is_array($header)) {
+                    $header = new \SoapHeader($header[0], $header[1], $header[2]);
+                }
+                if (!$header instanceof \SoapHeader) {
+                    throw new \InvalidArgumentException(sprintf(
+                        'Invalid soap header "%s". Expected instance of \SoapHeader or array containing 3 values representing'.
+                        ' "namespace", "header name" and "header value"',
+                        json_encode($header)
+                    ));
+                }
+
+                return $header;
+            }, $soapHeaders);
+
+            return $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
+        }catch (\Exception $ex){
+            $this->throwSoapConnectorException($soapClient, $ex->getMessage(), $ex->getCode(),$ex);
         }
-
-        // creates a proper set of SoapHeader objects
-        $processedSoapHeaders = array_map(function($header){
-            if (is_array($header)) {
-                $header = new \SoapHeader($header[0], $header[1], $header[2]);
-            }
-            if (!$header instanceof \SoapHeader) {
-                throw new \InvalidArgumentException(sprintf(
-                    'Invalid soap header "%s". Expected instance of \SoapHeader or array containing 3 values representing'.
-                    ' "namespace", "header name" and "header value"',
-                    json_encode($header)
-                ));
-            }
-
-            return $header;
-        }, $soapHeaders);
-
-        return $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
     }
 
     /**
@@ -89,7 +93,6 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector i
      */
     protected function request(array $stepActionParams, array $options, array &$context)
     {
-        $soapClient = $this->getSoapClient($options);
         $paramsResolver = new OptionsResolver();
         $paramsResolver->setRequired([
             self::SOAP_METHOD_NAME,
@@ -110,28 +113,30 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector i
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
 
-        try{
-            $result = $this->performRequest($soapMethodName,$soapMethodParams,$options, $soapOptions, $soapHeaders);
-        }catch (\Exception $ex){
-            /** @var \SoapClient $soapClient */
-            $exception = new RecoverableSoapException(
-                $ex->getMessage(),
-                $soapClient->__getLastRequestHeaders(),
-                $soapClient->__getLastRequest(),
-                $soapClient->__getLastResponseHeaders(),
-                $soapClient->__getLastResponse(),
-                $ex->getCode(),
-                $ex
-            );
-
-            throw $exception;
-        }
+        $result = $this->performRequest($soapMethodName,$soapMethodParams,$options, $soapOptions, $soapHeaders);
 
         $context[self::KEY_RESPONSES][$requestName] = $result;
 
         return $result;
     }
 
+
+    protected function throwSoapConnectorException(\SoapClient $soapClient, $message, $code = 0, $previousException = null)
+    {
+        /** @var \SoapClient $soapClient */
+        $exception = new RecoverableSoapException(
+            $message,
+            $soapClient->__getLastRequestHeaders(),
+            $soapClient->__getLastRequest(),
+            $soapClient->__getLastResponseHeaders(),
+            $soapClient->__getLastResponse(),
+            $code,
+            $previousException
+        );
+
+        throw $exception;
+    }
+    
     /**
      * {@inheritdoc}
      */
