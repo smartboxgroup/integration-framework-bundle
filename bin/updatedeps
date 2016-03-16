@@ -7,7 +7,7 @@ parse_git_branch() {
 branch=$(parse_git_branch)
 
 path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "${path}/../" && composer update smartbox/core-bundle
+cd "${path}/../" && composer update smartbox/core-bundle smartbox/besimple/soap
 
 git add composer.lock
 
