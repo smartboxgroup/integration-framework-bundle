@@ -20,7 +20,6 @@ parameters:
   smartesb.internal_router.class: Smartbox\Integration\FrameworkBundle\Routing\InternalRouter
   smartesb.map.itineraries.class: Smartbox\Integration\FrameworkBundle\Routing\ItinerariesMap
   smartesb.event_listener.fatal_error.class: Smartbox\Integration\FrameworkBundle\EventListener\FatalErrorListener
-  smartbox.monolog.formatter.json.class: Smartbox\Integration\FrameworkBundle\Util\JMSSerializerFormatter
 
   smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBDateHandler
 
@@ -122,11 +121,6 @@ services:
 
   smartesb.registry.event_filters:
     class: Smartbox\Integration\FrameworkBundle\Events\EventFiltersRegistry
-
-  smartbox.monolog.formatter.json:
-      class: %smartbox.monolog.formatter.json.class%
-      calls:
-          - [setSerializer, [@serializer]]
 
   smartbox.consumers.queue.events:
       class: Smartbox\Integration\FrameworkBundle\Consumers\QueueEventsConsumer
