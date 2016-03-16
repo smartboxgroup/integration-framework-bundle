@@ -52,7 +52,8 @@ abstract class ConfigurableConnector extends Connector implements ConfigurableCo
     protected $localDefaultOptions = array(
         self::OPTION_RETRIES => 5,
         self::OPTION_TIMEOUT => 1,        // seconds
-        self::OPTION_CONNECT_TIMEOUT => 1,        // seconds
+        self::OPTION_CONNECT_TIMEOUT => 1,    // ms
+        self::OPTION_TRACK => true,
     );
 
     public function __construct(){
