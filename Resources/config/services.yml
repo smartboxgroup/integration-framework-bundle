@@ -19,7 +19,6 @@ parameters:
   smartesb.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Serialization\ItineraryHandler
   smartesb.internal_router.class: Smartbox\Integration\FrameworkBundle\Routing\InternalRouter
   smartesb.map.itineraries.class: Smartbox\Integration\FrameworkBundle\Routing\ItinerariesMap
-  smartesb.event_listener.fatal_error.class: Smartbox\Integration\FrameworkBundle\EventListener\FatalErrorListener
   smartbox.monolog.formatter.json.class: Smartbox\Integration\FrameworkBundle\Util\JMSSerializerFormatter
 
   smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBDateHandler
@@ -29,6 +28,7 @@ parameters:
   smartbox.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\FilePermissionsSmokeTest
 
   smartesb.helper.class: Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper
+  smartesb.smoke_test.connectivity_check.class:  Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ConnectivityCheckSmokeTest
 
   smartesb.router.itineraries.options:
       cache_dir: %kernel.cache_dir%
@@ -179,3 +179,7 @@ services:
       class: %smartesb.helper.class%
       calls:
           - [ setContainer, [ @service_container ] ]
+
+  # CONNECTIVITY SMOKE TESTS
+  smartesb.smoke_test.connectivity_check:
+      class: %smartesb.smoke_test.connectivity_check.class%
