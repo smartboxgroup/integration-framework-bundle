@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Handlers\HandlerInterface;
  * Interface QueueConsumerInterface
  * @package Smartbox\Integration\FrameworkBundle\Consumers
  */
-interface QueueConsumerInterface
+interface QueueConsumerInterface extends ConsumerInterface
 {
     /**
      * @return QueueDriverInterface
@@ -20,29 +20,4 @@ interface QueueConsumerInterface
      * @param QueueDriverInterface $queueDriver
      */
     public function setQueueDriver($queueDriver);
-
-    /**
-     * @return mixed
-     */
-    public function stop();
-
-    /**
-     * @param $count
-     */
-    public function setExpirationCount($count);
-
-    /**
-     * @return int
-     */
-    public function getExpirationCount();
-
-    /**
-     * @return bool
-     */
-    public function shouldStop();
-
-    /**
-     * @param string $queue
-     */
-    public function consume($queue);
 }

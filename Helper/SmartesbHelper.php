@@ -5,8 +5,11 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegration
 use Smartbox\Integration\FrameworkBundle\Drivers\Db\NoSQLDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
+use Smartbox\Integration\FrameworkBundle\Producers\ProducerInterface;
+use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
  * Class SmartesbHelper

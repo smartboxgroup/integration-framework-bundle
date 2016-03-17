@@ -166,7 +166,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->handler->setItinerariesRouter($itinerariesRouterMock);
         $this->handler->setFailedURI($failedUri);
-        $this->handler->setProducersRouter($producersRouterMock);
+        $this->handler->setEndpointsRouter($producersRouterMock);
 
         // --------------------
         // processor 1: success

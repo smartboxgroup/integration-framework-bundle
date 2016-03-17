@@ -41,7 +41,7 @@ class ValidateProducersSmokeTest implements SmokeTestInterface
         // CHECK producer ROUTES
 
         /** @var InternalRouter $routerProducers */
-        $routerProducers = $this->getContainer()->get('smartesb.router.producers');
+        $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
         foreach($routerProducers->getRouteCollection()->all() as $name => $route){
             $options = $route->getDefaults();
             if(!array_key_exists(InternalRouter::KEY_producer,$options)){
@@ -84,7 +84,7 @@ class ValidateProducersSmokeTest implements SmokeTestInterface
 
         // CHECK producer ROUTES URIs
 
-        $producerRoutes = $this->getContainer()->get('smartesb.router.producers');
+        $producerRoutes = $this->getContainer()->get('smartesb.router.endpoints');
         /** @var RouteCollection $collection */
         $collection = $producerRoutes->getRouteCollection();
         foreach($collection->all() as $route){

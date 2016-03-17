@@ -26,7 +26,7 @@ class ValidateContainerCommand extends ContainerAwareCommand {
 
         // CHECK producer ROUTES
         $output->writeln("Validating routes...");
-        $routerProducers = $this->getContainer()->get('smartesb.router.producers');
+        $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
         foreach($routerProducers->getRouteCollection()->all() as $name => $route){
             $options = $route->getDefaults();
             if(!array_key_exists(InternalRouter::KEY_producer,$options)){
@@ -89,7 +89,7 @@ class ValidateContainerCommand extends ContainerAwareCommand {
     }
 
     protected function checkEndpointURI($uri, OutputInterface $output){
-        $routerProducers = $this->getContainer()->get('smartesb.router.producers');
+        $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
         $uri = preg_replace("/{[^{}]+}/",'xxx',$uri);
 
         try{

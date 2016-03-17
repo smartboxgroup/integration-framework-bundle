@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidMessageException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesProducersRouter;
+use Smartbox\Integration\FrameworkBundle\Traits\UsesEndpointRouter;
 
 /**
  * Class EndpointProcessor
@@ -25,7 +25,7 @@ class EndpointProcessor extends Processor
     const CONTEXT_OPTIONS = 'options';
     const CONTEXT_producer = 'producer';
 
-    use UsesProducersRouter;
+    use UsesEndpointRouter;
 
     /**
      * @JMS\Type("string")

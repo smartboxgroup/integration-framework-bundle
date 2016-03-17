@@ -11,27 +11,27 @@ use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
-trait UsesProducersRouter {
+trait UsesEndpointRouter {
 
     /**
      * @var InternalRouter
      */
-    protected $producersRouter;
+    protected $endpointsRouter;
 
     /**
      * @return InternalRouter
      */
-    public function getProducersRouter()
+    public function getEndpointsRouter()
     {
-        return $this->producersRouter;
+        return $this->endpointsRouter;
     }
 
     /**
-     * @param InternalRouter $producersRouter
+     * @param InternalRouter $endpointsRouter
      */
-    public function setProducersRouter($producersRouter)
+    public function setEndpointsRouter($endpointsRouter)
     {
-        $this->producersRouter = $producersRouter;
+        $this->endpointsRouter = $endpointsRouter;
     }
 
     protected function getExchangePattern($options){
@@ -66,7 +66,7 @@ trait UsesProducersRouter {
 
     public function resolveOptions($uri){
         try{
-            $params = $this->getProducersRouter()->match($uri);
+            $params = $this->getEndpointsRouter()->match($uri);
         }catch(RouteNotFoundException $exception)
         {
             throw new RouteNotFoundException("Producer not found for Endpoint with URI $uri",0,$exception);

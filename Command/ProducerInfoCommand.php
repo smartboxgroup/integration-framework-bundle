@@ -21,7 +21,7 @@ class producerInfoCommand extends ContainerAwareCommand {
 
     protected function execute(InputInterface $input, OutputInterface $output){
         $producerId = $input->getArgument('producer_id');
-        $routerProducers = $this->getContainer()->get('smartesb.router.producers');
+        $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
 
         if($producerId){
             $producers = array($producerId);
@@ -43,7 +43,7 @@ class producerInfoCommand extends ContainerAwareCommand {
     }
 
     protected function explainProducer($producerId, $input, $output){
-        $routerProducers = $this->getContainer()->get('smartesb.router.producers');
+        $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
 
         /** @var ProducerInterface $producer */
         $producer = $this->getContainer()->get($producerId);
