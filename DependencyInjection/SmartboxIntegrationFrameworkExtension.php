@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use  Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ConnectivityCheckSmokeTest;
 use  Smartbox\Integration\FrameworkBundle\Util\SmokeTest\CanCheckConnectivityInterface;
-use Smartbox\Integration\FrameworkBundle\Connectors\ConfigurableConnectorInterface;
+use Smartbox\Integration\FrameworkBundle\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Db\MongoDbDriver;
 use Smartbox\Integration\FrameworkBundle\Drivers\DriverRegistry;
@@ -47,26 +47,26 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         return $this->config['latest_flows_version'];
     }
 
-    public function getConnectorsPath(){
-        return @$this->config['connectors_path'];
+    public function getProducersPath(){
+        return @$this->config['producers_path'];
     }
 
-    public function loadConnectors(ContainerBuilder $container){
-        foreach ($this->config['connectors'] as $connectorName => $connectorConfig) {
-            $class = $connectorConfig['class'];
-            $methodsSteps = $connectorConfig['methods'];
-            $options = $connectorConfig['options'];
+    public function loadProducers(ContainerBuilder $container){
+        foreach ($this->config['producers'] as $producerName => $producerConfig) {
+            $class = $producerConfig['class'];
+            $methodsSteps = $producerConfig['methods'];
+            $options = $producerConfig['options'];
 
-            if (!$class || !in_array(ConfigurableConnectorInterface::class, class_implements($class))) {
+            if (!$class || !in_array(ConfigurableProducerInterface::class, class_implements($class))) {
                 throw new InvalidConfigurationException(
-                    "Invalid class given for connector $connectorName. The class must implement ConfigurableConnectorInterface, '$class' given."
+                    "Invalid class given for producer $producerName. The class must implement ConfigurableProducerInterface, '$class' given."
                 );
             }
 
             $definition = new Definition($class);
 
-            if(array_key_exists('calls',$connectorConfig)){
-                foreach($connectorConfig['calls'] as $call){
+            if(array_key_exists('calls',$producerConfig)){
+                foreach($producerConfig['calls'] as $call){
                     $method = $call[0];
                     $arguments = $call[1];
                     $resolvedArguments = [];
@@ -87,7 +87,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setEvaluator',[new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer',[new Reference('serializer')]);
 
-            $container->setDefinition('smartesb.connectors.'.$connectorName, $definition);
+            $container->setDefinition('smartesb.producers.'.$producerName, $definition);
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {
                 $definition->addTag(ConnectivityCheckSmokeTest::TAG_TEST_CONNECTIVITY);
@@ -228,7 +228,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $driverDef->addMethodCall('setId', [$handlerName]);
             $driverDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $driverDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
-            $driverDef->addMethodCall('setConnectorsRouter', [new Reference('smartesb.router.connectors')]);
+            $driverDef->addMethodCall('setProducersRouter', [new Reference('smartesb.router.producers')]);
             $driverDef->addMethodCall('setItinerariesRouter', [new Reference('smartesb.router.itineraries')]);
             $driverDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
             $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
@@ -281,10 +281,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('exceptions.yml');
-        $loader->load('connectors.yml');
+        $loader->load('producers.yml');
         $loader->load('services.yml');
         
-        $this->loadConnectors($container);
+        $this->loadProducers($container);
         $this->loadMappings($container);
     }
 }

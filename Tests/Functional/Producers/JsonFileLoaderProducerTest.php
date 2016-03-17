@@ -1,0 +1,38 @@
+<?php
+
+namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
+
+use Smartbox\Integration\FrameworkBundle\Producers\JsonFileLoaderProducer;
+use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
+use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
+use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
+use Smartbox\Integration\FrameworkBundle\Messages\Message;
+
+class JsonFileLoaderProducerTest extends BaseTestCase
+{
+    /** @var  JsonFileLoaderProducer */
+    protected $producer;
+
+    public function setUp(){
+        parent::setUp();
+        $this->producer = new JsonFileLoaderProducer();
+        $this->producer->setSerializer(self::getContainer()->get('serializer'));
+    }
+
+    public function testSendShouldWork()
+    {
+        $pathFixtures = realpath(__DIR__.'/../../Fixtures');
+        $exchange = new Exchange($this->createMessage(new EntityX(1)));
+        $this->producer->send($exchange, array(
+            JsonFileLoaderProducer::OPTION_BASE_PATH => $pathFixtures,
+            JsonFileLoaderProducer::OPTION_FILENAME => 'entity_x.json'
+        ));
+
+        $sample = new EntityX();
+        $sample->setAPIVersion('v1');
+        $sample->setX(100);
+
+        $content = $exchange->getResult()->getBody();
+        $this->assertEquals($sample, $content);
+    }
+}

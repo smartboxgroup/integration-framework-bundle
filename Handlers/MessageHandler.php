@@ -20,7 +20,7 @@ use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Processors\ProcessorInterface;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Service;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesConnectorsRouter;
+use Smartbox\Integration\FrameworkBundle\Traits\UsesProducersRouter;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesItinerariesRouter;
@@ -35,7 +35,7 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 class MessageHandler extends Service implements HandlerInterface
 {
     use UsesEventDispatcher;
-    use UsesConnectorsRouter;
+    use UsesProducersRouter;
     use UsesItinerariesRouter;
 
     protected $retriesMax;

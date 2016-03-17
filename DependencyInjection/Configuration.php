@@ -51,7 +51,7 @@ class Configuration implements ConfigurationInterface
             ->defaultValue(0)->end()
 
             ->end()
-            ->append($this->addConnectorsNode())
+            ->append($this->addProducersNode())
             ->append($this->addQueueDriversNode())
             ->append($this->addNoSQLDriversNode())
             ->append($this->addConsumersNode())
@@ -115,11 +115,11 @@ class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    public function addConnectorsNode()
+    public function addProducersNode()
     {
         $builder = new TreeBuilder();
-        $node = $builder->root('connectors');
-        $node->info("Section where the connectors are defined.");
+        $node = $builder->root('producers');
+        $node->info("Section where the producers are defined.");
 
         $node->useAttributeAsKey('name')
             ->prototype('array')
@@ -131,20 +131,20 @@ class Configuration implements ConfigurationInterface
             ->end()
 
             ->scalarNode('class')
-            ->info('Class to be used for the connector, you can use a generic class like RESTConfigurableConnector or create a custom class implementing ConfigurableConnectorInterface')
+            ->info('Class to be used for the producer, you can use a generic class like RESTConfigurableProducer or create a custom class implementing ConfigurableProducerInterface')
             ->isRequired()
             ->end()
 
             ->arrayNode('calls')
             ->prototype('variable')->end()
-            ->info('Additional calls to inject dependencies to the connector')
+            ->info('Additional calls to inject dependencies to the producer')
             ->end()
 
             ->arrayNode('options')
             ->useAttributeAsKey('name')
             ->prototype('variable')
             ->end()
-            ->info('Default options for this connector')
+            ->info('Default options for this producer')
             ->isRequired()
             ->end()
 

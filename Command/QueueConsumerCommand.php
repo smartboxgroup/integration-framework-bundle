@@ -41,7 +41,7 @@ abstract class QueueConsumerCommand extends ContainerAwareCommand
     {
         $this
             ->setName($this->getCommandName())
-            ->setDescription('Start a worker consuming messages from a given connector')
+            ->setDescription('Start a worker consuming messages from a given producer')
         ;
     }
 
@@ -51,7 +51,7 @@ abstract class QueueConsumerCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
-        $connector = null;
+        $producer = null;
 
         declare(ticks = 1);
         pcntl_signal(SIGINT, [$this, 'handleSignal']);

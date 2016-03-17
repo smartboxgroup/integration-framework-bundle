@@ -3,12 +3,12 @@
 namespace Smartbox\Integration\FrameworkBundle\Processors;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Connectors\ConnectorInterface;
+use Smartbox\Integration\FrameworkBundle\Producers\ProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidMessageException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesConnectorsRouter;
+use Smartbox\Integration\FrameworkBundle\Traits\UsesProducersRouter;
 
 /**
  * Class Endpoint
@@ -23,9 +23,9 @@ class Endpoint extends Processor
     const CONTEXT_ENDPOINT_REQUEST_ID = 'endpoint_request_id';
     const CONTEXT_RESOLVED_URI = 'resolved_uri';
     const CONTEXT_OPTIONS = 'options';
-    const CONTEXT_CONNECTOR = 'connector';
+    const CONTEXT_producer = 'producer';
 
-    use UsesConnectorsRouter;
+    use UsesProducersRouter;
 
     /**
      * @JMS\Type("string")
@@ -59,12 +59,12 @@ class Endpoint extends Processor
     {
         $uri = self::resolveURIParams($exchange,$this->uri);
         $options = $this->resolveOptions($uri);
-        /** @var ConnectorInterface $connector */
-        $connector = $options[InternalRouter::KEY_CONNECTOR];
+        /** @var ProducerInterface $producer */
+        $producer = $options[InternalRouter::KEY_producer];
 
         $processingContext->set(self::CONTEXT_RESOLVED_URI, $uri);
         $processingContext->set(self::CONTEXT_OPTIONS,$options);
-        $processingContext->set(self::CONTEXT_CONNECTOR, $connector);
+        $processingContext->set(self::CONTEXT_producer, $producer);
         $processingContext->set(self::CONTEXT_ENDPOINT_REQUEST_ID, uniqid(null, true));
 
         parent::preProcess($exchange,$processingContext);
@@ -72,9 +72,9 @@ class Endpoint extends Processor
 
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
-        /** @var ConnectorInterface $connector */
-        $connector = $processingContext->get(self::CONTEXT_CONNECTOR);
-        $connector->send($exchange,$processingContext->get(self::CONTEXT_OPTIONS));
+        /** @var ProducerInterface $producer */
+        $producer = $processingContext->get(self::CONTEXT_producer);
+        $producer->send($exchange,$processingContext->get(self::CONTEXT_OPTIONS));
     }
 
     protected function postProcess(Exchange $exchange, SerializableArray $processingContext){

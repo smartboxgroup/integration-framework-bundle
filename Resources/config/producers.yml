@@ -1,0 +1,35 @@
+parameters:
+  ########## producer CLASSES  ##########
+  smartesb.producers.direct.class: Smartbox\Integration\FrameworkBundle\Producers\DirectProducer
+  smartesb.producers.soap.class: Smartbox\Integration\FrameworkBundle\Producers\SoapProducer
+  smartesb.producers.json_file.class: Smartbox\Integration\FrameworkBundle\Producers\JsonFileLoaderProducer
+  smartesb.producers.queue.class: Smartbox\Integration\FrameworkBundle\Producers\QueueProducer
+  smartesb.producers.nosql.class: Smartbox\Integration\FrameworkBundle\Producers\NoSQLProducer
+
+services:
+  ########## producerS  ##########
+  smartesb.producers.soap:
+      class: %smartesb.producers.soap.class%
+
+  smartesb.producer.direct:
+      class: %smartesb.producers.direct.class%
+      calls:
+        - [setItinerariesRouter, [@smartesb.router.itineraries]]
+
+  smartesb.producers.json_file:
+      class: %smartesb.producers.json_file.class%
+      calls:
+        - [setSerializer, [@serializer]]
+
+  # STOMP
+  smartesb.producers.queue:
+      class: %smartesb.producers.queue.class%
+      calls:
+        - [setSerializer, [@serializer]]
+        - [setDriverRegistry, [@smartesb.drivers.queue._registry]]
+
+  # NoSQL
+  smartesb.producers.nosql:
+      class: %smartesb.producers.nosql.class%
+      calls:
+        - [setDriverRegistry, [@smartesb.drivers.nosql._registry]]

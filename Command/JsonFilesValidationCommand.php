@@ -19,7 +19,7 @@ class JsonFilesValidationCommand extends ContainerAwareCommand
     {
         $this
             ->setName('smartbox:validate:json')
-            ->setDescription('Validation of fixture files for JsonLoaderConnector')
+            ->setDescription('Validation of fixture files for JsonLoaderProducer')
             ->addArgument(
                 'path',
                 InputArgument::REQUIRED,

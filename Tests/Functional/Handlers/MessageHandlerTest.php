@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Connectors\QueueConnector;
+use Smartbox\Integration\FrameworkBundle\Producers\QueueProducer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ArrayQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Exceptions\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
@@ -145,28 +145,28 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
                 InternalRouter::KEY_ITINERARY => $itinerary
             ));
 
-        $failedConnector = new QueueConnector();
-        $failedConnector->setMessageFactory($this->factory);
+        $failedProducer = new QueueProducer();
+        $failedProducer->setMessageFactory($this->factory);
         $failedQueueDriver = new ArrayQueueDriver();
         $failedQueueDriver->setMessageFactory($this->factory);
 
-        // Connectors router mock
-        $connectorsRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
-        $connectorsRouterMock
+        // producers router mock
+        $producersRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
+        $producersRouterMock
             ->expects($this->once())
             ->method('match')
             ->with($failedUri)
             ->willReturn(array(
                 InternalRouter::KEY_URI => $failedUri,
-                InternalRouter::KEY_CONNECTOR => $failedConnector,
-                QueueConnector::OPTION_QUEUE_DRIVER => $failedQueueDriver,
-                QueueConnector::OPTION_QUEUE_NAME => $failedQueue
+                InternalRouter::KEY_producer => $failedProducer,
+                QueueProducer::OPTION_QUEUE_DRIVER => $failedQueueDriver,
+                QueueProducer::OPTION_QUEUE_NAME => $failedQueue
 
             ));
 
         $this->handler->setItinerariesRouter($itinerariesRouterMock);
         $this->handler->setFailedURI($failedUri);
-        $this->handler->setConnectorsRouter($connectorsRouterMock);
+        $this->handler->setProducersRouter($producersRouterMock);
 
         // --------------------
         // processor 1: success

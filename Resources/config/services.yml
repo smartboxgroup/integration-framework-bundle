@@ -24,7 +24,7 @@ parameters:
 
   smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBDateHandler
 
-  smartesb.smoke_test.validate_connectors.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ValidateConnectorsSmokeTest
+  smartesb.smoke_test.validate_producers.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ValidateProducersSmokeTest
   smartesb.smoke_test.check_queue_driver_connection.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\QueueDriverConnectionSmokeTest
   smartbox.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\FilePermissionsSmokeTest
 
@@ -43,17 +43,17 @@ parameters:
       matcher_dumper_class: %router.options.matcher_dumper_class%
       matcher_cache_class: 'SmartesbItinerariesUrlMatcher'
 
-  smartesb.router.connectors.options:
+  smartesb.router.producers.options:
       cache_dir: %kernel.cache_dir%
       debug: %kernel.debug%
-      generator_class: 'SmartesbConnectorsUrlGenerator'
+      generator_class: 'SmartesbProducersUrlGenerator'
       generator_base_class: %router.options.generator_base_class%
       generator_dumper_class: %router.options.generator_dumper_class%
       generator_cache_class: %router.options.generator.cache_class%
       matcher_class: %router.options.matcher_class%
       matcher_base_class: %router.options.matcher_base_class%
       matcher_dumper_class: %router.options.matcher_dumper_class%
-      matcher_cache_class: 'SmartesbConnectorsUrlMatcher'
+      matcher_cache_class: 'SmartesbProducersUrlMatcher'
 
 services:
   smartesb.util.evaluator:
@@ -88,14 +88,14 @@ services:
       tags:
         - { name: monolog.logger, channel: "router.itineraries" }
 
-  smartesb.router.connectors:
+  smartesb.router.producers:
       class: %smartesb.internal_router.class%
       arguments:
         - @service_container
-        - "%kernel.root_dir%/config/routing_connectors_%kernel.environment%.yml"
-        - %smartesb.router.connectors.options%
+        - "%kernel.root_dir%/config/routing_producers_%kernel.environment%.yml"
+        - %smartesb.router.producers.options%
       tags:
-        - { name: monolog.logger, channel: "router.connectors" }
+        - { name: monolog.logger, channel: "router.producers" }
 
   smartesb.router.itineraries.cache_warmer:
     class: %router.cache_warmer.class%
@@ -104,10 +104,10 @@ services:
     tags:
       - { name: "kernel.cache_warmer" }
 
-  smartesb.router.connectors.cache_warmer:
+  smartesb.router.producers.cache_warmer:
     class: %router.cache_warmer.class%
     arguments:
-      - @smartesb.router.connectors
+      - @smartesb.router.producers
     tags:
       - { name: "kernel.cache_warmer" }
 
@@ -153,8 +153,8 @@ services:
           - [ setFlowsVersion, [ %smartesb.flows_version% ] ]
 
   ## SMOKE TESTS ##
-  smartesb.smoke_test.validate_connectors:
-      class: %smartesb.smoke_test.validate_connectors.class%
+  smartesb.smoke_test.validate_producers:
+      class: %smartesb.smoke_test.validate_producers.class%
       arguments: [@service_container]
       tags:
           - { name: smartbox.smoke_test }

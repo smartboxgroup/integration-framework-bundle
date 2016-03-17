@@ -16,7 +16,7 @@ class InvalidOptionException extends \Exception
      * @JMS\Groups({"logs"})
      * @var string
      */
-    protected $connectorClass;
+    protected $producerClass;
 
     /**
      * @JMS\Expose
@@ -29,20 +29,20 @@ class InvalidOptionException extends \Exception
     /**
      * Constructor
      *
-     * @param string $connectorClass
+     * @param string $producerClass
      * @param string $fieldName
      * @param string|null $message
      * @param int $code
      * @param \Exception $previous
      */
     public function __construct(
-        $connectorClass,
+        $producerClass,
         $fieldName,
         $message = null,
         $code = 0,
         \Exception $previous = null
     ) {
-        $this->connectorClass = $connectorClass;
+        $this->producerClass = $producerClass;
         $this->fieldName = $fieldName;
         parent::__construct($message, $code, $previous);
     }
@@ -50,9 +50,9 @@ class InvalidOptionException extends \Exception
     /**
      * @return string
      */
-    public function getConnectorClass()
+    public function getProducerClass()
     {
-        return $this->connectorClass;
+        return $this->producerClass;
     }
 
     /**

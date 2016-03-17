@@ -4,8 +4,8 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Connectors\APIConnector;
-use Smartbox\Integration\FrameworkBundle\Connectors\DirectConnector;
+use Smartbox\Integration\FrameworkBundle\Producers\APIProducer;
+use Smartbox\Integration\FrameworkBundle\Producers\DirectProducer;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\SpyProcessor;
@@ -19,19 +19,19 @@ use Smartbox\Integration\FrameworkBundle\Service;
 abstract class BaseTestCase extends BaseKernelTestCase
 {
     /**
-     * @return APIConnector
+     * @return APIProducer
      */
-    public function createAPIConnector()
+    public function createAPIProducer()
     {
-        return $this->createBasicService(APIConnector::class);
+        return $this->createBasicService(APIProducer::class);
     }
 
     /**
-     * @return DirectConnector
+     * @return DirectProducer
      */
-    public function createDirectConnector()
+    public function createDirectProducer()
     {
-        return $this->createBasicService(DirectConnector::class);
+        return $this->createBasicService(DirectProducer::class);
     }
 
     function class_uses_deep($class, $autoload = true)

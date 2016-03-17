@@ -12,10 +12,10 @@ use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 
 /**
- * Class StompConnectorTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Connectors
+ * Class StompProducerTest
+ * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers
  *
- * This is a functional test for the StompConnector working with ActiveMQ, and it relies on the existence of a running
+ * This is a functional test for the StompProducer working with ActiveMQ, and it relies on the existence of a running
  * activemq service in host %showcase.hostname%, port 61613, and with the following redelivery configuration:
  *
  * File: /opt/apache-activemq-5.12.0/conf/activemq.xml
