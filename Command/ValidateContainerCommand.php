@@ -6,7 +6,7 @@ namespace Smartbox\Integration\FrameworkBundle\Command;
 use Smartbox\Integration\FrameworkBundle\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\Producers\ProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
-use Smartbox\Integration\FrameworkBundle\Processors\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -75,7 +75,7 @@ class ValidateContainerCommand extends ContainerAwareCommand {
             /** @var Itinerary $itinerary */
             $itinerary = $this->getContainer()->get($itineraryId);
             foreach($itinerary->getProcessors() as $processor){
-                if($processor instanceof Endpoint){
+                if($processor instanceof EndpointProcessor){
                     $uri = $processor->getURI();
                     if(!$this->checkEndpointURI($uri,$output)){
                         $exitCode = 1;

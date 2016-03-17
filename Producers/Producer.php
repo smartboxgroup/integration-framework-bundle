@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Producers;
 
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Processors\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Service;

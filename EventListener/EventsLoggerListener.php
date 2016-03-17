@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
-use Smartbox\Integration\FrameworkBundle\Processors\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Processors\EndpointProcessor;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**

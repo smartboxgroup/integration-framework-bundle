@@ -11,10 +11,10 @@ use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesProducersRouter;
 
 /**
- * Class Endpoint
+ * Class EndpointProcessor
  * @package Smartbox\Integration\FrameworkBundle\Processors
  */
-class Endpoint extends Processor
+class EndpointProcessor extends Processor
 {
     const OPTION_RETRIES = 'retries';
     const OPTION_USERNAME = 'username';

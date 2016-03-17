@@ -6,7 +6,7 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\NotSupportedException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use JMS\Serializer\Annotation as JMS;
-use Smartbox\Integration\FrameworkBundle\Processors\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Processors\EndpointProcessor;
 
 /**
  * Class APIProducer
