@@ -5,6 +5,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\RequestOptions;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
@@ -29,7 +30,8 @@ class RESTConfigurableConnector extends ConfigurableConnector
     protected function getBasicHTTPOptions($options, array &$context)
     {
         return [
-            'connect_timeout' => $options[self::OPTION_TIMEOUT]
+            RequestOptions::CONNECT_TIMEOUT => $options[self::OPTION_CONNECT_TIMEOUT],
+            RequestOptions::TIMEOUT => $options[self::OPTION_TIMEOUT],
         ];
     }
 
@@ -126,8 +128,8 @@ class RESTConfigurableConnector extends ConfigurableConnector
                 self::OPTION_ENCODING => [
                     'Encoding for requests and responses with the REST API',
                     [
-                        self::ENCODING_JSON => 'Json encoding',
-                        self::ENCODING_XML => 'Xml encoding',
+                        self::ENCODING_JSON => 'JSON encoding',
+                        self::ENCODING_XML => 'XML encoding',
                     ]
                 ],
             ]

@@ -6,3 +6,6 @@ git $@
 
 echo -e "\n$(tput setaf 4)--- CORE-BUNDLE ---$(tput sgr0)"
 cd ${path}/../vendor/smartbox/core-bundle && git $@
+
+echo -e "\n$(tput setaf 4)--- SOAP-BUNDLE ---$(tput sgr0)"
+cd ${path}/../vendor/smartbox/besimple/soap && eval "git ${@}"
