@@ -1,6 +1,7 @@
 queues.stomp:
   pattern: "stomp://{host}/{queue}"
   defaults:
+    _class: Smartbox\Integration\FrameworkBundle\Endpoints\QueueEndpoint
     _producer: @smartesb.producers.queue
     queue_driver: @smartesb.default_queue_driver
     prefix: null
@@ -10,20 +11,24 @@ queues.stomp:
 queues.generic:
   pattern: "queue://{queue_driver}/{queue}"
   defaults:
+    _class: Smartbox\Integration\FrameworkBundle\Endpoints\QueueEndpoint
     _producer: @smartesb.producers.queue
-    prefix: null
+    prefix: ''
   requirements:
     queue: "[a-zA-Z0-9/]+"
 
 nosql.generic:
   pattern: "nosql://{nosql_driver}/{collection}"
   defaults:
+    _class: Smartbox\Integration\FrameworkBundle\Endpoints\NoSQLEndpoint
     _producer: @smartesb.producers.nosql
     prefix: db_
   requirements:
     collection: "[_\-a-zA-Z0-9/]+"
 
 direct:
-  pattern: "direct://{host}/{subroutine}"
+  pattern: "direct://{path}"
   defaults:
     _producer: @smartesb.producer.direct
+  requirements:
+    path: "[a-zA-Z0-9/_]+"

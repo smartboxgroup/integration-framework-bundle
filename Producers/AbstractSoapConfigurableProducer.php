@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Producers;
 
 use BeSimple\SoapClient\SoapClient;
+use Smartbox\Integration\FrameworkBundle\Endpoints\ConfigurableWebserviceEndpoint;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableSoapException;
 use ProxyManager\Proxy\LazyLoadingInterface;
 use Smartbox\Integration\FrameworkBundle\Util\SmokeTest\CanCheckConnectivityInterface;
@@ -26,20 +27,20 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     protected $soapClient;
 
     /**
-     * @param $producerOptions
+     * @param $endpointOptions
      * @return SoapClient
      */
-    public abstract function getSoapClient(array &$producerOptions);
+    public abstract function getSoapClient(array &$endpointOptions);
 
     /**
      * {@inheritDoc}
      */
-    public function executeStep($stepAction, $stepActionParams, $options, array &$context)
+    public function executeStep($stepAction, &$stepActionParams, &$endpointOptions, array &$context)
     {
-        if(!parent::executeStep($stepAction,$stepActionParams,$options,$context)){
+        if(!parent::executeStep($stepAction,$stepActionParams,$endpointOptions,$context)){
             switch ($stepAction){
                 case self::STEP_REQUEST:
-                    $this->request($stepActionParams, $options, $context);
+                    $this->request($stepActionParams, $endpointOptions, $context);
                     return true;
             }
         }
@@ -50,14 +51,14 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     /**
      * @param string $methodName
      * @param array  $params
-     * @param array  $producerOptions
+     * @param array  $endpointOptions
      * @param array  $soapOptions
      * @param array  $soapHeaders
      *
      * @return \stdClass
      */
-    protected function performRequest($methodName, $params, array $producerOptions, array $soapOptions = [], array $soapHeaders = []){
-        $soapClient = $this->getSoapClient($producerOptions);
+    protected function performRequest($methodName, $params, array &$endpointOptions, array $soapOptions = [], array $soapHeaders = []){
+        $soapClient = $this->getSoapClient($endpointOptions);
         try{
             if(!$soapClient){
                 throw new \RuntimeException("SoapConfigurableProducer requires a SoapClient as a dependency");
@@ -79,7 +80,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
                 return $header;
             }, $soapHeaders);
 
-            $soapClient->setExecutionTimeout($producerOptions[self::OPTION_TIMEOUT]);
+            $soapClient->setExecutionTimeout($endpointOptions[ConfigurableWebserviceEndpoint::OPTION_TIMEOUT]);
             return $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
 
         }catch (\Exception $ex){
@@ -89,12 +90,12 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
 
     /**
      * @param array $stepActionParams
-     * @param array $options
+     * @param array $endpointOptions
      * @param array $context
      * @return \stdClass
      * @throws RecoverableSoapException
      */
-    protected function request(array $stepActionParams, array $options, array &$context)
+    protected function request(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
         $paramsResolver = new OptionsResolver();
         $paramsResolver->setRequired([
@@ -116,9 +117,9 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
 
-        $soapOptions['connection_timeout'] = $options[ConfigurableProducer::OPTION_CONNECT_TIMEOUT];
+        $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceEndpoint::OPTION_CONNECT_TIMEOUT];
 
-        $result = $this->performRequest($soapMethodName,$soapMethodParams,$options, $soapOptions, $soapHeaders);
+        $result = $this->performRequest($soapMethodName,$soapMethodParams,$endpointOptions, $soapOptions, $soapHeaders);
 
         $context[self::KEY_RESPONSES][$requestName] = $result;
 

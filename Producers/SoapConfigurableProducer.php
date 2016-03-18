@@ -8,7 +8,7 @@ class SoapConfigurableProducer extends AbstractSoapConfigurableProducer {
     /** @var  SoapClient */
     protected $soapClient;
 
-    public function getSoapClient(array &$producerOptions){
+    public function getSoapClient(array &$options){
         return $this->soapClient;
     }
 

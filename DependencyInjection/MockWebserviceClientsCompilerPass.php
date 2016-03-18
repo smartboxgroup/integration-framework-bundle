@@ -14,9 +14,9 @@ class MockWebserviceClientsCompilerPass implements CompilerPassInterface
     const TAG_ATTR_MOCK_LOCATION = 'mockLocation';
 
     public function process(ContainerBuilder $container){
-        $soapProducerIds = $container->findTaggedServiceIds(self::TAG_MOCKABLE_SOAP_CLIENT);
+        $soapClientIds = $container->findTaggedServiceIds(self::TAG_MOCKABLE_SOAP_CLIENT);
 
-        foreach($soapProducerIds as $id => $parameters){
+        foreach($soapClientIds as $id => $parameters){
             $mockLocation = $parameters[0][self::TAG_ATTR_MOCK_LOCATION];
             $serviceDef = $container->getDefinition($id);
             $serviceDef->setClass($container->getParameter('fake_soap_client.class'));

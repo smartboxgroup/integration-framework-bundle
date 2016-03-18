@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Matcher\TraceableUrlMatcher;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
 
-class producerInfoCommand extends ContainerAwareCommand {
+class ProducerInfoCommand extends ContainerAwareCommand {
 
     protected function execute(InputInterface $input, OutputInterface $output){
         $producerId = $input->getArgument('producer_id');
@@ -42,6 +42,7 @@ class producerInfoCommand extends ContainerAwareCommand {
 
     }
 
+    /** TODO: FIX */
     protected function explainProducer($producerId, $input, $output){
         $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
 

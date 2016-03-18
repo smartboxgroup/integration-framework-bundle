@@ -110,7 +110,7 @@ abstract class Processor extends Service implements ProcessorInterface
          */
         $processingContext = new SerializableArray();
 
-        try{
+        try{#
             // Pre process event
             $this->preProcess($exchange,$processingContext);
 

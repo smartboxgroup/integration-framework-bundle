@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Handlers;
 
+use Smartbox\Integration\FrameworkBundle\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
@@ -20,13 +21,11 @@ use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Processors\ProcessorInterface;
 use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Service;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesEndpointRouter;
+use Smartbox\Integration\FrameworkBundle\Traits\UsesEndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesItinerariesRouter;
 use Smartbox\Integration\FrameworkBundle\Exceptions\HandlerException;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
  * Class MessageHandler
@@ -35,22 +34,22 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 class MessageHandler extends Service implements HandlerInterface
 {
     use UsesEventDispatcher;
-    use UsesEndpointRouter;
+    use UsesEndpointFactory;
     use UsesItinerariesRouter;
 
     protected $retriesMax;
-
-    /** @var string */
-    protected $failedURI;
-
-    /** @var string */
-    protected $retryURI;
 
     /** @var  boolean */
     protected $throwExceptions;
 
     /** @var  boolean */
     protected $deferNewExchanges;
+
+    /** @var  EndpointInterface */
+    protected $failedEndpoint;
+
+    /** @var  EndpointInterface */
+    protected $retryEndpoint;
 
     /**
      * @return boolean
@@ -101,27 +100,15 @@ class MessageHandler extends Service implements HandlerInterface
     }
 
     /**
-     * @return string
-     */
-    public function getRetryURI()
-    {
-        return $this->retryURI;
-    }
-
-    /**
      * @param string $retryURI
      */
-    public function setRetryURI($retryURI = null)
+    public function setRetryURI($retryURI)
     {
-        $this->retryURI = $retryURI;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFailedURI()
-    {
-        return $this->failedURI;
+        if(empty($retryURI)){
+            $this->retryEndpoint = null;
+        }else{
+            $this->retryEndpoint = $this->getEndpointFactory()->createEndpoint($retryURI);
+        }
     }
 
     /**
@@ -129,7 +116,7 @@ class MessageHandler extends Service implements HandlerInterface
      */
     public function setFailedURI($failedURI)
     {
-        $this->failedURI = $failedURI;
+        $this->failedEndpoint = $this->getEndpointFactory()->createEndpoint($failedURI);
 
     }
 
@@ -171,7 +158,9 @@ class MessageHandler extends Service implements HandlerInterface
             // If the exchange is to be deferred, we send it back to the original endpoint
             if($this->shouldDeferNewExchanges()){
                 $newExchangeEnvelope = new Exchange(new DeferredExchangeEnvelope($newExchange));
-                $this->sendTo($newExchangeEnvelope,$newExchange->getHeader(Exchange::HEADER_FROM));
+                $uri = $newExchange->getHeader(Exchange::HEADER_FROM);
+                $targetEndpoint = $this->getEndpointFactory()->createEndpoint($uri);
+                $targetEndpoint->produce($newExchangeEnvelope);
             }
             // Otherwise we process it immediately
             else{
@@ -205,12 +194,13 @@ class MessageHandler extends Service implements HandlerInterface
             $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
             $recoveryExchange = new Exchange($retryExchangeEnvelope);
 
-            $retryUri = $this->retryURI;
-            if (!$retryUri) {
-                $retryUri = $exchangeBackup->getHeader(Exchange::HEADER_FROM);
+            $retryEndpoint = $this->retryEndpoint;
+            if (!$retryEndpoint) {
+                $retryURI = $exchangeBackup->getHeader(Exchange::HEADER_FROM);
+                $retryEndpoint = $this->getEndpointFactory()->createEndpoint($retryURI);
             }
 
-            $this->sendTo($recoveryExchange,$retryUri);
+            $retryEndpoint->produce($recoveryExchange);
         }
         // Or not..
         else {
@@ -218,7 +208,7 @@ class MessageHandler extends Service implements HandlerInterface
             $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
 
             $failedExchange = new Exchange($envelope);
-            $this->sendTo($failedExchange,$this->failedURI);
+            $this->failedEndpoint->produce($failedExchange);
         }
 
         $this->getEventDispatcher()->dispatch(ProcessingErrorEvent::EVENT_NAME, $event);

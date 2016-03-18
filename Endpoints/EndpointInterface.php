@@ -3,24 +3,29 @@
 namespace Smartbox\Integration\FrameworkBundle\Endpoints;
 
 
+use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Consumers\ConsumerInterface;
-use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Processors\ProcessorInterface;
 use Smartbox\Integration\FrameworkBundle\Producers\ProducerInterface;
 
-interface EndpointInterface {
+interface EndpointInterface extends SerializableInterface, ConfigurableInterface{
 
     const OPTION_CONSUMER = '_consumer';
-    const OPTION_PRODUCER = '_consumer';
+    const OPTION_PRODUCER = '_producer';
     const OPTION_CLASS = '_class';
+    const OPTION_EXCHANGE_PATTERN = 'exchangePattern';
+    const OPTION_TRACK = 'track';
+    const OPTION_ENDPOINT_ROUTE = '_route';
+
+    const EXCHANGE_PATTERN_IN_ONLY = 'inOnly';
+    const EXCHANGE_PATTERN_IN_OUT = 'inOut';
 
     /**
      * @param string $resolvedUri
-     * @param array $resolvedEndpointOptions
+     * @param array $resolvedOptions
      */
-    public function __construct($resolvedUri, array $resolvedEndpointOptions);
+    public function __construct($resolvedUri, array $resolvedOptions);
 
     /**
      * Returns the resolved URI
@@ -53,26 +58,20 @@ interface EndpointInterface {
      */
     public function getOptions();
 
-    /**
-     * Validates the options passed to an endpoint
-     *
-     * @param array $options
-     * @throws InvalidOptionException in case one of the options is not valid
-     */
-    public static function validateOptions(array $options, $checkComplete = false);
 
     /**
-     * Get static default options
-     *
-     * @return array
+     * @return string
      */
-    public static function getDefaultOptions();
+    public function getExchangePattern();
 
     /**
-     * Get static default options
-     *
-     * @return array Array with option name, description, and options (optional)
+     * @return bool
      */
-    public static function getAvailableOptions();
+    public function isInOnly();
+
+    /**
+     * @return bool
+     */
+    public function shouldTrack();
 
 }

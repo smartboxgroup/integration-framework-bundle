@@ -46,14 +46,14 @@ parameters:
   smartesb.router.endpoints.options:
       cache_dir: %kernel.cache_dir%
       debug: %kernel.debug%
-      generator_class: 'SmartesbProducersUrlGenerator'
+      generator_class: 'SmartesbEndpointsUrlGenerator'
       generator_base_class: %router.options.generator_base_class%
       generator_dumper_class: %router.options.generator_dumper_class%
       generator_cache_class: %router.options.generator.cache_class%
       matcher_class: %router.options.matcher_class%
       matcher_base_class: %router.options.matcher_base_class%
       matcher_dumper_class: %router.options.matcher_dumper_class%
-      matcher_cache_class: 'SmartesbProducersUrlMatcher'
+      matcher_cache_class: 'SmartesbEndpointsUrlMatcher'
 
 services:
   smartesb.util.evaluator:
@@ -92,7 +92,7 @@ services:
       class: %smartesb.internal_router.class%
       arguments:
         - @service_container
-        - "%kernel.root_dir%/config/routing_producers_%kernel.environment%.yml"
+        - "%kernel.root_dir%/config/routing_endpoints_%kernel.environment%.yml"
         - %smartesb.router.endpoints.options%
       tags:
         - { name: monolog.logger, channel: "router.producers" }
@@ -151,6 +151,12 @@ services:
       class: Smartbox\Integration\FrameworkBundle\Messages\MessageFactory
       calls:
           - [ setFlowsVersion, [ %smartesb.flows_version% ] ]
+
+  smartesb.endpoint_factory:
+    class: Smartbox\Integration\FrameworkBundle\Endpoints\EndpointFactory
+    calls:
+        - [ setEndpointsRouter, [ @smartesb.router.endpoints ] ]
+        - [ setMessageFactory, [ @smartesb.message_factory ] ]
 
   ## SMOKE TESTS ##
   smartesb.smoke_test.validate_producers:

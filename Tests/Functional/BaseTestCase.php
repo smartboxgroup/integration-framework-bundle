@@ -4,7 +4,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Producers\APIProducer;
 use Smartbox\Integration\FrameworkBundle\Producers\DirectProducer;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;
@@ -15,17 +14,8 @@ use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesValidator;
 use Smartbox\Integration\FrameworkBundle\Service;
 
-// @todo move cration methods to factory
 abstract class BaseTestCase extends BaseKernelTestCase
 {
-    /**
-     * @return APIProducer
-     */
-    public function createAPIProducer()
-    {
-        return $this->createBasicService(APIProducer::class);
-    }
-
     /**
      * @return DirectProducer
      */

@@ -75,7 +75,7 @@ class ValidateProducersSmokeTest implements SmokeTestInterface
             try {
                 $producer->validateOptions($options,false);
             }catch (InvalidOptionException $exception){
-                $smokeTestOutput->addMessage("The route '$name' has an invalid option '".$exception->getFieldName()."' for producer ".$exception->getProducerClass()." with message ".$exception->getMessage());
+                $smokeTestOutput->addMessage("The route '$name' has an invalid option '".$exception->getOptionName()."' for producer ".$exception->getClassName()." with message ".$exception->getMessage());
 
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
                 continue;
@@ -121,7 +121,7 @@ class ValidateProducersSmokeTest implements SmokeTestInterface
             try {
                 $producer->validateOptions($options,true);
             } catch (InvalidOptionException $exception) {
-                $smokeTestOutput->addMessage("The URI: '$uri', has an invalid option ".$exception->getFieldName()." for producer ".$exception->getProducerClass()." with message ".$exception->getMessage());
+                $smokeTestOutput->addMessage("The URI: '$uri', has an invalid option ".$exception->getOptionName()." for producer ".$exception->getClassName()." with message ".$exception->getMessage());
 
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
                 continue;

@@ -1,44 +1,47 @@
 <?php
 namespace Smartbox\Integration\FrameworkBundle\Producers;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
+use Smartbox\Integration\FrameworkBundle\Endpoints\ConfigurableRESTEndpoint;
+use Smartbox\Integration\FrameworkBundle\Endpoints\ConfigurableWebserviceEndpoint;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RESTConfigurableProducer extends ConfigurableProducer
 {
     use UsesGuzzleHttpClient;
-
-    const AUTH_BASIC = 'basic';
-    const OPTION_AUTH = 'authentication';
-    const OPTION_ENCODING = 'encoding';
-    const OPTION_BASE_URI = 'base_uri';
-    const OPTION_HEADERS = 'headers';
 
     const REQUEST_BODY = 'body';
     const REQUEST_NAME = 'name';
     const REQUEST_HTTP_VERB = 'http_method';
     const REQUEST_URI = 'uri';
 
-    const ENCODING_JSON = 'json';
-    const ENCODING_XML = 'xml';
-
-    protected function getBasicHTTPOptions($options, array &$context)
+    protected function getBasicHTTPOptions($options, array &$options)
     {
-        return [
-            RequestOptions::CONNECT_TIMEOUT => $options[self::OPTION_CONNECT_TIMEOUT],
-            RequestOptions::TIMEOUT => $options[self::OPTION_TIMEOUT],
+        $result = [
+            RequestOptions::CONNECT_TIMEOUT => $options[ConfigurableWebserviceEndpoint::OPTION_CONNECT_TIMEOUT],
+            RequestOptions::TIMEOUT => $options[ConfigurableWebserviceEndpoint::OPTION_TIMEOUT],
+            RequestOptions::HEADERS => $options[ConfigurableRESTEndpoint::OPTION_HEADERS],
         ];
+
+        $auth = $options[ConfigurableRESTEndpoint::OPTION_AUTH];
+        if($auth === ConfigurableRESTEndpoint::AUTH_BASIC){
+            $result['auth'] = [
+                $options[ConfigurableRESTEndpoint::OPTION_USERNAME],
+                $options[ConfigurableRESTEndpoint::OPTION_PASSWORD]];
+        }
+
+        return $result;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function executeStep($stepAction, $stepActionParams, $options, array &$context)
+    public function executeStep($stepAction, &$stepActionParams, &$options, array &$context)
     {
         if(!parent::executeStep($stepAction,$stepActionParams,$options,$context)){
             switch ($stepAction){
@@ -54,10 +57,10 @@ class RESTConfigurableProducer extends ConfigurableProducer
     /**
      * @param \GuzzleHttp\ClientInterface $client
      * @param array                       $stepActionParams
-     * @param array                       $producerOptions
+     * @param array                       $endpointOptions
      * @param array                       $context
      */
-    protected function request(ClientInterface $client, array $stepActionParams, array $producerOptions, array &$context)
+    protected function request(ClientInterface $client, array $stepActionParams, array $endpointOptions, array &$context)
     {
         if (!is_array($stepActionParams)) {
             throw new InvalidConfigurationException(
@@ -65,39 +68,35 @@ class RESTConfigurableProducer extends ConfigurableProducer
             );
         }
 
-        $this->optionsResolver->setRequired(
-            [self::REQUEST_NAME, self::REQUEST_HTTP_VERB, self::REQUEST_BODY, self::REQUEST_URI, self::OPTION_ENCODING]
+        $stepParamsResolver = new OptionsResolver();
+
+        $stepParamsResolver->setRequired(
+            [self::REQUEST_NAME, self::REQUEST_HTTP_VERB, self::REQUEST_BODY, self::REQUEST_URI]
         );
+        $stepParamsResolver->setDefined([
+            ConfigurableRESTEndpoint::OPTION_HEADERS
+        ]);
 
-        $this->optionsResolver->setAllowedValues(self::REQUEST_HTTP_VERB, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
+        $stepParamsResolver->setAllowedValues(self::REQUEST_HTTP_VERB, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
 
-        $executionOptions = $this->optionsResolver->resolve($stepActionParams);
+        $resolvedParams = $stepParamsResolver->resolve($stepActionParams);
 
-        $name = $executionOptions[self::REQUEST_NAME];
-        $httpMethod = $executionOptions[self::REQUEST_HTTP_VERB];
-        $body = $this->resolve($executionOptions[self::REQUEST_BODY], $context);
-        $headers = $this->resolve($executionOptions[self::OPTION_HEADERS], $context);
-        $resolvedURI = $executionOptions[self::OPTION_BASE_URI];
-        $resolvedURI .= $this->replaceTemplateVars($executionOptions[self::REQUEST_URI], $context);
-        $auth = $executionOptions[self::OPTION_AUTH];
+        $name = $this->resolve($resolvedParams[self::REQUEST_NAME], $context);
+        $httpMethod = $this->resolve($resolvedParams[self::REQUEST_HTTP_VERB], $context);
+        $body = $this->resolve($resolvedParams[self::REQUEST_BODY], $context);
 
-        $restOptions = $this->getBasicHTTPOptions($executionOptions, $context);
-        $restOptions['body'] = $this->getSerializer()->serialize($body, $executionOptions['encoding']);
+        $resolvedURI = $endpointOptions[ConfigurableRESTEndpoint::OPTION_BASE_URI];
+        $resolvedURI .= $this->resolve($resolvedParams[self::REQUEST_URI], $context);
 
-        if($auth === self::AUTH_BASIC){
-            $restOptions['auth'] = [
-                $executionOptions[self::OPTION_USERNAME],
-                $executionOptions[self::OPTION_PASSWORD]];
-        }
+        $restOptions = $this->getBasicHTTPOptions($resolvedParams, $endpointOptions);
 
-        if (!empty($headers)) {
-            $restOptions['headers'] = $headers;
-        }
+        $encoding = $endpointOptions[ConfigurableRESTEndpoint::OPTION_ENCODING];
+        $restOptions['body'] = $this->getSerializer()->serialize($body, $encoding);
 
         $httpMethod = strtoupper($httpMethod);
 
         /** @var Response $response */
-        $request = new Request($httpMethod, $resolvedURI, $headers);
+        $request = new Request($httpMethod, $resolvedURI);
         $response = $client->send($request, $restOptions);
         $responseContent = $response->getBody()->getContents();
 
@@ -106,34 +105,9 @@ class RESTConfigurableProducer extends ConfigurableProducer
             'body' => $this->getSerializer()->deserialize(
                 $responseContent,
                 'array',
-                $executionOptions['encoding']
+                $encoding
             ),
             'headers' => $response->getHeaders(),
         ];
-    }
-
-    public function getAvailableOptions()
-    {
-        return array_merge(
-            parent::getAvailableOptions(),
-            [
-                self::OPTION_AUTH => [
-                    'Authentication method',
-                    [
-                        self::AUTH_BASIC => 'Use this method for basic http authentication'
-                    ]
-                ],
-                self::OPTION_BASE_URI => ['Base URI for all requests', []],
-                self::OPTION_HEADERS => ['Default headers to include in all requests (key-value array)', []],
-                self::OPTION_ENCODING => [
-                    'Encoding for requests and responses with the REST API',
-                    [
-                        self::ENCODING_JSON => 'JSON encoding',
-                        self::ENCODING_XML => 'XML encoding',
-                    ]
-                ],
-            ]
-        );
-
     }
 }

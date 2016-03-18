@@ -3,16 +3,20 @@
 namespace Smartbox\Integration\FrameworkBundle\Producers;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Endpoints\ConfigurableInterface;
+use Smartbox\Integration\FrameworkBundle\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidFormatException;
+use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use JMS\Serializer\Annotation as JMS;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class JsonFileLoaderProducer
  * @package Smartbox\Integration\FrameworkBundle\Producers
  */
-class JsonFileLoaderProducer extends APIProducer
+class JsonFileLoaderProducer extends Producer implements ConfigurableInterface
 {
     const OPTION_FILENAME = 'filename';
     const OPTION_BASE_PATH = 'base_path';
@@ -20,8 +24,9 @@ class JsonFileLoaderProducer extends APIProducer
     use UsesSerializer;
 
     /** {@inheritdoc} */
-    protected function execute($entity, array $options)
+    public function send(Exchange $ex, EndpointInterface $endpoint)
     {
+        $options = $endpoint->getOptions();
         $path = $options[self::OPTION_BASE_PATH] .'/'. $options[self::OPTION_FILENAME];
 
         if (!file_exists($path)) {
@@ -41,19 +46,7 @@ class JsonFileLoaderProducer extends APIProducer
         $serializer = $this->getSerializer();
         $content = $serializer->deserialize($json, SerializableInterface::class, 'json');
 
-        return $content;
-    }
-
-    /** {@inheritdoc} */
-    protected function translateFromCanonical(SerializableInterface $entity = null, array $options)
-    {
-        return $entity;
-    }
-
-    /** {@inheritdoc} */
-    protected function translateToCanonical($data, array $options)
-    {
-        return $data;
+        $ex->getIn()->setBody($content);
     }
 
     /**
@@ -68,13 +61,34 @@ class JsonFileLoaderProducer extends APIProducer
         return (json_last_error() == JSON_ERROR_NONE);
     }
 
-
-    public function getAvailableOptions(){
+    /**
+     *  Key-Value array with the option name as key and the details as value
+     *
+     *  [OptionName => [description, array of valid values],..]
+     *
+     * @return array
+     */
+    public function getOptionsDescriptions()
+    {
         $options = array(
             self::OPTION_BASE_PATH => array('Base path to look for the json file', array()),
             self::OPTION_FILENAME => array('Name of the file to load', array()),
         );
 
         return $options;
+    }
+
+    /**
+     * With this method this class can configure an OptionsResolver that will be used to validate the options
+     *
+     * @param OptionsResolver $resolver
+     * @return mixed
+     */
+    public function configureOptionsResolver(OptionsResolver $resolver)
+    {
+        $resolver->setRequired(self::OPTION_BASE_PATH);
+        $resolver->setAllowedTypes(self::OPTION_BASE_PATH,['string']);
+        $resolver->setRequired(self::OPTION_FILENAME);
+        $resolver->setAllowedTypes(self::OPTION_FILENAME,['string']);
     }
 }

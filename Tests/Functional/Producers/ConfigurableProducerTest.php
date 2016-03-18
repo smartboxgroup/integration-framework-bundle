@@ -3,9 +3,9 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Producers\ConfigurableProducer;
-use Smartbox\Integration\FrameworkBundle\Producers\Producer;
+use Smartbox\Integration\FrameworkBundle\Endpoints\ConfigurableWebserviceEndpoint;
 use Smartbox\Integration\FrameworkBundle\Exceptions\ProducerRecoverableException;
-use Smartbox\Integration\FrameworkBundle\Exceptions\producerUnrecoverableException;
+use Smartbox\Integration\FrameworkBundle\Exceptions\EndpointUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
@@ -64,14 +64,14 @@ class ConfigurableProducerTest extends BaseTestCase{
 
         $this->configurableProducer->setEvaluator($this->getContainer()->get('smartesb.util.evaluator'));
         $this->configurableProducer->setSerializer($this->getContainer()->get('serializer'));
-        $this->configurableProducer->setDefaultOptions($this->defaultOptions);
+        $this->configurableProducer->setOptions($this->defaultOptions);
 
         $this->configurableProducer->setMethodsConfiguration($this->simpleMethodsConfig);
     }
 
     public function testDefaultOptionsShouldBeSet()
     {
-        $defaults = $this->configurableProducer->getDefaultOptions();
+        $defaults = $this->configurableProducer->getOptions();
 
         foreach($this->defaultOptions as $defaultKey => $defaultValue){
             $this->assertArrayHasKey($defaultKey,$defaults);
@@ -120,8 +120,8 @@ class ConfigurableProducerTest extends BaseTestCase{
         );
 
         $this->configurableProducer->send($exchange,[
-            ConfigurableProducer::OPTION_METHOD => 'methodA',
-            ConfigurableProducer::OPTION_EXCHANGE_PATTERN => Producer::EXCHANGE_PATTERN_IN_OUT
+            ConfigurableWebserviceEndpoint::OPTION_METHOD => 'methodA',
+            ConfigurableWebserviceEndpoint::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceEndpoint::EXCHANGE_PATTERN_IN_OUT
         ]);
 
         $this->assertInstanceOf(SerializableArray::class,$exchange->getResult()->getBody());
@@ -139,8 +139,8 @@ class ConfigurableProducerTest extends BaseTestCase{
         $exchange = new Exchange($in);
 
         $this->configurableProducer->send($exchange,[
-            ConfigurableProducer::OPTION_METHOD => 'methodA',
-            ConfigurableProducer::OPTION_EXCHANGE_PATTERN => Producer::EXCHANGE_PATTERN_IN_ONLY
+            ConfigurableWebserviceEndpoint::OPTION_METHOD => 'methodA',
+            ConfigurableWebserviceEndpoint::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceEndpoint::EXCHANGE_PATTERN_IN_ONLY
         ]);
 
         $this->assertEquals(
@@ -155,11 +155,11 @@ class ConfigurableProducerTest extends BaseTestCase{
             new Message(new SerializableArray(['value' => 1313666]))
         );
 
-        $this->setExpectedException(producerUnrecoverableException::class,"Too ugly number!!");
+        $this->setExpectedException(EndpointUnrecoverableException::class,"Too ugly number!!");
 
         $this->configurableProducer->send($exchange,[
-            ConfigurableProducer::OPTION_METHOD => 'methodA',
-            ConfigurableProducer::OPTION_EXCHANGE_PATTERN => Producer::EXCHANGE_PATTERN_IN_OUT
+            ConfigurableWebserviceEndpoint::OPTION_METHOD => 'methodA',
+            ConfigurableWebserviceEndpoint::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceEndpoint::EXCHANGE_PATTERN_IN_OUT
         ]);
     }
 
@@ -172,8 +172,8 @@ class ConfigurableProducerTest extends BaseTestCase{
         $this->setExpectedException(ProducerRecoverableException::class,"Ugly number!!");
 
         $this->configurableProducer->send($exchange,[
-            ConfigurableProducer::OPTION_METHOD => 'methodA',
-            ConfigurableProducer::OPTION_EXCHANGE_PATTERN => Producer::EXCHANGE_PATTERN_IN_OUT
+            ConfigurableWebserviceEndpoint::OPTION_METHOD => 'methodA',
+            ConfigurableWebserviceEndpoint::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceEndpoint::EXCHANGE_PATTERN_IN_OUT
         ]);
     }
 }

@@ -60,7 +60,7 @@ class ValidateContainerCommand extends ContainerAwareCommand {
             try {
                 $producer->validateOptions($options,false);
             }catch (InvalidOptionException $exception){
-                $output->writeln("<error>The route '$name' has an invalid option '".$exception->getFieldName()."' for producer ".$exception->getProducerClass()." with message ".$exception->getMessage());
+                $output->writeln("<error>The route '$name' has an invalid option '".$exception->getOptionName()."' for producer ".$exception->getClassName()." with message ".$exception->getMessage());
 
                 $exitCode = 1;
                 continue;
@@ -117,7 +117,7 @@ class ValidateContainerCommand extends ContainerAwareCommand {
         try {
             $producer->validateOptions($options,true);
         }catch (InvalidOptionException $exception){
-            $output->writeln("<error>The URI: '$uri', has an invalid option ".$exception->getFieldName()." for producer ".$exception->getProducerClass()." with message ".$exception->getMessage());
+            $output->writeln("<error>The URI: '$uri', has an invalid option ".$exception->getOptionName()." for producer ".$exception->getClassName()." with message ".$exception->getMessage());
             return false;
         }catch (\Exception $exception){
             $output->writeln("<error>Error trying to validate options for URI '$uri', ".$exception->getMessage());

@@ -2,10 +2,12 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Producers;
 
-use GuzzleHttp\ClientInterface;
 use Smartbox\CoreBundle\Type\SerializableArray;
+use Smartbox\Integration\FrameworkBundle\Endpoints\ConfigurableWebserviceEndpoint;
+use Smartbox\Integration\FrameworkBundle\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\ProducerRecoverableException;
-use Smartbox\Integration\FrameworkBundle\Exceptions\producerUnrecoverableException;
+use Smartbox\Integration\FrameworkBundle\Exceptions\EndpointUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEvaluator;
@@ -22,15 +24,9 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     use UsesEvaluator;
     use UsesSerializer;
 
-    const OPTION_TIMEOUT = 'timeout';
-    const OPTION_CONNECT_TIMEOUT = 'connect_timeout';
-    const OPTION_METHOD = 'method';
-
-    const DEFAULT_TIMEOUT = 10;
-
     const KEY_VARS = 'vars';
-    const KEY_producer = 'producer';
-    const KEY_producer_SHORT = 'c';
+    const KEY_PRODUCER = 'producer';
+    const KEY_PRODUCER_SHORT = 'c';
     const KEY_RESPONSES = 'responses';
     const KEY_RESPONSE = 'response';
     const KEY_VALIDATIONS = 'validations';
@@ -42,69 +38,20 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     const STEP_DEFINE = 'define';
     const STEP_REQUEST = 'request';
 
-    public static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY, self::EXCHANGE_PATTERN_IN_OUT];
-
     protected $methodsConfiguration;
 
-    protected $methodsConfig;
-
-    /** @var  OptionsResolver */
-    protected $optionsResolver;
-
-    protected $localDefaultOptions = array(
-        self::OPTION_RETRIES => 5,
-        self::OPTION_TIMEOUT => self::DEFAULT_TIMEOUT,
-        self::OPTION_CONNECT_TIMEOUT => self::DEFAULT_TIMEOUT,
-        self::OPTION_TRACK => true,
-    );
+    protected $configuredOptions = [];
 
     public function __construct(){
         parent::__construct();
-        $available = $this->getAvailableOptions();
-
-        $this->optionsResolver = new OptionsResolver();
-        $this->optionsResolver->setDefaults($this->getDefaultOptions());
-        $this->optionsResolver->setDefined(array_keys($available));
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDefaultOptions()
-    {
-        return array_merge(
-            parent::getDefaultOptions(),
-            $this->localDefaultOptions
-        );
+    public function setOptions(array $options){
+        $this->configuredOptions = array_merge($this->configuredOptions,$options);
     }
 
-    public function setDefaultOptions(array $options){
-        $this->localDefaultOptions = array_merge($this->localDefaultOptions,$options);
-        $this->optionsResolver->setDefaults($this->getDefaultOptions());
-    }
-
-    public function getAvailableOptions(){
-        $methods = [];
-
-        if(!empty($this->methodsConfiguration)){
-            foreach($this->methodsConfiguration as $method => $conf){
-                $methods[$method] = $conf['description'];
-            }
-        }
-
-        return array_merge(parent::getAvailableOptions(),[
-            self::OPTION_METHOD => ['Method to be executed in the producer',$methods],
-            self::OPTION_TIMEOUT => ['Timeout of the request in seconds. Use 0 to wait indefinitely.',[]],
-            self::OPTION_CONNECT_TIMEOUT => ['Timeout to establish the connection in seconds. Use 0 to wait indefinitely.',[]]
-        ]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public static function validateOptions(array $options, $checkComplete = false)
-    {
-        return parent::validateOptions($options,$checkComplete);
+    public function getOptions(){
+        return $this->configuredOptions;
     }
 
     public function setMethodsConfiguration(array $methodsConfiguration)
@@ -112,9 +59,12 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         $this->methodsConfiguration = $methodsConfiguration;
     }
 
-    public function send(Exchange $exchange, array $options)
+    public function send(Exchange $exchange, EndpointInterface $endpoint)
     {
-        $method = $options[self::OPTION_METHOD];
+        $options = $endpoint->getOptions();
+
+        $method = $options[ConfigurableWebserviceEndpoint::OPTION_METHOD];
+
         if (!array_key_exists($method, $this->methodsConfiguration)) {
             throw new \InvalidArgumentException("Method $method was not configured in this producer");
         }
@@ -130,8 +80,8 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
             'body' => $exchange->getIn()->getBody(),
             'serializer' => $this->getSerializer(),
             self::KEY_VARS => [],
-            self::KEY_producer => $this,
-            self::KEY_producer_SHORT => $this,
+            self::KEY_PRODUCER => $this,
+            self::KEY_PRODUCER_SHORT => $this,
             self::KEY_RESPONSES => []
         ];
 
@@ -158,7 +108,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
                     if($recoverable){
                         throw new ProducerRecoverableException($message);
                     }else{
-                        throw new producerUnrecoverableException($message);
+                        throw new EndpointUnrecoverableException($message);
                     }
                 }
             }
@@ -167,7 +117,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         /**
          * RESPONSE
          */
-        if(     $options[self::OPTION_EXCHANGE_PATTERN] == Producer::EXCHANGE_PATTERN_IN_OUT
+        if(     $options[Endpoint::OPTION_EXCHANGE_PATTERN] == Endpoint::EXCHANGE_PATTERN_IN_OUT
             &&  array_key_exists(self::KEY_RESPONSE,$methodConf)){
             $resultConfig = $methodConf[self::KEY_RESPONSE];
             $result = $this->resolve($resultConfig,$context);
@@ -189,7 +139,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
      *
      * @return bool
      */
-    public function executeStep($stepAction, $stepActionParams, $options, array &$context)
+    public function executeStep($stepAction, &$stepActionParams, &$options, array &$context)
     {
         switch ($stepAction) {
             case self::STEP_DEFINE:
@@ -212,13 +162,14 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
 
             return $res;
         } elseif (is_string($obj)) {
-            return $this->evaluateStringOrExpression($obj, array_merge($context, $context[self::KEY_VARS]));
+            $availableVars = array_merge($context, $context[self::KEY_VARS]);
+            return $this->evaluateStringOrExpression($obj,$availableVars);
         } else {
             return $obj;
         }
     }
 
-    protected function evaluateStringOrExpression($string, $context)
+    protected function evaluateStringOrExpression($string, &$availableVars)
     {
         $regex = '/^eval: (?P<expr>.+)$/i';
         $success = preg_match($regex, $string, $matches);
@@ -228,29 +179,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         }
 
         $expression = $matches['expr'];
-        return $this->evaluator->evaluateWithVars($expression, $context);
-    }
-
-    protected function replaceTemplateVars($string, $context){
-        $string = preg_replace('/\s+/', '',$string);
-
-        // Prepare replacements
-        $replacements = [];
-        foreach ($context as $key => $value) {
-            if (is_scalar($value)) {
-                $replacements['{'.$key.'}'] = $value;
-            }
-        }
-
-        if(array_key_exists(self::KEY_VARS,$context)){
-            foreach ($context[self::KEY_VARS] as $key => $value) {
-                if (is_scalar($value)) {
-                    $replacements['{'.$key.'}'] = $value;
-                }
-            }
-        }
-
-        return str_replace(array_keys($replacements), array_values($replacements), $string);
+        return $this->evaluator->evaluateWithVars($expression, $availableVars);
     }
 
     protected function define($definitions, array &$context)
@@ -270,4 +199,32 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         }
     }
 
+    /**
+     *  Key-Value array with the option name as key and the details as value
+     *
+     *  [OptionName => [description, array of valid values],..]
+     *
+     * @return array
+     */
+    public function getOptionsDescriptions()
+    {
+        $options = [];
+        foreach($this->configuredOptions as $option => $value){
+            $options[] = [$option => "Custom option added in a ConfigurableProducer",[]];
+        }
+        return $options;
+    }
+
+    /**
+     * With this method this class can configure an OptionsResolver that will be used to validate the options
+     *
+     * @param OptionsResolver $resolver
+     * @return mixed
+     */
+    public function configureOptionsResolver(OptionsResolver $resolver)
+    {
+        foreach($this->configuredOptions as $option => $value){
+            $resolver->setDefault($option,$value);
+        }
+    }
 }

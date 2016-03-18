@@ -2,7 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Endpoints;
 
-
+use Smartbox\Integration\FrameworkBundle\Exceptions\EndpointUnrecoverableException;
+use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEndpointRouter;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -27,10 +28,11 @@ class EndpointFactory extends Service {
         }
 
         if(!array_key_exists(EndpointInterface::OPTION_CLASS,$params)) {
-            throw new \RuntimeException("Endpoint class not defined for URI: ".$uri);
+            $className = Endpoint::class;
+        }else{
+            $className = $params[EndpointInterface::OPTION_CLASS];
+            unset($params[EndpointInterface::OPTION_CLASS]);
         }
-
-        $className = $params[EndpointInterface::OPTION_CLASS];
 
         if(!in_array(EndpointInterface::class, class_implements($className))){
             throw new \InvalidArgumentException("Expected class implementing EndpointInterface, $className given");
@@ -39,5 +41,21 @@ class EndpointFactory extends Service {
         return new $className($uri,$params);
     }
 
+    static public function resolveURIParams(Exchange $exchange, $uri){
+        preg_match_all('/\\{([^{}]+)\\}/', $uri, $matches);
+        $params = $matches[1];
+        $headers = $exchange->getHeaders();
 
+        if(!empty($params)){
+            foreach($params as $param){
+                if(array_key_exists($param,$headers)){
+                    $uri = str_replace('{'.$param.'}',$headers[$param],$uri);
+                }else{
+                    throw new EndpointUnrecoverableException("Missing exchange header \"$param\" required to resolve the uri \"$uri\"");
+                }
+            }
+        }
+
+        return $uri;
+    }
 }
