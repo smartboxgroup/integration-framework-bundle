@@ -341,7 +341,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
 
         if ($this->currentFrame) {
             throw new \RuntimeException(
-                "ActiveMQStompQueueDriver: This producer has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages."
+                "ActiveMQStompQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages."
             );
         }
 

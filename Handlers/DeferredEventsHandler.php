@@ -4,14 +4,12 @@ namespace Smartbox\Integration\FrameworkBundle\Handlers;
 
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
+use Smartbox\Integration\FrameworkBundle\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Traits\FlowsVersionAware;
-use Smartbox\Integration\FrameworkBundle\Traits\MessageFactoryAware;
 use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
-use Smartbox\Integration\FrameworkBundle\Helper\SlugHelper;
 
 /**
  * Class DeferredEventsHandler
@@ -24,11 +22,9 @@ class DeferredEventsHandler implements HandlerInterface
     use FlowsVersionAware;
 
     /**
-     * @param MessageInterface $message
-     * @return MessageInterface
-     * @throws \Exception
+     * {@inheritDoc}
      */
-    public function handle(MessageInterface $message)
+    public function handle(MessageInterface $message, EndpointInterface $endpoint)
     {
         if(!$message instanceof EventMessage){
             throw new \InvalidArgumentException("Expected EventMessage as an argument");

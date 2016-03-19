@@ -130,12 +130,15 @@ class Endpoint implements EndpointInterface
     }
 
     /**
-     * TODO: Pass to the consumer the Endpoint, not the options, so that the options can't be modified and passed by reference
      * @return MessageInterface
      */
-    public function consume()
+    public function consume($maxAmount = 0)
     {
-        $this->getConsumer()->consume($this->getOptions());
+        if($maxAmount > 0){
+            $this->getConsumer()->setExpirationCount($maxAmount);
+        }
+
+        $this->getConsumer()->consume($this);
     }
 
     /**
@@ -155,6 +158,14 @@ class Endpoint implements EndpointInterface
     public function getOptions()
     {
         return $this->options;
+    }
+
+    public function getOption($optionName){
+        if(!array_key_exists($optionName,$this->options)){
+            throw new \InvalidArgumentException("The option $optionName does not exist in this Endpoint");
+        }
+
+        return $this->options[$optionName];
     }
 
     public function getExchangePattern(){

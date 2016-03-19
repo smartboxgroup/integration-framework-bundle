@@ -1,10 +1,5 @@
 parameters:
-  smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Processors\Itinerary
-
-  smartesb.handler.main.class: Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler
-  smartesb.handler.events.class: Smartbox\Integration\FrameworkBundle\Handlers\DeferredEventsHandler
-  smartesb.event_listener.events_logger.class: Smartbox\Integration\FrameworkBundle\EventListener\EventsLoggerListener
-
+  # PROCESSORS CLASS NAMES
   smartesb.processor.router.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter
   smartesb.processor.multicast.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\Multicast
   smartesb.processor.pipeline.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\Pipeline
@@ -12,61 +7,17 @@ parameters:
   smartesb.processor.throw_exception.class: Smartbox\Integration\FrameworkBundle\Processors\ControlFlow\ThrowException
   smartesb.processor.stop.class: Smartbox\Integration\FrameworkBundle\Processors\Miscellaneous\Stop
 
-  event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Events\EventDispatcher
-
+  smartesb.handlers.message_routing.class: Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler
   smartesb.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Util\ExpressionEvaluator
   smartesb.util.mapper.class: Smartbox\Integration\FrameworkBundle\Util\Mapper
   smartesb.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Serialization\ItineraryHandler
-  smartesb.internal_router.class: Smartbox\Integration\FrameworkBundle\Routing\InternalRouter
-  smartesb.map.itineraries.class: Smartbox\Integration\FrameworkBundle\Routing\ItinerariesMap
-  smartesb.event_listener.fatal_error.class: Smartbox\Integration\FrameworkBundle\EventListener\FatalErrorListener
-  smartbox.monolog.formatter.json.class: Smartbox\Integration\FrameworkBundle\Util\JMSSerializerFormatter
-
   smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBDateHandler
-
-  smartesb.smoke_test.validate_producers.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ValidateProducersSmokeTest
-  smartesb.smoke_test.check_queue_driver_connection.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\QueueDriverConnectionSmokeTest
-  smartbox.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\FilePermissionsSmokeTest
-
   smartesb.helper.class: Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper
-  smartesb.smoke_test.connectivity_check.class:  Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ConnectivityCheckSmokeTest
-
-  smartesb.router.itineraries.options:
-      cache_dir: %kernel.cache_dir%
-      debug: %kernel.debug%
-      generator_class: 'SmartesbItinerariesUrlGenerator'
-      generator_base_class: %router.options.generator_base_class%
-      generator_dumper_class: %router.options.generator_dumper_class%
-      generator_cache_class: %router.options.generator.cache_class%
-      matcher_class: %router.options.matcher_class%
-      matcher_base_class: %router.options.matcher_base_class%
-      matcher_dumper_class: %router.options.matcher_dumper_class%
-      matcher_cache_class: 'SmartesbItinerariesUrlMatcher'
-
-  smartesb.router.endpoints.options:
-      cache_dir: %kernel.cache_dir%
-      debug: %kernel.debug%
-      generator_class: 'SmartesbEndpointsUrlGenerator'
-      generator_base_class: %router.options.generator_base_class%
-      generator_dumper_class: %router.options.generator_dumper_class%
-      generator_cache_class: %router.options.generator.cache_class%
-      matcher_class: %router.options.matcher_class%
-      matcher_base_class: %router.options.matcher_base_class%
-      matcher_dumper_class: %router.options.matcher_dumper_class%
-      matcher_cache_class: 'SmartesbEndpointsUrlMatcher'
+  smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Processors\Itinerary
+  smartesb.event_listener.events_logger.class: Smartbox\Integration\FrameworkBundle\EventListener\EventsLoggerListener
 
 services:
-  smartesb.util.evaluator:
-      class: %smartesb.util.evaluator.class%
-      calls:
-        - [setSerializer, [@serializer]]
-        - [setMapper, [@smartesb.util.mapper]]
-
-  smartesb.util.mapper:
-      class: %smartesb.util.mapper.class%
-      calls:
-        - [setEvaluator, [@smartesb.util.evaluator]]
-
+  # SERIALIZATION
   smartesb.serialization.handler.itinerary:
       class:  %smartesb.serialization.handler.itinerary.class%
       calls:
@@ -79,74 +30,19 @@ services:
       tags:
         - { name: jms_serializer.subscribing_handler }
 
-  smartesb.router.itineraries:
-      class: %smartesb.internal_router.class%
-      arguments:
-        - @service_container
-        - "%kernel.root_dir%/config/routing_itineraries.yml"
-        - %smartesb.router.itineraries.options%
-      tags:
-        - { name: monolog.logger, channel: "router.itineraries" }
-
-  smartesb.router.endpoints:
-      class: %smartesb.internal_router.class%
-      arguments:
-        - @service_container
-        - "%kernel.root_dir%/config/routing_endpoints_%kernel.environment%.yml"
-        - %smartesb.router.endpoints.options%
-      tags:
-        - { name: monolog.logger, channel: "router.producers" }
-
-  smartesb.router.itineraries.cache_warmer:
-    class: %router.cache_warmer.class%
-    arguments:
-      - @smartesb.router.itineraries
-    tags:
-      - { name: "kernel.cache_warmer" }
-
-  smartesb.router.endpoints.cache_warmer:
-    class: %router.cache_warmer.class%
-    arguments:
-      - @smartesb.router.endpoints
-    tags:
-      - { name: "kernel.cache_warmer" }
-
-  smartesb.map.itineraries:
-    class: %smartesb.map.itineraries.class%
-
-  smartesb.routing.itineraries_routes_loader:
-      class: Smartbox\Integration\FrameworkBundle\Routing\ItinerariesRoutesLoader
+  # UTILS
+  smartesb.util.evaluator:
+      class: %smartesb.util.evaluator.class%
       calls:
-          - [ setContainer, [ @service_container ] ]
-      tags:
-          - { name: routing.loader }
+        - [setSerializer, [@serializer]]
+        - [setMapper, [@smartesb.util.mapper]]
 
-  smartesb.registry.event_filters:
-    class: Smartbox\Integration\FrameworkBundle\Events\EventFiltersRegistry
-
-  smartbox.consumers.queue.events:
-      class: Smartbox\Integration\FrameworkBundle\Consumers\QueueEventsConsumer
+  smartesb.util.mapper:
+      class: %smartesb.util.mapper.class%
       calls:
-          - [ setQueueDriver, [ @smartesb.events_queue_driver ] ]
-          - [ setHandler, [ @smartbox.handler.events ] ]
+        - [setEvaluator, [@smartesb.util.evaluator]]
 
-  # Queue Events Handler
-  smartbox.handler.events:
-      class: %smartesb.handler.events.class%
-      calls:
-        - [setEventDispatcher, [@event_dispatcher]]
-        - [setFlowsVersion, [%smartesb.flows_version%]]
-
-  smartesb.event_listener.events_logger:
-      class: %smartesb.event_listener.events_logger.class%
-      arguments: [@monolog.logger.tracking, @request_stack, %smartesb.event_listener.events_logger.log_level%]
-      tags:
-        - { name: kernel.event_listener, event: smartesb.handler.before_handle, method: onEvent }
-        - { name: kernel.event_listener, event: smartesb.process.before_process, method: onEvent }
-        - { name: kernel.event_listener, event: smartesb.event.error, method: onEvent }
-        - { name: kernel.event_listener, event: smartesb.process.after_process, method: onEvent }
-        - { name: kernel.event_listener, event: smartesb.handler.after_handle, method: onEvent }
-
+  # INTERNAL HELPERS
   smartesb.message_factory:
       class: Smartbox\Integration\FrameworkBundle\Messages\MessageFactory
       calls:
@@ -158,30 +54,18 @@ services:
         - [ setEndpointsRouter, [ @smartesb.router.endpoints ] ]
         - [ setMessageFactory, [ @smartesb.message_factory ] ]
 
-  ## SMOKE TESTS ##
-  smartesb.smoke_test.validate_producers:
-      class: %smartesb.smoke_test.validate_producers.class%
-      arguments: [@service_container]
-      tags:
-          - { name: smartbox.smoke_test }
-
-  smartesb.smoke_test.check_queue_driver_connection:
-      class: %smartesb.smoke_test.check_queue_driver_connection.class%
-      arguments: [@smartesb.default_queue_driver, @smartesb.events_queue_driver]
-      tags:
-          - { name: smartbox.smoke_test }
-
-  smartesb.smoke_test.file_permissions:
-      class: %smartbox.smoke_test.file_permissions.class%
-      arguments: [ '%kernel.root_dir%/cache' ]
-      tags:
-          - { name: smartbox.smoke_test }
-
   smartesb.helper:
       class: %smartesb.helper.class%
       calls:
           - [ setContainer, [ @service_container ] ]
 
-  # CONNECTIVITY SMOKE TESTS
-  smartesb.smoke_test.connectivity_check:
-      class: %smartesb.smoke_test.connectivity_check.class%
+  # EVENTS LOGGING
+  smartesb.event_listener.events_logger:
+      class: %smartesb.event_listener.events_logger.class%
+      arguments: [@monolog.logger.tracking, @request_stack, %smartesb.event_listener.events_logger.log_level%]
+      tags:
+        - { name: kernel.event_listener, event: smartesb.handler.before_handle, method: onEvent }
+        - { name: kernel.event_listener, event: smartesb.process.before_process, method: onEvent }
+        - { name: kernel.event_listener, event: smartesb.event.error, method: onEvent }
+        - { name: kernel.event_listener, event: smartesb.process.after_process, method: onEvent }
+        - { name: kernel.event_listener, event: smartesb.handler.after_handle, method: onEvent }

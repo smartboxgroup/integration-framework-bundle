@@ -242,7 +242,7 @@ class MessageHandler extends Service implements HandlerInterface
     /**
      * {@inheritDoc}
      */
-    public function handle(MessageInterface $message, $from = null)
+    public function handle(MessageInterface $message, EndpointInterface $endpointFrom)
     {
         $version = $message->getContext()->get(Context::VERSION);
         $expectedVersion = $this->getFlowsVersion();
@@ -267,9 +267,12 @@ class MessageHandler extends Service implements HandlerInterface
         // Otherwise create the exchange
         else{
             // Find from URI
-            if(!$from){
+            if($endpointFrom) {
+                $from = $endpointFrom->getURI();
+            }else{
                 $from = $message->getHeader(Message::HEADER_FROM);
             }
+
             if(empty($from)){
                 throw new HandlerException("Missing FROM header while trying to handle a message",$message);
             }

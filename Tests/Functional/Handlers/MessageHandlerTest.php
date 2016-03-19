@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Producers\QueueProducer;
 use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ArrayQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Exceptions\HandlerException;
@@ -92,7 +93,10 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             $itinerary->addProcessor($processor);
         }
 
-        $result = $this->handler->handle($message,$from);
+        $endpoint = $this->getMock(Endpoint::class);
+        $endpoint->method('getURI')->willReturn($from);
+
+        $result = $this->handler->handle($message, $endpoint);
 
         $this->assertEquals($exchangeProcessedManually->getResult(), $result);
     }
@@ -121,7 +125,10 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(HandlerException::class);
 
-        $this->handler->handle($message,$from);
+        $endpoint = $this->getMock(Endpoint::class);
+        $endpoint->method('getURI')->willReturn("direct://test");
+
+        $this->handler->handle($message,$endpoint);
     }
 
     /**
@@ -205,8 +212,10 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $processor3->setEventDispatcher($this->eventDispatcherMock);
         $itinerary->addProcessor($processor3);
 
+        $endpoint = $this->getMock(Endpoint::class);
+        $endpoint->method('getURI')->willReturn($fromURI);
 
-        $result = $this->handler->handle($message,$fromURI);
+        $result = $this->handler->handle($message, $endpoint);
 
         $this->assertNull($result);
         $this->assertCount(1,$dispatchedErrors);

@@ -44,9 +44,10 @@ interface EndpointInterface extends SerializableInterface, ConfigurableInterface
     public function getProducer();
 
     /**
-     * @return MessageInterface
+     * Consumes $maxAmount of messages, if $maxAmount is 0, then it consumes indefinitely in a loop
+     * @param int $maxAmount
      */
-    public function consume();
+    public function consume($maxAmount = 0);
 
     /**
      * @return boolean
@@ -58,6 +59,11 @@ interface EndpointInterface extends SerializableInterface, ConfigurableInterface
      */
     public function getOptions();
 
+    /**
+     * @param string $optionName
+     * @return mixed
+     */
+    public function getOption($optionName);
 
     /**
      * @return string

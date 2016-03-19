@@ -18,7 +18,7 @@ trait UsesSmartesbHelper
      *
      * @param SmartesbHelper|null $helper
      */
-    public function setHelper(SmartesbHelper $helper = null)
+    public function setSmartesbHelper(SmartesbHelper $helper = null)
     {
         $this->helper = $helper;
     }

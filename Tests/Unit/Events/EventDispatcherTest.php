@@ -40,7 +40,6 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $container->set('smartesb.helper',$helper);
         $container->setParameter('smartesb.flows_version', '0');
 
-        $container->setParameter('smartesb.events_queue_name', 'test_queue');
         $helper->setContainer($container);
 
         $dispatcher = new EventDispatcher($container);
@@ -76,8 +75,6 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
         $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events',$queueDriver);
 
-        $container->setParameter('smartesb.events_queue_name', 'test_queue');
-
         $dispatcher = new EventDispatcher($container);
         $dispatcher->dispatch("test_event.deferred", $event);
 
@@ -102,8 +99,6 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $container = new Container();
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
         $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events',$queueDriver);
-
-        $container->setParameter('smartesb.events_queue_name', 'test_queue');
 
         $dispatcher = new EventDispatcher($container);
         $dispatcher->dispatch("test_event.deferred", $event);

@@ -12,9 +12,4 @@ interface UsesMessageHandlerInterface {
      */
     public function setHandler(MessageHandler $handler);
 
-    /**
-     * @return MessageHandler
-     */
-    public function getHandler();
-
 }

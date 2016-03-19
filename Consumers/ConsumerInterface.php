@@ -3,29 +3,32 @@
 namespace Smartbox\Integration\FrameworkBundle\Consumers;
 
 
+use Smartbox\Integration\FrameworkBundle\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper;
+
 interface ConsumerInterface {
     /**
-     * @return mixed
+     * @return void
      */
     public function stop();
 
     /**
      * @param $count
+     * @return void
      */
     public function setExpirationCount($count);
 
     /**
-     * @return int
+     * Consumes messages from the given $endpoint until either the expirationCount reaches 0 or ::stop() is called
+     *
+     * @param EndpointInterface $endpoint
+     * @return boolean
      */
-    public function getExpirationCount();
+    public function consume(EndpointInterface $endpoint);
 
     /**
-     * @return bool
+     * @param SmartesbHelper $helper
+     * @return mixed
      */
-    public function shouldStop();
-
-    /**
-     * @param array $endpointOptions
-     */
-    public function consume($endpointOptions);
+    public function setSmartesbHelper(SmartesbHelper $helper = null);
 }

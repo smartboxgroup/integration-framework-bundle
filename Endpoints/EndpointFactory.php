@@ -12,12 +12,18 @@ class EndpointFactory extends Service {
 
     use UsesEndpointRouter;
 
+    protected $endpointsCache = [];
+
     /**
      * @param string $uri
      * @return EndpointInterface
      * @throws \Exception
      */
     public function createEndpoint($uri){
+        if(array_key_exists($uri,$this->endpointsCache)){
+            return $this->endpointsCache[$uri];
+        }
+
         $router = $this->getEndpointsRouter();
 
         try{
@@ -38,7 +44,9 @@ class EndpointFactory extends Service {
             throw new \InvalidArgumentException("Expected class implementing EndpointInterface, $className given");
         }
 
-        return new $className($uri,$params);
+        $endpoint = new $className($uri,$params);
+        $this->endpointsCache[$uri] = $endpoint;
+        return $endpoint;
     }
 
     static public function resolveURIParams(Exchange $exchange, $uri){

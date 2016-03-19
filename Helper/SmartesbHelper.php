@@ -59,4 +59,18 @@ class SmartesbHelper implements ContainerAwareInterface
         $prefix = SmartboxIntegrationFrameworkExtension::CONSUMER_PREFIX.$consumerName;
         return $this->container->get($prefix);
     }
+
+    /**
+     * @return \Smartbox\Integration\FrameworkBundle\Endpoints\EndpointFactory
+     */
+    public function getEndpointFactory(){
+        return $this->container->get('smartesb.endpoint_factory');
+    }
+
+    /**
+     * @return \Smartbox\Integration\FrameworkBundle\Messages\MessageFactory
+     */
+    public function getMessageFactory(){
+        return $this->container->get('smartesb.message_factory');
+    }
 }

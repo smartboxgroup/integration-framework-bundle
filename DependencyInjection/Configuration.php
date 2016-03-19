@@ -32,10 +32,7 @@ class Configuration implements ConfigurationInterface
                 ])
             ->end()
 
-            ->scalarNode('events_queue_name')
-            ->defaultValue('smartesb_events_queue')->end()
-
-            ->scalarNode('events_queue_driver')
+            ->scalarNode('defer_events_to_uri')
             ->isRequired()->end()
 
             ->scalarNode('default_queue_driver')
@@ -75,16 +72,6 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('description')
             ->info('This description will be used in the documentation.')
             ->defaultValue("")
-            ->end()
-
-            ->scalarNode('type')
-            ->info('Type of consumer (queue, file, db, ...)')
-            ->isRequired()
-            ->end()
-
-            ->scalarNode('driver')
-            ->info('The name of the driver to use')
-            ->isRequired()
             ->end()
 
             ->scalarNode('handler')
@@ -207,7 +194,7 @@ class Configuration implements ConfigurationInterface
     {
         $builder = new TreeBuilder();
         $node = $builder->root('message_handlers');
-        $node->info("Section where the handlers are defined.");
+        $node->info("Section where the handlers are defined. You must define at least two: 'sync' and 'async'");
 
         $node->useAttributeAsKey('name')
             ->prototype('array')
@@ -246,7 +233,14 @@ class Configuration implements ConfigurationInterface
 
             ->end()
             ->end()
-        ->isRequired();
+        ->isRequired()
+        ->validate()->ifTrue(
+            function($handlers) {
+                return (!array_key_exists('sync',$handlers) || !array_key_exists('async',$handlers));
+            })
+            ->thenInvalid('You must define at least two handlers, called "sync" and "async" in the smartesb configuration.')
+        ->end()
+        ;
 
         return $node;
     }

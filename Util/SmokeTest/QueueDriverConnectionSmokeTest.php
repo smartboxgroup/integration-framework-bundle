@@ -11,17 +11,11 @@ class QueueDriverConnectionSmokeTest implements SmokeTestInterface
     /**
      * @var ActiveMQStompQueueDriver
      */
-    protected $defaultQueueDriver;
+    protected $queueDriver;
 
-    /**
-     * @var ActiveMQStompQueueDriver
-     */
-    protected $eventsQueueDriver;
-
-    public function __construct(ActiveMQStompQueueDriver $defaultQueueDriver, ActiveMQStompQueueDriver $eventsQueueDriver)
+    public function __construct(ActiveMQStompQueueDriver $queueDriver)
     {
-        $this->defaultQueueDriver = $defaultQueueDriver;
-        $this->eventsQueueDriver = $eventsQueueDriver;
+        $this->queueDriver = $queueDriver;
     }
 
     public function getDescription()
@@ -35,18 +29,9 @@ class QueueDriverConnectionSmokeTest implements SmokeTestInterface
         $exitCode = SmokeTestOutput::OUTPUT_CODE_SUCCESS;
 
         try {
-            $this->defaultQueueDriver->connect();
+            $this->queueDriver->connect();
 
             $smokeTestOutput->addMessage('Connection for default queue driver checked.');
-        } catch (\Exception $e) {
-            $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
-            $smokeTestOutput->addMessage($e->getMessage());
-        }
-
-        try {
-            $this->defaultQueueDriver->connect();
-
-            $smokeTestOutput->addMessage('Connection for events queue driver checked.');
         } catch (\Exception $e) {
             $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
             $smokeTestOutput->addMessage($e->getMessage());

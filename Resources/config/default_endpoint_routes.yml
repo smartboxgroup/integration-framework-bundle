@@ -1,19 +1,10 @@
-queues.stomp:
-  pattern: "stomp://{host}/{queue}"
-  defaults:
-    _class: Smartbox\Integration\FrameworkBundle\Endpoints\QueueEndpoint
-    _producer: @smartesb.producers.queue
-    queue_driver: @smartesb.default_queue_driver
-    prefix: null
-  requirements:
-    queue: "[a-zA-Z0-9/]+"
-
 queues.generic:
   pattern: "queue://{queue_driver}/{queue}"
   defaults:
     _class: Smartbox\Integration\FrameworkBundle\Endpoints\QueueEndpoint
     _producer: @smartesb.producers.queue
-    prefix: ''
+    _consumer: @smartesb.consumers.queue
+    prefix: "%kernel.environment%/fv_%flows.version%/"
   requirements:
     queue: "[a-zA-Z0-9/]+"
 
@@ -32,3 +23,13 @@ direct:
     _producer: @smartesb.producer.direct
   requirements:
     path: "[a-zA-Z0-9/_]+"
+
+events:
+  pattern: "queue://{queue_driver}/{queue}"
+  defaults:
+    _class: Smartbox\Integration\FrameworkBundle\Endpoints\QueueEndpoint
+    _producer: @smartesb.producers.queue
+    _consumer: @smartesb.consumers.queue
+    prefix: "%kernel.environment%/fv_%flows.version%/"
+  requirements:
+    queue: "[a-zA-Z0-9/]+"

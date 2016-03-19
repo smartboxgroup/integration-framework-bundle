@@ -34,6 +34,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const NOSQL_DRIVER_PREFIX = 'smartesb.drivers.nosql.';
     const HANDLER_PREFIX = 'smartesb.handlers.';
     const CONSUMER_PREFIX = 'smartesb.consumers.';
+    const PARAM_DEFERRED_EVENTS_URI = 'smartesb.uris.deferred_events';
 
     protected $config;
 
@@ -143,10 +144,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         // set default queue driver alias
         $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$this->config['default_queue_driver']);
         $container->setAlias('smartesb.default_queue_driver',$defaultQueueDriverAlias);
-
-        // set default events queue alias
-        $eventsQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$this->config['events_queue_driver']);
-        $container->setAlias('smartesb.events_queue_driver',$eventsQueueDriverAlias);
     }
 
     protected function loadNoSQLDrivers(ContainerBuilder $container){
@@ -207,15 +204,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         foreach($this->config['message_consumers'] as $consumerName => $consumerConfig){
             $consumerName = self::CONSUMER_PREFIX.$consumerName;
 
-            switch($consumerConfig['type']){
-                case 'queue':
-                    $driverDef = new Definition(QueueConsumer::class,array());
-                    $driverDef->addMethodCall('setQueueDriver',[new Reference(self::QUEUE_DRIVER_PREFIX.$consumerConfig['driver'])]);
-                    $driverDef->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
-                    $container->setDefinition($consumerName,$driverDef);
-
-                    break;
-            }
+            $driverDef = new Definition(QueueConsumer::class,array());
+            $driverDef->addMethodCall('setSmartesbHelper',[new Reference('smartesb.helper')]);
+            $driverDef->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
+            $container->setDefinition($consumerName,$driverDef);
         }
     }
 
@@ -269,10 +261,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
 
-        $eventQueueName = $config['events_queue_name'];
         $eventsLogLevel = $config['events_log_level'];
-        $container->setParameter('smartesb.events_queue_name', $eventQueueName);
         $container->setParameter('smartesb.event_listener.events_logger.log_level', $eventsLogLevel);
+
+        $eventsDeferToURI = $config['defer_events_to_uri'];
+        $container->setParameter(self::PARAM_DEFERRED_EVENTS_URI, $eventsDeferToURI);
 
         $this->loadHandlers($container);
         $this->loadConsumers($container);
@@ -280,9 +273,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $this->loadNoSQLDrivers($container);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.yml');
         $loader->load('exceptions.yml');
         $loader->load('producers.yml');
-        $loader->load('services.yml');
+        $loader->load('consumers.yml');
+        $loader->load('events_deferring.yml');
+        $loader->load('routing.yml');
+        $loader->load('smoke_tests.yml');
         
         $this->loadProducers($container);
         $this->loadMappings($container);

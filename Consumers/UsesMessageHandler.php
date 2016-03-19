@@ -6,6 +6,7 @@ namespace Smartbox\Integration\FrameworkBundle\Consumers;
 use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
 
 trait UsesMessageHandler {
+
     /** @var  MessageHandler */
     protected $handler;
 
@@ -14,12 +15,5 @@ trait UsesMessageHandler {
      */
     public function setHandler(MessageHandler $handler){
         $this->handler = $handler;
-    }
-
-    /**
-     * @return MessageHandler
-     */
-    public function getHandler(){
-        return $this->handler;
     }
 }

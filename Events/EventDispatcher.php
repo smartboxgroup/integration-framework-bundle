@@ -2,8 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Events;
 
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
 use Smartbox\Integration\FrameworkBundle\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
+use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
 
 /**
@@ -29,25 +31,18 @@ class EventDispatcher extends ContainerAwareEventDispatcher{
     }
 
     /**
-     * Store logs in the queue
-     *
      * @param Event $event
      */
-    protected function enqueue(Event $event)
+    protected function deferEvent(Event $event)
     {
-        $queueDriverName = $this->getContainer()->get('smartesb.helper')->getQueueDriver('events');
-        $queueName = $this->getContainer()->getParameter('smartesb.events_queue_name');
-        $flowsVersion = $this->getContainer()->getParameter('smartesb.flows_version');
+        $deferToURI = $this->getContainer()->getParameter(SmartboxIntegrationFrameworkExtension::PARAM_DEFERRED_EVENTS_URI);
 
-        if(!$queueDriverName->isConnected()){
-            $queueDriverName->connect();
+        if(!empty($deferToURI)){
+            $endpoint = $this->getContainer()->get('smartesb.endpoint_factory')->createEndpoint($deferToURI);
+            $flowsVersion = $this->getContainer()->getParameter('smartesb.flows_version');
+            $exchange = new Exchange(new EventMessage($event, [], new Context([Context::VERSION => $flowsVersion])));
+            $endpoint->produce($exchange);
         }
-
-        $message = $queueDriverName->createQueueMessage();
-        $message->setBody(new EventMessage($event, [], new Context([Context::VERSION => $flowsVersion])));
-        $message->setQueue($queueName);
-
-        $queueDriverName->send($message);
     }
 
     /** {@inheritdoc} */
@@ -58,7 +53,7 @@ class EventDispatcher extends ContainerAwareEventDispatcher{
         $isDeferred = strpos($eventName,'.deferred') !==  false;
 
         if(!$isDeferred && $this->shouldDefer($event)){
-            $this->enqueue($event);
+            $this->deferEvent($event);
         }
 
         return $event;

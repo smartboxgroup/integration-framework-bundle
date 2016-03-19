@@ -2,17 +2,22 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Handlers;
 
-use Smartbox\Integration\FrameworkBundle\Producers\Producer;
-use Smartbox\Integration\FrameworkBundle\Producers\ProducerInterface;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
 
 interface HandlerInterface
 {
     /**
+     * Handles a message coming from an Endpoint
+     *
+     * To ensure the Message Delivery Guarantee, it's important to throw an Exception if anything wrong happens and the
+     * message can't be handled as it's supposed to be, otherwise the message will be consumed as if it would have been
+     * properly handled.
+     *
      * @param MessageInterface $message
+     * @param EndpointInterface $endpoint
      * @return MessageInterface
+     * @throws \Exception
      */
-    public function handle(MessageInterface $message);
+    public function handle(MessageInterface $message, EndpointInterface $endpoint);
 }
