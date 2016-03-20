@@ -5,18 +5,22 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer;
+use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactoryInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\FakeProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class AsyncHandlerTest
@@ -91,10 +95,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             $itinerary->addProcessor($processor);
         }
 
-        $endpoint = $this->getMock(Endpoint::class);
-        $endpoint->method('getURI')->willReturn($from);
-
-        $result = $this->handler->handle($message, $endpoint);
+        $arr = [];
+        $endpoint = new Endpoint($from,$arr,new Protocol(),null,null,$this->handler);
+        $result = $endpoint->handle($message);
 
         $this->assertEquals($exchangeProcessedManually->getResult(), $result);
     }
@@ -107,7 +110,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     public function testHandleWithWrongVersionMustFail()
     {
         $message = $this->factory->createMessage(new EntityX(2));
-        $from = 'xxx';
+        $from = "direct://test";
         $itinerary = new Itinerary();
 
         $itinerariesRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
@@ -123,8 +126,8 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(HandlerException::class);
 
-        $endpoint = $this->getMock(Endpoint::class);
-        $endpoint->method('getURI')->willReturn("direct://test");
+        $arr = [];
+        $endpoint = new Endpoint($from,$arr,new Protocol());
 
         $this->handler->handle($message,$endpoint);
     }
@@ -150,27 +153,42 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
                 InternalRouter::KEY_ITINERARY => $itinerary
             ));
 
-        $failedProducer = new QueueProducer();
-        $failedProducer->setMessageFactory($this->factory);
         $failedQueueDriver = new ArrayQueueDriver();
         $failedQueueDriver->setMessageFactory($this->factory);
 
-        // producers router mock
-        $producersRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
-        $producersRouterMock
+        $driverRegistryMock = $this->getMock(DriverRegistry::class);
+        $driverRegistryMock
             ->expects($this->once())
-            ->method('match')
-            ->with($failedUri)
-            ->willReturn(array(
-                InternalRouter::KEY_PRODUCER => $failedProducer,
-                QueueProtocol::OPTION_QUEUE_DRIVER => $failedQueueDriver,
-                QueueProtocol::OPTION_QUEUE_NAME => $failedQueue
+            ->method('getDriver')
+            ->willReturn($failedQueueDriver);
 
-            ));
+        $failedProducer = new QueueProducer();
+        $failedProducer->setMessageFactory($this->factory);
+        $failedProducer->setDriverRegistry($driverRegistryMock);
+
+        $optionsResolver = new OptionsResolver();
+
+        $queueProtocol = new QueueProtocol();
+        $queueProtocol->configureOptionsResolver($optionsResolver);
+
+        $failedEndpointOptions = $optionsResolver->resolve([
+                QueueProtocol::OPTION_QUEUE_DRIVER => 'array_queue_driver',
+                QueueProtocol::OPTION_QUEUE_NAME => $failedQueue,
+                QueueProtocol::OPTION_PREFIX => ''
+        ]);
+
+        $failedUriEndpoint = new Endpoint($failedUri,$failedEndpointOptions,$queueProtocol,$failedProducer);
+
+        $endpointFactoryMock = $this->getMock(EndpointFactory::class);
+        $endpointFactoryMock
+            ->expects($this->once())
+            ->method('createEndpoint')
+            ->with($failedUri)
+            ->willReturn($failedUriEndpoint);
 
         $this->handler->setItinerariesRouter($itinerariesRouterMock);
+        $this->handler->setEndpointFactory($endpointFactoryMock);
         $this->handler->setFailedURI($failedUri);
-        $this->handler->setEndpointsRouter($producersRouterMock);
 
         // --------------------
         // processor 1: success
@@ -209,8 +227,8 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $processor3->setEventDispatcher($this->eventDispatcherMock);
         $itinerary->addProcessor($processor3);
 
-        $endpoint = $this->getMock(Endpoint::class);
-        $endpoint->method('getURI')->willReturn($fromURI);
+        $arr = [];
+        $endpoint = new Endpoint($fromURI,$arr,new Protocol());
 
         $result = $this->handler->handle($message, $endpoint);
 

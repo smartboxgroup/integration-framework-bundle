@@ -2,10 +2,17 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Consumers;
 
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * This is a functional test that relies on a specific configuration of ActiveMQ, specifically, it relies on the usage
@@ -24,16 +31,16 @@ class QueueConsumerTest extends BaseKernelTestCase
     const queue3 = '/test/command/3';
 
     /**
-     * @return object
+     * @return QueueConsumer
      */
-    private function getConsumerDriver()
+    private function getConsumer()
     {
-        return $this->helper->getConsumer('queue.main');
+        return $this->helper->getConsumer('queue');
     }
 
     /**
      * @param string $queueDriverName
-     * @return object
+     * @return QueueDriverInterface
      */
     private function getQueueDriver($queueDriverName)
     {
@@ -41,15 +48,15 @@ class QueueConsumerTest extends BaseKernelTestCase
     }
 
     public function handleSignal(){
-        $consumerDriver = $this->getConsumerDriver();
+        $consumerDriver = $this->getConsumer();
         $consumerDriver->stop();
         $this->fail("The queue consumer seems to be in an endless loop, please check if you enabled the destinationPathSeparatorPlugin in ActiveMQ");
     }
 
     public function testExecute()
     {
-        $consumer = $this->getConsumerDriver();
-        $queueDriver = $this->getQueueDriver('default');
+        $consumer = $this->getConsumer();
+        $queueDriver = $this->getQueueDriver('main');
         $queueDriver->connect();
 
         $message1 = $this->createMessage(new EntityX(111));
@@ -57,6 +64,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $msg->setQueue(self::queue1);
         $msg->setHeader(Message::HEADER_FROM,self::queue1);
         $msg->setBody($message1);
+        $msg->setDestinationURI("direct://test");
         $queueDriver->send($msg);
 
         $message2 = $this->createMessage(new EntityX(222));
@@ -64,6 +72,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $msg->setQueue(self::queue2);
         $msg->setHeader(Message::HEADER_FROM,self::queue2);
         $msg->setBody($message2);
+        $msg->setDestinationURI("direct://test");
         $queueDriver->send($msg);
 
         $message3 = $this->createMessage(new EntityX(333));
@@ -71,6 +80,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $msg->setQueue(self::queue3);
         $msg->setHeader(Message::HEADER_FROM,self::queue3);
         $msg->setBody($message3);
+        $msg->setDestinationURI("direct://test");
         $queueDriver->send($msg);
 
         $messages = array($message1,$message2, $message3);
@@ -88,26 +98,32 @@ class QueueConsumerTest extends BaseKernelTestCase
                     return false;
                 }
             ),$this->callback(
-                function($queue) use ($queues){
-                    $res = array_search($queue,$queues);
-                    if($res !== false){
-                        unset($queues[$res]);
-                        return true;
-                    }
-                    return false;
+                function(Endpoint $endpoint) use ($queues){
+                    return true;
                 }
             ))
             ->willReturn(true);
 
-        $consumer->setHandler($handlerMock);
-        $consumer->setQueueDriver($queueDriver);
+
+        $queueProtocol = new QueueProtocol();
+        $optionsResolver = new OptionsResolver();
+        $queueProtocol->configureOptionsResolver($optionsResolver);
+
+        $opts = $optionsResolver->resolve([
+            QueueProtocol::OPTION_QUEUE_DRIVER => 'main',
+            QueueProtocol::OPTION_PREFIX =>  self::queue_prefix,
+            QueueProtocol::OPTION_QUEUE_NAME => '/*'
+        ]);
+
+        $endpoint = new Endpoint("xxx",$opts,$queueProtocol,null,$consumer,$handlerMock);
+
         $consumer->setExpirationCount(3);   // This will mnake the consumer stop after reading 3 messages
 
         declare(ticks = 1);
         pcntl_signal(SIGALRM, [$this, 'handleSignal']);
 
         pcntl_alarm(5);
-        $consumer->consume(self::queue_prefix.'/*');
+        $consumer->consume($endpoint);
         pcntl_alarm(0);
     }
 }

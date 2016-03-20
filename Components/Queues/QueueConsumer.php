@@ -66,13 +66,13 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface {
     /**
      * {@inheritdoc}
      */
-    protected function process(EndpointInterface $endpoint, MessageInterface $message){
+    protected function process(EndpointInterface $queueEndpoint, MessageInterface $message){
         // If we used a wrapper to queue the message, that the handler doesn't understand, unwrap it
-        if($message instanceof QueueMessageInterface && !($endpoint->getHandler() instanceof QueueMessageHandlerInterface)){
+        if($message instanceof QueueMessageInterface && !($queueEndpoint->getHandler() instanceof QueueMessageHandlerInterface)){
             $endpoint = $this->helper->getEndpointFactory()->createEndpoint($message->getDestinationURI());
-            $endpoint->handle($message->getBody());
+            $queueEndpoint->getHandler()->handle($message->getBody(),$endpoint);
         }else {
-            parent::process($endpoint,$message);
+            parent::process($queueEndpoint,$message);
         }
     }
 

@@ -10,7 +10,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\ProtocolInterface;
@@ -85,6 +84,9 @@ class Endpoint implements EndpointInterface
      */
     public function getHandler()
     {
+        if (!$this->handler) {
+            throw new ResourceNotFoundException("Handler not found for URI: ".$this->getURI());
+        }
         return $this->handler;
     }
 

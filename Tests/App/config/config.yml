@@ -24,8 +24,9 @@ smartbox_core:
     - 'Smartbox\Integration\Framework\Entity'
 
 smartbox_integration_framework:
+    defer_events_to_uri: queue://events
     queue_drivers:
-        default:
+        main:
             type: ActiveMQ
             description: Default queue driver
             host: real.smartesb.local
@@ -33,17 +34,9 @@ smartbox_integration_framework:
             password: ''
             format: json
 
-        events:
-            type: ActiveMQ
-            description: Events queue driver
-            host: real.smartesb.local
-            username: ''
-            password: ''
-            format: json
-
     nosql_drivers: ~
 
-    default_queue_driver: default
+    default_queue_driver: main
     default_nosql_driver: ~
 
     message_handlers:
@@ -64,12 +57,9 @@ smartbox_integration_framework:
             defer_new_exchanges: true
 
     message_consumers:
-        queue.main:
-            type: queue
-            driver: default
-            handler: async
 
     flows_version: 0
 
 parameters:
   hostname: real.smartesb.local
+  flows.version: 0

@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler;
@@ -38,7 +39,8 @@ class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
     {
         /** @var Event|\PHPUnit_Framework_MockObject_MockObject $eventMock */
         $eventMock = $this->getMockForAbstractClass(Event::class,array('test'));
-        $endpointMock = $this->getMock(Endpoint::class);
+        $arr = [];
+        $endpointMock = new Endpoint("xxx",$arr, new Protocol());
 
         $message = new EventMessage($eventMock, [EventMessage::HEADER_EVENT_NAME => 'test'], new Context([Context::VERSION => '0']));
 

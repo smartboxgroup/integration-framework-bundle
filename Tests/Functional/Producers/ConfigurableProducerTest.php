@@ -3,17 +3,25 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerRecoverableException;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ConfigurableProducerTest extends BaseTestCase{
 
     /** @var  ConfigurableProducer|\PHPUnit_Framework_MockObject_MockObject */
     protected $configurableProducer;
+
+    /** @var  OptionsResolver */
+    protected $optionsResolver;
+
+    /** @var  ConfigurableWebserviceProtocol */
+    protected $protocol;
 
     protected $defaultOptions = [
         'x' => 1,
@@ -67,6 +75,11 @@ class ConfigurableProducerTest extends BaseTestCase{
         $this->configurableProducer->setOptions($this->defaultOptions);
 
         $this->configurableProducer->setMethodsConfiguration($this->simpleMethodsConfig);
+
+        $this->optionsResolver = new OptionsResolver();
+        $this->protocol = new ConfigurableWebserviceProtocol();
+        $this->protocol->configureOptionsResolver($this->optionsResolver);
+
     }
 
     public function testDefaultOptionsShouldBeSet()
@@ -123,10 +136,13 @@ class ConfigurableProducerTest extends BaseTestCase{
             new Message(new SerializableArray(['value' => 5]))
         );
 
-        $this->configurableProducer->send($exchange,[
+        $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
             ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT
         ]);
+
+        $endpoint = new Endpoint("xxx",$opts,$this->protocol);
+        $this->configurableProducer->send($exchange,$endpoint);
 
         $this->assertInstanceOf(SerializableArray::class,$exchange->getResult()->getBody());
 
@@ -142,10 +158,13 @@ class ConfigurableProducerTest extends BaseTestCase{
 
         $exchange = new Exchange($in);
 
-        $this->configurableProducer->send($exchange,[
+        $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
             ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_ONLY
         ]);
+
+        $endpoint = new Endpoint("xxx",$opts,$this->protocol);
+        $this->configurableProducer->send($exchange,$endpoint);
 
         $this->assertEquals(
             $in,
@@ -161,10 +180,14 @@ class ConfigurableProducerTest extends BaseTestCase{
 
         $this->setExpectedException(EndpointUnrecoverableException::class,"Too ugly number!!");
 
-        $this->configurableProducer->send($exchange,[
+        $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
             ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT
         ]);
+
+        $endpoint = new Endpoint("xxx",$opts,$this->protocol);
+
+        $this->configurableProducer->send($exchange,$endpoint);
     }
 
     public function testValidationWorksWithRecoverableException(){
@@ -175,9 +198,12 @@ class ConfigurableProducerTest extends BaseTestCase{
 
         $this->setExpectedException(ProducerRecoverableException::class,"Ugly number!!");
 
-        $this->configurableProducer->send($exchange,[
+        $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
             ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT
         ]);
+
+        $endpoint = new Endpoint("xxx",$opts,$this->protocol);
+        $this->configurableProducer->send($exchange,$endpoint);
     }
 }
