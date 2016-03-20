@@ -1,9 +1,7 @@
 queues.generic:
   pattern: "queue://{queue_driver}/{queue}"
   defaults:
-    _class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueEndpoint
-    _producer: @smartesb.producers.queue
-    _consumer: @smartesb.consumers.queue
+    _protocol: @smartesb.protocols.queue
     prefix: "%kernel.environment%/fv_%flows.version%/"
   requirements:
     queue: "[a-zA-Z0-9/]+"
@@ -11,8 +9,7 @@ queues.generic:
 nosql.generic:
   pattern: "nosql://{nosql_driver}/{collection}"
   defaults:
-    _class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLEndpoint
-    _producer: @smartesb.producers.nosql
+    _protocol: @smartesb.protocols.nosql
     prefix: db_
   requirements:
     collection: "[_\-a-zA-Z0-9/]+"
@@ -20,16 +17,6 @@ nosql.generic:
 direct:
   pattern: "direct://{path}"
   defaults:
-    _producer: @smartesb.producer.direct
+    _protocol: @smartesb.protocols.direct
   requirements:
     path: "[a-zA-Z0-9/_]+"
-
-events:
-  pattern: "queue://{queue_driver}/{queue}"
-  defaults:
-    _class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueEndpoint
-    _producer: @smartesb.producers.queue
-    _consumer: @smartesb.consumers.queue
-    prefix: "%kernel.environment%/fv_%flows.version%/"
-  requirements:
-    queue: "[a-zA-Z0-9/]+"

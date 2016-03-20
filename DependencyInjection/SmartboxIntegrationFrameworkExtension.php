@@ -267,20 +267,20 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $eventsDeferToURI = $config['defer_events_to_uri'];
         $container->setParameter(self::PARAM_DEFERRED_EVENTS_URI, $eventsDeferToURI);
 
-        $this->loadHandlers($container);
-        $this->loadConsumers($container);
-        $this->loadQueueDrivers($container);
-        $this->loadNoSQLDrivers($container);
-
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
         $loader->load('exceptions.yml');
+        $loader->load('protocols.yml');
         $loader->load('producers.yml');
         $loader->load('consumers.yml');
         $loader->load('events_deferring.yml');
         $loader->load('routing.yml');
         $loader->load('smoke_tests.yml');
-        
+
+        $this->loadHandlers($container);
+        $this->loadConsumers($container);
+        $this->loadQueueDrivers($container);
+        $this->loadNoSQLDrivers($container);
         $this->loadProducers($container);
         $this->loadMappings($container);
     }

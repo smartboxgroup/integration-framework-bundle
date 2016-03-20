@@ -5,5 +5,4 @@ services:
   smartesb.consumers.queue:
       class: %smartesb.consumers.queue.class%
       calls:
-          - [ setHandler, [ @smartesb.handlers.async ] ]
           - [ setSmartesbHelper, [@smartesb.helper]]

@@ -25,15 +25,15 @@ class NoSQLProducer extends Producer
         $options = $endpoint->getOptions();
         $msg = $ex->getIn();
 
-        $driverName = $options[NoSQLEndpoint::OPTION_NOSQL_DRIVER];
+        $driverName = $options[NoSQLProtocol::OPTION_NOSQL_DRIVER];
         /** @var \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface $driver */
         $driver = $this->getDriverRegistry()->getDriver($driverName);
 
         if(empty($driver) || !$driver instanceof NoSQLDriverInterface){
-            throw new \RuntimeException(self::class, NoSQLEndpoint::OPTION_NOSQL_DRIVER, 'Expected NoSQLDriverInterface instance');
+            throw new \RuntimeException(self::class, NoSQLProtocol::OPTION_NOSQL_DRIVER, 'Expected NoSQLDriverInterface instance');
         }
 
-        $collectionName = $options[NoSQLEndpoint::OPTION_COLLECTION_PREFIX].$options[NoSQLEndpoint::OPTION_COLLECTION_NAME];
+        $collectionName = $options[NoSQLProtocol::OPTION_COLLECTION_PREFIX].$options[NoSQLProtocol::OPTION_COLLECTION_NAME];
 
         $message = $driver->createMessage();
         $message->setBody($msg);
@@ -42,17 +42,17 @@ class NoSQLProducer extends Producer
 
         $success = false;
 
-        switch($options[NoSQLEndpoint::OPTION_ACTION]){
-            case NoSQLEndpoint::ACTION_CREATE:
+        switch($options[NoSQLProtocol::OPTION_ACTION]){
+            case NoSQLProtocol::ACTION_CREATE:
                 $success = $driver->create($message);
                 break;
-            case NoSQLEndpoint::ACTION_DELETE:
+            case NoSQLProtocol::ACTION_DELETE:
                 $success = $driver->delete($message);
                 break;
-            case NoSQLEndpoint::ACTION_UPDATE:
+            case NoSQLProtocol::ACTION_UPDATE:
                 $success = $driver->update($message);
                 break;
-            case NoSQLEndpoint::ACTION_GET:
+            case NoSQLProtocol::ACTION_GET:
                 throw new \Exception("Receiving from NOSQLProducer is not yet implemented");
                 break;
         }

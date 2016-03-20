@@ -4,11 +4,12 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Producers;
 
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceEndpoint;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -62,7 +63,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     {
         $options = $endpoint->getOptions();
 
-        $method = $options[ConfigurableWebserviceEndpoint::OPTION_METHOD];
+        $method = $options[ConfigurableWebserviceProtocol::OPTION_METHOD];
 
         if (!array_key_exists($method, $this->methodsConfiguration)) {
             throw new \InvalidArgumentException("Method $method was not configured in this producer");
@@ -116,7 +117,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         /**
          * RESPONSE
          */
-        if(     $options[Endpoint::OPTION_EXCHANGE_PATTERN] == Endpoint::EXCHANGE_PATTERN_IN_OUT
+        if(     $options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT
             &&  array_key_exists(self::KEY_RESPONSE,$methodConf)){
             $resultConfig = $methodConf[self::KEY_RESPONSE];
             $result = $this->resolve($resultConfig,$context);

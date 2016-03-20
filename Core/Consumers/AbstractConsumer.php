@@ -9,22 +9,11 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesb
 abstract class AbstractConsumer implements ConsumerInterface{
     use UsesSmartesbHelper;
 
-    /** @var  HandlerInterface */
-    protected $handler;
-
     /** @var bool */
     protected $stop = false;
 
     /** @var int  */
     protected $expirationCount = -1;
-
-    /**
-     * @param HandlerInterface $handler
-     */
-    public function setHandler(HandlerInterface $handler)
-    {
-        $this->handler = $handler;
-    }
 
     /**
      * Signal the consumer to stop before processing the next message
@@ -87,7 +76,7 @@ abstract class AbstractConsumer implements ConsumerInterface{
      * @param MessageInterface $message
      */
     protected function process(EndpointInterface $endpoint, MessageInterface $message){
-        $this->handler->handle($message, $endpoint);
+        $endpoint->handle($message);
     }
 
     /**

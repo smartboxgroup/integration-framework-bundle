@@ -32,8 +32,8 @@ class QueueProducer extends Producer
     {
         $options = $endpoint->getOptions();
         $msg = $ex->getIn();
-        $queueDriverName = $options[QueueEndpoint::OPTION_QUEUE_DRIVER];
-        $queueName = ($options[QueueEndpoint::OPTION_PREFIX]).$options[QueueEndpoint::OPTION_QUEUE_NAME];
+        $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
+        $queueName = ($options[QueueProtocol::OPTION_PREFIX]).$options[QueueProtocol::OPTION_QUEUE_NAME];
 
         /** @var QueueDriverInterface $queueDriver */
         $queueDriver = $this->getDriverRegistry()->getDriver($queueDriverName);
@@ -50,13 +50,13 @@ class QueueProducer extends Producer
 
         $queueMessage = $queueDriver->createQueueMessage();
         $queueMessage->setBody($msg);
-        $queueMessage->setTTL($options[QueueEndpoint::OPTION_TTL]);
+        $queueMessage->setTTL($options[QueueProtocol::OPTION_TTL]);
         $queueMessage->setQueue($queueName);
-        $queueMessage->setPersistent($options[QueueEndpoint::OPTION_PERSISTENT]);
-        $queueMessage->setPriority($options[QueueEndpoint::OPTION_PRIORITY]);
+        $queueMessage->setPersistent($options[QueueProtocol::OPTION_PERSISTENT]);
+        $queueMessage->setPriority($options[QueueProtocol::OPTION_PRIORITY]);
         $queueMessage->setDestinationURI($endpoint->getURI());
 
-        if ($type = @$options[QueueEndpoint::OPTION_TYPE]) {
+        if ($type = @$options[QueueProtocol::OPTION_TYPE]) {
             $queueMessage->setMessageType($type);
         }
 

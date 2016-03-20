@@ -4,10 +4,10 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 
 use JMS\Serializer\Annotation as JMS;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class QueueEndpoint extends Endpoint{
+class QueueProtocol extends Protocol{
     /**
      * @JMS\Exclude
      * @var array

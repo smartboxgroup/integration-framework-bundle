@@ -4,34 +4,40 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\ProtocolInterface;
 
-interface EndpointInterface extends SerializableInterface, ConfigurableInterface{
-
-    const OPTION_CONSUMER = '_consumer';
-    const OPTION_PRODUCER = '_producer';
-    const OPTION_CLASS = '_class';
-    const OPTION_EXCHANGE_PATTERN = 'exchangePattern';
-    const OPTION_TRACK = 'track';
-    const OPTION_ENDPOINT_ROUTE = '_route';
-
-    const EXCHANGE_PATTERN_IN_ONLY = 'inOnly';
-    const EXCHANGE_PATTERN_IN_OUT = 'inOut';
+interface EndpointInterface extends SerializableInterface{
 
     /**
-     * @param string $resolvedUri
+     * @param $resolvedUri
      * @param array $resolvedOptions
+     * @param ProtocolInterface $protocol
+     * @param ProducerInterface $producer
+     * @param ConsumerInterface $consumer
+     * @param HandlerInterface $handler
      */
-    public function __construct($resolvedUri, array $resolvedOptions);
+    public function __construct($resolvedUri, array &$resolvedOptions, ProtocolInterface $protocol, ProducerInterface $producer = null, ConsumerInterface $consumer = null, HandlerInterface $handler = null);
 
     /**
      * Returns the resolved URI
      * @return string
      */
     public function getURI();
+
+    /**
+     * @return ProtocolInterface
+     */
+    public function getProtocol();
+
+    /**
+     * @return HandlerInterface
+     */
+    public function getHandler();
 
     /**
      * @return ConsumerInterface
@@ -53,6 +59,12 @@ interface EndpointInterface extends SerializableInterface, ConfigurableInterface
      * @return boolean
      */
     public function produce(Exchange $exchange);
+
+    /**
+     * @param MessageInterface $message
+     * @return MessageInterface
+     */
+    public function handle(MessageInterface $message);
 
     /**
      * @return array

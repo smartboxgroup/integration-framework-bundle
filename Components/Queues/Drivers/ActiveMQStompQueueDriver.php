@@ -198,7 +198,11 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
             $this->readConnection = new Connection($strategy);
             $this->readConnection->setReadTimeout(self::READ_TIMEOUT);
             $this->readConnection->setBufferSize(self::BUFFER_SIZE);
-            $this->readConnection->connect($this->username, $this->pass, $this->stompVersion);
+            $connectionOK = $this->readConnection->connect($this->username, $this->pass, $this->stompVersion);
+
+            if(!$connectionOK){
+                throw new \RuntimeException("Could not connect to ActiveMQ in host: ". $this->host.", port: ".$this->port);
+            }
         }
     }
 
@@ -213,7 +217,11 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
             $strategy = new SimpleConnectionStrategy("tcp://$this->host:$this->port");
             $this->writeConnection = new Connection($strategy);
             $this->writeConnection->setBufferSize(self::BUFFER_SIZE);
-            $this->writeConnection->connect($this->username, $this->pass, $this->stompVersion);
+            $connectionOK = $this->writeConnection->connect($this->username, $this->pass, $this->stompVersion);
+
+            if(!$connectionOK){
+                throw new \RuntimeException("Could not connect to ActiveMQ in host: ". $this->host.", port: ".$this->port);
+            }
         }
     }
 

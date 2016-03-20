@@ -5,7 +5,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
-use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceEndpoint;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -23,16 +23,16 @@ class RestConfigurableProducer extends ConfigurableProducer
     protected function getBasicHTTPOptions($options, array &$options)
     {
         $result = [
-            RequestOptions::CONNECT_TIMEOUT => $options[ConfigurableWebserviceEndpoint::OPTION_CONNECT_TIMEOUT],
-            RequestOptions::TIMEOUT => $options[ConfigurableWebserviceEndpoint::OPTION_TIMEOUT],
-            RequestOptions::HEADERS => $options[RESTConfigurableEndpoint::OPTION_HEADERS],
+            RequestOptions::CONNECT_TIMEOUT => $options[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT],
+            RequestOptions::TIMEOUT => $options[ConfigurableWebserviceProtocol::OPTION_TIMEOUT],
+            RequestOptions::HEADERS => $options[RestConfigurableProtocol::OPTION_HEADERS],
         ];
 
-        $auth = $options[RESTConfigurableEndpoint::OPTION_AUTH];
-        if($auth === RESTConfigurableEndpoint::AUTH_BASIC){
+        $auth = $options[RestConfigurableProtocol::OPTION_AUTH];
+        if($auth === RestConfigurableProtocol::AUTH_BASIC){
             $result['auth'] = [
-                $options[RESTConfigurableEndpoint::OPTION_USERNAME],
-                $options[RESTConfigurableEndpoint::OPTION_PASSWORD]];
+                $options[RestConfigurableProtocol::OPTION_USERNAME],
+                $options[RestConfigurableProtocol::OPTION_PASSWORD]];
         }
 
         return $result;
@@ -74,7 +74,7 @@ class RestConfigurableProducer extends ConfigurableProducer
             [self::REQUEST_NAME, self::REQUEST_HTTP_VERB, self::REQUEST_BODY, self::REQUEST_URI]
         );
         $stepParamsResolver->setDefined([
-            RESTConfigurableEndpoint::OPTION_HEADERS
+            RestConfigurableProtocol::OPTION_HEADERS
         ]);
 
         $stepParamsResolver->setAllowedValues(self::REQUEST_HTTP_VERB, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
@@ -85,12 +85,12 @@ class RestConfigurableProducer extends ConfigurableProducer
         $httpMethod = $this->resolve($resolvedParams[self::REQUEST_HTTP_VERB], $context);
         $body = $this->resolve($resolvedParams[self::REQUEST_BODY], $context);
 
-        $resolvedURI = $endpointOptions[RESTConfigurableEndpoint::OPTION_BASE_URI];
+        $resolvedURI = $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
         $resolvedURI .= $this->resolve($resolvedParams[self::REQUEST_URI], $context);
 
         $restOptions = $this->getBasicHTTPOptions($resolvedParams, $endpointOptions);
 
-        $encoding = $endpointOptions[RESTConfigurableEndpoint::OPTION_ENCODING];
+        $encoding = $endpointOptions[RestConfigurableProtocol::OPTION_ENCODING];
         $restOptions['body'] = $this->getSerializer()->serialize($body, $encoding);
 
         $httpMethod = strtoupper($httpMethod);

@@ -2,11 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL;
 
-
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class NoSQLEndpoint extends Endpoint {
+class NoSQLProtocol extends Protocol {
     const OPTION_NOSQL_DRIVER = 'nosql_driver';
     const OPTION_COLLECTION_PREFIX = 'prefix';
     const OPTION_COLLECTION_NAME = 'collection';

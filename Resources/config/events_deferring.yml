@@ -3,12 +3,6 @@ parameters:
   event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher
 
 services:
-  smartesb.consumers.events.queue:
-      class: %smartesb.consumers.queue.class%
-      calls:
-          - [ setHandler, [ @smartesb.handlers.events ] ]
-          - [ setSmartesbHelper, [@smartesb.helper]]
-
   smartesb.handlers.events:
       class: %smartesb.handlers.events_deferring.class%
       calls:

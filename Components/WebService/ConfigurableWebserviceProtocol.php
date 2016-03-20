@@ -2,17 +2,13 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService;
 
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ConfigurableWebserviceEndpoint extends Endpoint{
+class ConfigurableWebserviceProtocol extends Protocol{
     const OPTION_TIMEOUT = 'timeout';
     const OPTION_CONNECT_TIMEOUT = 'connect_timeout';
     const OPTION_METHOD = 'method';
-
-    public function getMethod(){
-        return $this->options[self::OPTION_METHOD];
-    }
 
     /**
      * {@inheritDoc}

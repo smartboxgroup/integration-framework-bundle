@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueEndpoint;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
@@ -162,10 +162,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->with($failedUri)
             ->willReturn(array(
-                InternalRouter::KEY_URI => $failedUri,
                 InternalRouter::KEY_PRODUCER => $failedProducer,
-                QueueEndpoint::OPTION_QUEUE_DRIVER => $failedQueueDriver,
-                QueueEndpoint::OPTION_QUEUE_NAME => $failedQueue
+                QueueProtocol::OPTION_QUEUE_DRIVER => $failedQueueDriver,
+                QueueProtocol::OPTION_QUEUE_NAME => $failedQueue
 
             ));
 

@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Soap;
 use BeSimple\SoapClient\SoapClient;
 use ProxyManager\Proxy\LazyLoadingInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
-use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceEndpoint;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\RecoverableSoapException;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
@@ -81,7 +81,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
                 return $header;
             }, $soapHeaders);
 
-            $soapClient->setExecutionTimeout($endpointOptions[ConfigurableWebserviceEndpoint::OPTION_TIMEOUT]);
+            $soapClient->setExecutionTimeout($endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT]);
             return $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
 
         }catch (\Exception $ex){
@@ -118,7 +118,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
 
-        $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceEndpoint::OPTION_CONNECT_TIMEOUT];
+        $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
 
         $result = $this->performRequest($soapMethodName,$soapMethodParams,$endpointOptions, $soapOptions, $soapHeaders);
 

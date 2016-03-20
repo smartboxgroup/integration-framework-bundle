@@ -2,7 +2,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceEndpoint;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
@@ -85,7 +85,7 @@ class ConfigurableProducerTest extends BaseTestCase{
             'y' => 2
         ];
 
-        $this->configurableProducer->executeStep('define', [
+        $actionParams = [
             'r1' => 'eval: x + y',
             'r2' => [
                 'sub1' => [
@@ -97,7 +97,11 @@ class ConfigurableProducerTest extends BaseTestCase{
                     'b' => 'eval: y+10'
                 ]
             ]
-        ], [],$context);
+        ];
+
+        $options = [];
+
+        $this->configurableProducer->executeStep('define',$actionParams,$options,$context);
 
         $this->assertEquals(3,$context['vars']['r1']);
 
@@ -120,8 +124,8 @@ class ConfigurableProducerTest extends BaseTestCase{
         );
 
         $this->configurableProducer->send($exchange,[
-            ConfigurableWebserviceEndpoint::OPTION_METHOD => 'methodA',
-            ConfigurableWebserviceEndpoint::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceEndpoint::EXCHANGE_PATTERN_IN_OUT
+            ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
+            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT
         ]);
 
         $this->assertInstanceOf(SerializableArray::class,$exchange->getResult()->getBody());
@@ -139,8 +143,8 @@ class ConfigurableProducerTest extends BaseTestCase{
         $exchange = new Exchange($in);
 
         $this->configurableProducer->send($exchange,[
-            ConfigurableWebserviceEndpoint::OPTION_METHOD => 'methodA',
-            ConfigurableWebserviceEndpoint::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceEndpoint::EXCHANGE_PATTERN_IN_ONLY
+            ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
+            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_ONLY
         ]);
 
         $this->assertEquals(
@@ -158,8 +162,8 @@ class ConfigurableProducerTest extends BaseTestCase{
         $this->setExpectedException(EndpointUnrecoverableException::class,"Too ugly number!!");
 
         $this->configurableProducer->send($exchange,[
-            ConfigurableWebserviceEndpoint::OPTION_METHOD => 'methodA',
-            ConfigurableWebserviceEndpoint::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceEndpoint::EXCHANGE_PATTERN_IN_OUT
+            ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
+            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT
         ]);
     }
 
@@ -172,8 +176,8 @@ class ConfigurableProducerTest extends BaseTestCase{
         $this->setExpectedException(ProducerRecoverableException::class,"Ugly number!!");
 
         $this->configurableProducer->send($exchange,[
-            ConfigurableWebserviceEndpoint::OPTION_METHOD => 'methodA',
-            ConfigurableWebserviceEndpoint::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceEndpoint::EXCHANGE_PATTERN_IN_OUT
+            ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
+            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT
         ]);
     }
 }

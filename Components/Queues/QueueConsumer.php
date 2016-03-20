@@ -19,8 +19,8 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface {
     protected function initialize(EndpointInterface $endpoint)
     {
         $options = $endpoint->getOptions();
-        $queuePrefix = $options[QueueEndpoint::OPTION_PREFIX];
-        $queueName = $options[QueueEndpoint::OPTION_QUEUE_NAME];
+        $queuePrefix = $options[QueueProtocol::OPTION_PREFIX];
+        $queueName = $options[QueueProtocol::OPTION_QUEUE_NAME];
         $queuePath = $queuePrefix.$queueName;
 
         $driver = $this->getQueueDriver($endpoint);
@@ -35,7 +35,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface {
      */
     protected function getQueueDriver(EndpointInterface $endpoint){
         $options = $endpoint->getOptions();
-        $queueDriverName = $options[QueueEndpoint::OPTION_QUEUE_DRIVER];
+        $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
         $queueDriver = $this->helper->getQueueDriver($queueDriverName);
 
         if($queueDriver instanceof QueueDriverInterface){
@@ -68,9 +68,9 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface {
      */
     protected function process(EndpointInterface $endpoint, MessageInterface $message){
         // If we used a wrapper to queue the message, that the handler doesn't understand, unwrap it
-        if($message instanceof QueueMessageInterface && !($this->handler instanceof QueueMessageHandlerInterface)){
+        if($message instanceof QueueMessageInterface && !($endpoint->getHandler() instanceof QueueMessageHandlerInterface)){
             $endpoint = $this->helper->getEndpointFactory()->createEndpoint($message->getDestinationURI());
-            $this->handler->handle($message->getBody(),$endpoint);
+            $endpoint->handle($message->getBody());
         }else {
             parent::process($endpoint,$message);
         }

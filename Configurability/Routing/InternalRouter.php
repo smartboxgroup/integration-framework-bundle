@@ -6,9 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class InternalRouter extends Router {
     const KEY_ITINERARY = '_itinerary';
-
     const KEY_PRODUCER = '_producer';
-    const KEY_URI = '_uri';
 
     const OPTION_USERNAME = 'username';
     const OPTION_PASS = 'pass';
