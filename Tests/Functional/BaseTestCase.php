@@ -4,14 +4,14 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Producers\DirectProducer;
-use Smartbox\Integration\FrameworkBundle\Messages\Context;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\DirectProducer;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\SpyProcessor;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesEvaluator;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesValidator;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesValidator;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 abstract class BaseTestCase extends BaseKernelTestCase
@@ -95,7 +95,7 @@ abstract class BaseTestCase extends BaseKernelTestCase
      * @param SerializableInterface $body
      * @param array $headers
      * @param Context $context
-     * @return \Smartbox\Integration\FrameworkBundle\Messages\Message
+     * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\Message
      */
     protected function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null){
         return $this->getContainer()->get('smartesb.message_factory')->createMessage($body,$headers,$context);

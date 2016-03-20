@@ -3,25 +3,23 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Events;
 
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
-use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ArrayQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Events\EventDispatcher;
-use Smartbox\Integration\FrameworkBundle\Events\EventFilterInterface;
-use Smartbox\Integration\FrameworkBundle\Events\EventFiltersRegistry;
-use Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper;
-use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
-use Smartbox\Integration\FrameworkBundle\Messages\MessageFactory;
-use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
+use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher;
+use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFiltersRegistry;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 use Symfony\Component\DependencyInjection\Container;
 
 class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
 
     public function testShouldDeferEvent(){
-        $filterPass = $this->getMock(EventFilterInterface::class);
+        $filterPass = $this->getMock(\Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFilterInterface::class);
         $filterPass->method('filter')->willReturn(true);
 
-        $filtersRegistry = new EventFiltersRegistry();
+        $filtersRegistry = new \Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFiltersRegistry();
         $filtersRegistry->addDeferringFilter($filterPass);
 
         $messageFactory = new MessageFactory();
@@ -42,7 +40,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
 
         $helper->setContainer($container);
 
-        $dispatcher = new EventDispatcher($container);
+        $dispatcher = new \Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher($container);
         $dispatcher->dispatch("test_event", $event);
 
         $messages = $queueDriver->getArrayForQueue('test_queue');
@@ -53,14 +51,14 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
 
         $this->assertInstanceOf(QueueMessage::class,$message);
 
-        $this->assertInstanceOf(EventMessage::class,$message->getBody());
+        $this->assertInstanceOf(\Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventMessage::class,$message->getBody());
 
         $this->assertEquals($message->getBody()->getBody(),$event);
     }
 
 
     public function testShouldNotDeferEventIfDeferred(){
-        $filterPass = $this->getMock(EventFilterInterface::class);
+        $filterPass = $this->getMock(\Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFilterInterface::class);
         $filterPass->method('filter')->willReturn(true);
 
         $filtersRegistry = new EventFiltersRegistry();
@@ -85,7 +83,8 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
 
 
     public function testShouldNotDeferEventIfDoesNotPassFilter(){
-        $filterDoesNotPass = $this->getMock(EventFilterInterface::class);
+        $filterDoesNotPass = $this->getMock(
+            \Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFilterInterface::class);
         $filterDoesNotPass->method('filter')->willReturn(false);
 
         $filtersRegistry = new EventFiltersRegistry();
@@ -100,7 +99,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $container->set('smartesb.registry.event_filters',$filtersRegistry);
         $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events',$queueDriver);
 
-        $dispatcher = new EventDispatcher($container);
+        $dispatcher = new \Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher($container);
         $dispatcher->dispatch("test_event.deferred", $event);
 
         $messages = $queueDriver->getArrayForQueue('test_queue');

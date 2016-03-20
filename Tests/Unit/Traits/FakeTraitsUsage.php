@@ -2,10 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Traits;
 
-use Smartbox\Integration\FrameworkBundle\Traits\UsesEvaluator;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesValidator;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesValidator;
 
 class FakeTraitsUsage
 {

@@ -1,20 +1,20 @@
 parameters:
   # PROCESSORS CLASS NAMES
-  smartesb.processor.router.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter
-  smartesb.processor.multicast.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\Multicast
-  smartesb.processor.pipeline.class: Smartbox\Integration\FrameworkBundle\Processors\Routing\Pipeline
-  smartesb.processor.transformer.class: Smartbox\Integration\FrameworkBundle\Processors\Transformation\Transformer
-  smartesb.processor.throw_exception.class: Smartbox\Integration\FrameworkBundle\Processors\ControlFlow\ThrowException
-  smartesb.processor.stop.class: Smartbox\Integration\FrameworkBundle\Processors\Miscellaneous\Stop
+  smartesb.processor.router.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ContentRouter
+  smartesb.processor.multicast.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\Multicast
+  smartesb.processor.pipeline.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\Pipeline
+  smartesb.processor.transformer.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Transformation\Transformer
+  smartesb.processor.throw_exception.class: Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrowException
+  smartesb.processor.stop.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Miscellaneous\Stop
 
-  smartesb.handlers.message_routing.class: Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler
-  smartesb.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Util\ExpressionEvaluator
-  smartesb.util.mapper.class: Smartbox\Integration\FrameworkBundle\Util\Mapper
-  smartesb.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Serialization\ItineraryHandler
-  smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBDateHandler
-  smartesb.helper.class: Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper
-  smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Processors\Itinerary
-  smartesb.event_listener.events_logger.class: Smartbox\Integration\FrameworkBundle\EventListener\EventsLoggerListener
+  smartesb.handlers.message_routing.class: Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler
+  smartesb.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator
+  smartesb.util.mapper.class: Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper
+  smartesb.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItinerarySerializationHandler
+  smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBDateHandler
+  smartesb.helper.class: Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper
+  smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
+  smartesb.event_listener.events_logger.class: Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener
 
 services:
   # SERIALIZATION
@@ -44,12 +44,12 @@ services:
 
   # INTERNAL HELPERS
   smartesb.message_factory:
-      class: Smartbox\Integration\FrameworkBundle\Messages\MessageFactory
+      class: Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory
       calls:
           - [ setFlowsVersion, [ %smartesb.flows_version% ] ]
 
   smartesb.endpoint_factory:
-    class: Smartbox\Integration\FrameworkBundle\Endpoints\EndpointFactory
+    class: Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory
     calls:
         - [ setEndpointsRouter, [ @smartesb.router.endpoints ] ]
         - [ setMessageFactory, [ @smartesb.message_factory ] ]

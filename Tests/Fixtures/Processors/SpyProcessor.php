@@ -4,8 +4,8 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors;
 
 
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Processors\Processor;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 class SpyProcessor extends Processor{
 

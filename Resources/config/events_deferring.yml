@@ -1,6 +1,6 @@
 parameters:
-  smartesb.handlers.events_deferring.class: Smartbox\Integration\FrameworkBundle\Handlers\DeferredEventsHandler
-  event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Events\EventDispatcher
+  smartesb.handlers.events_deferring.class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler
+  event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher
 
 services:
   smartesb.consumers.events.queue:
@@ -16,4 +16,4 @@ services:
         - [setFlowsVersion, [%smartesb.flows_version%]]
 
   smartesb.registry.event_filters:
-    class: Smartbox\Integration\FrameworkBundle\Events\EventFiltersRegistry
+    class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFiltersRegistry

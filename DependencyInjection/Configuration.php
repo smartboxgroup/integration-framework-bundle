@@ -118,7 +118,7 @@ class Configuration implements ConfigurationInterface
             ->end()
 
             ->scalarNode('class')
-            ->info('Class to be used for the producer, you can use a generic class like RESTConfigurableProducer or create a custom class implementing ConfigurableProducerInterface')
+            ->info('Class to be used for the producer, you can use a generic class like RestConfigurableProducer or create a custom class implementing ConfigurableProducerInterface')
             ->isRequired()
             ->end()
 

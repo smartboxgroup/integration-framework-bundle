@@ -2,8 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Event;
 
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
 
 /**
  * Class HandlerEventTest

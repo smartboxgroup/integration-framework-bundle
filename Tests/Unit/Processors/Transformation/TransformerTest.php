@@ -2,11 +2,11 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Transformation;
 
-use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Processors\Transformation\Transformer;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Transformation\Transformer;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\Entity\SerializableSimpleEntity;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

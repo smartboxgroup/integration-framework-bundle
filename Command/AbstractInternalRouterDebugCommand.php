@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
 
-use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

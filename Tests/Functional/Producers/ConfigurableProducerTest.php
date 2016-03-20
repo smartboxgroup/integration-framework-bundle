@@ -2,12 +2,12 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Producers\ConfigurableProducer;
-use Smartbox\Integration\FrameworkBundle\Endpoints\ConfigurableWebserviceEndpoint;
-use Smartbox\Integration\FrameworkBundle\Exceptions\ProducerRecoverableException;
-use Smartbox\Integration\FrameworkBundle\Exceptions\EndpointUnrecoverableException;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceEndpoint;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointUnrecoverableException;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerRecoverableException;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 
 class ConfigurableProducerTest extends BaseTestCase{

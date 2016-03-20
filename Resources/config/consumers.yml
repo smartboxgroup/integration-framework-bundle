@@ -1,5 +1,5 @@
 parameters:
-  smartesb.consumers.queue.class: Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer
+  smartesb.consumers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer
 
 services:
   smartesb.consumers.queue:

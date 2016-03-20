@@ -3,20 +3,15 @@
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
 
-use Smartbox\Integration\FrameworkBundle\Producers\Producer;
-use Smartbox\Integration\FrameworkBundle\Producers\ProducerInterface;
-use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
-use Smartbox\Integration\FrameworkBundle\Processors\EndpointProcessor;
-use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\Matcher\TraceableUrlMatcher;
-use Symfony\Component\Routing\RouterInterface;
 
 class ValidateContainerCommand extends ContainerAwareCommand {
 
@@ -29,13 +24,13 @@ class ValidateContainerCommand extends ContainerAwareCommand {
         $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
         foreach($routerProducers->getRouteCollection()->all() as $name => $route){
             $options = $route->getDefaults();
-            if(!array_key_exists(InternalRouter::KEY_producer,$options)){
+            if(!array_key_exists(InternalRouter::KEY_PRODUCER,$options)){
                 $output->writeln("<error>Producer not defined for route '$name': ".$route->getPath()."</error>");
                 $exitCode = 1;
                 continue;
             }
 
-            $producerId = str_replace('@','',$options[InternalRouter::KEY_producer]);
+            $producerId = str_replace('@','',$options[InternalRouter::KEY_PRODUCER]);
 
             if(!$this->getContainer()->has($producerId)){
                 $output->writeln("<error>Producer '$producerId' not found for route '$name'</error>");
@@ -99,13 +94,13 @@ class ValidateContainerCommand extends ContainerAwareCommand {
             return false;
         }
 
-        if(!array_key_exists(InternalRouter::KEY_producer,$options)){
+        if(!array_key_exists(InternalRouter::KEY_PRODUCER,$options)){
             $output->writeln("<error>Producer not defined for URI '$uri'</error>");
             return false;
         }
 
         /** @var Producer $producer */
-        $producer = $options[InternalRouter::KEY_producer];
+        $producer = $options[InternalRouter::KEY_PRODUCER];
 
         if(!$producer instanceof ProducerInterface){
             $output->writeln("<error>Producer '".$producer->getId()."' does not implement ProducerInterface</error>");

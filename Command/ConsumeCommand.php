@@ -2,7 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
-use Smartbox\Integration\FrameworkBundle\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,7 +21,7 @@ class ConsumeCommand extends ContainerAwareCommand
     protected $input;
 
     /**
-     * @return \Smartbox\Integration\FrameworkBundle\Endpoints\EndpointInterface
+     * @return \Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface
      */
     protected function getSourceEndpoint()
     {

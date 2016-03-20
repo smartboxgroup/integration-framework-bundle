@@ -2,10 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing;
 
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\Multicast;
 use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Processors\Routing\Multicast;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -36,7 +36,7 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
     public function testItShouldAddItineraries()
     {
         $this->assertEmpty($this->multicast->getItineraries());
-        /** @var Itinerary $itinerary */
+        /** @var \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary $itinerary */
         $itinerary = $this->getMock(Itinerary::class);
         $this->multicast->addItinerary($itinerary);
         $this->assertCount(1, $this->multicast->getItineraries());

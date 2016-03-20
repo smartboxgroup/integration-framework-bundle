@@ -3,8 +3,8 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper;
-use Smartbox\Integration\FrameworkBundle\Messages\Context;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
@@ -30,7 +30,7 @@ class BaseKernelTestCase extends KernelTestCase
      * @param SerializableInterface $body
      * @param array $headers
      * @param Context $context
-     * @return \Smartbox\Integration\FrameworkBundle\Messages\Message
+     * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\Message
      */
     protected function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null){
         return $this->getContainer()->get('smartesb.message_factory')->createMessage($body,$headers,$context);

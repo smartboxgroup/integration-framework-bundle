@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Util;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
-use Smartbox\Integration\FrameworkBundle\Util\MapperInterface;
+use Smartbox\Integration\FrameworkBundle\Tools\Mapper\MapperInterface;
 
 class MapperTest extends BaseTestCase{
 

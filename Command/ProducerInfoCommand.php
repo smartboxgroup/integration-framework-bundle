@@ -3,8 +3,8 @@
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
 
-use Smartbox\Integration\FrameworkBundle\Producers\ProducerInterface;
-use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
+use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -27,7 +27,7 @@ class ProducerInfoCommand extends ContainerAwareCommand {
             $producers = array($producerId);
         }else{
             $producers = array_reduce($routerProducers->getRouteCollection()->all(), function(array $res, Route $route){
-                $producerId = $route->getDefault(InternalRouter::KEY_producer);
+                $producerId = $route->getDefault(InternalRouter::KEY_PRODUCER);
                 if(!in_array($producerId,$res)){
                     $res[] = substr($producerId,1);
                 }
@@ -73,7 +73,7 @@ class ProducerInfoCommand extends ContainerAwareCommand {
 
 
         $routes = array_filter($routerProducers->getRouteCollection()->all(), function(Route $route) use($producerId){
-            return $route->getDefault(InternalRouter::KEY_producer) == '@'.$producerId;
+            return $route->getDefault(InternalRouter::KEY_PRODUCER) == '@'.$producerId;
         });
 
         $routesExplained  = '';
@@ -88,7 +88,7 @@ class ProducerInfoCommand extends ContainerAwareCommand {
             $routesExplained .= "\t- <comment>$routeName: </comment><info>$pattern</info>\n";
 
             $defaults = $route->getDefaults();
-            unset($defaults[InternalRouter::KEY_producer]);
+            unset($defaults[InternalRouter::KEY_PRODUCER]);
 
             if(!empty($defaults)){
                 foreach($defaults as $key => $value){

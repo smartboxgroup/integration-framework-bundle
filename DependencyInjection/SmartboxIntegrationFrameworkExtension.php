@@ -2,17 +2,17 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
-use  Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ConnectivityCheckSmokeTest;
-use  Smartbox\Integration\FrameworkBundle\Util\SmokeTest\CanCheckConnectivityInterface;
-use Smartbox\Integration\FrameworkBundle\Producers\ConfigurableProducerInterface;
-use Smartbox\Integration\FrameworkBundle\Consumers\QueueConsumer;
-use Smartbox\Integration\FrameworkBundle\Drivers\Db\MongoDbDriver;
-use Smartbox\Integration\FrameworkBundle\Drivers\DriverRegistry;
-use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
-use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient;
-use Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBClient;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDbDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
+use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
+use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
+use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
+use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\ConnectivityCheckSmokeTest;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\DependencyInjection\Alias;

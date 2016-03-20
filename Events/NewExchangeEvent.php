@@ -2,9 +2,9 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Events;
 
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class NewExchangeEvent
@@ -24,7 +24,7 @@ class NewExchangeEvent extends Event {
 
     /**
      * @Assert\Valid
-     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Messages\Exchange")
+     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Exchange")
      * @JMS\Expose
      * @JMS\Groups({"logs"})
      * @var Exchange

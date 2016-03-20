@@ -2,18 +2,18 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing;
 
-use Smartbox\Integration\FrameworkBundle\Util\ExpressionEvaluator;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ContentRouter;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause;
+use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter;
-use Smartbox\Integration\FrameworkBundle\Processors\Routing\WhenClause;
 
 /**
  * Class ContentRouterTest
  * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ContentRouter
  */
 class ContentRouterTest extends \PHPUnit_Framework_TestCase
 {

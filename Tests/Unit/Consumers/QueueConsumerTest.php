@@ -2,8 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Consumers;
 
-use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 

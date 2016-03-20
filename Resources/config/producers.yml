@@ -1,9 +1,9 @@
 parameters:
   ########## PRODUCER CLASSES  ##########
-  smartesb.producers.direct.class: Smartbox\Integration\FrameworkBundle\Producers\DirectProducer
-  smartesb.producers.json_file.class: Smartbox\Integration\FrameworkBundle\Producers\JsonFileLoaderProducer
-  smartesb.producers.queue.class: Smartbox\Integration\FrameworkBundle\Producers\QueueProducer
-  smartesb.producers.nosql.class: Smartbox\Integration\FrameworkBundle\Producers\NoSQLProducer
+  smartesb.producers.direct.class: Smartbox\Integration\FrameworkBundle\Core\Producers\DirectProducer
+  smartesb.producers.json_file.class: Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader\JsonFileLoaderProducer
+  smartesb.producers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer
+  smartesb.producers.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLProducer
 
 services:
   ########## PRODUCERS  ##########

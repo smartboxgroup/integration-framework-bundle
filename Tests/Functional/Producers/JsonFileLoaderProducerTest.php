@@ -2,11 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
 
-use Smartbox\Integration\FrameworkBundle\Producers\JsonFileLoaderProducer;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
+use Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader\JsonFileLoaderProducer;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
 
 class JsonFileLoaderProducerTest extends BaseTestCase
 {
@@ -15,7 +14,7 @@ class JsonFileLoaderProducerTest extends BaseTestCase
 
     public function setUp(){
         parent::setUp();
-        $this->producer = new JsonFileLoaderProducer();
+        $this->producer = new \Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader\JsonFileLoaderProducer();
         $this->producer->setSerializer(self::getContainer()->get('serializer'));
     }
 

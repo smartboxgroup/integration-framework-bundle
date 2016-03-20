@@ -2,18 +2,18 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
-use Smartbox\Integration\FrameworkBundle\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
-use Smartbox\Integration\FrameworkBundle\Handlers\DeferredEventsHandler;
-use Smartbox\Integration\FrameworkBundle\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
+use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler;
+use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventMessage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class DeferredEventsHandlerTest
  * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Handlers\DeferredEventsHandler
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler
  */
 class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
 {

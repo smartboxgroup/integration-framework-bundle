@@ -2,29 +2,27 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
-use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Endpoints\Endpoint;
-use Smartbox\Integration\FrameworkBundle\Producers\QueueProducer;
-use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ArrayQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Exceptions\HandlerException;
-use Smartbox\Integration\FrameworkBundle\Handlers\MessageHandler;
-use Smartbox\Integration\FrameworkBundle\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\Messages\MessageFactory;
-use Smartbox\Integration\FrameworkBundle\Messages\MessageFactoryInterface;
-use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueEndpoint;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer;
+use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerException;
+use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
+use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactoryInterface;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\FakeProcessor;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class AsyncHandlerTest
  * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Handlers\AsyncHandler
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Handlers\AsyncHandler
  */
 class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 {
@@ -165,9 +163,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->with($failedUri)
             ->willReturn(array(
                 InternalRouter::KEY_URI => $failedUri,
-                InternalRouter::KEY_producer => $failedProducer,
-                QueueProducer::OPTION_QUEUE_DRIVER => $failedQueueDriver,
-                QueueProducer::OPTION_QUEUE_NAME => $failedQueue
+                InternalRouter::KEY_PRODUCER => $failedProducer,
+                QueueEndpoint::OPTION_QUEUE_DRIVER => $failedQueueDriver,
+                QueueEndpoint::OPTION_QUEUE_NAME => $failedQueue
 
             ));
 

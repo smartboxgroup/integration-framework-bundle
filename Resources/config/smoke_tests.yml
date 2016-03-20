@@ -1,8 +1,8 @@
 parameters:
-  smartesb.smoke_test.validate_producers.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ValidateProducersSmokeTest
-  smartesb.smoke_test.check_queue_driver_connection.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\QueueDriverConnectionSmokeTest
-  smartesb.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Util\SmokeTest\FilePermissionsSmokeTest
-  smartesb.smoke_test.connectivity_check.class:  Smartbox\Integration\FrameworkBundle\Util\SmokeTest\ConnectivityCheckSmokeTest
+  smartesb.smoke_test.validate_producers.class: Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\ValidateProducersSmokeTest
+  smartesb.smoke_test.check_queue_driver_connection.class: Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\QueueDriverConnectionSmokeTest
+  smartesb.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\FilePermissionsSmokeTest
+  smartesb.smoke_test.connectivity_check.class:  Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\ConnectivityCheckSmokeTest
 
 services:
   ## SMOKE TESTS ##

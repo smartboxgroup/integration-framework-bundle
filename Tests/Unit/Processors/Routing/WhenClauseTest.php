@@ -2,19 +2,19 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing;
 
-use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Processors\Routing\WhenClause;
+use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause;
 
 /**
  * Class WhenClauseTest
  * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Processors\Routing\WhenClause
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause
  */
 class WhenClauseTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Itinerary
+     * @var \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
      */
     private $itinerary;
 
@@ -100,7 +100,7 @@ class WhenClauseTest extends \PHPUnit_Framework_TestCase
      *
      * @dataProvider dataProviderForItinerary
      *
-     * @param Itinerary $itinerary
+     * @param \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary $itinerary
      */
     public function testSetAndGetItinerary(Itinerary $itinerary)
     {

@@ -4,10 +4,9 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional;
 
 
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Processors\Processor;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 abstract class ProcessorTest extends BaseTestCase
 {
