@@ -15,13 +15,13 @@ use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\ProtocolInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
+/**
+ * @JMS\ExclusionPolicy("all")
+ */
 class Endpoint implements EndpointInterface
 {
     use HasInternalType;
 
-    /**
-     * @var array
-     */
     protected $options = null;
 
     /**

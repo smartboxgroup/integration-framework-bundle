@@ -6,7 +6,11 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use JMS\Serializer\Annotation as JMS;
 
+/**
+ * @JMS\ExclusionPolicy("all")
+ */
 class Protocol implements ProtocolInterface {
     /**
      * @JMS\Exclude
