@@ -150,7 +150,7 @@ abstract class AbstractSoapConfigurableConnector extends ConfigurableConnector i
         $output = new SmokeTestOutput();
 
         try {
-            $client = $this->getSoapClient($config);
+            $client = $this->getSoapClient($this->getDefaultOptions());
             if ($client instanceof LazyLoadingInterface) {
                 $client->initializeProxy();
             }
