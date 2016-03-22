@@ -9,8 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 
 /**
- * Class FakeProcessor
- * @package Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors
+ * Class FakeProcessor.
  */
 class FakeProcessor extends Processor
 {
@@ -24,7 +23,7 @@ class FakeProcessor extends Processor
         $this->setId($id);
         $this->exception = $exception;
     }
-    
+
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         if ($this->exception) {
@@ -33,11 +32,11 @@ class FakeProcessor extends Processor
 
         /** @var EntityX $body */
         $body = $exchange->getIn()->getBody();
-        $body->setX($body->getX() . $this->getProcessedMessage());
+        $body->setX($body->getX().$this->getProcessedMessage());
     }
 
     protected function getProcessedMessage()
     {
-        return '|processed by processor with id ' . $this->getId();
+        return '|processed by processor with id '.$this->getId();
     }
 }

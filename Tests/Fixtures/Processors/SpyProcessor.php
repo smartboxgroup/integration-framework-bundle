@@ -2,13 +2,12 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors;
 
-
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
-class SpyProcessor extends Processor{
-
+class SpyProcessor extends Processor
+{
     protected $receivedExchanges = [];
     protected $reached = false;
 
@@ -35,7 +34,8 @@ class SpyProcessor extends Processor{
     }
 
     /**
-     * Check if the processor was reached during the last flow execution
+     * Check if the processor was reached during the last flow execution.
+     *
      * @return bool
      */
     public function wasReached()

@@ -2,16 +2,18 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
-
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 
-trait ExchangeAwareTrait {
-
-    /** @var  \Smartbox\Integration\FrameworkBundle\Core\Exchange */
+/**
+ * Trait ExchangeAwareTrait.
+ */
+trait ExchangeAwareTrait
+{
+    /** @var  Exchange */
     protected $exchange;
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Exchange $exchange
+     * @param Exchange $exchange
      */
     public function setExchange(Exchange $exchange)
     {
@@ -21,7 +23,8 @@ trait ExchangeAwareTrait {
     /**
      * @return Exchange
      */
-    public function getExchange(){
+    public function getExchange()
+    {
         return $this->exchange;
     }
 }

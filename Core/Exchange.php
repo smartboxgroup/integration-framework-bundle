@@ -13,8 +13,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\Traits\HasItinerary;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class Exchange
- * @package Smartbox\Integration\FrameworkBundle\Core\Messages
+ * Class Exchange.
  */
 class Exchange implements SerializableInterface
 {
@@ -38,6 +37,7 @@ class Exchange implements SerializableInterface
     /**
      * @Assert\NotNull
      * @Assert\Valid
+     *
      * @var MessageInterface
      *
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Messages\Message")
@@ -55,7 +55,12 @@ class Exchange implements SerializableInterface
      */
     protected $out;
 
-
+    /**
+     * Exchange constructor.
+     *
+     * @param MessageInterface|null $message
+     * @param Itinerary|null        $itinerary
+     */
     public function __construct(MessageInterface $message = null, Itinerary $itinerary = null)
     {
         $this->setIn($message);
@@ -63,7 +68,9 @@ class Exchange implements SerializableInterface
         $this->itinerary = $itinerary;
     }
 
-
+    /**
+     * @return int
+     */
     public function getId()
     {
         return $this->id;
@@ -75,12 +82,15 @@ class Exchange implements SerializableInterface
     public function getOut()
     {
         if (!$this->out && $this->getIn()) {
-            $this->out = new Message(null,array(),$this->getIn()->getContext());
+            $this->out = new Message(null, array(), $this->getIn()->getContext());
         }
 
         return $this->out;
     }
 
+    /**
+     * @return bool
+     */
     public function hasOut()
     {
         return !empty($this->out);
@@ -118,16 +128,20 @@ class Exchange implements SerializableInterface
         return $this->hasOut() ? $this->getOut() : $this->getIn();
     }
 
-    public function __clone(){
-        if($this->in){
+    /**
+     * Defines the clone behaviour for objects of this class.
+     */
+    public function __clone()
+    {
+        if ($this->in) {
             $this->in = unserialize(serialize($this->in));
         }
 
-        if($this->out){
+        if ($this->out) {
             $this->out = unserialize(serialize($this->out));
         }
 
-        if($this->itinerary){
+        if ($this->itinerary) {
             $this->itinerary = clone $this->itinerary;
         }
     }

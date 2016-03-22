@@ -1,4 +1,5 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
@@ -8,11 +9,10 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
 /**
- * Class QueueConsumer
- *
- * @package Smartbox\Integration\FrameworkBundle\Core\Consumers
+ * Class QueueConsumer.
  */
-class QueueConsumer extends AbstractConsumer implements ConsumerInterface {
+class QueueConsumer extends AbstractConsumer implements ConsumerInterface
+{
     /**
      * {@inheritdoc}
      */
@@ -26,19 +26,20 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface {
         $driver = $this->getQueueDriver($endpoint);
         $driver->connect();
         $driver->subscribe($queuePath);
-
     }
 
     /**
      * @param EndpointInterface $endpoint
+     *
      * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface
      */
-    protected function getQueueDriver(EndpointInterface $endpoint){
+    protected function getQueueDriver(EndpointInterface $endpoint)
+    {
         $options = $endpoint->getOptions();
         $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
         $queueDriver = $this->helper->getQueueDriver($queueDriverName);
 
-        if($queueDriver instanceof QueueDriverInterface){
+        if ($queueDriver instanceof QueueDriverInterface) {
             return $queueDriver;
         }
 
@@ -60,19 +61,21 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface {
     protected function readMessage(EndpointInterface $endpoint)
     {
         $driver = $this->getQueueDriver($endpoint);
+
         return $driver->receive();
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function process(EndpointInterface $queueEndpoint, MessageInterface $message){
+    protected function process(EndpointInterface $queueEndpoint, MessageInterface $message)
+    {
         // If we used a wrapper to queue the message, that the handler doesn't understand, unwrap it
-        if($message instanceof QueueMessageInterface && !($queueEndpoint->getHandler() instanceof QueueMessageHandlerInterface)){
+        if ($message instanceof QueueMessageInterface && !($queueEndpoint->getHandler() instanceof QueueMessageHandlerInterface)) {
             $endpoint = $this->helper->getEndpointFactory()->createEndpoint($message->getDestinationURI());
-            $queueEndpoint->getHandler()->handle($message->getBody(),$endpoint);
-        }else {
-            parent::process($queueEndpoint,$message);
+            $queueEndpoint->getHandler()->handle($message->getBody(), $endpoint);
+        } else {
+            parent::process($queueEndpoint, $message);
         }
     }
 

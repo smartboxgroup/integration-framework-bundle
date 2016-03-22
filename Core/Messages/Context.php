@@ -6,8 +6,7 @@ use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableArray;
 
 /**
- * Class Context
- * @package Smartbox\Integration\FrameworkBundle\Core\Messages
+ * Class Context.
  */
 class Context implements \ArrayAccess
 {
@@ -19,6 +18,7 @@ class Context implements \ArrayAccess
      * @JMS\Type("Smartbox\CoreBundle\Type\SerializableArray")
      * @JMS\Expose
      * @JMS\Groups({"logs"})
+     *
      * @var SerializableArray
      */
     protected $values;
@@ -30,17 +30,18 @@ class Context implements \ArrayAccess
     {
         if ($values instanceof SerializableArray) {
             $this->values = $values;
-        } else if (is_array($values)) {
+        } elseif (is_array($values)) {
             $this->values = new SerializableArray($values);
         } else {
-            throw new \InvalidArgumentException("Invalid value, expected array or SerializableArray");
+            throw new \InvalidArgumentException('Invalid value, expected array or SerializableArray');
         }
     }
 
     /**
-     * Get a value from the context
+     * Get a value from the context.
      *
      * @param string $key
+     *
      * @return mixed
      */
     public function get($key)
@@ -49,7 +50,7 @@ class Context implements \ArrayAccess
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function offsetExists($offset)
     {
@@ -57,7 +58,7 @@ class Context implements \ArrayAccess
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function offsetGet($offset)
     {
@@ -65,23 +66,24 @@ class Context implements \ArrayAccess
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function offsetSet($offset, $value)
     {
-        throw new \Exception("You can not mutate the context once is created");
+        throw new \Exception('You can not mutate the context once is created');
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function offsetUnset($offset)
     {
-        throw new \Exception("You can not mutate the context once is created");
+        throw new \Exception('You can not mutate the context once is created');
     }
 
     /**
-     * Convert the context to an associative array
+     * Convert the context to an associative array.
+     *
      * @return array
      */
     public function toArray()

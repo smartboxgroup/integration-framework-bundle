@@ -8,9 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Class SmokeTestConnectivityCompilerPass
- *
- * @package Smartbox\Integration\FrameworkBundle\DependencyInjection
+ * Class SmokeTestConnectivityCompilerPass.
  */
 class SmokeTestConnectivityCompilerPass implements CompilerPassInterface
 {

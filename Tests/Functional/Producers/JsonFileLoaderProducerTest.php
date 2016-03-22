@@ -14,7 +14,8 @@ class JsonFileLoaderProducerTest extends BaseTestCase
     /** @var  JsonFileLoaderProducer */
     protected $producer;
 
-    public function setUp(){
+    public function setUp()
+    {
         parent::setUp();
         $this->producer = new \Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader\JsonFileLoaderProducer();
         $this->producer->setSerializer(self::getContainer()->get('serializer'));
@@ -27,10 +28,10 @@ class JsonFileLoaderProducerTest extends BaseTestCase
 
         $opts = [
             JsonFileLoaderProducer::OPTION_BASE_PATH => $pathFixtures,
-            JsonFileLoaderProducer::OPTION_FILENAME => 'entity_x.json'
+            JsonFileLoaderProducer::OPTION_FILENAME => 'entity_x.json',
         ];
 
-        $this->producer->send($exchange,new Endpoint("xxx",$opts,new JsonFileLoaderProtocol()));
+        $this->producer->send($exchange, new Endpoint('xxx', $opts, new JsonFileLoaderProtocol()));
 
         $sample = new EntityX();
         $sample->setAPIVersion('v1');

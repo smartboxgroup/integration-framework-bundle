@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
-use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -13,8 +12,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializ
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
- * Class QueueProducer
- * @package Smartbox\Integration\FrameworkBundle\Core\Producers
+ * Class QueueProducer.
  */
 class QueueProducer extends Producer
 {
@@ -22,11 +20,11 @@ class QueueProducer extends Producer
     use UsesDriverRegistry;
 
     protected $headersToPropagate = array(
-        Message::HEADER_EXPIRES
+        Message::HEADER_EXPIRES,
     );
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function send(Exchange $ex, EndpointInterface $endpoint)
     {
@@ -44,7 +42,7 @@ class QueueProducer extends Producer
             );
         }
 
-        if(!($queueDriver instanceof QueueDriverInterface)){
+        if (!($queueDriver instanceof QueueDriverInterface)) {
             throw new \RuntimeException("Found queue driver with name '$queueDriverName' that doesn't implement QueueDriverInterface");
         }
 

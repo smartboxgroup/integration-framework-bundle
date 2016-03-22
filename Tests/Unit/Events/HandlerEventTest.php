@@ -6,8 +6,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 
 /**
- * Class HandlerEventTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Event
+ * Class HandlerEventTest.
  */
 class HandlerEventTest extends \PHPUnit_Framework_TestCase
 {

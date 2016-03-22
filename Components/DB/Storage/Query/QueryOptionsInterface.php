@@ -3,8 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query;
 
 /**
- * Interface QueryOptionsInterface
- * @package Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query
+ * Interface QueryOptionsInterface.
  */
 interface QueryOptionsInterface
 {

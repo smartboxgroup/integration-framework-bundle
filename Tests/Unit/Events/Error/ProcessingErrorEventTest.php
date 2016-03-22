@@ -7,8 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class ProcessingErrorEventTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Events\Error
+ * Class ProcessingErrorEventTest.
  */
 class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
 {
@@ -65,5 +64,4 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
         $this->event->setRequestStack($requestStack);
         $this->assertEquals($requestStack, $this->event->getRequestStack());
     }
-
 }

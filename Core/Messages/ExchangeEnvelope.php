@@ -8,8 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class ExchangeEnvelope
- * @package Smartbox\Integration\FrameworkBundle\Core\Messages
+ * Class ExchangeEnvelope.
  */
 class ExchangeEnvelope extends Message
 {
@@ -18,10 +17,14 @@ class ExchangeEnvelope extends Message
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Exchange")
      * @JMS\Expose
      * @JMS\Groups({"body"})
+     *
      * @var Exchange
      */
     protected $body;
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct(Exchange $exchange)
     {
         parent::__construct($exchange, array(), $exchange->getIn()->getContext());
@@ -38,17 +41,20 @@ class ExchangeEnvelope extends Message
     /**
      * @return Exchange
      */
-    public function getExchange(){
+    public function getExchange()
+    {
         return $this->body;
     }
 
     /**
-     * @param Exchange $exchange
+     * @param SerializableInterface|Exchange $exchange
      */
     public function setBody(SerializableInterface $exchange = null)
     {
         if (!$exchange instanceof Exchange) {
-            throw new \InvalidArgumentException("The ExchangeEnvelope is a specialized message that requires an Exchange as body");
+            throw new \InvalidArgumentException(
+                'The ExchangeEnvelope is a specialized message that requires an Exchange as body'
+            );
         }
 
         $this->body = $exchange;

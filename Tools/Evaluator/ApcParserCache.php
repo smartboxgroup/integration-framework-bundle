@@ -5,13 +5,15 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\Evaluator;
 use Symfony\Component\ExpressionLanguage\ParsedExpression;
 use Symfony\Component\ExpressionLanguage\ParserCache\ParserCacheInterface;
 
+/**
+ * Class ApcParserCache
+ */
 class ApcParserCache implements ParserCacheInterface
 {
-
     /**
      * Saves an expression in the cache.
      *
-     * @param string $key The cache key
+     * @param string           $key        The cache key
      * @param ParsedExpression $expression A ParsedExpression instance to store in the cache
      */
     public function save($key, ParsedExpression $expression)
@@ -30,7 +32,7 @@ class ApcParserCache implements ParserCacheInterface
     {
         $cached = apc_fetch($key);
         if (!$cached) {
-            return null;
+            return;
         }
 
         return $cached;

@@ -17,6 +17,7 @@ class FakeSoapClient extends SoapClient
     {
         $this->checkInitialisation();
         $this->actionName = $function_name;
+
         return parent::__soapCall($function_name, $arguments);
     }
 
@@ -27,6 +28,7 @@ class FakeSoapClient extends SoapClient
     {
         $this->checkInitialisation();
         $this->actionName = $function_name;
+
         return parent::__soapCall($function_name, $arguments, $options, $input_headers, $output_headers);
     }
 
@@ -37,7 +39,7 @@ class FakeSoapClient extends SoapClient
     {
         $this->checkInitialisation();
 
-        $actionName = md5($location) . '_' . $this->actionName;
+        $actionName = md5($location).'_'.$this->actionName;
 
         try {
             $response = $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);

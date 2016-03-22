@@ -8,14 +8,13 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 /**
- * Class ProcessEvent
- * @package Smartbox\Integration\FrameworkBundle\Events
+ * Class ProcessEvent.
  */
 class ProcessEvent extends Event
 {
     /** Event type constants */
-    const TYPE_BEFORE = "smartesb.process.before_process";
-    const TYPE_AFTER = "smartesb.process.after_process";
+    const TYPE_BEFORE = 'smartesb.process.before_process';
+    const TYPE_AFTER = 'smartesb.process.after_process';
 
     /**
      * @var Processor
@@ -94,6 +93,6 @@ class ProcessEvent extends Event
      */
     public function getHash()
     {
-        return sha1($this->processor->getId()."_".$this->exchange->getId().'_'.$this->type);
+        return sha1($this->processor->getId().'_'.$this->exchange->getId().'_'.$this->type);
     }
 }

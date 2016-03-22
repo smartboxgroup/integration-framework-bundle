@@ -5,11 +5,8 @@ namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Except
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterface;
 
 /**
- * Class UnrecoverableRestException
- *
- * @package \Smartbox\Integration\FrameworkBundle\Exceptions
+ * Class UnrecoverableRestException.
  */
 class UnrecoverableRestException extends RestException implements RecoverableExceptionInterface
 {
-
 }

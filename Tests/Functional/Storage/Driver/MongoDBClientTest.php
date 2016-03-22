@@ -13,8 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class MongoDBClientTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Storage\Driver
+ * Class MongoDBClientTest.
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBClient
  */
@@ -65,6 +64,7 @@ class MongoDBClientTest extends KernelTestCase
 
     /**
      * @dataProvider dataProviderForStorageDriverCorrectConfiguration
+     *
      * @param array $configuration
      *
      * @covers ::configure
@@ -101,6 +101,7 @@ class MongoDBClientTest extends KernelTestCase
 
     /**
      * @dataProvider dataProviderForStorageDriverIncorrectConfiguration
+     *
      * @param array $configuration
      *
      * @covers ::configure
@@ -122,10 +123,10 @@ class MongoDBClientTest extends KernelTestCase
     {
         $dataSets = [];
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 5; ++$i) {
             $object = new FakeEvent();
             $object->setTimestamp(new \DateTime());
-            $object->setName('test_' . $i);
+            $object->setName('test_'.$i);
             $dataSets[] = [$object];
         }
 

@@ -4,9 +4,11 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Processors;
 
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 
+/**
+ * Interface ProcessorInterface.
+ */
 interface ProcessorInterface
 {
-
     /**
      * @return string
      */
@@ -24,7 +26,9 @@ interface ProcessorInterface
 
     /**
      * @param Exchange $exchange
+     *
      * @return bool
+     *
      * @throws \Exception
      */
     public function process(Exchange $exchange);

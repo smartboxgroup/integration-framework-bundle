@@ -4,11 +4,9 @@ namespace Smartbox\Integration\FrameworkBundle\Tests;
 
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\Entity;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class EntityX extends Entity
 {
-
     public function __construct($x = 0)
     {
         $this->x = $x;

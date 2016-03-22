@@ -23,8 +23,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class AsyncHandlerTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers
+ * Class AsyncHandlerTest.
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Handlers\AsyncHandler
  */
@@ -79,15 +78,15 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->with($from)
         ->willReturn(array(
-            InternalRouter::KEY_ITINERARY => $itinerary
+            InternalRouter::KEY_ITINERARY => $itinerary,
         ));
 
         $this->handler->setItinerariesRouter($itinerariesRouterMock);
 
         /** @var Exchange $exchangeProcessedManually */
-        $exchangeProcessedManually =  new Exchange(unserialize(serialize($message)));
+        $exchangeProcessedManually = new Exchange(unserialize(serialize($message)));
         $exchangeProcessedManually->setItinerary(new Itinerary());
-        for ($i = 1; $i <= $numberOfProcessors ; $i++) {
+        for ($i = 1; $i <= $numberOfProcessors; ++$i) {
             $processor = new FakeProcessor($i);
             $processor->setEventDispatcher($this->eventDispatcherMock);
             $processor->process($exchangeProcessedManually);
@@ -96,7 +95,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         }
 
         $arr = [];
-        $endpoint = new Endpoint($from,$arr,new Protocol(),null,null,$this->handler);
+        $endpoint = new Endpoint($from, $arr, new Protocol(), null, null, $this->handler);
         $result = $endpoint->handle($message);
 
         $this->assertEquals($exchangeProcessedManually->getResult(), $result);
@@ -105,12 +104,11 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::handle
      * @dataProvider dataProviderForNumberOfProcessors
-     *
      */
     public function testHandleWithWrongVersionMustFail()
     {
         $message = $this->factory->createMessage(new EntityX(2));
-        $from = "direct://test";
+        $from = 'direct://test';
         $itinerary = new Itinerary();
 
         $itinerariesRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
@@ -119,7 +117,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->with($from)
             ->willReturn(array(
-                InternalRouter::KEY_ITINERARY => $itinerary
+                InternalRouter::KEY_ITINERARY => $itinerary,
             ));
 
         $this->handler->setItinerariesRouter($itinerariesRouterMock);
@@ -127,9 +125,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException(HandlerException::class);
 
         $arr = [];
-        $endpoint = new Endpoint($from,$arr,new Protocol());
+        $endpoint = new Endpoint($from, $arr, new Protocol());
 
-        $this->handler->handle($message,$endpoint);
+        $this->handler->handle($message, $endpoint);
     }
 
     /**
@@ -150,7 +148,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->method('match')
             ->with($fromURI)
             ->willReturn(array(
-                InternalRouter::KEY_ITINERARY => $itinerary
+                InternalRouter::KEY_ITINERARY => $itinerary,
             ));
 
         $failedQueueDriver = new ArrayQueueDriver();
@@ -174,10 +172,10 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $failedEndpointOptions = $optionsResolver->resolve([
                 QueueProtocol::OPTION_QUEUE_DRIVER => 'array_queue_driver',
                 QueueProtocol::OPTION_QUEUE_NAME => $failedQueue,
-                QueueProtocol::OPTION_PREFIX => ''
+                QueueProtocol::OPTION_PREFIX => '',
         ]);
 
-        $failedUriEndpoint = new Endpoint($failedUri,$failedEndpointOptions,$queueProtocol,$failedProducer);
+        $failedUriEndpoint = new Endpoint($failedUri, $failedEndpointOptions, $queueProtocol, $failedProducer);
 
         $endpointFactoryMock = $this->getMock(EndpointFactory::class);
         $endpointFactoryMock
@@ -218,7 +216,6 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
                     return $eventObject;
                 }
             ));
-        ;
 
         // --------------------
         // processor 3: success
@@ -228,12 +225,12 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $itinerary->addProcessor($processor3);
 
         $arr = [];
-        $endpoint = new Endpoint($fromURI,$arr,new Protocol());
+        $endpoint = new Endpoint($fromURI, $arr, new Protocol());
 
         $result = $this->handler->handle($message, $endpoint);
 
         $this->assertNull($result);
-        $this->assertCount(1,$dispatchedErrors);
-        $this->assertCount(1,$failedQueueDriver->getArrayForQueue($failedQueue));
+        $this->assertCount(1, $dispatchedErrors);
+        $this->assertCount(1, $failedQueueDriver->getArrayForQueue($failedQueue));
     }
 }

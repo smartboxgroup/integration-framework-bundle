@@ -5,8 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Event;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
 
 /**
- * Class EventTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Event
+ * Class EventTest.
  */
 class EventTest extends \PHPUnit_Framework_TestCase
 {

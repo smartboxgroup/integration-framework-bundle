@@ -8,8 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 
 /**
- * Class Transformer
- * @package Smartbox\Integration\FrameworkBundle\Core\Processors\Transformation
+ * Class Transformer.
  */
 class Transformer extends Processor
 {
@@ -29,7 +28,9 @@ class Transformer extends Processor
     }
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Exchange $exchange
+     * @param Exchange          $exchange
+     * @param SerializableArray $processingContext
+     *
      * @return bool
      */
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
@@ -40,7 +41,7 @@ class Transformer extends Processor
             $evaluator->evaluateWithExchange($this->expression, $exchange);
         } catch (\Exception $e) {
             throw new \InvalidArgumentException(
-                'Transformer could not evaluate expression: "' . $this->expression . '". ' . $e->getMessage(),
+                'Transformer could not evaluate expression: "'.$this->expression.'". '.$e->getMessage(),
                 $e->getCode(),
                 $e
             );

@@ -1,11 +1,12 @@
 <?php
-namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
+namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 
-interface QueueDriverInterface extends SerializableInterface {
+interface QueueDriverInterface extends SerializableInterface
+{
     const FORMAT_JSON = 'json';
     const FORMAT_XML = 'xml';
     const DEFAULT_TTL = 86400;
@@ -16,7 +17,7 @@ interface QueueDriverInterface extends SerializableInterface {
     const HEADER_PRIORITY = 'priority';
 
     /**
-     * Configures the driver
+     * Configures the driver.
      *
      * @param $host
      * @param string $username Username to connect to the queuing system
@@ -26,37 +27,38 @@ interface QueueDriverInterface extends SerializableInterface {
     public function configure($host, $username, $password, $format = self::FORMAT_JSON);
 
     /**
-     * Opens a connection with a queuing system
+     * Opens a connection with a queuing system.
      */
     public function connect();
 
     /**
-     * Destroys the connection with the queuing system
+     * Destroys the connection with the queuing system.
      */
     public function disconnect();
 
     /**
-     * Returns true if a connection already exists with the queing system, false otherwise
-     * @return boolean
+     * Returns true if a connection already exists with the queing system, false otherwise.
+     *
+     * @return bool
      */
     public function isConnected();
 
     /**
-     * Returns true if a subscription already exists, false otherwise
-     * @return boolean
+     * Returns true if a subscription already exists, false otherwise.
+     *
+     * @return bool
      */
     public function isSubscribed();
 
     /**
-     * Creates a subscription to the given $queue, allowing to receive messages from it
+     * Creates a subscription to the given $queue, allowing to receive messages from it.
      *
-     * @param string $queue             Queue to subscribe
-     *
+     * @param string $queue Queue to subscribe
      */
     public function subscribe($queue);
 
     /**
-     * Destroys the created subscription with a queue
+     * Destroys the created subscription with a queue.
      */
     public function unSubscribe();
 
@@ -67,9 +69,8 @@ interface QueueDriverInterface extends SerializableInterface {
      */
     public function ack();
 
-
     /**
-     * Acknowledges a failure on processing the last received object
+     * Acknowledges a failure on processing the last received object.
      *
      * The object could be moved to the DLQ or be delivered to another subscription for retrial
      */
@@ -77,17 +78,18 @@ interface QueueDriverInterface extends SerializableInterface {
 
     /**
      * @param \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface $message
-     * @return boolean
+     *
+     * @return bool
      */
     public function send(QueueMessageInterface $message);
 
-
     /**
-     * Returns One Serializable object from the queue
+     * Returns One Serializable object from the queue.
      *
      * It requires to subscribe previously to a specific queue
      *
      * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface|null
+     *
      * @throws \Exception
      */
     public function receive();
@@ -98,7 +100,7 @@ interface QueueDriverInterface extends SerializableInterface {
     public function createQueueMessage();
 
     /**
-     * Clean all the opened resources, must be called just before terminating the current request
+     * Clean all the opened resources, must be called just before terminating the current request.
      */
     public function doDestroy();
 }

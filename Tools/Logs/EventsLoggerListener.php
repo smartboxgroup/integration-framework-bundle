@@ -11,8 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class EventsLoggerListener
- * @package Smartbox\Integration\FrameworkBundle\EventListener
+ * Class EventsLoggerListener.
  */
 class EventsLoggerListener
 {
@@ -30,11 +29,11 @@ class EventsLoggerListener
     protected $logLevel;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param LoggerInterface $logger
-     * @param RequestStack $requestStack
-     * @param string $logLevel
+     * @param RequestStack    $requestStack
+     * @param string          $logLevel
      */
     public function __construct(LoggerInterface $logger, RequestStack $requestStack, $logLevel = LogLevel::DEBUG)
     {
@@ -48,9 +47,9 @@ class EventsLoggerListener
      */
     public function onEvent(Event $event)
     {
-        if($event instanceof ProcessingErrorEvent){
+        if ($event instanceof ProcessingErrorEvent) {
             $event->setRequestStack($this->requestStack);
-            $message = 'Exception: ' . $event->getException()->getMessage();
+            $message = 'Exception: '.$event->getException()->getMessage();
         } else {
             $message = sprintf('Event "%s" occurred', $event->getEventName());
         }
@@ -74,7 +73,7 @@ class EventsLoggerListener
             $context['exchange'] = [
                 'id' => $contextExchangeDetails->getId(),
                 'uri' => $contextExchangeDetails->getHeader('from'),
-                'type' => ($contextExchangeDetails->getHeader('async') === true)? 'async' : 'sync',
+                'type' => ($contextExchangeDetails->getHeader('async') === true) ? 'async' : 'sync',
             ];
         }
 
@@ -85,7 +84,7 @@ class EventsLoggerListener
             }
         }
 
-        if($event instanceof ProcessingErrorEvent){
+        if ($event instanceof ProcessingErrorEvent) {
             $context['exception'] = $event->getException();
         }
 

@@ -2,15 +2,12 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions;
 
-use Exception;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 
 /**
- * Class SoapException
- *
- * @package \Smartbox\Integration\FrameworkBundle\Exceptions
+ * Class SoapException.
  */
 class SoapException extends \Exception implements SerializableInterface
 {
@@ -95,6 +92,7 @@ class SoapException extends \Exception implements SerializableInterface
     public function setRequestHeaders($requestHeaders)
     {
         $this->requestHeaders = $requestHeaders;
+
         return $this;
     }
 
@@ -114,6 +112,7 @@ class SoapException extends \Exception implements SerializableInterface
     public function setRequest($request)
     {
         $this->request = $request;
+
         return $this;
     }
 
@@ -133,6 +132,7 @@ class SoapException extends \Exception implements SerializableInterface
     public function setResponseHeaders($responseHeaders)
     {
         $this->responseHeaders = $responseHeaders;
+
         return $this;
     }
 
@@ -152,6 +152,7 @@ class SoapException extends \Exception implements SerializableInterface
     public function setResponse($response)
     {
         $this->response = $response;
+
         return $this;
     }
 }

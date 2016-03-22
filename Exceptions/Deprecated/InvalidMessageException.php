@@ -1,14 +1,15 @@
 <?php
 
-
 namespace Smartbox\Integration\FrameworkBundle\Exceptions\Deprecated;
 
-use Exception;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\ExchangeAwareInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
+/**
+ * Class InvalidMessageException.
+ */
 class InvalidMessageException extends \Exception implements ExchangeAwareInterface
 {
     const ERROR_CODE = 701;
@@ -37,19 +38,31 @@ class InvalidMessageException extends \Exception implements ExchangeAwareInterfa
         $this->invalidMessage = $invalidMessage;
     }
 
-    public function __construct($message = "", MessageInterface $invalidMessage = null, ConstraintViolationListInterface $errors = null)
-    {
+    /**
+     * InvalidMessageException constructor.
+     *
+     * @param string                                $message
+     * @param MessageInterface|null                 $invalidMessage
+     * @param ConstraintViolationListInterface|null $errors
+     */
+    public function __construct(
+        $message = '',
+        MessageInterface $invalidMessage = null,
+        ConstraintViolationListInterface $errors = null
+    ) {
         $this->invalidMessage = $invalidMessage;
         $this->errors = $errors;
         parent::__construct($message, self::ERROR_CODE);
     }
 
-    public function setErrors(ConstraintViolationListInterface $errors){
+    public function setErrors(ConstraintViolationListInterface $errors)
+    {
         $this->errors = $errors;
     }
 
     /**
      * @param \Smartbox\Integration\FrameworkBundle\Core\Exchange $exchange
+     *
      * @return mixed
      */
     public function setExchange(Exchange $exchange)
@@ -61,7 +74,8 @@ class InvalidMessageException extends \Exception implements ExchangeAwareInterfa
     /**
      * @return \Smartbox\Integration\FrameworkBundle\Core\Exchange
      */
-    public function getExchange(){
+    public function getExchange()
+    {
         return $this->exchange;
     }
 }

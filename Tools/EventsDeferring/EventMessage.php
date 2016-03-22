@@ -9,8 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class EventMessage
- * @package Smartbox\Integration\FrameworkBundle\Core\Messages
+ * Class EventMessage.
  */
 class EventMessage extends Message
 {
@@ -21,6 +20,7 @@ class EventMessage extends Message
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Events\Event")
      * @JMS\Groups({"logs"})
      * @JMS\Expose
+     *
      * @var Event
      */
     protected $body;
@@ -28,24 +28,24 @@ class EventMessage extends Message
     /**
      * @return Event
      */
-    public function getBody(){
+    public function getBody()
+    {
         return $this->body;
     }
 
     /**
-     * @param Event $event
+     * @param SerializableInterface $event
      */
     public function setBody(SerializableInterface $event = null)
     {
         if (!$event instanceof Event) {
-            throw new \InvalidArgumentException("Expected Event as parameter");
+            throw new \InvalidArgumentException('Expected Event as parameter');
         }
 
-        if($event->getEventName()){
-            $this->addHeader(self::HEADER_EVENT_NAME,$event->getEventName());
+        if ($event->getEventName()) {
+            $this->addHeader(self::HEADER_EVENT_NAME, $event->getEventName());
         }
 
         $this->body = $event;
     }
-
 }

@@ -5,12 +5,11 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 
 /**
- * Class UsesDriverRegistry
- * @package Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits
+ * Trait UsesDriverRegistry.
  */
 trait UsesDriverRegistry
 {
-    /** @var \Smartbox\Integration\FrameworkBundle\Core\\Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry */
+    /** @var DriverRegistry */
     protected $driverRegistry;
 
     /**
@@ -22,7 +21,7 @@ trait UsesDriverRegistry
     }
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry $driverRegistry
+     * @param DriverRegistry $driverRegistry
      */
     public function setDriverRegistry(DriverRegistry $driverRegistry)
     {

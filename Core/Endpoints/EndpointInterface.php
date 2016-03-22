@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
-
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -11,20 +10,31 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\ProtocolInterface;
 
-interface EndpointInterface extends SerializableInterface{
-
+/**
+ * Interface EndpointInterface
+ */
+interface EndpointInterface extends SerializableInterface
+{
     /**
      * @param $resolvedUri
-     * @param array $resolvedOptions
+     * @param array             $resolvedOptions
      * @param ProtocolInterface $protocol
      * @param ProducerInterface $producer
      * @param ConsumerInterface $consumer
-     * @param HandlerInterface $handler
+     * @param HandlerInterface  $handler
      */
-    public function __construct($resolvedUri, array &$resolvedOptions, ProtocolInterface $protocol, ProducerInterface $producer = null, ConsumerInterface $consumer = null, HandlerInterface $handler = null);
+    public function __construct(
+        $resolvedUri,
+        array &$resolvedOptions,
+        ProtocolInterface $protocol,
+        ProducerInterface $producer = null,
+        ConsumerInterface $consumer = null,
+        HandlerInterface $handler = null
+    );
 
     /**
-     * Returns the resolved URI
+     * Returns the resolved URI.
+     *
      * @return string
      */
     public function getURI();
@@ -50,18 +60,20 @@ interface EndpointInterface extends SerializableInterface{
     public function getProducer();
 
     /**
-     * Consumes $maxAmount of messages, if $maxAmount is 0, then it consumes indefinitely in a loop
+     * Consumes $maxAmount of messages, if $maxAmount is 0, then it consumes indefinitely in a loop.
+     *
      * @param int $maxAmount
      */
     public function consume($maxAmount = 0);
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function produce(Exchange $exchange);
 
     /**
      * @param MessageInterface $message
+     *
      * @return MessageInterface
      */
     public function handle(MessageInterface $message);
@@ -73,6 +85,7 @@ interface EndpointInterface extends SerializableInterface{
 
     /**
      * @param string $optionName
+     *
      * @return mixed
      */
     public function getOption($optionName);
@@ -91,5 +104,4 @@ interface EndpointInterface extends SerializableInterface{
      * @return bool
      */
     public function shouldTrack();
-
 }

@@ -6,8 +6,7 @@ use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableArray;
 
 /**
- * Trait HasProcessingContext
- * @package Smartbox\Integration\FrameworkBundle\Core\Messages\Traits
+ * Trait HasProcessingContext.
  */
 trait HasProcessingContext
 {

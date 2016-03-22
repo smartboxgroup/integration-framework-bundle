@@ -7,8 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Class EventDeferringCompilerPass
- * @package Smartbox\Integration\FrameworkBundle\DependencyInjection
+ * Class EventDeferringCompilerPass.
  */
 class EventDeferringCompilerPass implements CompilerPassInterface
 {
@@ -26,8 +25,8 @@ class EventDeferringCompilerPass implements CompilerPassInterface
         $filters = $container->findTaggedServiceIds(self::TAG_EVENTS_FILTER);
         $filtersRepoDef = $container->getDefinition('smartesb.registry.event_filters');
 
-        foreach($filters as $serviceName => $tags){
-            $filtersRepoDef->addMethodCall('addDeferringFilter',array(new Reference($serviceName)));
+        foreach ($filters as $serviceName => $tags) {
+            $filtersRepoDef->addMethodCall('addDeferringFilter', array(new Reference($serviceName)));
         }
     }
 }

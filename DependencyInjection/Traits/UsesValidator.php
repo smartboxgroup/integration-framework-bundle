@@ -1,12 +1,14 @@
 <?php
-namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
+namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * Trait UsesValidator.
+ */
 trait UsesValidator
 {
-
     /** @var  ValidatorInterface */
     protected $validator;
 

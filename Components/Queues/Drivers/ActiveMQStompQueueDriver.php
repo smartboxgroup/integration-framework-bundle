@@ -17,10 +17,10 @@ use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 
 /**
- * Class ActiveMQStompQueueDriver
- * @package Smartbox\Integration\FrameworkBundle\Drivers\Queue
+ * Class ActiveMQStompQueueDriver.
  */
-class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
+class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
+{
     use UsesSerializer;
 
     const READ_TIMEOUT = 2;
@@ -158,8 +158,9 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
         $this->format = $format;
     }
 
-    /** {@inheritDoc} */
-    public function configure($host, $username, $password,$format = QueueDriverInterface::FORMAT_JSON, $port = self::DEFAULT_PORT , $version = 1.1){
+    /** {@inheritdoc} */
+    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $port = self::DEFAULT_PORT, $version = 1.1)
+    {
         $this->format = $format;
         $this->host = $host;
         $this->port = $port;
@@ -178,7 +179,8 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
      * @param int $seconds
      * @param int $milliseconds
      */
-    public function setReadTimeout($seconds, $milliseconds = 0){
+    public function setReadTimeout($seconds, $milliseconds = 0)
+    {
         if (!$this->readConnection) {
             throw new \RuntimeException('You must connect and subscribe before setting the timeout.');
         }
@@ -187,7 +189,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
     }
 
     /**
-     * Connect read socket
+     * Connect read socket.
      *
      * @throws \CentralDesktop\Stomp\Exception
      */
@@ -200,14 +202,14 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
             $this->readConnection->setBufferSize(self::BUFFER_SIZE);
             $connectionOK = $this->readConnection->connect($this->username, $this->pass, $this->stompVersion);
 
-            if(!$connectionOK){
-                throw new \RuntimeException("Could not connect to ActiveMQ in host: ". $this->host.", port: ".$this->port);
+            if (!$connectionOK) {
+                throw new \RuntimeException('Could not connect to ActiveMQ in host: '.$this->host.', port: '.$this->port);
             }
         }
     }
 
     /**
-     * Connect write socket
+     * Connect write socket.
      *
      * @throws \CentralDesktop\Stomp\Exception
      */
@@ -219,14 +221,14 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
             $this->writeConnection->setBufferSize(self::BUFFER_SIZE);
             $connectionOK = $this->writeConnection->connect($this->username, $this->pass, $this->stompVersion);
 
-            if(!$connectionOK){
-                throw new \RuntimeException("Could not connect to ActiveMQ in host: ". $this->host.", port: ".$this->port);
+            if (!$connectionOK) {
+                throw new \RuntimeException('Could not connect to ActiveMQ in host: '.$this->host.', port: '.$this->port);
             }
         }
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function connect()
     {
@@ -236,7 +238,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isConnected()
     {
@@ -255,7 +257,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
 
     protected function disconnectRead()
     {
-        if($this->isReadConnected()) {
+        if ($this->isReadConnected()) {
             $this->readConnection->disconnect();
         }
         $this->readConnection = null;
@@ -263,7 +265,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
 
     protected function disconnectWrite()
     {
-        if($this->isWriteConnected()) {
+        if ($this->isWriteConnected()) {
             $this->writeConnection->disconnect();
         }
         $this->subscriptionId = null;
@@ -273,11 +275,11 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function disconnect()
     {
-        if($this->isWriteConnected()) {
+        if ($this->isWriteConnected()) {
             $this->disconnectWrite();
         }
     }
@@ -287,7 +289,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
         return $this->isReadConnected() && $this->subscriptionId;
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function subscribe($queue, $selector = null, $prefetchSize = 1)
     {
         if (!is_numeric($prefetchSize) || $prefetchSize < 0) {
@@ -295,7 +297,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
         }
 
         if ($this->subscriptionId) {
-            throw new \RuntimeException("ActiveMQStompQueueDriver: A subscription already exists in the current connection");
+            throw new \RuntimeException('ActiveMQStompQueueDriver: A subscription already exists in the current connection');
         }
 
         $this->connectRead();
@@ -304,7 +306,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
         $this->subscribedQueue = $queue;
 
         $properties = array(
-            'id' => $this->subscriptionId
+            'id' => $this->subscriptionId,
         );
 
         if ($selector) {
@@ -316,13 +318,13 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function unSubscribe()
     {
         if ($this->isSubscribed()) {
             $properties = array(
-                'id' => $this->subscriptionId
+                'id' => $this->subscriptionId,
             );
             $this->readConnection->readFrame();
             $this->readConnection->unsubscribe($this->subscribedQueue, $properties);
@@ -332,7 +334,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
         }
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function send(QueueMessageInterface $message)
     {
         $this->checkConnection();
@@ -342,21 +344,21 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
         return $this->writeConnection->send($message->getQueue(), new Bytes($serializedMsg, $message->getHeaders()), null, true);
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function receive()
     {
         $this->checkSubscription();
 
         if ($this->currentFrame) {
             throw new \RuntimeException(
-                "ActiveMQStompQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages."
+                'ActiveMQStompQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages.'
             );
         }
 
         $this->currentFrame = $this->readConnection->readFrame();
 
         // If we got frames of an old subscription, ignore them
-        while($this->currentFrame && $this->currentFrame->headers['subscription'] != $this->subscriptionId){
+        while ($this->currentFrame && $this->currentFrame->headers['subscription'] != $this->subscriptionId) {
             $this->currentFrame = $this->readConnection->readFrame();
         }
 
@@ -375,55 +377,58 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
             /** @var QueueMessageInterface $msg */
             $msg = $this->getSerializer()->deserialize($this->currentFrame->body, SerializableInterface::class, $this->format, $deserializationContext);
 
-            foreach($this->currentFrame->headers as $header => $value){
-                $msg->setHeader($header,$this->unescape($value));
+            foreach ($this->currentFrame->headers as $header => $value) {
+                $msg->setHeader($header, $this->unescape($value));
             }
         }
 
         return $msg;
     }
 
-    private function unescape($string){
-        return str_replace(['\r','\n','\c','\\\\'],["\r","\n",":",'\\'],$string);
+    private function unescape($string)
+    {
+        return str_replace(['\r', '\n', '\c', '\\\\'], ["\r", "\n", ':', '\\'], $string);
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function ack()
     {
         $this->checkSubscription();
 
-        if(!$this->currentFrame){
-            throw new \RuntimeException("You must first receive a message, before acknowledging it");
+        if (!$this->currentFrame) {
+            throw new \RuntimeException('You must first receive a message, before acknowledging it');
         }
 
         $this->readConnection->ack($this->currentFrame);
         $this->currentFrame = null;
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function nack()
     {
         $this->checkSubscription();
 
-        if(!$this->currentFrame){
-            throw new \RuntimeException("You must first receive a message, before nacking it");
+        if (!$this->currentFrame) {
+            throw new \RuntimeException('You must first receive a message, before nacking it');
         }
 
         $this->readConnection->nack($this->currentFrame);
         $this->currentFrame = null;
     }
 
-    protected function checkConnection(){
-        if(!$this->isConnected()){
-            throw new \RuntimeException("ActiveMQStompQueueDriver: A connection must be opened before sending data");
+    protected function checkConnection()
+    {
+        if (!$this->isConnected()) {
+            throw new \RuntimeException('ActiveMQStompQueueDriver: A connection must be opened before sending data');
         }
     }
 
-    protected function checkSubscription(){
+    protected function checkSubscription()
+    {
         $this->checkConnection();
 
-        if(!$this->isSubscribed()){
-            throw new \RuntimeException("ActiveMQStompQueueDriver: A subscription must be established before performing this operation");
+        if (!$this->isSubscribed()) {
+            throw new \RuntimeException('ActiveMQStompQueueDriver: A subscription must be established before performing this operation');
         }
     }
 
@@ -432,10 +437,10 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
         $msg = new QueueMessage();
         $msg->setContext(new Context([Context::VERSION => $this->getFlowsVersion()]));
 
-        /**
+        /*
          * By default, messages created with this driver would be sent to the subscribed queue
          */
-        if($this->subscribedQueue){
+        if ($this->subscribedQueue) {
             $msg->setQueue($this->subscribedQueue);
         }
 
@@ -443,7 +448,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function doDestroy()
     {
@@ -452,7 +457,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
     }
 
     /**
-     * Close the opened connections on kernel terminate
+     * Close the opened connections on kernel terminate.
      *
      * @param PostResponseEvent $event
      */
@@ -462,7 +467,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface {
     }
 
     /**
-     * Calls the doDestroy method on console.terminate event
+     * Calls the doDestroy method on console.terminate event.
      *
      * @param ConsoleTerminateEvent $event
      */

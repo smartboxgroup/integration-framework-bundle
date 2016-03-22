@@ -2,12 +2,13 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
-
 use JMS\Serializer\SerializerInterface;
 
+/**
+ * Trait UsesSerializer.
+ */
 trait UsesSerializer
 {
-
     /** @var  SerializerInterface */
     protected $serializer;
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Tools\Evaluator;
 
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -6,6 +7,9 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesMapper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
+/**
+ * Class ExpressionEvaluator
+ */
 class ExpressionEvaluator
 {
     use UsesSerializer;
@@ -21,7 +25,8 @@ class ExpressionEvaluator
         // Register any providers here
     }
 
-    public function getExchangeExposedVars(){
+    public function getExchangeExposedVars()
+    {
         return array(
             'exchange',
             'msg',
@@ -29,15 +34,15 @@ class ExpressionEvaluator
             'body',
             'serializer',
             'mapper',
-            'now'
+            'now',
         );
     }
 
     public function evaluateWithVars($expression, $vars)
     {
-        $vars = array_merge($vars,[
+        $vars = array_merge($vars, [
             'serializer' => $this->getSerializer(),
-            'mapper' => $this->getMapper()
+            'mapper' => $this->getMapper(),
         ]);
 
         return $this->language->evaluate($expression, $vars);
@@ -61,11 +66,11 @@ class ExpressionEvaluator
     /**
      * @param $expression
      * @param array $names
+     *
      * @return string
      */
     public function compile($expression, $names = array())
     {
         return $this->language->compile($expression, $names);
     }
-
 }

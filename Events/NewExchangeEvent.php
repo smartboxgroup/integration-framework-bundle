@@ -7,17 +7,17 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class NewExchangeEvent
- * @package Smartbox\Integration\FrameworkBundle\Events
+ * Class NewExchangeEvent.
  */
-class NewExchangeEvent extends Event {
-
-    const TYPE_NEW_EXCHANGE_EVENT = "smartesb.exchange.new";
+class NewExchangeEvent extends Event
+{
+    const TYPE_NEW_EXCHANGE_EVENT = 'smartesb.exchange.new';
 
     /**
      * @param Exchange $exchange
      */
-    public function __construct(Exchange $exchange){
+    public function __construct(Exchange $exchange)
+    {
         parent::__construct(self::TYPE_NEW_EXCHANGE_EVENT);
         $this->exchange = $exchange;
     }
@@ -27,6 +27,7 @@ class NewExchangeEvent extends Event {
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Exchange")
      * @JMS\Expose
      * @JMS\Groups({"logs"})
+     *
      * @var Exchange
      */
     protected $exchange;
@@ -46,5 +47,4 @@ class NewExchangeEvent extends Event {
     {
         $this->exchange = $exchange;
     }
-
 }

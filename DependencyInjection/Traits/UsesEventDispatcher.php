@@ -4,6 +4,9 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * Class UsesEventDispatcher.
+ */
 trait UsesEventDispatcher
 {
     /** @var  EventDispatcherInterface */

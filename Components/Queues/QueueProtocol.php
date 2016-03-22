@@ -2,14 +2,15 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
-
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class QueueProtocol extends Protocol{
+class QueueProtocol extends Protocol
+{
     /**
      * @JMS\Exclude
+     *
      * @var array
      */
     protected static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY];
@@ -27,8 +28,8 @@ class QueueProtocol extends Protocol{
 
     public function getOptionsDescriptions()
     {
-        $options = array_merge(parent::getOptionsDescriptions(),[
-            self::OPTION_PREFIX => ['Prefix to prepend to the queue name',[]],
+        $options = array_merge(parent::getOptionsDescriptions(), [
+            self::OPTION_PREFIX => ['Prefix to prepend to the queue name', []],
             self::OPTION_QUEUE_NAME => ['Name of the queue, e.g: /boxes/pending ', []],
             self::OPTION_QUEUE_DRIVER => ['Queue driver that should be used to talk with tclehe queueing system', []],
             self::OPTION_PRIORITY => ['Priority for the messages in this queue', []],
@@ -44,9 +45,10 @@ class QueueProtocol extends Protocol{
     }
 
     /**
-     * With this method this class can configure an OptionsResolver that will be used to validate the options
+     * With this method this class can configure an OptionsResolver that will be used to validate the options.
      *
      * @param OptionsResolver $resolver
+     *
      * @return mixed
      */
     public function configureOptionsResolver(OptionsResolver $resolver)
@@ -63,13 +65,13 @@ class QueueProtocol extends Protocol{
 
         $resolver->setRequired([
             self::OPTION_TTL, self::OPTION_PERSISTENT, self::OPTION_PRIORITY, self::OPTION_PREFIX,
-            self::OPTION_QUEUE_DRIVER, self::OPTION_QUEUE_NAME
+            self::OPTION_QUEUE_DRIVER, self::OPTION_QUEUE_NAME,
         ]);
 
-        $resolver->setAllowedTypes(self::OPTION_TTL,['numeric']);
-        $resolver->setAllowedTypes(self::OPTION_PERSISTENT,['boolean']);
-        $resolver->setAllowedTypes(self::OPTION_PRIORITY,['numeric']);
-        $resolver->setAllowedTypes(self::OPTION_PREFIX,['string']);
-        $resolver->setAllowedTypes(self::OPTION_QUEUE_DRIVER,['string']);
+        $resolver->setAllowedTypes(self::OPTION_TTL, ['numeric']);
+        $resolver->setAllowedTypes(self::OPTION_PERSISTENT, ['boolean']);
+        $resolver->setAllowedTypes(self::OPTION_PRIORITY, ['numeric']);
+        $resolver->setAllowedTypes(self::OPTION_PREFIX, ['string']);
+        $resolver->setAllowedTypes(self::OPTION_QUEUE_DRIVER, ['string']);
     }
 }

@@ -7,8 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\FakeProcessor;
 
 /**
- * Class ItineraryTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors
+ * Class ItineraryTest.
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
  */

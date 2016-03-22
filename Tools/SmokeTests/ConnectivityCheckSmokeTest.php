@@ -5,6 +5,9 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\SmokeTests;
 use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 
+/**
+ * Class ConnectivityCheckSmokeTest
+ */
 class ConnectivityCheckSmokeTest implements SmokeTestInterface
 {
     const TAG_TEST_CONNECTIVITY = 'smartesb.smoke_test.test_connectivity';

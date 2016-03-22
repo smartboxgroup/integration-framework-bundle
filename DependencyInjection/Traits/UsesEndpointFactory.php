@@ -2,11 +2,13 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
-
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 
-trait UsesEndpointFactory {
-
+/**
+ * Trait UsesEndpointFactory.
+ */
+trait UsesEndpointFactory
+{
     /** @var  EndpointFactory */
     protected $endpointFactory;
 
@@ -25,5 +27,4 @@ trait UsesEndpointFactory {
     {
         $this->endpointFactory = $endpointFactory;
     }
-
 }

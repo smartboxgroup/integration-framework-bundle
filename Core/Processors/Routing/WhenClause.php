@@ -4,6 +4,9 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Processors\Routing;
 
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 
+/**
+ * Class WhenClause.
+ */
 class WhenClause
 {
     /** @var string */
@@ -13,13 +16,13 @@ class WhenClause
     protected $itinerary;
 
     /**
-     * @param string $condition
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary|null $itinerary
+     * @param string         $condition
+     * @param Itinerary|null $itinerary
      */
-    function __construct($condition = null, Itinerary $itinerary = null)
+    public function __construct($condition = null, Itinerary $itinerary = null)
     {
-        if(!(is_string($condition) || is_null($condition))){
-            throw new \InvalidArgumentException("Expected string as a first argument");
+        if (!(is_string($condition) || is_null($condition))) {
+            throw new \InvalidArgumentException('Expected string as a first argument');
         }
 
         $this->condition = $condition;
@@ -43,7 +46,7 @@ class WhenClause
     }
 
     /**
-     * @return \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
+     * @return Itinerary
      */
     public function getItinerary()
     {
@@ -51,7 +54,7 @@ class WhenClause
     }
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary $itinerary
+     * @param Itinerary $itinerary
      */
     public function setItinerary(Itinerary $itinerary)
     {

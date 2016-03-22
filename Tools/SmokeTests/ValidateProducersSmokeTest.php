@@ -10,6 +10,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\RouteCollection;
 
+/**
+ * Class ValidateProducersSmokeTest
+ */
 class ValidateProducersSmokeTest implements SmokeTestInterface
 {
     /**
@@ -41,17 +44,17 @@ class ValidateProducersSmokeTest implements SmokeTestInterface
 
         /** @var InternalRouter $routerProducers */
         $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
-        foreach($routerProducers->getRouteCollection()->all() as $name => $route){
+        foreach ($routerProducers->getRouteCollection()->all() as $name => $route) {
             $options = $route->getDefaults();
-            if(!array_key_exists(InternalRouter::KEY_PRODUCER,$options)){
+            if (!array_key_exists(InternalRouter::KEY_PRODUCER, $options)) {
                 $smokeTestOutput->addMessage("Producer not defined for route '$name': ".$route->getPath());
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
                 continue;
             }
 
-            $producerId = str_replace('@','',$options[InternalRouter::KEY_PRODUCER]);
+            $producerId = str_replace('@', '', $options[InternalRouter::KEY_PRODUCER]);
 
-            if(!$this->getContainer()->has($producerId)){
+            if (!$this->getContainer()->has($producerId)) {
                 $smokeTestOutput->addMessage("Producer '$producerId' not found for route '$name'");
 
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
@@ -60,7 +63,7 @@ class ValidateProducersSmokeTest implements SmokeTestInterface
 
             $producer = $this->getContainer()->get($producerId);
 
-            if(!$producer instanceof ProducerInterface){
+            if (!$producer instanceof ProducerInterface) {
                 $smokeTestOutput->addMessage("Producer '$producerId' does not implement ProducerInterface");
 
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
@@ -69,12 +72,12 @@ class ValidateProducersSmokeTest implements SmokeTestInterface
 
             $routerProducers->resolveServices($options);
 
-            $options = array_merge($producer->getDefaultOptions(),$options);
+            $options = array_merge($producer->getDefaultOptions(), $options);
 
             try {
-                $producer->validateOptions($options,false);
-            }catch (InvalidOptionException $exception){
-                $smokeTestOutput->addMessage("The route '$name' has an invalid option '".$exception->getOptionName()."' for producer ".$exception->getClassName()." with message ".$exception->getMessage());
+                $producer->validateOptions($options, false);
+            } catch (InvalidOptionException $exception) {
+                $smokeTestOutput->addMessage("The route '$name' has an invalid option '".$exception->getOptionName()."' for producer ".$exception->getClassName().' with message '.$exception->getMessage());
 
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
                 continue;
@@ -86,20 +89,20 @@ class ValidateProducersSmokeTest implements SmokeTestInterface
         $producerRoutes = $this->getContainer()->get('smartesb.router.endpoints');
         /** @var RouteCollection $collection */
         $collection = $producerRoutes->getRouteCollection();
-        foreach($collection->all() as $route){
-            $uri = substr($route->getPath(),1);
-            $uri = preg_replace("/{[^{}]+}/",'xxx',$uri);
+        foreach ($collection->all() as $route) {
+            $uri = substr($route->getPath(), 1);
+            $uri = preg_replace('/{[^{}]+}/', 'xxx', $uri);
 
-            try{
+            try {
                 $options = $routerProducers->match($uri);
-            }catch (ResourceNotFoundException $exception){
+            } catch (ResourceNotFoundException $exception) {
                 $smokeTestOutput->addMessage("Route not found for URI: '$uri'");
 
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
                 continue;
             }
 
-            if(!array_key_exists(InternalRouter::KEY_PRODUCER,$options)){
+            if (!array_key_exists(InternalRouter::KEY_PRODUCER, $options)) {
                 $smokeTestOutput->addMessage("Producer not defined for URI '$uri'");
 
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
@@ -115,12 +118,12 @@ class ValidateProducersSmokeTest implements SmokeTestInterface
                 continue;
             }
 
-            $options = array_merge($producer->getDefaultOptions(),$options);
+            $options = array_merge($producer->getDefaultOptions(), $options);
 
             try {
-                $producer->validateOptions($options,true);
+                $producer->validateOptions($options, true);
             } catch (InvalidOptionException $exception) {
-                $smokeTestOutput->addMessage("The URI: '$uri', has an invalid option ".$exception->getOptionName()." for producer ".$exception->getClassName()." with message ".$exception->getMessage());
+                $smokeTestOutput->addMessage("The URI: '$uri', has an invalid option ".$exception->getOptionName().' for producer '.$exception->getClassName().' with message '.$exception->getMessage());
 
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
                 continue;

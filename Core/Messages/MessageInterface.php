@@ -1,13 +1,11 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Core\Messages;
 
-use Smartbox\CoreBundle\Type\Entity;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 
-
 /**
- * Class Message
- * @package Smartbox\Integration\FrameworkBundle\Core\Messages
+ * Class Message.
  */
 interface MessageInterface extends SerializableInterface
 {
@@ -28,6 +26,7 @@ interface MessageInterface extends SerializableInterface
 
     /**
      * @param array $headers
+     *
      * @throws \Exception
      */
     public function setHeaders(array $headers);
@@ -35,6 +34,7 @@ interface MessageInterface extends SerializableInterface
     /**
      * @param string $headerKey
      * @param string $headerValue
+     *
      * @return string
      */
     public function addHeader($headerKey, $headerValue);
@@ -47,6 +47,7 @@ interface MessageInterface extends SerializableInterface
 
     /**
      * @param string $key
+     *
      * @return string|null
      */
     public function getHeader($key);

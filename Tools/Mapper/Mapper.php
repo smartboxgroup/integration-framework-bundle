@@ -2,19 +2,20 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\Mapper;
 
-
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 
+/**
+ * Class Mapper
+ */
 class Mapper implements MapperInterface
 {
-
     use UsesEvaluator;
 
     protected $mappings = [];
 
     protected $dictionary = [
         'ISO8601' => \DateTime::ISO8601,
-        'ISO8601Micro' => 'Y-m-d\TH:i:s.000'
+        'ISO8601Micro' => 'Y-m-d\TH:i:s.000',
     ];
 
     public function addMappings(array $mappings)
@@ -25,8 +26,9 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * @param mixed $obj
+     * @param mixed  $obj
      * @param string $mappingName
+     *
      * @return array|mixed
      */
     public function map($obj, $mappingName)
@@ -52,8 +54,9 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * @param array $elements
+     * @param array  $elements
      * @param string $mappingName
+     *
      * @return array
      */
     public function mapAll(array $elements, $mappingName)
@@ -73,6 +76,7 @@ class Mapper implements MapperInterface
     public function stringToDate($date)
     {
         $res = new \DateTime($date);
+
         return $res;
     }
 }

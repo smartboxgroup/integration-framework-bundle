@@ -12,12 +12,11 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDis
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesValidator;
 
 /**
- * Class Processor
- * @package Smartbox\Integration\FrameworkBundle\Core\Processors
+ * Class Processor.
  */
 abstract class Processor extends Service implements ProcessorInterface
 {
-    const TYPE = "Processor";
+    const TYPE = 'Processor';
     const CONTEXT_PROCESSOR_ID = 'processor_id';
     const CONTEXT_PROCESSOR_DESCRIPTION = 'processor_description';
 
@@ -31,15 +30,23 @@ abstract class Processor extends Service implements ProcessorInterface
      * @JMS\Type("string")
      * @JMS\Groups({"logs"})
      */
-    protected $description = "";
+    protected $description = '';
 
     /**
-     * @var bool $runtimeBreakpoint
+     * @var bool
      */
     protected $runtimeBreakpoint = false;
 
-    protected abstract function doProcess(Exchange $exchange, SerializableArray $processingContext);
+    /**
+     * @param Exchange          $exchange
+     * @param SerializableArray $processingContext
+     */
+    abstract protected function doProcess(Exchange $exchange, SerializableArray $processingContext);
 
+    /**
+     * @param Exchange          $exchange
+     * @param SerializableArray $processingContext
+     */
     protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         $event = new ProcessEvent(ProcessEvent::TYPE_BEFORE);
@@ -50,6 +57,10 @@ abstract class Processor extends Service implements ProcessorInterface
         $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_BEFORE, $event);
     }
 
+    /**
+     * @param Exchange          $exchange
+     * @param SerializableArray $processingContext
+     */
     protected function postProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         $event = new ProcessEvent(ProcessEvent::TYPE_AFTER);
@@ -61,7 +72,7 @@ abstract class Processor extends Service implements ProcessorInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getDescription()
     {
@@ -69,7 +80,7 @@ abstract class Processor extends Service implements ProcessorInterface
     }
 
     /**
-     * @param string $description
+     * {@inheritdoc}
      */
     public function setDescription($description)
     {
@@ -77,7 +88,7 @@ abstract class Processor extends Service implements ProcessorInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setRuntimeBreakpoint($runtimeBreakpoint)
     {
@@ -85,9 +96,9 @@ abstract class Processor extends Service implements ProcessorInterface
     }
 
     /**
-     * @param Exchange $exchange
-     * @return bool
-     * @throws \Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException
+     * {@inheritdoc}
+     *
+     * @throws ProcessingException
      */
     public function process(Exchange $exchange)
     {
@@ -95,7 +106,7 @@ abstract class Processor extends Service implements ProcessorInterface
             xdebug_break();
         }
 
-        /**
+        /*
          *
          * DEBUGGING HINTS
          *
@@ -110,17 +121,17 @@ abstract class Processor extends Service implements ProcessorInterface
          */
         $processingContext = new SerializableArray();
 
-        try{#
+        try {
+            #
             // Pre process event
-            $this->preProcess($exchange,$processingContext);
+            $this->preProcess($exchange, $processingContext);
 
             // Process
             $res = $this->doProcess($exchange, $processingContext);
 
             // Post process event
             $this->postProcess($exchange, $processingContext);
-
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             $processingException = new ProcessingException();
             $processingException->setProcessingContext($processingContext);
             $processingException->setExchange($exchange);

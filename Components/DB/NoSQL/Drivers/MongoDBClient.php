@@ -16,8 +16,7 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class MongoDBClient
- * @package Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Driver
+ * Class MongoDBClient.
  */
 class MongoDBClient implements StorageClientInterface, SerializableInterface
 {
@@ -70,7 +69,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         try {
             $this->configuration = $optionsResolver->resolve($configuration);
         } catch (\Exception $e) {
-            throw new StorageException('Wrong configuration: ' . $e->getMessage(), $e->getCode(), $e);
+            throw new StorageException('Wrong configuration: '.$e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -94,8 +93,8 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
                 $this->configuration['options'],
                 $this->configuration['driver_options']
             );
-        } catch(\Exception $e) {
-            throw new StorageException('Can not connect to storage because of: ' . $e->getMessage(), $e->getCode(), $e);
+        } catch (\Exception $e) {
+            throw new StorageException('Can not connect to storage because of: '.$e->getMessage(), $e->getCode(), $e);
         }
 
         $this->db = $this->connection->selectDatabase($this->configuration['database']);
@@ -106,7 +105,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
      */
     public function disconnect()
     {
-        if ($this->connection instanceof \MongoDB\Client && $this->connection->connected)  {
+        if ($this->connection instanceof \MongoDB\Client && $this->connection->connected) {
             $this->connection = null;
         }
     }
@@ -130,8 +129,8 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
 
             /** @var \MongoDB\InsertOneResult $insertOneResult */
             $insertOneResult = $this->db->$collection->insertOne($data);
-        } catch(\Exception $e) {
-            $exception = new DataStorageException('Can not save data to storage: ' . $e->getMessage(), $e->getCode(), $e);
+        } catch (\Exception $e) {
+            $exception = new DataStorageException('Can not save data to storage: '.$e->getMessage(), $e->getCode(), $e);
             $exception->setStorageData($storageData);
 
             throw $exception;
@@ -157,7 +156,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         try {
             $id = new ObjectID((string) $id);
         } catch (\Exception $e) {
-            return null;
+            return;
         }
 
         $queryOptions = new QueryOptions();
@@ -180,17 +179,18 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
 
         try {
             $result = $this->db->$collection->findOne($queryOptions->getQueryParams(), $fields);
-        } catch(\Exception $e) {
-            throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
+        } catch (\Exception $e) {
+            throw new StorageException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
         }
 
         $result = (array) $result;
         if (!empty($result) && $hydrateObject) {
             unset($result['_id']);
+
             return $this->hydrateResult($result);
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -201,7 +201,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         try {
             $id = new ObjectID((string) $id);
         } catch (\Exception $e) {
-            return null;
+            return;
         }
 
         $queryOptions = new QueryOptions();
@@ -258,8 +258,8 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             ;
 
             return $cursor;
-        } catch(\Exception $e) {
-            throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
+        } catch (\Exception $e) {
+            throw new StorageException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -276,17 +276,18 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
             /** @var \MongoDB\Collection $collection */
             $collection = $this->db->$collection;
             $count = $collection->count($queryParams);
-        } catch(\Exception $e) {
-            throw new StorageException('Can not retrieve data from storage: ' . $e->getMessage(), $e->getCode(), $e);
+        } catch (\Exception $e) {
+            throw new StorageException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
         }
 
         return $count;
     }
 
     /**
-     * Hydrates a resulting array object from a query
+     * Hydrates a resulting array object from a query.
      *
      * @param array $result
+     *
      * @return SerializableInterface[]|SerializableInterface
      */
     public function hydrateResult(array $result)
@@ -295,11 +296,11 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     }
 
     /**
-     * Executes an aggregation pipeline on a given collection
+     * Executes an aggregation pipeline on a given collection.
      *
      * @param string $collection
-     * @param array $pipeline
-     * @param array $options
+     * @param array  $pipeline
+     * @param array  $options
      *
      * @return array
      */
@@ -323,14 +324,14 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         $result = [];
 
         foreach ($data as $item) {
-            $result[] = (array)$item;
+            $result[] = (array) $item;
         }
 
         return $result;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function doDestroy()
     {
@@ -338,7 +339,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     }
 
     /**
-     * Calls the doDestroy method on kernel.terminate event
+     * Calls the doDestroy method on kernel.terminate event.
      *
      * @param PostResponseEvent $event
      */
@@ -348,7 +349,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     }
 
     /**
-     * Calls the doDestroy method on console.terminate event
+     * Calls the doDestroy method on console.terminate event.
      *
      * @param ConsoleTerminateEvent $event
      */

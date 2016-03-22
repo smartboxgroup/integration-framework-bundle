@@ -2,11 +2,13 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
-
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
 
-trait MessageFactoryAware {
-
+/**
+ * Trait MessageFactoryAware.
+ */
+trait MessageFactoryAware
+{
     /** @var  MessageFactory */
     protected $messageFactory;
 
@@ -26,7 +28,11 @@ trait MessageFactoryAware {
         $this->messageFactory = $messageFactory;
     }
 
-    public function getFlowsVersion(){
+    /**
+     * @return string
+     */
+    public function getFlowsVersion()
+    {
         return $this->messageFactory->getFlowsVersion();
     }
 }

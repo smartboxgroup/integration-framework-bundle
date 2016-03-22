@@ -8,8 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class ProcessingErrorEvent
- * @package Smartbox\Integration\FrameworkBundle\Events\Error
+ * Class ProcessingErrorEvent.
  */
 class ProcessingErrorEvent extends ProcessEvent
 {
@@ -32,13 +31,17 @@ class ProcessingErrorEvent extends ProcessEvent
     protected $requestStack;
 
     /**
-     * @param Processor $processor
-     * @param Exchange $exchange
+     * @param Processor  $processor
+     * @param Exchange   $exchange
      * @param \Exception $exception
-     * @param string $eventName
+     * @param string     $eventName
      */
-    public function __construct(Processor $processor, Exchange $exchange, \Exception $exception, $eventName = self::EVENT_NAME)
-    {
+    public function __construct(
+        Processor $processor,
+        Exchange $exchange,
+        \Exception $exception,
+        $eventName = self::EVENT_NAME
+    ) {
         parent::__construct($eventName);
         $this->processor = $processor;
         $this->exchange = $exchange;

@@ -6,14 +6,13 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use JMS\Serializer\Annotation as JMS;
 
 /**
- * @JMS\ExclusionPolicy("all")
+ * Class Protocol.
  */
-class Protocol implements ProtocolInterface {
+class Protocol implements ProtocolInterface
+{
     /**
-     * @JMS\Exclude
      * @var array
      */
     protected static $SUPPORTED_EXCHANGE_PATTERNS = [self::EXCHANGE_PATTERN_IN_ONLY, self::EXCHANGE_PATTERN_IN_OUT];
@@ -97,20 +96,20 @@ class Protocol implements ProtocolInterface {
     }
 
     /**
-     * Get static default options
+     * Get static default options.
      *
      * @return array Array with option name, description, and options (optional)
      */
     public function getOptionsDescriptions()
     {
         return [
-            self::OPTION_ENDPOINT_ROUTE =>  array('Internal use only: Route that was applied to resolve the Endpoint URI', array()),
+            self::OPTION_ENDPOINT_ROUTE => array('Internal use only: Route that was applied to resolve the Endpoint URI', array()),
             self::OPTION_EXCHANGE_PATTERN => array(
                 'Exchange pattern to communicate with this endpoint',
                 array(
                     self::EXCHANGE_PATTERN_IN_ONLY => 'The endpoint will not block the flow or modify the message',
-                    self::EXCHANGE_PATTERN_IN_OUT => 'The endpoint will block the flow and update the message'
-                )
+                    self::EXCHANGE_PATTERN_IN_OUT => 'The endpoint will block the flow and update the message',
+                ),
             ),
             self::OPTION_USERNAME => array('Username to authenticate in this endpoint', array()),
             self::OPTION_PASSWORD => array('Password to authenticate in this endpoint', array()),
@@ -119,10 +118,7 @@ class Protocol implements ProtocolInterface {
     }
 
     /**
-     * With this method this class can configure an OptionsResolver that will be used to validate the options
-     *
-     * @param OptionsResolver $resolver
-     * @return mixed
+     * {@inheritdoc}
      */
     public function configureOptionsResolver(OptionsResolver $resolver)
     {
@@ -131,30 +127,30 @@ class Protocol implements ProtocolInterface {
             self::OPTION_PASSWORD => '',
             self::OPTION_EXCHANGE_PATTERN => self::EXCHANGE_PATTERN_IN_OUT,
             self::OPTION_TRACK => false,
-            self::OPTION_ENDPOINT_ROUTE => ''
+            self::OPTION_ENDPOINT_ROUTE => '',
         ]);
 
-        if($this->defaultConsumer){
-            $resolver->setDefault(self::OPTION_CONSUMER,$this->defaultConsumer);
+        if ($this->defaultConsumer) {
+            $resolver->setDefault(self::OPTION_CONSUMER, $this->defaultConsumer);
         }
 
-        if($this->defaultHandler){
-            $resolver->setDefault(self::OPTION_HANDLER,$this->defaultHandler);
+        if ($this->defaultHandler) {
+            $resolver->setDefault(self::OPTION_HANDLER, $this->defaultHandler);
         }
 
-        if($this->defaultProducer){
-            $resolver->setDefault(self::OPTION_PRODUCER,$this->defaultProducer);
+        if ($this->defaultProducer) {
+            $resolver->setDefault(self::OPTION_PRODUCER, $this->defaultProducer);
         }
 
         $resolver->setRequired([
-            self::OPTION_EXCHANGE_PATTERN, self::OPTION_TRACK, self::OPTION_ENDPOINT_ROUTE
+            self::OPTION_EXCHANGE_PATTERN, self::OPTION_TRACK, self::OPTION_ENDPOINT_ROUTE,
         ]);
 
-        $resolver->setAllowedTypes(self::OPTION_USERNAME,['string']);
-        $resolver->setAllowedTypes(self::OPTION_PASSWORD,['string']);
-        $resolver->setAllowedTypes(self::OPTION_EXCHANGE_PATTERN,['string']);
-        $resolver->setAllowedValues(self::OPTION_EXCHANGE_PATTERN,self::$SUPPORTED_EXCHANGE_PATTERNS);
-        $resolver->setAllowedTypes(self::OPTION_TRACK,['bool']);
-        $resolver->setAllowedTypes(self::OPTION_ENDPOINT_ROUTE,['string']);
+        $resolver->setAllowedTypes(self::OPTION_USERNAME, ['string']);
+        $resolver->setAllowedTypes(self::OPTION_PASSWORD, ['string']);
+        $resolver->setAllowedTypes(self::OPTION_EXCHANGE_PATTERN, ['string']);
+        $resolver->setAllowedValues(self::OPTION_EXCHANGE_PATTERN, self::$SUPPORTED_EXCHANGE_PATTERNS);
+        $resolver->setAllowedTypes(self::OPTION_TRACK, ['bool']);
+        $resolver->setAllowedTypes(self::OPTION_ENDPOINT_ROUTE, ['string']);
     }
 }

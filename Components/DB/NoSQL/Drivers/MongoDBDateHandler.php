@@ -8,8 +8,7 @@ use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\VisitorInterface;
 
 /**
- * Class MongoDBDateHandler
- * @package Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Driver
+ * Class MongoDBDateHandler.
  */
 class MongoDBDateHandler implements SubscribingHandlerInterface
 {
@@ -33,9 +32,10 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
 
     /**
      * @param VisitorInterface $visitor
-     * @param \DateTime $date
-     * @param array $type
-     * @param Context $context
+     * @param \DateTime        $date
+     * @param array            $type
+     * @param Context          $context
+     *
      * @return \MongoDB\BSON\UTCDateTime
      */
     public function convertFromDateTimeToMongoFormat(VisitorInterface $visitor, \DateTime $date, array $type, Context $context)
@@ -44,10 +44,11 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * @param VisitorInterface $visitor
+     * @param VisitorInterface          $visitor
      * @param \MongoDB\BSON\UTCDateTime $date
-     * @param array $type
-     * @param Context $context
+     * @param array                     $type
+     * @param Context                   $context
+     *
      * @return \DateTime
      */
     public function convertFromMongoFormatToDateTime(VisitorInterface $visitor, \MongoDB\BSON\UTCDateTime $date, array $type, Context $context)
@@ -60,13 +61,16 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
         return new \MongoDB\BSON\UTCDateTime(self::getUnixTimestampWithMilliseconds($date));
     }
 
-    protected static function getDateMilliseconds(\DateTime $dateTime){
-        return intval($dateTime->format('u')/1000);
+    protected static function getDateMilliseconds(\DateTime $dateTime)
+    {
+        return intval($dateTime->format('u') / 1000);
     }
 
-    protected static function getUnixTimestampWithMilliseconds(\DateTime $dateTime){
+    protected static function getUnixTimestampWithMilliseconds(\DateTime $dateTime)
+    {
         $timestampWithMillisTo0 = intval($dateTime->format('U')) * 1000;
-        $timestampWithMillis =  $timestampWithMillisTo0 + self::getDateMilliseconds($dateTime);
+        $timestampWithMillis = $timestampWithMillisTo0 + self::getDateMilliseconds($dateTime);
+
         return $timestampWithMillis;
     }
 }

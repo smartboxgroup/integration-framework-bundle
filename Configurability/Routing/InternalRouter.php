@@ -1,10 +1,15 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Configurability\Routing;
 
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class InternalRouter extends Router {
+/**
+ * Class InternalRouter.
+ */
+class InternalRouter extends Router
+{
     const KEY_ITINERARY = '_itinerary';
     const KEY_PRODUCER = '_producer';
 
@@ -13,6 +18,7 @@ class InternalRouter extends Router {
     const OPTION_FRAGMENT = 'fragment';
     const OPTION_PORT = 'port';
 
+    /** @var ContainerInterface */
     protected $container;
 
     /**
@@ -25,7 +31,7 @@ class InternalRouter extends Router {
     public function __construct(ContainerInterface $container, $resource, array $options = array())
     {
         $this->container = $container;
-        parent::__construct($container,$resource,$options,null);
+        parent::__construct($container, $resource, $options, null);
     }
 
     /**
@@ -34,8 +40,8 @@ class InternalRouter extends Router {
     public function generate($name, $parameters = array(), $referenceType = self::ABSOLUTE_PATH)
     {
         $res = $this->getGenerator()->generate($name, $parameters, $referenceType);
-        if($res[0] == '/'){
-            $res = substr($res,1);
+        if ($res[0] == '/') {
+            $res = substr($res, 1);
         }
 
         return $res;
@@ -46,7 +52,7 @@ class InternalRouter extends Router {
      */
     public function match($uri)
     {
-        /**
+        /*
          * scheme - e.g. http
          * host
          * port
@@ -65,53 +71,57 @@ class InternalRouter extends Router {
         $scheme = parse_url($uri, PHP_URL_SCHEME);
         $path = parse_url($uri, PHP_URL_PATH);
 
-        $internalPath = "";
+        $internalPath = '';
         $options = array();
 
         // Build internal path
-        if($scheme){
+        if ($scheme) {
             $internalPath .= $scheme.'://';
         }
-        if($host){
+        if ($host) {
             $internalPath .= $host;
         }
-        if($path){
+        if ($path) {
             $internalPath .= $path;
         }
 
         // Build options
-        if($query){
-            parse_str($query,$options);
+        if ($query) {
+            parse_str($query, $options);
         }
 
-        if($user){
+        if ($user) {
             $options[self::OPTION_USERNAME] = $user;
         }
-        if($pass){
+        if ($pass) {
             $options[self::OPTION_PASS] = $pass;
         }
-        if($fragment){
+        if ($fragment) {
             $options[self::OPTION_FRAGMENT] = $fragment;
         }
-        if($port){
+        if ($port) {
             $options[self::OPTION_PORT] = $port;
         }
 
-        if($scheme){
+        if ($scheme) {
             $internalPath = '/'.$internalPath;
         }
 
         $result = parent::match($internalPath);
 
-        $result = array_merge($result,$options);
+        $result = array_merge($result, $options);
         $this->resolveServices($result);
 
         return $result;
     }
 
-    public function resolveServices(array &$array){
-        foreach($array as $key => $value){
-            if(strpos($value,'@') === 0){
+    /**
+     * @param array $array
+     */
+    public function resolveServices(array &$array)
+    {
+        foreach ($array as $key => $value) {
+            if (strpos($value, '@') === 0) {
                 $array[$key] = $this->container->get(substr($value, 1));
             }
         }

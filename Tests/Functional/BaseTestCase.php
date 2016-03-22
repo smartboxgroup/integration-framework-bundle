@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
@@ -14,6 +13,9 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializ
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesValidator;
 use Smartbox\Integration\FrameworkBundle\Service;
 
+/**
+ * Class BaseTestCase.
+ */
 abstract class BaseTestCase extends BaseKernelTestCase
 {
     /**
@@ -24,7 +26,7 @@ abstract class BaseTestCase extends BaseKernelTestCase
         return $this->createBasicService(DirectProducer::class);
     }
 
-    function class_uses_deep($class, $autoload = true)
+    public function class_uses_deep($class, $autoload = true)
     {
         $traits = [];
         do {
@@ -40,7 +42,8 @@ abstract class BaseTestCase extends BaseKernelTestCase
     /**
      * @return SpyProcessor
      */
-    public function createSpy(){
+    public function createSpy()
+    {
         return $this->createBasicService(SpyProcessor::class);
     }
 
@@ -86,18 +89,20 @@ abstract class BaseTestCase extends BaseKernelTestCase
             }
         }
 
-        $this->getContainer()->set($id,$instance);
+        $this->getContainer()->set($id, $instance);
 
         return $instance;
     }
 
     /**
      * @param SerializableInterface $body
-     * @param array $headers
-     * @param Context $context
+     * @param array                 $headers
+     * @param Context               $context
+     *
      * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\Message
      */
-    protected function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null){
-        return $this->getContainer()->get('smartesb.message_factory')->createMessage($body,$headers,$context);
+    protected function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null)
+    {
+        return $this->getContainer()->get('smartesb.message_factory')->createMessage($body, $headers, $context);
     }
 }

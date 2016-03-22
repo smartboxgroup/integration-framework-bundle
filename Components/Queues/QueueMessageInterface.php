@@ -5,8 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
 /**
- * Interface QueueMessageInterface
- * @package Smartbox\Integration\FrameworkBundle\Core\Messages\Queues
+ * Interface QueueMessageInterface.
  */
 interface QueueMessageInterface extends MessageInterface
 {
@@ -76,7 +75,7 @@ interface QueueMessageInterface extends MessageInterface
     public function getPriority();
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function getPersistent();
 
@@ -99,5 +98,4 @@ interface QueueMessageInterface extends MessageInterface
      * @return null|string
      */
     public function getDestinationURI();
-
 }

@@ -60,7 +60,7 @@ class FakeRestClient extends Client
             $uri = new Psr7\Uri($uri);
         }
 
-        $actionName = $method . DIRECTORY_SEPARATOR . trim($uri->getPath(), DIRECTORY_SEPARATOR);
+        $actionName = $method.DIRECTORY_SEPARATOR.trim($uri->getPath(), DIRECTORY_SEPARATOR);
 
         return preg_replace('/[^A-Za-z0-9]+/', '_', $actionName);
     }
@@ -74,7 +74,7 @@ class FakeRestClient extends Client
 
     protected function setResponseInCache($resource, $response, $suffix = null)
     {
-        /** @var Psr7\Response $response */
+        /* @var Psr7\Response $response */
         $content = json_encode(
             [
                 'status' => $response->getStatusCode(),

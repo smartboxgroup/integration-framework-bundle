@@ -3,8 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Messages;
 
 /**
- * Class FailedExchangeEnvelope
- * @package Smartbox\Integration\FrameworkBundle\Core\Messages
+ * Class FailedExchangeEnvelope.
  */
 class FailedExchangeEnvelope extends ErrorExchangeEnvelope
 {

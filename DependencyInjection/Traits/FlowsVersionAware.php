@@ -2,8 +2,12 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
+/**
+ * Trait FlowsVersionAware.
+ */
 trait FlowsVersionAware
 {
+    /** @var  string */
     protected $flowsVersion;
 
     /**

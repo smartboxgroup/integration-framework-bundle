@@ -3,13 +3,12 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query;
 
 /**
- * Class QueryOptions
- * @package Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query
+ * Class QueryOptions.
  */
 class QueryOptions implements QueryOptionsInterface
 {
-    CONST SORT_ASC = 1;
-    CONST SORT_DESC = -1;
+    const SORT_ASC = 1;
+    const SORT_DESC = -1;
 
     protected $limit;
     protected $offset;
@@ -27,7 +26,7 @@ class QueryOptions implements QueryOptionsInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLimit()
     {
@@ -36,6 +35,7 @@ class QueryOptions implements QueryOptionsInterface
 
     /**
      * @param int $limit
+     *
      * @return $this
      */
     public function setLimit($limit)
@@ -46,7 +46,7 @@ class QueryOptions implements QueryOptionsInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getOffset()
     {
@@ -55,6 +55,7 @@ class QueryOptions implements QueryOptionsInterface
 
     /**
      * @param int $offset
+     *
      * @return $this
      */
     public function setOffset($offset)
@@ -65,7 +66,7 @@ class QueryOptions implements QueryOptionsInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getQueryParams()
     {
@@ -74,6 +75,7 @@ class QueryOptions implements QueryOptionsInterface
 
     /**
      * @param array $queryParams
+     *
      * @return $this
      */
     public function setQueryParams($queryParams)
@@ -84,7 +86,7 @@ class QueryOptions implements QueryOptionsInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getSortParams()
     {
@@ -94,7 +96,9 @@ class QueryOptions implements QueryOptionsInterface
     /**
      * @param $column
      * @param $type
+     *
      * @return $this
+     *
      * @throws \Exception
      */
     public function addSorting($column, $type)

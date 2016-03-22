@@ -2,16 +2,17 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring;
 
-
-
 use Smartbox\Integration\FrameworkBundle\Events\Event;
 
-interface EventFilterInterface {
-
+/**
+ * Interface EventFilterInterface
+ */
+interface EventFilterInterface
+{
     /**
      * @param Event $event
-     * @return boolean
+     *
+     * @return bool
      */
     public function filter(Event $event);
-
 }

@@ -24,7 +24,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * This is the class that loads and manages your bundle configuration
+ * This is the class that loads and manages your bundle configuration.
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
@@ -48,11 +48,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         return $this->config['latest_flows_version'];
     }
 
-    public function getProducersPath(){
+    public function getProducersPath()
+    {
         return @$this->config['producers_path'];
     }
 
-    public function loadProducers(ContainerBuilder $container){
+    public function loadProducers(ContainerBuilder $container)
+    {
         foreach ($this->config['producers'] as $producerName => $producerConfig) {
             $class = $producerConfig['class'];
             $methodsSteps = $producerConfig['methods'];
@@ -66,27 +68,27 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
             $definition = new Definition($class);
 
-            if(array_key_exists('calls',$producerConfig)){
-                foreach($producerConfig['calls'] as $call){
+            if (array_key_exists('calls', $producerConfig)) {
+                foreach ($producerConfig['calls'] as $call) {
                     $method = $call[0];
                     $arguments = $call[1];
                     $resolvedArguments = [];
-                    foreach($arguments as $index => $arg){
-                        if(strpos($arg,'@') === 0){
-                            $resolvedArguments[$index] = new Reference(substr($arg,1));
-                        }else{
+                    foreach ($arguments as $index => $arg) {
+                        if (strpos($arg, '@') === 0) {
+                            $resolvedArguments[$index] = new Reference(substr($arg, 1));
+                        } else {
                             $resolvedArguments[$index] = $arg;
                         }
                     }
 
-                    $definition->addMethodCall($method,$resolvedArguments);
+                    $definition->addMethodCall($method, $resolvedArguments);
                 }
             }
 
             $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
             $definition->addMethodCall('setOptions', [$options]);
-            $definition->addMethodCall('setEvaluator',[new Reference('smartesb.util.evaluator')]);
-            $definition->addMethodCall('setSerializer',[new Reference('serializer')]);
+            $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
+            $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
 
             $container->setDefinition('smartesb.producers.'.$producerName, $definition);
 
@@ -96,24 +98,26 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         }
     }
 
-    public function loadMappings(ContainerBuilder $container){
+    public function loadMappings(ContainerBuilder $container)
+    {
         $mappings = $this->config['mappings'];
-        if(!empty($mappings)){
+        if (!empty($mappings)) {
             $mapper = $container->getDefinition('smartesb.util.mapper');
-            $mapper->addMethodCall('addMappings',[$mappings]);
+            $mapper->addMethodCall('addMappings', [$mappings]);
         }
     }
 
-    protected function loadQueueDrivers(ContainerBuilder $container){
+    protected function loadQueueDrivers(ContainerBuilder $container)
+    {
         $queueDriverRegistry = new Definition(DriverRegistry::class);
-        $container->setDefinition(self::QUEUE_DRIVER_PREFIX.'_registry',$queueDriverRegistry);
+        $container->setDefinition(self::QUEUE_DRIVER_PREFIX.'_registry', $queueDriverRegistry);
 
         // Create services for queue drivers
-        foreach($this->config['queue_drivers'] as $driverName => $driverConfig){
+        foreach ($this->config['queue_drivers'] as $driverName => $driverConfig) {
             $driverId = self::QUEUE_DRIVER_PREFIX.$driverName;
 
             $type = strtolower($driverConfig['type']);
-            switch($type){
+            switch ($type) {
                 case 'activemq':
                     $driverDef = new Definition(ActiveMQStompQueueDriver::class, array());
 
@@ -128,11 +132,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                     $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
-                    $queueDriverRegistry->addMethodCall('setDriver',[$driverName,new Reference($driverId)]);
+                    $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
                     $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
                     $driverDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
 
-                    $container->setDefinition($driverId,$driverDef);
+                    $container->setDefinition($driverId, $driverDef);
 
                     break;
 
@@ -143,22 +147,23 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         // set default queue driver alias
         $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$this->config['default_queue_driver']);
-        $container->setAlias('smartesb.default_queue_driver',$defaultQueueDriverAlias);
+        $container->setAlias('smartesb.default_queue_driver', $defaultQueueDriverAlias);
     }
 
-    protected function loadNoSQLDrivers(ContainerBuilder $container){
+    protected function loadNoSQLDrivers(ContainerBuilder $container)
+    {
         $nosqlDriverRegistry = new Definition(DriverRegistry::class);
-        $container->setDefinition(self::NOSQL_DRIVER_PREFIX.'_registry',$nosqlDriverRegistry);
+        $container->setDefinition(self::NOSQL_DRIVER_PREFIX.'_registry', $nosqlDriverRegistry);
 
         // Create services for NoSQL drivers
-        foreach($this->config['nosql_drivers'] as $driverName => $driverConfig) {
+        foreach ($this->config['nosql_drivers'] as $driverName => $driverConfig) {
             $driverId = self::NOSQL_DRIVER_PREFIX.$driverName;
 
             $type = strtolower($driverConfig['type']);
-            switch($type) {
+            switch ($type) {
                 case 'mongodb':
 
-                    $storageServiceName = $driverId . '.storage';
+                    $storageServiceName = $driverId.'.storage';
                     $storageDef = new Definition(MongoDBClient::class, [new Reference('serializer')]);
 
                     $mongoDriverOptions = [];
@@ -169,9 +174,9 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     }
 
                     $storageDef->addMethodCall('configure', [[
-                        'host'      => $driverConfig['host'],
-                        'database'  => $driverConfig['database'],
-                        'options'   => $connectionOptions,
+                        'host' => $driverConfig['host'],
+                        'database' => $driverConfig['database'],
+                        'options' => $connectionOptions,
                         'driver_options' => $mongoDriverOptions,
                     ]]);
                     $storageDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
@@ -183,7 +188,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
                     $container->setDefinition($driverId, $driverDef);
 
-                    $nosqlDriverRegistry->addMethodCall('setDriver',[$driverName,new Reference($driverId)]);
+                    $nosqlDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 
                     break;
 
@@ -199,23 +204,25 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         }
     }
 
-    protected function loadConsumers(ContainerBuilder $container){
+    protected function loadConsumers(ContainerBuilder $container)
+    {
         // Create services for message consumers
-        foreach($this->config['message_consumers'] as $consumerName => $consumerConfig){
+        foreach ($this->config['message_consumers'] as $consumerName => $consumerConfig) {
             $consumerName = self::CONSUMER_PREFIX.$consumerName;
 
-            $driverDef = new Definition(QueueConsumer::class,array());
-            $driverDef->addMethodCall('setSmartesbHelper',[new Reference('smartesb.helper')]);
-            $driverDef->addMethodCall('setHandler',[new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
-            $container->setDefinition($consumerName,$driverDef);
+            $driverDef = new Definition(QueueConsumer::class, array());
+            $driverDef->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
+            $driverDef->addMethodCall('setHandler', [new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
+            $container->setDefinition($consumerName, $driverDef);
         }
     }
 
-    protected function loadHandlers(ContainerBuilder $container){
+    protected function loadHandlers(ContainerBuilder $container)
+    {
         // Create services for message handlers
-        foreach($this->config['message_handlers'] as $handlerName => $handlerConfig){
+        foreach ($this->config['message_handlers'] as $handlerName => $handlerConfig) {
             $handlerName = self::HANDLER_PREFIX.$handlerName;
-            $driverDef = new Definition(MessageHandler::class,array());
+            $driverDef = new Definition(MessageHandler::class, array());
 
             $driverDef->addMethodCall('setId', [$handlerName]);
             $driverDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
@@ -225,9 +232,9 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $driverDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
             $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
-            if($handlerConfig['retry_uri'] != 'original'){
+            if ($handlerConfig['retry_uri'] != 'original') {
                 $driverDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
-            }else{
+            } else {
                 $driverDef->addMethodCall('setRetryURI', [false]);
             }
 
@@ -236,10 +243,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
             $driverDef->addTag('kernel.event_listener', array(
                 'event' => 'smartesb.exchange.new',
-                'method' => 'onNewExchangeEvent'
+                'method' => 'onNewExchangeEvent',
             ));
 
-            $container->setDefinition($handlerName,$driverDef);
+            $container->setDefinition($handlerName, $driverDef);
         }
     }
 
@@ -252,9 +259,9 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
         $this->config = $config;
 
-        if($this->getFlowsVersion() > $this->getLatestFlowsVersion()){
+        if ($this->getFlowsVersion() > $this->getLatestFlowsVersion()) {
             throw new InvalidConfigurationException(
-                sprintf("The flows version number(%s) can not be bigger than the latest version available(%s)",
+                sprintf('The flows version number(%s) can not be bigger than the latest version available(%s)',
                     $this->getFlowsVersion(),
                     $this->getLatestFlowsVersion()));
         }

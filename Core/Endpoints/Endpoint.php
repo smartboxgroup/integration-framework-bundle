@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
-
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
@@ -28,6 +27,7 @@ class Endpoint implements EndpointInterface
      * @JMS\Expose
      * @JMS\Groups({"logs"})
      * @JMS\Type("string")
+     *
      * @var SerializableArray
      */
     protected $uri = null;
@@ -45,15 +45,16 @@ class Endpoint implements EndpointInterface
     protected $handler = null;
 
     /**
-     * @param $resolvedUri
-     * @param array $options
-     * @param ProtocolInterface $protocol
-     * @param ProducerInterface $producer
-     * @param ConsumerInterface $consumer
-     * @param HandlerInterface $handler
+     * {@inheritdoc}
      */
-    public function __construct($resolvedUri, array &$options, ProtocolInterface $protocol, ProducerInterface $producer = null, ConsumerInterface $consumer = null, HandlerInterface $handler = null)
-    {
+    public function __construct(
+        $resolvedUri,
+        array &$options,
+        ProtocolInterface $protocol,
+        ProducerInterface $producer = null,
+        ConsumerInterface $consumer = null,
+        HandlerInterface $handler = null
+    ) {
         $this->uri = $resolvedUri;
         $this->consumer = $consumer;
         $this->producer = $producer;
@@ -63,8 +64,7 @@ class Endpoint implements EndpointInterface
     }
 
     /**
-     * Returns the resolved URI
-     * @return string
+     * {@inheritdoc}
      */
     public function getURI()
     {
@@ -72,7 +72,7 @@ class Endpoint implements EndpointInterface
     }
 
     /**
-     * @return ProtocolInterface
+     * {@inheritdoc}
      */
     public function getProtocol()
     {
@@ -80,46 +80,47 @@ class Endpoint implements EndpointInterface
     }
 
     /**
-     * @return HandlerInterface
+     * {@inheritdoc}
      */
     public function getHandler()
     {
         if (!$this->handler) {
-            throw new ResourceNotFoundException("Handler not found for URI: ".$this->getURI());
+            throw new ResourceNotFoundException('Handler not found for URI: '.$this->getURI());
         }
+
         return $this->handler;
     }
 
     /**
-     * @return ConsumerInterface
+     * {@inheritdoc}
      */
     public function getConsumer()
     {
         if (!$this->consumer) {
-            throw new ResourceNotFoundException("Consumer not found for URI: ".$this->getURI());
+            throw new ResourceNotFoundException('Consumer not found for URI: '.$this->getURI());
         }
 
         return $this->consumer;
     }
 
     /**
-     * @return ProducerInterface
+     * {@inheritdoc}
      */
     public function getProducer()
     {
         if (!$this->producer) {
-            throw new ResourceNotFoundException("Producer not found for URI: ".$this->getURI());
+            throw new ResourceNotFoundException('Producer not found for URI: '.$this->getURI());
         }
 
         return $this->producer;
     }
 
     /**
-     * @return MessageInterface
+     * {@inheritdoc}
      */
     public function consume($maxAmount = 0)
     {
-        if($maxAmount > 0){
+        if ($maxAmount > 0) {
             $this->getConsumer()->setExpirationCount($maxAmount);
         }
 
@@ -127,49 +128,65 @@ class Endpoint implements EndpointInterface
     }
 
     /**
-     * @return boolean
+     * {@inheritdoc}
      */
     public function produce(Exchange $exchange)
     {
         $this->getProducer()->send($exchange, $this);
-        if($this->isInOnly()){
+        if ($this->isInOnly()) {
             $exchange->setOut(null);
         }
     }
 
     /**
-     * @param MessageInterface $message
-     * @return MessageInterface
+     * {@inheritdoc}
      */
-    public function handle(MessageInterface $message){
-        return $this->getHandler()->handle($message,$this);
+    public function handle(MessageInterface $message)
+    {
+        return $this->getHandler()->handle($message, $this);
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public function getOptions()
     {
         return $this->options;
     }
 
-    public function getOption($optionName){
-        if(!array_key_exists($optionName,$this->options)){
+    /**
+     * {@inheritdoc}
+     */
+    public function getOption($optionName)
+    {
+        if (!array_key_exists($optionName, $this->options)) {
             throw new \InvalidArgumentException("The option $optionName does not exist in this Endpoint");
         }
 
         return $this->options[$optionName];
     }
 
-    public function getExchangePattern(){
+    /**
+     * {@inheritdoc}
+     */
+    public function getExchangePattern()
+    {
         return $this->options[Protocol::OPTION_EXCHANGE_PATTERN];
     }
 
-    public function isInOnly(){
+    /**
+     * {@inheritdoc}
+     */
+    public function isInOnly()
+    {
         return $this->getExchangePattern() == Protocol::EXCHANGE_PATTERN_IN_ONLY;
     }
 
-    public function shouldTrack(){
+    /**
+     * {@inheritdoc}
+     */
+    public function shouldTrack()
+    {
         return $this->options[Protocol::OPTION_TRACK];
     }
 }

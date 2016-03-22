@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Processors\Routing;
 
-
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
@@ -10,8 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
 
 /**
- * Class Multicast
- * @package Smartbox\Integration\FrameworkBundle\Core\Processors\Routing
+ * Class Multicast.
  */
 class Multicast extends Processor
 {
@@ -28,7 +26,8 @@ class Multicast extends Processor
     protected $itineraries = [];
 
     /**
-     * Method returns array of available aggregation strategies
+     * Method returns array of available aggregation strategies.
+     *
      * @return array
      */
     public static function getAvailableAggregationStrategies()
@@ -47,7 +46,7 @@ class Multicast extends Processor
     }
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary[] $itineraries
+     * @param Itinerary[] $itineraries
      */
     public function setItineraries(array $itineraries)
     {
@@ -57,7 +56,8 @@ class Multicast extends Processor
     /**
      * @param Itinerary $itinerary
      */
-    public function addItinerary(Itinerary $itinerary){
+    public function addItinerary(Itinerary $itinerary)
+    {
         $this->itineraries[] = $itinerary;
     }
 
@@ -75,34 +75,34 @@ class Multicast extends Processor
     public function setAggregationStrategy($aggregationStrategy)
     {
         if (!in_array($aggregationStrategy, self::getAvailableAggregationStrategies())) {
-            throw new \InvalidArgumentException('Unsupported aggregation strategy: "' . $aggregationStrategy . '".');
+            throw new \InvalidArgumentException('Unsupported aggregation strategy: "'.$aggregationStrategy.'".');
         }
         $this->aggregationStrategy = $aggregationStrategy;
     }
 
     /**
      * The current implementation assumes the existence of only one aggregation strategy which ignores the child
-     * exchanges
+     * exchanges.
      *
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Exchange $mainExchange
+     * @param Exchange $mainExchange
      */
     protected function doProcess(Exchange $mainExchange, SerializableArray $processingContext)
     {
-        foreach($this->itineraries as $itinerary){
+        foreach ($this->itineraries as $itinerary) {
             $exchange = new Exchange();
 
             // Set headers
-            if(!empty($mainExchange->getHeaders())){
+            if (!empty($mainExchange->getHeaders())) {
                 $exchange->setHeaders($mainExchange->getHeaders());
             }
 
-            $exchange->setHeader(Exchange::HEADER_HANDLER,$mainExchange->getHeader(Exchange::HEADER_HANDLER));
-            $exchange->setHeader(Exchange::HEADER_PARENT_EXCHANGE,$mainExchange->getId());
-            $exchange->setHeader(Exchange::HEADER_FROM,$mainExchange->getHeader(Exchange::HEADER_FROM));
+            $exchange->setHeader(Exchange::HEADER_HANDLER, $mainExchange->getHeader(Exchange::HEADER_HANDLER));
+            $exchange->setHeader(Exchange::HEADER_PARENT_EXCHANGE, $mainExchange->getId());
+            $exchange->setHeader(Exchange::HEADER_FROM, $mainExchange->getHeader(Exchange::HEADER_FROM));
 
             // Set Itinerary
             $exchange->getItinerary()->prepend($itinerary);
-            $exchange->getItinerary()->setName("Multicast from \"".$mainExchange->getItinerary()->getName()."\"");
+            $exchange->getItinerary()->setName('Multicast from "'.$mainExchange->getItinerary()->getName().'"');
 
             // Set Message
             $msgCopy = unserialize(serialize($mainExchange->getIn()));
@@ -110,7 +110,7 @@ class Multicast extends Processor
 
             $event = new NewExchangeEvent($exchange);
             $event->setTimestampToCurrent();
-            $this->eventDispatcher->dispatch(NewExchangeEvent::TYPE_NEW_EXCHANGE_EVENT,$event);
+            $this->eventDispatcher->dispatch(NewExchangeEvent::TYPE_NEW_EXCHANGE_EVENT, $event);
         }
     }
 }

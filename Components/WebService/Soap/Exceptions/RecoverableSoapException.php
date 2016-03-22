@@ -5,11 +5,8 @@ namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Except
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterface;
 
 /**
- * Class RecoverableSoapException
- *
- * @package \Smartbox\Integration\FrameworkBundle\Exceptions
+ * Class RecoverableSoapException.
  */
 class RecoverableSoapException extends SoapException implements RecoverableExceptionInterface
 {
-
 }

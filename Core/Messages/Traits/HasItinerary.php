@@ -2,23 +2,25 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Messages\Traits;
 
-
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
-use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Trait HasItinerary.
+ */
 trait HasItinerary
 {
     /**
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary")
      * @JMS\Groups({"metadata"})
      * @JMS\Expose
-     * @var \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
+     *
+     * @var Itinerary
      */
     protected $itinerary;
 
     /**
-     * @return \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
+     * @return Itinerary
      */
     public function getItinerary()
     {
@@ -30,11 +32,10 @@ trait HasItinerary
     }
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary $itinerary
+     * @param Itinerary $itinerary
      */
     public function setItinerary(Itinerary $itinerary)
     {
         $this->itinerary = $itinerary;
     }
-
 }

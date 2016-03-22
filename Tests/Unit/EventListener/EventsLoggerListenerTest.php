@@ -5,12 +5,10 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\EventListener;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
-use Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class EventsLoggerListenerTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\EventListener
+ * Class EventsLoggerListenerTest.
  */
 class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
 {

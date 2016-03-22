@@ -7,16 +7,16 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 /**
- * Class Stop
- * @package Smartbox\Integration\FrameworkBundle\Core\Processors\Miscellaneous
+ * Class Stop.
  */
 class Stop extends Processor
 {
     /**
      * The current implementation assumes the existence of only one aggregation strategy which ignores the child
-     * exchanges
+     * exchanges.
      *
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Exchange $mainExchange
+     * @param Exchange          $mainExchange
+     * @param SerializableArray $processingContext
      */
     protected function doProcess(Exchange $mainExchange, SerializableArray $processingContext)
     {

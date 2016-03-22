@@ -25,10 +25,10 @@ abstract class Service implements SerializableInterface
      */
     public $id;
 
-    public function __construct()
-    {
-
-    }
+    /**
+     * Service constructor.
+     */
+    public function __construct(){}
 
     /**
      * @return string

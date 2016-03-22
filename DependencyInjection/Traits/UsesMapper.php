@@ -1,8 +1,12 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
 use Smartbox\Integration\FrameworkBundle\Tools\Mapper\MapperInterface;
 
+/**
+ * Trait UsesMapper.
+ */
 trait UsesMapper
 {
     /** @var  MapperInterface */

@@ -2,11 +2,13 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
-
 use GuzzleHttp\ClientInterface;
 
-trait UsesGuzzleHttpClient {
-
+/**
+ * Trait UsesGuzzleHttpClient.
+ */
+trait UsesGuzzleHttpClient
+{
     /** @var ClientInterface */
     protected $httpClient;
 

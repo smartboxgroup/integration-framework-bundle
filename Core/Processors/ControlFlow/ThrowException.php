@@ -9,8 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\ExchangeAwareInterface;
 
 /**
- * Class ThrowException
- * @package Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow
+ * Class ThrowException.
  */
 class ThrowException extends Processor
 {
@@ -18,6 +17,7 @@ class ThrowException extends Processor
      * @JMS\Expose
      * @JMS\Groups({"logs"})
      * @JMS\Type("string")
+     *
      * @var string
      */
     protected $exceptionClass;
@@ -35,10 +35,10 @@ class ThrowException extends Processor
      */
     public function setExceptionClass($exceptionClass)
     {
-        if(     empty($exceptionClass)
+        if (empty($exceptionClass)
             ||  !class_exists($exceptionClass)
-            ||  !is_a($exceptionClass,"Exception",true)
-        ){
+            ||  !is_a($exceptionClass, 'Exception', true)
+        ) {
             throw new \InvalidArgumentException("$exceptionClass is not a valid exception class");
         }
 
@@ -46,15 +46,18 @@ class ThrowException extends Processor
     }
 
     /**
-     * The ThrowException will create an exception of the type specified in Ref
+     * The ThrowException will create an exception of the type specified in Ref.
+     *
      * @param Exchange $exchange
+     *
      * @return bool
-     * @throws \Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\ExchangeAwareInterface
+     *
+     * @throws ExchangeAwareInterface
      */
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
-        if(empty($this->exceptionClass)){
-            throw new \RuntimeException("Exception class not found");
+        if (empty($this->exceptionClass)) {
+            throw new \RuntimeException('Exception class not found');
         }
 
         /** @var ExchangeAwareInterface $exception */

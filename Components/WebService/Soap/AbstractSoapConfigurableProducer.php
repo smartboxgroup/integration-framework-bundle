@@ -12,9 +12,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityIn
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class AbstractSoapConfigurableProducer
- *
- * @package Smartbox\Integration\FrameworkBundle\Core\Producers
+ * Class AbstractSoapConfigurableProducer.
  */
 abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer implements CanCheckConnectivityInterface
 {
@@ -29,19 +27,21 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
 
     /**
      * @param $endpointOptions
+     *
      * @return SoapClient
      */
-    public abstract function getSoapClient(array &$endpointOptions);
+    abstract public function getSoapClient(array &$endpointOptions);
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function executeStep($stepAction, &$stepActionParams, &$endpointOptions, array &$context)
     {
-        if(!parent::executeStep($stepAction,$stepActionParams,$endpointOptions,$context)){
-            switch ($stepAction){
+        if (!parent::executeStep($stepAction, $stepActionParams, $endpointOptions, $context)) {
+            switch ($stepAction) {
                 case self::STEP_REQUEST:
                     $this->request($stepActionParams, $endpointOptions, $context);
+
                     return true;
             }
         }
@@ -58,15 +58,16 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
      *
      * @return \stdClass
      */
-    protected function performRequest($methodName, $params, array &$endpointOptions, array $soapOptions = [], array $soapHeaders = []){
+    protected function performRequest($methodName, $params, array &$endpointOptions, array $soapOptions = [], array $soapHeaders = [])
+    {
         $soapClient = $this->getSoapClient($endpointOptions);
-        try{
-            if(!$soapClient){
-                throw new \RuntimeException("SoapConfigurableProducer requires a SoapClient as a dependency");
+        try {
+            if (!$soapClient) {
+                throw new \RuntimeException('SoapConfigurableProducer requires a SoapClient as a dependency');
             }
 
             // creates a proper set of SoapHeader objects
-            $processedSoapHeaders = array_map(function($header){
+            $processedSoapHeaders = array_map(function ($header) {
                 if (is_array($header)) {
                     $header = new \SoapHeader($header[0], $header[1], $header[2]);
                 }
@@ -82,10 +83,10 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
             }, $soapHeaders);
 
             $soapClient->setExecutionTimeout($endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT]);
-            return $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
 
-        }catch (\Exception $ex){
-            $this->throwSoapProducerException($soapClient, $ex->getMessage(), $ex->getCode(),$ex);
+            return $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
+        } catch (\Exception $ex) {
+            $this->throwSoapProducerException($soapClient, $ex->getMessage(), $ex->getCode(), $ex);
         }
     }
 
@@ -93,7 +94,9 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
      * @param array $stepActionParams
      * @param array $endpointOptions
      * @param array $context
+     *
      * @return \stdClass
+     *
      * @throws RecoverableSoapException
      */
     protected function request(array &$stepActionParams, array &$endpointOptions, array &$context)
@@ -102,7 +105,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
         $paramsResolver->setRequired([
             self::SOAP_METHOD_NAME,
             self::REQUEST_PARAMETERS,
-            self::REQUEST_NAME
+            self::REQUEST_NAME,
         ]);
 
         $paramsResolver->setDefined([
@@ -120,17 +123,16 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
 
         $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
 
-        $result = $this->performRequest($soapMethodName,$soapMethodParams,$endpointOptions, $soapOptions, $soapHeaders);
+        $result = $this->performRequest($soapMethodName, $soapMethodParams, $endpointOptions, $soapOptions, $soapHeaders);
 
         $context[self::KEY_RESPONSES][$requestName] = $result;
 
         return $result;
     }
 
-
     protected function throwSoapProducerException(\SoapClient $soapClient, $message, $code = 0, $previousException = null)
     {
-        /** @var \SoapClient $soapClient */
+        /* @var \SoapClient $soapClient */
         $exception = new RecoverableSoapException(
             $message,
             $soapClient->__getLastRequestHeaders(),
@@ -143,7 +145,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
 
         throw $exception;
     }
-    
+
     /**
      * {@inheritdoc}
      */

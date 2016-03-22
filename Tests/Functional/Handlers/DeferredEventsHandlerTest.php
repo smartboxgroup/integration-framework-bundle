@@ -11,8 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventMessage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class DeferredEventsHandlerTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers
+ * Class DeferredEventsHandlerTest.
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler
  */
@@ -38,9 +37,9 @@ class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
     public function testHandle()
     {
         /** @var Event|\PHPUnit_Framework_MockObject_MockObject $eventMock */
-        $eventMock = $this->getMockForAbstractClass(Event::class,array('test'));
+        $eventMock = $this->getMockForAbstractClass(Event::class, array('test'));
         $arr = [];
-        $endpointMock = new Endpoint("xxx",$arr, new Protocol());
+        $endpointMock = new Endpoint('xxx', $arr, new Protocol());
 
         $message = new EventMessage($eventMock, [EventMessage::HEADER_EVENT_NAME => 'test'], new Context([Context::VERSION => '0']));
 
@@ -50,7 +49,6 @@ class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
             ->with('test.deferred', $message->getBody())
         ;
 
-
-        $this->handler->handle($message,$endpointMock);
+        $this->handler->handle($message, $endpointMock);
     }
 }

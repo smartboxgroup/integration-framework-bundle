@@ -8,8 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 /**
- * Class Pipeline
- * @package Smartbox\Integration\FrameworkBundle\Core\Processors\Routing
+ * Class Pipeline.
  */
 class Pipeline extends Processor
 {

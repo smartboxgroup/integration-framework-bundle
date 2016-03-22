@@ -10,8 +10,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesDriverRegistry;
 
 /**
- * Class NoSQLProducer
- * @package Smartbox\Integration\FrameworkBundle\Core\Producers
+ * Class NoSQLProducer.
  */
 class NoSQLProducer extends Producer
 {
@@ -29,7 +28,7 @@ class NoSQLProducer extends Producer
         /** @var \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface $driver */
         $driver = $this->getDriverRegistry()->getDriver($driverName);
 
-        if(empty($driver) || !$driver instanceof NoSQLDriverInterface){
+        if (empty($driver) || !$driver instanceof NoSQLDriverInterface) {
             throw new \RuntimeException(self::class, NoSQLProtocol::OPTION_NOSQL_DRIVER, 'Expected NoSQLDriverInterface instance');
         }
 
@@ -42,7 +41,7 @@ class NoSQLProducer extends Producer
 
         $success = false;
 
-        switch($options[NoSQLProtocol::OPTION_ACTION]){
+        switch ($options[NoSQLProtocol::OPTION_ACTION]) {
             case NoSQLProtocol::ACTION_CREATE:
                 $success = $driver->create($message);
                 break;
@@ -53,12 +52,12 @@ class NoSQLProducer extends Producer
                 $success = $driver->update($message);
                 break;
             case NoSQLProtocol::ACTION_GET:
-                throw new \Exception("Receiving from NOSQLProducer is not yet implemented");
+                throw new \Exception('Receiving from NOSQLProducer is not yet implemented');
                 break;
         }
 
-        if(!$success){
-            throw new \RuntimeException("The message could not be processed by NOSQLProducer");
+        if (!$success) {
+            throw new \RuntimeException('The message could not be processed by NOSQLProducer');
         }
     }
 }

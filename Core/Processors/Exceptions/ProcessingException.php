@@ -1,4 +1,5 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions;
 
 use JMS\Serializer\Annotation as JMS;
@@ -9,11 +10,10 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 /**
- * Class ProcessingException
- *
- * @package Smartbox\Integration\FrameworkBundle\Exceptions
+ * Class ProcessingException.
  */
-class ProcessingException extends \Exception implements SerializableInterface {
+class ProcessingException extends \Exception implements SerializableInterface
+{
     use HasInternalType;
 
     /**

@@ -79,6 +79,4 @@ class SerializableSimpleEntity extends Entity
     {
         $this->note = $note;
     }
-
-
 }

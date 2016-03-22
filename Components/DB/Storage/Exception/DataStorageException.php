@@ -6,8 +6,7 @@ use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 
 /**
- * Class DataStorageException
- * @package Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Exception
+ * Class DataStorageException.
  */
 class DataStorageException extends StorageException
 {

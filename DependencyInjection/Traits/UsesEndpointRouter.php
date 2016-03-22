@@ -4,8 +4,11 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 
-trait UsesEndpointRouter {
-
+/**
+ * Trait UsesEndpointRouter.
+ */
+trait UsesEndpointRouter
+{
     /**
      * @var InternalRouter
      */

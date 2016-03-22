@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional;
-
 
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
@@ -15,9 +13,9 @@ abstract class ProcessorTest extends BaseTestCase
 
     abstract protected function createProcessor();
 
-    public abstract function getInvalidMessages();
+    abstract public function getInvalidMessages();
 
-    public abstract function getWorkingMessages();
+    abstract public function getWorkingMessages();
 
     public function setUp()
     {
@@ -27,6 +25,7 @@ abstract class ProcessorTest extends BaseTestCase
 
     /**
      * @dataProvider getWorkingMessages
+     *
      * @param $inMessage
      * @param $outMessage
      */

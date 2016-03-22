@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Handlers;
 
-use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -27,8 +26,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDis
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesItinerariesRouter;
 
 /**
- * Class MessageHandler
- * @package Smartbox\Integration\FrameworkBundle\Core\Handlers
+ * Class MessageHandler.
  */
 class MessageHandler extends Service implements HandlerInterface
 {
@@ -36,12 +34,13 @@ class MessageHandler extends Service implements HandlerInterface
     use UsesEndpointFactory;
     use UsesItinerariesRouter;
 
+    /** @var  int */
     protected $retriesMax;
 
-    /** @var  boolean */
+    /** @var  bool */
     protected $throwExceptions;
 
-    /** @var  boolean */
+    /** @var  bool */
     protected $deferNewExchanges;
 
     /** @var  EndpointInterface */
@@ -51,7 +50,7 @@ class MessageHandler extends Service implements HandlerInterface
     protected $retryEndpoint;
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function shouldDeferNewExchanges()
     {
@@ -59,7 +58,7 @@ class MessageHandler extends Service implements HandlerInterface
     }
 
     /**
-     * @param boolean $deferNewExchanges
+     * @param bool $deferNewExchanges
      */
     public function setDeferNewExchanges($deferNewExchanges)
     {
@@ -83,7 +82,7 @@ class MessageHandler extends Service implements HandlerInterface
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function shouldThrowExceptions()
     {
@@ -91,7 +90,7 @@ class MessageHandler extends Service implements HandlerInterface
     }
 
     /**
-     * @param boolean $throwExceptions
+     * @param bool $throwExceptions
      */
     public function setThrowExceptions($throwExceptions)
     {
@@ -103,9 +102,9 @@ class MessageHandler extends Service implements HandlerInterface
      */
     public function setRetryURI($retryURI)
     {
-        if(empty($retryURI)){
+        if (empty($retryURI)) {
             $this->retryEndpoint = null;
-        }else{
+        } else {
             $this->retryEndpoint = $this->getEndpointFactory()->createEndpoint($retryURI);
         }
     }
@@ -116,9 +115,11 @@ class MessageHandler extends Service implements HandlerInterface
     public function setFailedURI($failedURI)
     {
         $this->failedEndpoint = $this->getEndpointFactory()->createEndpoint($failedURI);
-
     }
 
+    /**
+     * @param Exchange $ex
+     */
     protected function prepareExchange(Exchange $ex)
     {
         if ($ex->hasOut()) {
@@ -131,7 +132,8 @@ class MessageHandler extends Service implements HandlerInterface
     /**
      * @param Exchange $exchange
      */
-    public function onHandleStart(Exchange $exchange){
+    public function onHandleStart(Exchange $exchange)
+    {
         $beforeHandleEvent = new HandlerEvent(HandlerEvent::BEFORE_HANDLE_EVENT_NAME);
         $beforeHandleEvent->setTimestampToCurrent();
         $beforeHandleEvent->setExchange($exchange);
@@ -139,46 +141,59 @@ class MessageHandler extends Service implements HandlerInterface
     }
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Exchange $exchange
+     * @param Exchange $exchange
      */
-    public function onHandleSuccess(Exchange $exchange){
+    public function onHandleSuccess(Exchange $exchange)
+    {
         $afterHandleEvent = new HandlerEvent(HandlerEvent::AFTER_HANDLE_EVENT_NAME);
         $afterHandleEvent->setTimestampToCurrent();
         $afterHandleEvent->setExchange($exchange);
         $this->eventDispatcher->dispatch(HandlerEvent::BEFORE_HANDLE_EVENT_NAME, $afterHandleEvent);
     }
 
-    public function onNewExchangeEvent(NewExchangeEvent $event){
+    /**
+     * @param NewExchangeEvent $event
+     *
+     * @throws HandlerException
+     */
+    public function onNewExchangeEvent(NewExchangeEvent $event)
+    {
         $newExchange = $event->getExchange();
 
-        if($newExchange->getHeader(Exchange::HEADER_HANDLER) == $this->getId()){
+        if ($newExchange->getHeader(Exchange::HEADER_HANDLER) == $this->getId()) {
             $event->stopPropagation();
 
             // If the exchange is to be deferred, we send it back to the original endpoint
-            if($this->shouldDeferNewExchanges()){
+            if ($this->shouldDeferNewExchanges()) {
                 $newExchangeEnvelope = new Exchange(new DeferredExchangeEnvelope($newExchange));
                 $uri = $newExchange->getHeader(Exchange::HEADER_FROM);
                 $targetEndpoint = $this->getEndpointFactory()->createEndpoint($uri);
                 $targetEndpoint->produce($newExchangeEnvelope);
             }
             // Otherwise we process it immediately
-            else{
+            else {
                 $this->processExchange($newExchange);
             }
         }
     }
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException $exception
-     * @param Processor $processor
-     * @param Exchange $exchangeBackup
-     * @param $progress
-     * @param $retries
-     * @throws HandlerException
+     * @param ProcessingException $exception
+     * @param Processor           $processor
+     * @param Exchange            $exchangeBackup
+     * @param int                 $progress
+     * @param int                 $retries
+     *
      * @throws \Exception
+     * @throws RecoverableExceptionInterface
      */
-    public function onHandleException(ProcessingException $exception, Processor $processor, Exchange $exchangeBackup, $progress, $retries){
-
+    public function onHandleException(
+        ProcessingException $exception,
+        Processor $processor,
+        Exchange $exchangeBackup,
+        $progress,
+        $retries
+    ) {
         $originalException = $exception->getOriginalException();
 
         // Dispatch event with error information
@@ -188,7 +203,7 @@ class MessageHandler extends Service implements HandlerInterface
 
         // Try to recover
         if ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
-            $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries+1);
+            $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
 
             $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
             $recoveryExchange = new Exchange($retryExchangeEnvelope);
@@ -212,15 +227,15 @@ class MessageHandler extends Service implements HandlerInterface
 
         $this->getEventDispatcher()->dispatch(ProcessingErrorEvent::EVENT_NAME, $event);
 
-        if($this->shouldThrowExceptions()){
+        if ($this->shouldThrowExceptions()) {
             throw $originalException;
         }
     }
 
     /**
      * @param ErrorExchangeEnvelope $envelope
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException $exception
-     * @param int $retries
+     * @param ProcessingException   $exception
+     * @param int                   $retries
      */
     private function addCommonErrorHeadersToEnvelope(ErrorExchangeEnvelope $envelope, ProcessingException $exception, ProcessorInterface $processor, $retries)
     {
@@ -239,73 +254,92 @@ class MessageHandler extends Service implements HandlerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handle(MessageInterface $message, EndpointInterface $endpointFrom)
     {
         $version = $message->getContext()->get(Context::VERSION);
         $expectedVersion = $this->getFlowsVersion();
 
-        if($version !== $expectedVersion){
+        if ($version !== $expectedVersion) {
             throw new HandlerException(
-                "Received message with wrong version. Expected: $expectedVersion, received: $version"
-                ,$message
+                "Received message with wrong version. Expected: $expectedVersion, received: $version", $message
             );
         }
 
         $retries = 0;
 
         // If this is an exchange envelope
-        if($message && $message instanceof ExchangeEnvelope){
+        if ($message && $message instanceof ExchangeEnvelope) {
             $exchange = $message->getBody();
 
-            if($message instanceof RetryExchangeEnvelope){
+            if ($message instanceof RetryExchangeEnvelope) {
                 $retries = $message->getRetries();
             }
         }
         // Otherwise create the exchange
-        else{
+        else {
             // Find from URI
-            if($endpointFrom) {
+            if ($endpointFrom) {
                 $from = $endpointFrom->getURI();
-            }else{
+            } else {
                 $from = $message->getHeader(Message::HEADER_FROM);
             }
 
-            if(empty($from)){
-                throw new HandlerException("Missing FROM header while trying to handle a message",$message);
+            if (empty($from)) {
+                throw new HandlerException('Missing FROM header while trying to handle a message', $message);
             }
 
-            $exchange = $this->createExchangeForMessageFromURI($message,$from);
+            $exchange = $this->createExchangeForMessageFromURI($message, $from);
         }
 
         $this->onHandleStart($exchange);
-        $result = $this->processExchange($exchange,$retries);
+        $result = $this->processExchange($exchange, $retries);
         $this->onHandleSuccess($exchange);
 
         return $result;
     }
 
-    protected function createExchangeForMessageFromURI(MessageInterface $message, $from){
+    /**
+     * @param MessageInterface $message
+     * @param string           $from
+     *
+     * @return Exchange
+     *
+     * @throws \Exception
+     */
+    protected function createExchangeForMessageFromURI(MessageInterface $message, $from)
+    {
         $params = $this->findItineraryParams($from);
         $itinerary = $params[InternalRouter::KEY_ITINERARY];
 
         $exchange = new Exchange($message, clone $itinerary);
-        $exchange->setHeader(Exchange::HEADER_HANDLER,$this->getId());
-        $exchange->setHeader(Exchange::HEADER_FROM,$from);
+        $exchange->setHeader(Exchange::HEADER_HANDLER, $this->getId());
+        $exchange->setHeader(Exchange::HEADER_FROM, $from);
 
         foreach ($this->filterItineraryParamsToPropagate($params) as $key => $value) {
-            $exchange->setHeader($key,$value);
+            $exchange->setHeader($key, $value);
         }
 
         return $exchange;
     }
 
-    public function processExchange(Exchange $exchange, $retries = 0){
+    /**
+     * @param Exchange $exchange
+     * @param int      $retries
+     *
+     * @return MessageInterface
+     *
+     * @throws \Exception
+     * @throws HandlerException
+     * @throws RecoverableExceptionInterface
+     */
+    public function processExchange(Exchange $exchange, $retries = 0)
+    {
         $itinerary = $exchange->getItinerary();
 
-        if(!$itinerary || empty($itinerary->getProcessors())){
-            throw new HandlerException("Itinerary not found while handling message",$exchange->getIn());
+        if (!$itinerary || empty($itinerary->getProcessors())) {
+            throw new HandlerException('Itinerary not found while handling message', $exchange->getIn());
         }
 
         $progress = 0;
@@ -317,12 +351,13 @@ class MessageHandler extends Service implements HandlerInterface
 
                 $processor->process($exchange);
 
-                $progress++;
+                ++$progress;
                 $retries = 0;   // If we make any progress the retries count is restarted
                 $exchangeBackup = clone $exchange;
-            }catch (ProcessingException $exception) {
+            } catch (ProcessingException $exception) {
                 $this->onHandleException($exception, $processor, $exchangeBackup, $progress, $retries);
-                return null;
+
+                return;
             }
         }
 

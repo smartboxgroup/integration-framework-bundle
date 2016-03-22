@@ -1,20 +1,18 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-
-use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
- * Class ArrayQueueDriver
- * @package Smartbox\Integration\FrameworkBundle\Drivers\Queue
+ * Class ArrayQueueDriver.
  */
-class ArrayQueueDriver extends Service implements QueueDriverInterface{
-
-    static $array = array();
+class ArrayQueueDriver extends Service implements QueueDriverInterface
+{
+    public static $array = array();
 
     protected $connected = false;
     protected $subscribedQueue = false;
@@ -25,7 +23,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
      */
     public function getArrayForQueue($queue)
     {
-        if(!array_key_exists($queue,self::$array)){
+        if (!array_key_exists($queue, self::$array)) {
             self::$array[$queue] = [];
         }
 
@@ -33,9 +31,9 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
     }
 
     /**
-     * Configures the driver
+     * Configures the driver.
      *
-     * @param string $uri URI of the queuing system
+     * @param string $uri      URI of the queuing system
      * @param string $username Username to connect to the queuing system
      * @param string $password Password to connect to the queuing system
      */
@@ -45,7 +43,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
     }
 
     /**
-     * Opens a connection with a queuing system
+     * Opens a connection with a queuing system.
      */
     public function connect()
     {
@@ -53,7 +51,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
     }
 
     /**
-     * Destroys the connection with the queuing system
+     * Destroys the connection with the queuing system.
      */
     public function disconnect()
     {
@@ -61,8 +59,9 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
     }
 
     /**
-     * Returns true if a connection already exists with the queing system, false otherwise
-     * @return boolean
+     * Returns true if a connection already exists with the queing system, false otherwise.
+     *
+     * @return bool
      */
     public function isConnected()
     {
@@ -70,8 +69,9 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
     }
 
     /**
-     * Returns true if a subscription already exists, false otherwise
-     * @return boolean
+     * Returns true if a subscription already exists, false otherwise.
+     *
+     * @return bool
      */
     public function isSubscribed()
     {
@@ -79,10 +79,9 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
     }
 
     /**
-     * Creates a subscription to the given $queue, allowing to receive messages from it
+     * Creates a subscription to the given $queue, allowing to receive messages from it.
      *
-     * @param string $queue Queue to subscribe
-     *
+     * @param string      $queue    Queue to subscribe
      * @param string|null $selector If supported, it is an expression filters the messages on the queue.
      */
     public function subscribe($queue, $selector = null)
@@ -91,7 +90,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
     }
 
     /**
-     * Destroys the created subscription with a queue
+     * Destroys the created subscription with a queue.
      */
     public function unSubscribe()
     {
@@ -109,7 +108,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
     }
 
     /**
-     * Acknowledges a failure on processing the last received object
+     * Acknowledges a failure on processing the last received object.
      *
      * The object could be moved to the DLQ or be delivered to another subscription for retrial
      */
@@ -118,9 +117,10 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
         $this->unacknowledgedFrame = false;
     }
 
-    /** {@inheritDoc} */
-    public function send(QueueMessageInterface $message) {
-        if(!array_key_exists($message->getQueue(),self::$array)){
+    /** {@inheritdoc} */
+    public function send(QueueMessageInterface $message)
+    {
+        if (!array_key_exists($message->getQueue(), self::$array)) {
             self::$array[$message->getQueue()] = [];
         }
 
@@ -129,10 +129,10 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
         return true;
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritdoc} */
     public function receive()
     {
-        if(array_key_exists($this->subscribedQueue,self::$array) && !empty(self::$array[$this->subscribedQueue])){
+        if (array_key_exists($this->subscribedQueue, self::$array) && !empty(self::$array[$this->subscribedQueue])) {
             $this->unacknowledgedFrame = array_shift(self::$array[$this->subscribedQueue]);
         }
 
@@ -144,16 +144,17 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface{
      */
     public function createQueueMessage()
     {
-        /**
+        /*
          * This driver will ignore all the headers so it can use any message that implements QueueMessageInterface
          */
         $msg = new QueueMessage();
         $msg->setContext(new Context([Context::VERSION => $this->getFlowsVersion()]));
+
         return $msg;
     }
 
     /**
-     * Clean all the opened resources, must be called just before terminating the current request
+     * Clean all the opened resources, must be called just before terminating the current request.
      */
     public function doDestroy()
     {

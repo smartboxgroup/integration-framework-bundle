@@ -1,4 +1,5 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
@@ -12,8 +13,8 @@ use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerRecoverableExcep
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ConfigurableProducerTest extends BaseTestCase{
-
+class ConfigurableProducerTest extends BaseTestCase
+{
     /** @var  ConfigurableProducer|\PHPUnit_Framework_MockObject_MockObject */
     protected $configurableProducer;
 
@@ -26,7 +27,7 @@ class ConfigurableProducerTest extends BaseTestCase{
     protected $defaultOptions = [
         'x' => 1,
         'y' => 2,
-        'z' => [1,2,3]
+        'z' => [1,2,3],
     ];
 
     protected $simpleMethodsConfig = [
@@ -35,11 +36,11 @@ class ConfigurableProducerTest extends BaseTestCase{
               ConfigurableProducer::KEY_STEPS => [
                     [ConfigurableProducer::STEP_DEFINE => [
                       'x' => 'eval: 1 + 2',
-                      'val' => 'eval: msg.getBody().get("value")'
+                      'val' => 'eval: msg.getBody().get("value")',
                     ]],
                     [ConfigurableProducer::STEP_DEFINE => [
-                      'result' => 'eval: x + val'
-                    ]]
+                      'result' => 'eval: x + val',
+                    ]],
               ],
               ConfigurableProducer::KEY_VALIDATIONS => [
                   [
@@ -56,12 +57,12 @@ class ConfigurableProducerTest extends BaseTestCase{
                       'rule' => 'eval: val != 1313666',
                       'message' => 'Too ugly number!!',
                       'recoverable' => false,
-                  ]
+                  ],
               ],
               ConfigurableProducer::KEY_RESPONSE => [
-                  'result' => 'eval: 1 + 2 + msg.getBody().get(\'value\') + 10'
+                  'result' => 'eval: 1 + 2 + msg.getBody().get(\'value\') + 10',
               ],
-          ]
+          ],
     ];
 
     public function setUp()
@@ -79,23 +80,23 @@ class ConfigurableProducerTest extends BaseTestCase{
         $this->optionsResolver = new OptionsResolver();
         $this->protocol = new ConfigurableWebserviceProtocol();
         $this->protocol->configureOptionsResolver($this->optionsResolver);
-
     }
 
     public function testDefaultOptionsShouldBeSet()
     {
         $defaults = $this->configurableProducer->getOptions();
 
-        foreach($this->defaultOptions as $defaultKey => $defaultValue){
-            $this->assertArrayHasKey($defaultKey,$defaults);
-            $this->assertEquals($defaults[$defaultKey],$defaultValue);
+        foreach ($this->defaultOptions as $defaultKey => $defaultValue) {
+            $this->assertArrayHasKey($defaultKey, $defaults);
+            $this->assertEquals($defaults[$defaultKey], $defaultValue);
         }
     }
 
-    public function testExecuteStepDefine(){
+    public function testExecuteStepDefine()
+    {
         $context = [
             'x' => 1,
-            'y' => 2
+            'y' => 2,
         ];
 
         $actionParams = [
@@ -103,68 +104,68 @@ class ConfigurableProducerTest extends BaseTestCase{
             'r2' => [
                 'sub1' => [
                     'a' => 'eval: x*10',
-                    'b' => 'eval: y*10'
+                    'b' => 'eval: y*10',
                 ],
                 'sub2' => [
                     'a' => 'eval: x+10',
-                    'b' => 'eval: y+10'
-                ]
-            ]
+                    'b' => 'eval: y+10',
+                ],
+            ],
         ];
 
         $options = [];
 
-        $this->configurableProducer->executeStep('define',$actionParams,$options,$context);
+        $this->configurableProducer->executeStep('define', $actionParams, $options, $context);
 
-        $this->assertEquals(3,$context['vars']['r1']);
+        $this->assertEquals(3, $context['vars']['r1']);
 
         $this->assertEquals([
             'sub1' => [
                 'a' => '10',
-                'b' => '20'
+                'b' => '20',
             ],
             'sub2' => [
                 'a' => '11',
-                'b' => '12'
-            ]
-        ],$context['vars']['r2']);
+                'b' => '12',
+            ],
+        ], $context['vars']['r2']);
     }
 
-    public function testSendWorks(){
-
+    public function testSendWorks()
+    {
         $exchange = new Exchange(
             new Message(new SerializableArray(['value' => 5]))
         );
 
         $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
-            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT
+            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT,
         ]);
 
-        $endpoint = new Endpoint("xxx",$opts,$this->protocol);
-        $this->configurableProducer->send($exchange,$endpoint);
+        $endpoint = new Endpoint('xxx', $opts, $this->protocol);
+        $this->configurableProducer->send($exchange, $endpoint);
 
-        $this->assertInstanceOf(SerializableArray::class,$exchange->getResult()->getBody());
+        $this->assertInstanceOf(SerializableArray::class, $exchange->getResult()->getBody());
 
         $this->assertEquals(
-            (3+5+10),
+            (3 + 5 + 10),
             $exchange->getResult()->getBody()->get('result')
         );
     }
 
-    public function testSendWithExchangePatternInOnlyRespectsMessage(){
-
+    public function testSendWithExchangePatternInOnlyRespectsMessage()
+    {
         $in = new Message(new SerializableArray(['value' => 5]));
 
         $exchange = new Exchange($in);
 
         $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
-            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_ONLY
+            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_ONLY,
         ]);
 
-        $endpoint = new Endpoint("xxx",$opts,$this->protocol);
-        $this->configurableProducer->send($exchange,$endpoint);
+        $endpoint = new Endpoint('xxx', $opts, $this->protocol);
+        $this->configurableProducer->send($exchange, $endpoint);
 
         $this->assertEquals(
             $in,
@@ -172,38 +173,38 @@ class ConfigurableProducerTest extends BaseTestCase{
         );
     }
 
-    public function testValidationWorksWithUnrecoverableException(){
-
+    public function testValidationWorksWithUnrecoverableException()
+    {
         $exchange = new Exchange(
             new Message(new SerializableArray(['value' => 1313666]))
         );
 
-        $this->setExpectedException(EndpointUnrecoverableException::class,"Too ugly number!!");
+        $this->setExpectedException(EndpointUnrecoverableException::class, 'Too ugly number!!');
 
         $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
-            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT
+            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT,
         ]);
 
-        $endpoint = new Endpoint("xxx",$opts,$this->protocol);
+        $endpoint = new Endpoint('xxx', $opts, $this->protocol);
 
-        $this->configurableProducer->send($exchange,$endpoint);
+        $this->configurableProducer->send($exchange, $endpoint);
     }
 
-    public function testValidationWorksWithRecoverableException(){
-
+    public function testValidationWorksWithRecoverableException()
+    {
         $exchange = new Exchange(
             new Message(new SerializableArray(['value' => 666]))
         );
 
-        $this->setExpectedException(ProducerRecoverableException::class,"Ugly number!!");
+        $this->setExpectedException(ProducerRecoverableException::class, 'Ugly number!!');
 
         $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
-            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT
+            ConfigurableWebserviceProtocol::OPTION_EXCHANGE_PATTERN => ConfigurableWebserviceProtocol::EXCHANGE_PATTERN_IN_OUT,
         ]);
 
-        $endpoint = new Endpoint("xxx",$opts,$this->protocol);
-        $this->configurableProducer->send($exchange,$endpoint);
+        $endpoint = new Endpoint('xxx', $opts, $this->protocol);
+        $this->configurableProducer->send($exchange, $endpoint);
     }
 }

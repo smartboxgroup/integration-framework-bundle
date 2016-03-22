@@ -2,7 +2,9 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Messages;
 
-
-class DeferredExchangeEnvelope extends ExchangeEnvelope {
-
+/**
+ * Class DeferredExchangeEnvelope.
+ */
+class DeferredExchangeEnvelope extends ExchangeEnvelope
+{
 }

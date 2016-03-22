@@ -5,11 +5,8 @@ namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Except
 use Smartbox\Integration\FrameworkBundle\Exceptions\UnrecoverableExceptionInterface;
 
 /**
- * Class UnrecoverableSoapException
- *
- * @package \Smartbox\Integration\FrameworkBundle\Exceptions
+ * Class UnrecoverableSoapException.
  */
 class UnrecoverableSoapException extends SoapException implements UnrecoverableExceptionInterface
 {
-
 }

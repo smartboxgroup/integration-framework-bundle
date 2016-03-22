@@ -33,20 +33,22 @@ trait FakeClientTrait
     }
 
     /**
-     * Method to ensure that fake client was initialised correctly
+     * Method to ensure that fake client was initialised correctly.
+     *
      * @throws \RuntimeException
      */
     protected function checkInitialisation()
     {
-       if(!$this->initialised) {
-           throw new \RuntimeException('Fake client is not initialised.');
-       }
+        if (!$this->initialised) {
+            throw new \RuntimeException('Fake client is not initialised.');
+        }
     }
 
     protected function getResponseFromCache($resource, $suffix = null)
     {
-        $file = $this->cacheDir . DIRECTORY_SEPARATOR . $resource . (($suffix)? '.' . $suffix : null);
+        $file = $this->cacheDir.DIRECTORY_SEPARATOR.$resource.(($suffix) ? '.'.$suffix : null);
         $fixturePath = $this->fileLocator->locate($file);
+
         return file_get_contents($fixturePath);
     }
 
@@ -57,7 +59,7 @@ trait FakeClientTrait
                 mkdir($this->cacheDir, 0777, true);
             }
             file_put_contents(
-                $this->cacheDir . DIRECTORY_SEPARATOR . $resource . (($suffix)? '.' . $suffix : null),
+                $this->cacheDir.DIRECTORY_SEPARATOR.$resource.(($suffix) ? '.'.$suffix : null),
                 $content
             );
         }

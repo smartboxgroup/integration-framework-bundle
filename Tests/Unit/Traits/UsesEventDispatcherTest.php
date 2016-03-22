@@ -5,8 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Traits;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * Class UsesEventDispatcherTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Traits
+ * Class UsesEventDispatcherTest.
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher
  */

@@ -8,8 +8,7 @@ use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 /**
- * Class Itinerary
- * @package Smartbox\Integration\FrameworkBundle\Core\Processors
+ * Class Itinerary.
  */
 class Itinerary implements SerializableInterface
 {
@@ -19,6 +18,7 @@ class Itinerary implements SerializableInterface
      * @JMS\Type("string")
      * @JMS\Expose
      * @JMS\Groups({"logs"})
+     *
      * @var string
      */
     protected $name;
@@ -26,6 +26,11 @@ class Itinerary implements SerializableInterface
     /** @var  Processor[] */
     protected $processors;
 
+    /**
+     * Itinerary constructor.
+     *
+     * @param string|null $name
+     */
     public function __construct($name = null)
     {
         $this->name = $name;
@@ -43,7 +48,8 @@ class Itinerary implements SerializableInterface
     /**
      * @param $name
      */
-    public function setName($name){
+    public function setName($name)
+    {
         $this->name = $name;
     }
 
@@ -53,6 +59,7 @@ class Itinerary implements SerializableInterface
      * @JMS\Type("array<string>")
      * @JMS\Expose
      * @JMS\Groups({"metadata"})
+     *
      * @return array
      */
     public function getProcessorIds()
@@ -110,7 +117,8 @@ class Itinerary implements SerializableInterface
     /**
      * @param Processor $processor
      */
-    public function unShiftProcessor(Processor $processor){
-        array_unshift($this->processors,$processor);
+    public function unShiftProcessor(Processor $processor)
+    {
+        array_unshift($this->processors, $processor);
     }
 }

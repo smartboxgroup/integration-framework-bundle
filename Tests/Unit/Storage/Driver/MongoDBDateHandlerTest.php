@@ -8,8 +8,7 @@ use JMS\Serializer\VisitorInterface;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBDateHandler;
 
 /**
- * Class MongoDBDateHandlerTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Storage\Driver
+ * Class MongoDBDateHandlerTest.
  */
 class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,12 +1,14 @@
 <?php
-namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
+namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
 use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 
+/**
+ * Trait UsesEvaluator.
+ */
 trait UsesEvaluator
 {
-
     /** @var  ExpressionEvaluator */
     protected $evaluator;
 
@@ -25,5 +27,4 @@ trait UsesEvaluator
     {
         $this->evaluator = $evaluator;
     }
-
 }

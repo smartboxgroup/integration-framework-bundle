@@ -2,10 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Producers;
 
-use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -16,8 +14,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class ConfigurableProducer
- * @package Smartbox\Integration\FrameworkBundle\Core\Producers
+ * Class ConfigurableProducer.
  */
 abstract class ConfigurableProducer extends Producer implements ConfigurableProducerInterface
 {
@@ -38,27 +35,47 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     const STEP_DEFINE = 'define';
     const STEP_REQUEST = 'request';
 
+    /** @var  array */
     protected $methodsConfiguration;
 
+    /** @var array  */
     protected $configuredOptions = [];
 
-    public function __construct(){
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct()
+    {
         parent::__construct();
     }
 
-    public function setOptions(array $options){
-        $this->configuredOptions = array_merge($this->configuredOptions,$options);
+    /**
+     * {@inheritdoc}
+     */
+    public function setOptions(array $options)
+    {
+        $this->configuredOptions = array_merge($this->configuredOptions, $options);
     }
 
-    public function getOptions(){
+    /**
+     * @return array
+     */
+    public function getOptions()
+    {
         return $this->configuredOptions;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setMethodsConfiguration(array $methodsConfiguration)
     {
         $this->methodsConfiguration = $methodsConfiguration;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function send(Exchange $exchange, EndpointInterface $endpoint)
     {
         $options = $endpoint->getOptions();
@@ -69,7 +86,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
             throw new \InvalidArgumentException("Method $method was not configured in this producer");
         }
 
-        /**
+        /*
          * CONTEXT PREPARATION
          */
         $methodConf = $this->methodsConfiguration[$method];
@@ -82,10 +99,10 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
             self::KEY_VARS => [],
             self::KEY_PRODUCER => $this,
             self::KEY_PRODUCER_SHORT => $this,
-            self::KEY_RESPONSES => []
+            self::KEY_RESPONSES => [],
         ];
 
-        /**
+        /*
          * PROCESSING
          */
         foreach ($methodConf[self::KEY_STEPS] as $step) {
@@ -94,35 +111,35 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
             }
         }
 
-        /**
+        /*
          * VALIDATION
          */
-        if(array_key_exists(self::KEY_VALIDATIONS,$methodConf)){
-            foreach($methodConf[self::KEY_VALIDATIONS] as $validationRule){
+        if (array_key_exists(self::KEY_VALIDATIONS, $methodConf)) {
+            foreach ($methodConf[self::KEY_VALIDATIONS] as $validationRule) {
                 $rule = $validationRule[self::KEY_RULE];
                 $message = $validationRule[self::KEY_MESSAGE];
                 $recoverable = $validationRule[self::KEY_RECOVERABLE];
 
-                $evaluation = $this->resolve($rule,$context);
-                if($evaluation !== true){
-                    if($recoverable){
+                $evaluation = $this->resolve($rule, $context);
+                if ($evaluation !== true) {
+                    if ($recoverable) {
                         throw new ProducerRecoverableException($message);
-                    }else{
+                    } else {
                         throw new EndpointUnrecoverableException($message);
                     }
                 }
             }
         }
 
-        /**
+        /*
          * RESPONSE
          */
-        if(     $options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT
-            &&  array_key_exists(self::KEY_RESPONSE,$methodConf)){
+        if ($options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT
+            &&  array_key_exists(self::KEY_RESPONSE, $methodConf)) {
             $resultConfig = $methodConf[self::KEY_RESPONSE];
-            $result = $this->resolve($resultConfig,$context);
+            $result = $this->resolve($resultConfig, $context);
 
-            if(is_array($result)){
+            if (is_array($result)) {
                 $result = new SerializableArray($result);
             }
             $exchange->getOut()->setBody($result);
@@ -130,7 +147,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     }
 
     /**
-     * Returns true if the step was executed, false if the step was not recognized
+     * Returns true if the step was executed, false if the step was not recognized.
      *
      * @param       $stepAction
      * @param       $stepActionParams
@@ -144,12 +161,19 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         switch ($stepAction) {
             case self::STEP_DEFINE:
                 $this->define($stepActionParams, $context);
+
                 return true;
             default:
                 return false;
         }
     }
 
+    /**
+     * @param mixed $obj
+     * @param array $context
+     *
+     * @return array|string
+     */
     protected function resolve($obj, array &$context)
     {
         if (empty($obj)) {
@@ -163,12 +187,19 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
             return $res;
         } elseif (is_string($obj)) {
             $availableVars = array_merge($context, $context[self::KEY_VARS]);
-            return $this->evaluateStringOrExpression($obj,$availableVars);
+
+            return $this->evaluateStringOrExpression($obj, $availableVars);
         } else {
             return $obj;
         }
     }
 
+    /**
+     * @param string $string
+     * @param array  $availableVars
+     *
+     * @return string
+     */
     protected function evaluateStringOrExpression($string, &$availableVars)
     {
         $regex = '/^eval: (?P<expr>.+)$/i';
@@ -179,9 +210,14 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         }
 
         $expression = $matches['expr'];
+
         return $this->evaluator->evaluateWithVars($expression, $availableVars);
     }
 
+    /**
+     * @param array $definitions
+     * @param array $context
+     */
     protected function define($definitions, array &$context)
     {
         if (!is_array($definitions)) {
@@ -190,7 +226,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
             );
         }
 
-        if(!array_key_exists(self::KEY_VARS,$context)){
+        if (!array_key_exists(self::KEY_VARS, $context)) {
             $context[self::KEY_VARS] = [];
         }
 
@@ -200,31 +236,25 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     }
 
     /**
-     *  Key-Value array with the option name as key and the details as value
-     *
-     *  [OptionName => [description, array of valid values],..]
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getOptionsDescriptions()
     {
         $options = [];
-        foreach($this->configuredOptions as $option => $value){
-            $options[] = [$option => "Custom option added in a ConfigurableProducer",[]];
+        foreach ($this->configuredOptions as $option => $value) {
+            $options[] = [$option => 'Custom option added in a ConfigurableProducer',[]];
         }
+
         return $options;
     }
 
     /**
-     * With this method this class can configure an OptionsResolver that will be used to validate the options
-     *
-     * @param OptionsResolver $resolver
-     * @return mixed
+     * {@inheritdoc}
      */
     public function configureOptionsResolver(OptionsResolver $resolver)
     {
-        foreach($this->configuredOptions as $option => $value){
-            $resolver->setDefault($option,$value);
+        foreach ($this->configuredOptions as $option => $value) {
+            $resolver->setDefault($option, $value);
         }
     }
 }

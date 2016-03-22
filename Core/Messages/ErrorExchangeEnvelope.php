@@ -2,11 +2,13 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Messages;
 
-
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Traits\HasProcessingContext;
 
+/**
+ * Class ErrorExchangeEnvelope.
+ */
 abstract class ErrorExchangeEnvelope extends ExchangeEnvelope
 {
     use HasProcessingContext;
@@ -19,7 +21,8 @@ abstract class ErrorExchangeEnvelope extends ExchangeEnvelope
 
     /**
      * FailedExchangeEnvelope constructor.
-     * @param Exchange|null $exchange
+     *
+     * @param Exchange|null          $exchange
      * @param SerializableArray|null $processingContext
      */
     public function __construct(Exchange $exchange, SerializableArray $processingContext = null)

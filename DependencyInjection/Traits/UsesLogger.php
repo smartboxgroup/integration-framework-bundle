@@ -5,8 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class UsesLogger
- * @package Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits
+ * Trait UsesLogger.
  */
 trait UsesLogger
 {

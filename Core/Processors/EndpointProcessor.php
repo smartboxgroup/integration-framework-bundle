@@ -10,8 +10,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEndpointFactory;
 
 /**
- * Class EndpointProcessor
- * @package Smartbox\Integration\FrameworkBundle\Core\Processors
+ * Class EndpointProcessor.
  */
 class EndpointProcessor extends Processor
 {
@@ -46,22 +45,29 @@ class EndpointProcessor extends Processor
     }
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Exchange $exchange
+     * @param Exchange          $exchange
+     * @param SerializableArray $processingContext
+     *
      * @return bool
+     *
+     * @throws EndpointUnrecoverableException
      */
     protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
     {
-        $resolvedUri = EndpointFactory::resolveURIParams($exchange,$this->uri);
+        $resolvedUri = EndpointFactory::resolveURIParams($exchange, $this->uri);
         $endpoint = $this->getEndpointFactory()->createEndpoint($resolvedUri);
 
         $processingContext->set(self::CONTEXT_RESOLVED_URI, $resolvedUri);  // TODO: REMOVE FROM CONTEXT, IS IN ENDPOINT
-        $processingContext->set(self::CONTEXT_OPTIONS,$endpoint->getOptions()); // TODO: REMOVE FROM CONTEXT, IS IN ENDPOINT
+        $processingContext->set(self::CONTEXT_OPTIONS, $endpoint->getOptions()); // TODO: REMOVE FROM CONTEXT, IS IN ENDPOINT
         $processingContext->set(self::CONTEXT_ENDPOINT, $endpoint);
         $processingContext->set(self::CONTEXT_ENDPOINT_REQUEST_ID, uniqid(null, true));
 
-        parent::preProcess($exchange,$processingContext);
+        parent::preProcess($exchange, $processingContext);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         /** @var EndpointInterface $endpoint */
@@ -69,7 +75,11 @@ class EndpointProcessor extends Processor
         $endpoint->produce($exchange);
     }
 
-    protected function postProcess(Exchange $exchange, SerializableArray $processingContext){
-        parent::postProcess($exchange,$processingContext);
+    /**
+     * {@inheritdoc}
+     */
+    protected function postProcess(Exchange $exchange, SerializableArray $processingContext)
+    {
+        parent::postProcess($exchange, $processingContext);
     }
 }

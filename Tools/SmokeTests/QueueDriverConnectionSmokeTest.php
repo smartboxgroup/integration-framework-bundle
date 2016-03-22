@@ -6,6 +6,9 @@ use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver;
 
+/**
+ * Class QueueDriverConnectionSmokeTest
+ */
 class QueueDriverConnectionSmokeTest implements SmokeTestInterface
 {
     /**

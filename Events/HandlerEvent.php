@@ -6,8 +6,7 @@ use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class HandlerEvent
- * @package Smartbox\Integration\FrameworkBundle\Events
+ * Class HandlerEvent.
  */
 class HandlerEvent extends Event
 {
@@ -19,6 +18,7 @@ class HandlerEvent extends Event
      * @JMS\Expose
      * @JMS\Groups({"logs"})
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Exchange")
+     *
      * @var \Smartbox\Integration\FrameworkBundle\Core\Exchange
      */
     protected $exchange;

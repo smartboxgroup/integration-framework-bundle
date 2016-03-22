@@ -5,8 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Traits;
 use JMS\Serializer\SerializerInterface;
 
 /**
- * Class UsesSerializerTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Traits
+ * Class UsesSerializerTest.
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer
  */

@@ -3,19 +3,18 @@
 namespace Smartbox\Integration\FrameworkBundle\Tools\Helper;
 
 /**
- * Class SlugHelper
- *
- * @package Smartbox\Integration\FrameworkBundle\Tools\Helper
+ * Class SlugHelper.
  */
 class SlugHelper
 {
     /**
-     * Slugifies a string
+     * Slugifies a string.
+     *
      * @param string $text
      *
      * @return string
      */
-    static public function slugify($text)
+    public static function slugify($text)
     {
         // replace non letter or digits by -
         $text = preg_replace('~[^\\pL\d]+~u', '_', $text);

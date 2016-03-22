@@ -3,11 +3,10 @@
 namespace Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring;
 
 /**
- * Class EventFiltersRegistry
- * @package Smartbox\Integration\FrameworkBundle\Events
+ * Class EventFiltersRegistry.
  */
-class EventFiltersRegistry {
-
+class EventFiltersRegistry
+{
     /** @var EventFilterInterface[] */
     protected $deferringFilters = [];
 
@@ -30,7 +29,8 @@ class EventFiltersRegistry {
     /**
      * @param EventFilterInterface $deferringFilter
      */
-    public function addDeferringFilter($deferringFilter){
+    public function addDeferringFilter($deferringFilter)
+    {
         $this->deferringFilters[] = $deferringFilter;
     }
 }

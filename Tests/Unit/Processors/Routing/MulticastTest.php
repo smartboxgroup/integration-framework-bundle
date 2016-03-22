@@ -9,8 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class MulticastTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing
+ * Class MulticastTest.
  */
 class MulticastTest extends \PHPUnit_Framework_TestCase
 {
@@ -76,15 +75,14 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
         $this->multicast->setEventDispatcher($eventDispatcher);
         $this->multicast->setItineraries($itineraries);
 
-
         $dispatchedEventsCounter = 0;
 
         $eventDispatcher
             ->expects($this->any())
             ->method('dispatch')
-            ->with($this->callback(function($eventName) use (&$dispatchedEventsCounter){
+            ->with($this->callback(function ($eventName) use (&$dispatchedEventsCounter) {
                 if ($eventName === NewExchangeEvent::TYPE_NEW_EXCHANGE_EVENT) {
-                    $dispatchedEventsCounter++;
+                    ++$dispatchedEventsCounter;
                 }
 
                 return true;
@@ -95,5 +93,4 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(count($itineraries), $dispatchedEventsCounter);
     }
-
 }

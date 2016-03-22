@@ -2,12 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL;
 
-use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 
 /**
- * Class NoSQLMessage
- * @package Smartbox\Integration\FrameworkBundle\Core\Messages\DB
+ * Class NoSQLMessage.
  */
 class NoSQLMessage extends Message implements NoSQLMessageInterface
 {
@@ -16,7 +14,7 @@ class NoSQLMessage extends Message implements NoSQLMessageInterface
     const HEADER_MONGO_ID = 'mongo_id';
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getId()
     {
@@ -24,16 +22,17 @@ class NoSQLMessage extends Message implements NoSQLMessageInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setId($id)
     {
-        $this->setHeader(self::HEADER_MONGO_ID,$id);
+        $this->setHeader(self::HEADER_MONGO_ID, $id);
+
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDatabaseName()
     {
@@ -41,16 +40,17 @@ class NoSQLMessage extends Message implements NoSQLMessageInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setDatabaseName($databaseName)
     {
-        $this->setHeader(self::HEADER_DATABASE_NAME,$databaseName);
+        $this->setHeader(self::HEADER_DATABASE_NAME, $databaseName);
+
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getCollectionName()
     {
@@ -58,11 +58,12 @@ class NoSQLMessage extends Message implements NoSQLMessageInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setCollectionName($collectionName)
     {
-        $this->setHeader(self::HEADER_COLLECTION_NAME,$collectionName);
+        $this->setHeader(self::HEADER_COLLECTION_NAME, $collectionName);
+
         return $this;
     }
 }

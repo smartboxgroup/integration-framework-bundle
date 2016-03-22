@@ -1,12 +1,16 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 
-abstract class AbstractConsumer implements ConsumerInterface{
+/**
+ * Class AbstractConsumer
+ */
+abstract class AbstractConsumer implements ConsumerInterface
+{
     use UsesSmartesbHelper;
 
     /** @var bool */
@@ -16,7 +20,7 @@ abstract class AbstractConsumer implements ConsumerInterface{
     protected $expirationCount = -1;
 
     /**
-     * Signal the consumer to stop before processing the next message
+     * {@inheritDoc}
      */
     public function stop()
     {
@@ -24,32 +28,36 @@ abstract class AbstractConsumer implements ConsumerInterface{
     }
 
     /**
-     * @param $count
+     * {@inheritDoc}
      */
-    public function setExpirationCount($count){
+    public function setExpirationCount($count)
+    {
         $this->expirationCount = $count;
     }
 
     /**
-     * Checks if it should stop at the current iteration
+     * Checks if it should stop at the current iteration.
      *
      * @return bool
      */
-    protected function shouldStop(){
+    protected function shouldStop()
+    {
         return $this->stop || $this->expirationCount == 0;
     }
 
     /**
+     * Initializes the consumer for a given endpoint
+     *
      * @param EndpointInterface $endpoint
-     * Initializes the consumer for this endpoint
      */
-    protected abstract function initialize(EndpointInterface $endpoint);
+    abstract protected function initialize(EndpointInterface $endpoint);
 
     /**
      * @param EndpointInterface $endpoint
+     *
      * @return mixed
      */
-    protected abstract function cleanUp(EndpointInterface $endpoint);
+    abstract protected function cleanUp(EndpointInterface $endpoint);
 
     /**
      * This function is called to read and usually lock a message from the source Endpoint. The message should not be
@@ -62,10 +70,12 @@ abstract class AbstractConsumer implements ConsumerInterface{
      * must return null to indicate that.
      *
      * @return MessageInterface
+     *
      * @param EndpointInterface $endpoint
+     *
      * @return MessageInterface | null
      */
-    protected abstract function readMessage(EndpointInterface $endpoint);
+    abstract protected function readMessage(EndpointInterface $endpoint);
 
     /**
      * After the execution of this method, it will be considered that the message was successfully handled,
@@ -73,9 +83,10 @@ abstract class AbstractConsumer implements ConsumerInterface{
      * the Message Delivery Guarantee.
      *
      * @param EndpointInterface $endpoint
-     * @param MessageInterface $message
+     * @param MessageInterface  $message
      */
-    protected function process(EndpointInterface $endpoint, MessageInterface $message){
+    protected function process(EndpointInterface $endpoint, MessageInterface $message)
+    {
         $endpoint->handle($message);
     }
 
@@ -85,11 +96,11 @@ abstract class AbstractConsumer implements ConsumerInterface{
      *
      * @return MessageInterface
      */
-    protected abstract function confirmMessage(EndpointInterface $endpoint, MessageInterface $message);
+    abstract protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message);
 
     /**
-     * @param EndpointInterface $endpoint
-     * @return bool|void
+     * {@inheritDoc}
+     *
      * @throws \Exception
      */
     public function consume(EndpointInterface $endpoint)
@@ -102,16 +113,15 @@ abstract class AbstractConsumer implements ConsumerInterface{
                 $message = $this->readMessage($endpoint);
 
                 // Process
-                if($message){
-                    $this->expirationCount--;
+                if ($message) {
+                    --$this->expirationCount;
 
-                    $this->process($endpoint,$message);
+                    $this->process($endpoint, $message);
 
-                    $this->confirmMessage($endpoint,$message);
+                    $this->confirmMessage($endpoint, $message);
                 }
-
             } catch (\Exception $ex) {
-                if (!$this->stop){
+                if (!$this->stop) {
                     throw $ex;
                 }
             }

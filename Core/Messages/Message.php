@@ -10,8 +10,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\Traits\HasHeaders;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class Message
- * @package Smartbox\Integration\FrameworkBundle\Core\Messages
+ * Class Message.
  */
 class Message implements MessageInterface
 {
@@ -30,7 +29,6 @@ class Message implements MessageInterface
      */
     protected $context;
 
-
     /**
      * @Assert\Valid
      * @JMS\Type("Smartbox\CoreBundle\Type\SerializableInterface")
@@ -43,8 +41,8 @@ class Message implements MessageInterface
 
     /**
      * @param SerializableInterface|null $body
-     * @param array $headers
-     * @param Context $context
+     * @param array                      $headers
+     * @param Context                    $context
      */
     public function __construct(SerializableInterface $body = null, $headers = array(), Context $context = null)
     {

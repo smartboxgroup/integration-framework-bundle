@@ -2,17 +2,15 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
-
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 
 /**
- * Class UsesTokenStorage
- * @package Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits
+ * Trait UsesTokenStorage.
  */
 trait UsesTokenStorage
 {
-    /** @var  TokenStorage */
-    var $tokenStorage;
+    /* @var  TokenStorage */
+    public $tokenStorage;
 
     /**
      * @return TokenStorage
@@ -29,5 +27,4 @@ trait UsesTokenStorage
     {
         $this->tokenStorage = $tokenStorage;
     }
-
 }

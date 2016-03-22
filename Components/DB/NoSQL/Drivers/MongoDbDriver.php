@@ -9,8 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
- * Class MongoDbDriver
- * @package Smartbox\Integration\FrameworkBundle\Drivers\Db
+ * Class MongoDbDriver.
  */
 class MongoDbDriver extends Service implements NoSQLDriverInterface, SerializableInterface
 {
@@ -19,6 +18,7 @@ class MongoDbDriver extends Service implements NoSQLDriverInterface, Serializabl
 
     /**
      * MongoNoSQLDriver constructor.
+     *
      * @param MongoDBClient $mongoStorage
      */
     public function __construct(MongoDBClient $mongoStorage)
@@ -39,17 +39,21 @@ class MongoDbDriver extends Service implements NoSQLDriverInterface, Serializabl
 
     /**
      * @param NoSQLMessageInterface $message
+     *
      * @return string
      */
     public function create(NoSQLMessageInterface $message)
     {
         $collectionName = $message->getCollectionName();
+
         return $this->mongoClient->save($collectionName, $message->getBody());
     }
 
     /**
      * @param NoSQLMessageInterface $message
+     *
      * @return bool
+     *
      * @throws \Exception
      */
     public function update(NoSQLMessageInterface $message)
@@ -59,7 +63,9 @@ class MongoDbDriver extends Service implements NoSQLDriverInterface, Serializabl
 
     /**
      * @param NoSQLMessageInterface $message
+     *
      * @return bool
+     *
      * @throws \Exception
      */
     public function delete(NoSQLMessageInterface $message)
@@ -69,9 +75,11 @@ class MongoDbDriver extends Service implements NoSQLDriverInterface, Serializabl
 
     /**
      * @param string $collection
-     * @param array $query
-     * @param array $options
+     * @param array  $query
+     * @param array  $options
+     *
      * @return null|NoSQLMessageInterface|array
+     *
      * @throws \Exception
      */
     public function read($collection, array $query = [], $options = [])

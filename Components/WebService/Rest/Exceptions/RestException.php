@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions;
 
-use Exception;
 use JMS\Serializer\Annotation as JMS;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -10,9 +9,7 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 
 /**
- * Class RestException
- *
- * @package \Smartbox\Integration\FrameworkBundle\Exceptions
+ * Class RestException.
  */
 class RestException extends \Exception implements SerializableInterface
 {

@@ -16,37 +16,44 @@ class QueueMessage extends Message implements QueueMessageInterface
     const HEADER_PRIORITY = 'priority';
     const HEADER_REASON_FOR_FAILURE = 'dlqDeliveryFailureCause';
 
-    public function __construct(SerializableInterface $body = null, $headers = array(), Context $context = null){
-        parent::__construct($body,$headers,$context);
+    public function __construct(SerializableInterface $body = null, $headers = array(), Context $context = null)
+    {
+        parent::__construct($body, $headers, $context);
         $this->setPersistent(true);
     }
 
-    public function setQueue($queue){
-        $this->setHeader(self::HEADER_QUEUE,$queue);
+    public function setQueue($queue)
+    {
+        $this->setHeader(self::HEADER_QUEUE, $queue);
     }
 
-    public function setExpires($expires){
-        $this->setHeader(self::HEADER_EXPIRES,$expires);
+    public function setExpires($expires)
+    {
+        $this->setHeader(self::HEADER_EXPIRES, $expires);
     }
 
-    public function setTTL($ttl){
-        $this->setHeader(self::HEADER_TTL,$ttl);
-        $this->setExpires((time()+$ttl)*1000);
+    public function setTTL($ttl)
+    {
+        $this->setHeader(self::HEADER_TTL, $ttl);
+        $this->setExpires((time() + $ttl) * 1000);
     }
 
-    public function setMessageType($type){
-        $this->setHeader(self::HEADER_TYPE,$type);
+    public function setMessageType($type)
+    {
+        $this->setHeader(self::HEADER_TYPE, $type);
     }
 
-    public function setPriority($priority){
-        $this->setHeader(self::HEADER_PRIORITY,$priority);
+    public function setPriority($priority)
+    {
+        $this->setHeader(self::HEADER_PRIORITY, $priority);
     }
 
-    public function setPersistent($persistent){
-        if($persistent){
-            $this->setHeader(self::HEADER_PERSISTENT,'true');
-        }else{
-            $this->setHeader(self::HEADER_PERSISTENT,'false');
+    public function setPersistent($persistent)
+    {
+        if ($persistent) {
+            $this->setHeader(self::HEADER_PERSISTENT, 'true');
+        } else {
+            $this->setHeader(self::HEADER_PERSISTENT, 'false');
         }
     }
 
@@ -98,14 +105,16 @@ class QueueMessage extends Message implements QueueMessageInterface
     /**
      * @param $uri
      */
-    public function setDestinationURI($uri){
+    public function setDestinationURI($uri)
+    {
         $this->setHeader(Message::HEADER_FROM, $uri);
     }
 
     /**
      * @return null|string
      */
-    public function getDestinationURI(){
+    public function getDestinationURI()
+    {
         return $this->getHeader(Message::HEADER_FROM);
     }
 }

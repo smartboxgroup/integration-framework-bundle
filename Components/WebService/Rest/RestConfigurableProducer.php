@@ -1,4 +1,5 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Rest;
 
 use GuzzleHttp\ClientInterface;
@@ -29,24 +30,25 @@ class RestConfigurableProducer extends ConfigurableProducer
         ];
 
         $auth = $options[RestConfigurableProtocol::OPTION_AUTH];
-        if($auth === RestConfigurableProtocol::AUTH_BASIC){
+        if ($auth === RestConfigurableProtocol::AUTH_BASIC) {
             $result['auth'] = [
                 $options[RestConfigurableProtocol::OPTION_USERNAME],
-                $options[RestConfigurableProtocol::OPTION_PASSWORD]];
+                $options[RestConfigurableProtocol::OPTION_PASSWORD], ];
         }
 
         return $result;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function executeStep($stepAction, &$stepActionParams, &$options, array &$context)
     {
-        if(!parent::executeStep($stepAction,$stepActionParams,$options,$context)){
-            switch ($stepAction){
+        if (!parent::executeStep($stepAction, $stepActionParams, $options, $context)) {
+            switch ($stepAction) {
                 case self::STEP_REQUEST:
                     $this->request($this->getHttpClient(), $stepActionParams, $options, $context);
+
                     return true;
             }
         }
@@ -74,7 +76,7 @@ class RestConfigurableProducer extends ConfigurableProducer
             [self::REQUEST_NAME, self::REQUEST_HTTP_VERB, self::REQUEST_BODY, self::REQUEST_URI]
         );
         $stepParamsResolver->setDefined([
-            RestConfigurableProtocol::OPTION_HEADERS
+            RestConfigurableProtocol::OPTION_HEADERS,
         ]);
 
         $stepParamsResolver->setAllowedValues(self::REQUEST_HTTP_VERB, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
@@ -95,7 +97,7 @@ class RestConfigurableProducer extends ConfigurableProducer
 
         $httpMethod = strtoupper($httpMethod);
 
-        /** @var Response $response */
+        /* @var Response $response */
         $request = new Request($httpMethod, $resolvedURI);
         $response = $client->send($request, $restOptions);
         $responseContent = $response->getBody()->getContents();

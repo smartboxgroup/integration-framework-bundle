@@ -2,23 +2,32 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Handlers;
 
-
-use Exception;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
 /**
- * Class ProcessEvent
- * @package Smartbox\Integration\FrameworkBundle\Events
+ * Class ProcessEvent.
  */
-class HandlerException extends \Exception{
-
+class HandlerException extends \Exception
+{
     /**
-     * @var  MessageInterface
+     * @var MessageInterface
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface")
      * @JMS\Groups({"logs"})
      */
     protected $failedMessage;
+
+    /**
+     * HandlerException constructor.
+     *
+     * @param string           $message
+     * @param MessageInterface $failed
+     */
+    public function __construct($message = '', MessageInterface $failed)
+    {
+        parent::__construct($message);
+        $this->failedMessage = $failed;
+    }
 
     /**
      * @return mixed
@@ -35,10 +44,4 @@ class HandlerException extends \Exception{
     {
         $this->failedMessage = $failedMessage;
     }
-
-    public function __construct($message = "",MessageInterface $failed){
-        parent::__construct($message);
-        $this->failedMessage = $failed;
-    }
-
 }

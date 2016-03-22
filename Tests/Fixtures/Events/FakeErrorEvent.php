@@ -6,5 +6,4 @@ use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 
 class FakeErrorEvent extends ProcessingErrorEvent
 {
-
 }

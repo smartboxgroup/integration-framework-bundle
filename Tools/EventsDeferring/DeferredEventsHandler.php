@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring;
 
-use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
@@ -12,8 +11,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\FlowsVersion
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
 
 /**
- * Class DeferredEventsHandler
- * @package Smartbox\Integration\FrameworkBundle\Core\Handlers
+ * Class DeferredEventsHandler.
  */
 class DeferredEventsHandler implements HandlerInterface
 {
@@ -22,18 +20,18 @@ class DeferredEventsHandler implements HandlerInterface
     use FlowsVersionAware;
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function handle(MessageInterface $message, EndpointInterface $endpoint)
     {
-        if(!$message instanceof EventMessage){
-            throw new \InvalidArgumentException("Expected EventMessage as an argument");
+        if (!$message instanceof EventMessage) {
+            throw new \InvalidArgumentException('Expected EventMessage as an argument');
         }
 
         $version = $message->getContext()->get(Context::VERSION);
         $expectedVersion = $this->getFlowsVersion();
 
-        if($version !== $expectedVersion){
+        if ($version !== $expectedVersion) {
             throw new \Exception(
                 sprintf(
                     'Received message with wrong version in deferred events handler. Expected: %s, received: %s',
@@ -47,5 +45,4 @@ class DeferredEventsHandler implements HandlerInterface
 
         return $message;
     }
-
 }
