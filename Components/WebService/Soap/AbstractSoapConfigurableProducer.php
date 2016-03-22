@@ -152,7 +152,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
         $output = new SmokeTestOutput();
 
         try {
-            $client = $this->getSoapClient($config);
+            $client = $this->getSoapClient($this->getDefaultOptions());
             if ($client instanceof LazyLoadingInterface) {
                 $client->initializeProxy();
             }
