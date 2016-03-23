@@ -3,19 +3,17 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Deprecated\InvalidFormatException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class JsonFileLoaderProducer.
  */
-class JsonFileLoaderProducer extends Producer implements ConfigurableInterface
+class JsonFileLoaderProducer extends Producer
 {
     const OPTION_FILENAME = 'filename';
     const OPTION_BASE_PATH = 'base_path';
@@ -60,37 +58,5 @@ class JsonFileLoaderProducer extends Producer implements ConfigurableInterface
         json_decode($string);
 
         return (json_last_error() == JSON_ERROR_NONE);
-    }
-
-    /**
-     *  Key-Value array with the option name as key and the details as value.
-     *
-     *  [OptionName => [description, array of valid values],..]
-     *
-     * @return array
-     */
-    public function getOptionsDescriptions()
-    {
-        $options = array(
-            self::OPTION_BASE_PATH => array('Base path to look for the json file', array()),
-            self::OPTION_FILENAME => array('Name of the file to load', array()),
-        );
-
-        return $options;
-    }
-
-    /**
-     * With this method this class can configure an OptionsResolver that will be used to validate the options.
-     *
-     * @param OptionsResolver $resolver
-     *
-     * @return mixed
-     */
-    public function configureOptionsResolver(OptionsResolver $resolver)
-    {
-        $resolver->setRequired(self::OPTION_BASE_PATH);
-        $resolver->setAllowedTypes(self::OPTION_BASE_PATH, ['string']);
-        $resolver->setRequired(self::OPTION_FILENAME);
-        $resolver->setAllowedTypes(self::OPTION_FILENAME, ['string']);
     }
 }

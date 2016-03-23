@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
-
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -13,11 +12,15 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Routing\Route;
 use Symfony\Bundle\FrameworkBundle\Console\Helper\DescriptorHelper;
 
-abstract class AbstractInternalRouterDebugCommand extends ContainerAwareCommand{
+/**
+ * Class AbstractInternalRouterDebugCommand
+ */
+abstract class AbstractInternalRouterDebugCommand extends ContainerAwareCommand
+{
+    abstract public function getInternalRouterName();
 
-    public abstract function getInternalRouterName();
-
-    public function getRouterServiceId(){
+    public function getRouterServiceId()
+    {
         return 'smartesb.router.'.$this->getInternalRouterName();
     }
 
@@ -94,7 +97,7 @@ EOF
             $helper->describe($output, $routes, array(
                 'format' => $input->getOption('format'),
                 'raw_text' => $input->getOption('raw'),
-                false
+                false,
             ));
         }
     }
@@ -104,10 +107,10 @@ EOF
         $serializer = $this->getContainer()->get('serializer');
 
         if ($route->hasDefault(InternalRouter::KEY_ITINERARY)) {
-            $serviceName = str_replace('@','',$route->getDefault(InternalRouter::KEY_ITINERARY));
+            $serviceName = str_replace('@', '', $route->getDefault(InternalRouter::KEY_ITINERARY));
             $itineraryService = $this->getContainer()->get($serviceName);
-            $itinerary = $serializer->serialize($itineraryService,'array');
-            $route->setDefault(InternalRouter::KEY_ITINERARY,$itinerary['processors']);
+            $itinerary = $serializer->serialize($itineraryService, 'array');
+            $route->setDefault(InternalRouter::KEY_ITINERARY, $itinerary['processors']);
         }
     }
 }

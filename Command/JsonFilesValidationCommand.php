@@ -13,6 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * Class JsonFilesValidationCommand.
+ */
 class JsonFilesValidationCommand extends ContainerAwareCommand
 {
     protected function configure()
@@ -41,7 +44,7 @@ class JsonFilesValidationCommand extends ContainerAwareCommand
         $validationErrors = [];
 
         /** @var \SplFileInfo $file */
-        foreach ($iterator as $file){
+        foreach ($iterator as $file) {
             $realPath = $file->getRealPath();
 
             $context = new DeserializationContext();
@@ -62,31 +65,31 @@ class JsonFilesValidationCommand extends ContainerAwareCommand
                     }
                 }
 
-                if(!array_key_exists($realPath,$validationErrors)){
-                    $output->write("<info>.</info>");
-                }else{
-                    $output->write("<error>.</error>");
+                if (!array_key_exists($realPath, $validationErrors)) {
+                    $output->write('<info>.</info>');
+                } else {
+                    $output->write('<error>.</error>');
                 }
-            } catch(\RuntimeException $e) {
+            } catch (\RuntimeException $e) {
                 $validationErrors[$realPath] = $e->getMessage();
             }
         }
 
         if (!empty($validationErrors)) {
-            $output->writeln("");
-            $output->writeln("");
+            $output->writeln('');
+            $output->writeln('');
             $output->writeln(sprintf('<error>Some fixture files in "%s" directory have invalid format.</error>', $path));
-            foreach($validationErrors as $file => $error){
-                $output->writeln("File: ".str_replace($absolutePath.'/', '', $file).' :');
+            foreach ($validationErrors as $file => $error) {
+                $output->writeln('File: '.str_replace($absolutePath.'/', '', $file).' :');
 
-                if($error instanceof ConstraintViolationList) {
-                    foreach($error as $violation) {
+                if ($error instanceof ConstraintViolationList) {
+                    foreach ($error as $violation) {
                         $output->writeln("\t".$violation->getPropertyPath().' : '.$violation->getMessage());
                     }
                 } else {
                     $output->writeln("\t".$error);
                 }
-                $output->writeln("");
+                $output->writeln('');
             }
         } else {
             $output->writeln('<info>Everything is OK.</info>');

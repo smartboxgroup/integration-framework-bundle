@@ -3,10 +3,14 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use JMS\Serializer\Annotation as JMS;
+use Smartbox\Integration\FrameworkBundle\Configurability\DescriptableInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class QueueProtocol extends Protocol
+/**
+ * Class QueueProtocol
+ */
+class QueueProtocol extends Protocol implements DescriptableInterface
 {
     /**
      * @JMS\Exclude
@@ -73,5 +77,13 @@ class QueueProtocol extends Protocol
         $resolver->setAllowedTypes(self::OPTION_PRIORITY, ['numeric']);
         $resolver->setAllowedTypes(self::OPTION_PREFIX, ['string']);
         $resolver->setAllowedTypes(self::OPTION_QUEUE_DRIVER, ['string']);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDescription()
+    {
+        return 'Specialized protocol to interact with queuing systems (ActiveMq/STOMP only for now)';
     }
 }

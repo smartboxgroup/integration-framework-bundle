@@ -2,10 +2,14 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL;
 
+use Smartbox\Integration\FrameworkBundle\Configurability\DescriptableInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class NoSQLProtocol extends Protocol
+/**
+ * Class NoSQLProtocol
+ */
+class NoSQLProtocol extends Protocol implements DescriptableInterface
 {
     const OPTION_NOSQL_DRIVER = 'nosql_driver';
     const OPTION_COLLECTION_PREFIX = 'prefix';
@@ -68,5 +72,13 @@ class NoSQLProtocol extends Protocol
 //            self::ACTION_DELETE,
 //            self::ACTION_UPDATE
         ]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDescription()
+    {
+        return 'Specialized protocol to interact with noSQL databases (MongoDB only for now)';
     }
 }

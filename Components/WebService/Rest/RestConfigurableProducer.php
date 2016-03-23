@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -32,8 +33,8 @@ class RestConfigurableProducer extends ConfigurableProducer
         $auth = $options[RestConfigurableProtocol::OPTION_AUTH];
         if ($auth === RestConfigurableProtocol::AUTH_BASIC) {
             $result['auth'] = [
-                $options[RestConfigurableProtocol::OPTION_USERNAME],
-                $options[RestConfigurableProtocol::OPTION_PASSWORD], ];
+                $options[Protocol::OPTION_USERNAME],
+                $options[Protocol::OPTION_PASSWORD], ];
         }
 
         return $result;

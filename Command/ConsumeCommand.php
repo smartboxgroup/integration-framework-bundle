@@ -9,8 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class ConsumeCommand
- * @package Smartbox\Integration\FrameworkBundle\Command
+ * Class ConsumeCommand.
  */
 class ConsumeCommand extends ContainerAwareCommand
 {
@@ -26,11 +25,12 @@ class ConsumeCommand extends ContainerAwareCommand
     protected function getSourceEndpoint()
     {
         $uri = $this->getInput()->getArgument('uri');
+
         return $this->getContainer()->get('smartesb.endpoint_factory')->createEndpoint($uri);
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function configure()
     {
@@ -47,20 +47,20 @@ class ConsumeCommand extends ContainerAwareCommand
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
         $producer = null;
 
-        declare(ticks = 1);
+        declare (ticks = 1);
         pcntl_signal(SIGINT, [$this, 'handleSignal']);
         pcntl_signal(SIGTERM, [$this, 'handleSignal']);
 
         $this->endpoint = $this->getSourceEndpoint();
 
-        $output->writeln('<info>Consuming from ' . $this->endpoint->getURI() . '.</info>');
+        $output->writeln('<info>Consuming from '.$this->endpoint->getURI().'.</info>');
 
         $this->endpoint->consume();
 
@@ -76,7 +76,7 @@ class ConsumeCommand extends ContainerAwareCommand
     }
 
     /**
-     * Handles a signal
+     * Handles a signal.
      */
     public function handleSignal()
     {
