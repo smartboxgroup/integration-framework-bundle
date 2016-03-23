@@ -33,7 +33,8 @@ class RestConfigurableProducer extends ConfigurableProducer
         if ($auth === RestConfigurableProtocol::AUTH_BASIC) {
             $result['auth'] = [
                 $options[RestConfigurableProtocol::OPTION_USERNAME],
-                $options[RestConfigurableProtocol::OPTION_PASSWORD], ];
+                $options[RestConfigurableProtocol::OPTION_PASSWORD],
+            ];
         }
 
         return $result;
