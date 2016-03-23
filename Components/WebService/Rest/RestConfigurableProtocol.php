@@ -1,14 +1,12 @@
 <?php
 
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Rest;
+
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
-use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class RestConfigurableProtocol
- *
- * @package \Smartbox\Integration\FrameworkBundle\Components\WebService\Rest
  */
 class RestConfigurableProtocol extends ConfigurableWebserviceProtocol
 {
@@ -21,7 +19,9 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol
     const ENCODING_XML = 'xml';
     const AUTH_BASIC = 'basic';
 
-
+    /**
+     * {@inheritDoc}
+     */
     public function getOptionsDescriptions()
     {
         return array_merge(
@@ -46,6 +46,9 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function configureOptionsResolver(OptionsResolver $resolver)
     {
         parent::configureOptionsResolver($resolver);
@@ -63,10 +66,10 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol
             self::OPTION_ENCODING
         ]);
 
-        $resolver->setAllowedTypes(self::OPTION_BASE_URI,['string']);
-        $resolver->setAllowedTypes(self::OPTION_HEADERS,['array']);
-        $resolver->setAllowedTypes(self::OPTION_AUTH,['string','null']);
-        $resolver->setAllowedTypes(self::OPTION_ENCODING,['string']);
-        $resolver->setAllowedValues(self::OPTION_ENCODING,[self::ENCODING_JSON,self::ENCODING_XML]);
+        $resolver->setAllowedTypes(self::OPTION_BASE_URI, ['string']);
+        $resolver->setAllowedTypes(self::OPTION_HEADERS, ['array']);
+        $resolver->setAllowedTypes(self::OPTION_AUTH, ['string', 'null']);
+        $resolver->setAllowedTypes(self::OPTION_ENCODING, ['string']);
+        $resolver->setAllowedValues(self::OPTION_ENCODING, [self::ENCODING_JSON, self::ENCODING_XML]);
     }
 }

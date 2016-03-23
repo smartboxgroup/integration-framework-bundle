@@ -13,6 +13,9 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGuzzleHt
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class RestConfigurableProducer
+ */
 class RestConfigurableProducer extends ConfigurableProducer
 {
     use UsesGuzzleHttpClient;
@@ -22,6 +25,12 @@ class RestConfigurableProducer extends ConfigurableProducer
     const REQUEST_HTTP_VERB = 'http_method';
     const REQUEST_URI = 'uri';
 
+    /**
+     * @param       $options
+     * @param array $options
+     *
+     * @return array
+     */
     protected function getBasicHTTPOptions($options, array &$options)
     {
         $result = [
