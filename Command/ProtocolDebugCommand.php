@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\ProtocolInterface;
+use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Console\Helper\FormatterHelper;
@@ -16,7 +17,6 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -29,89 +29,17 @@ class ProtocolDebugCommand extends ContainerAwareCommand
     const ARGUMENT_PROTOCOL_ID = 'protocol_id';
 
     /**
-     * @return RouterInterface
+     * {@inheritdoc}
      */
-    protected function getRouter()
+    protected function configure()
     {
-        return $this->getContainer()->get('smartesb.router.endpoints');
-    }
-
-    /**
-     * @param Route $route
-     *
-     * @return array an array with two elements:
-     *               - a string with the id of the protocol
-     *               - the protocol instance
-     */
-    protected function getProtocolForRoute(Route $route)
-    {
-        $protocolId = $route->getOption(Protocol::OPTION_PROTOCOL);
-        if (!$protocolId) {
-            $protocolId = $route->getDefault(Protocol::OPTION_PROTOCOL);
-            if (!$protocolId) {
-                throw new InvalidConfigurationException(sprintf(
-                    'Route "%s" has no protocol defined',
-                    $route->getPath()
-                ));
-            }
-        }
-        $protocolId = substr($protocolId, 1);
-
-        return [$protocolId, $this->getContainer()->get($protocolId)];
-    }
-
-    /**
-     * @param Route             $route
-     * @param ProtocolInterface $protocol
-     *
-     * @return ConsumerInterface
-     */
-    protected function getConsumerForRoute(Route $route, ProtocolInterface $protocol)
-    {
-        $consumerId = $route->getOption(Protocol::OPTION_CONSUMER);
-        if ($consumerId) {
-            $consumerId = substr($consumerId, 1);
-
-            return $this->getContainer()->get($consumerId);
-        } else {
-            return $protocol->getDefaultConsumer();
-        }
-    }
-
-    /**
-     * @param Route             $route
-     * @param ProtocolInterface $protocol
-     *
-     * @return ProducerInterface
-     */
-    protected function getProducerForRoute(Route $route, ProtocolInterface $protocol)
-    {
-        $producerId = $route->getOption(Protocol::OPTION_PRODUCER);
-        if ($producerId) {
-            $producerId = substr($producerId, 1);
-
-            return $this->getContainer()->get($producerId);
-        } else {
-            return $protocol->getDefaultProducer();
-        }
-    }
-
-    /**
-     * @param Route             $route
-     * @param ProtocolInterface $protocol
-     *
-     * @return HandlerInterface
-     */
-    protected function getHandlerForRoute(Route $route, ProtocolInterface $protocol)
-    {
-        $handlerId = $route->getOption(Protocol::OPTION_HANDLER);
-        if ($handlerId) {
-            $handlerId = substr($handlerId, 1);
-
-            return $this->getContainer()->get($handlerId);
-        } else {
-            return $protocol->getDefaultHandler();
-        }
+        $this
+            ->setName('smartesb:debug:protocols')
+            ->setDefinition([
+                new InputArgument(self::ARGUMENT_PROTOCOL_ID, InputArgument::OPTIONAL, 'A protocol id'),
+            ])
+            ->setDescription('Display information about the available protocols and the related routes')
+        ;
     }
 
     /**
@@ -155,23 +83,6 @@ class ProtocolDebugCommand extends ContainerAwareCommand
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
-    {
-        $this
-            ->setName('smartesb:debug:protocols')
-            ->setDefinition(array(
-                new InputArgument(self::ARGUMENT_PROTOCOL_ID, InputArgument::OPTIONAL, 'A protocol id'),
-                new InputOption('format', null, InputOption::VALUE_REQUIRED,
-                    'The output format (txt, xml, json, or md)', 'txt'),
-                new InputOption('raw', null, InputOption::VALUE_NONE, 'To output raw route(s)'),
-            ))
-            ->setDescription('Display information about the available protocols and the related routes')
-        ;
-    }
-
     protected function retrieveProtocols($detailed = true)
     {
         $protocols = [];
@@ -189,67 +100,78 @@ class ProtocolDebugCommand extends ContainerAwareCommand
 
             if ($detailed) {
                 // gather here more details about the protocols
-                $protocols[$currentProtocolId] = [
-                    'class' => get_class($currentProtocol),
-                    'description' => $description,
-                    'options' => $currentProtocol->getOptionsDescriptions(),
-                    'consumers' => [],
-                    'producers' => [],
-                    'handlers' => [],
-                ];
+                if (!isset($protocols[$currentProtocolId])) {
+                    $protocols[$currentProtocolId] = [
+                        'class' => get_class($currentProtocol),
+                        'description' => $description,
+                        'options' => $currentProtocol->getOptionsDescriptions(),
+                        'consumers' => [],
+                        'producers' => [],
+                        'handlers' => [],
+                    ];
+                }
 
-                /** @var ConsumerInterface|ConfigurableInterface $consumer */
+                /** @var ConsumerInterface|ConfigurableInterface|Service $consumer */
                 $consumer = $this->getConsumerForRoute($route, $currentProtocol);
-                $consumerClass = get_class($consumer);
-                if (!array_key_exists($consumerClass, $protocols[$currentProtocolId]['consumers'])) {
-                    $protocols[$currentProtocolId]['consumers'][$consumerClass] = [
-                        'class' => $consumerClass,
-                        'routes' => [],
-                        'options' => [],
-                    ];
+                if ($consumer) {
+                    $consumerId = $this->getIdFromService($consumer, $currentProtocolId);
+                    $consumerClass = get_class($consumer);
+                    if (!array_key_exists($consumerClass, $protocols[$currentProtocolId]['consumers'])) {
+                        $protocols[$currentProtocolId]['consumers'][$consumerId] = [
+                            'class' => $consumerClass,
+                            'routes' => [],
+                            'options' => [],
+                        ];
 
-                    if ($consumer instanceof ConfigurableInterface) {
-                        $protocols[$currentProtocolId]['consumers'][$consumerClass]['options'] =
-                            $consumer->getOptionsDescriptions();
+                        if ($consumer instanceof ConfigurableInterface) {
+                            $protocols[$currentProtocolId]['consumers'][$consumerId]['options'] =
+                                $consumer->getOptionsDescriptions();
+                        }
                     }
+                    $protocols[$currentProtocolId]['consumers'][$consumerId]['routes'][] = $route->getPath();
                 }
-                $protocols[$currentProtocolId]['consumers'][$consumerClass]['routes'][] = $route->getPath();
 
-                /** @var ProducerInterface|ConfigurableInterface $producer */
+                /** @var ProducerInterface|ConfigurableInterface|Service $producer */
                 $producer = $this->getProducerForRoute($route, $currentProtocol);
-                $producerClass = get_class($producer);
-                if (!array_key_exists($producerClass, $protocols[$currentProtocolId]['producers'])) {
-                    $protocols[$currentProtocolId]['producers'][$producerClass] = [
-                        'class' => $producerClass,
-                        'routes' => [],
-                        'options' => [],
-                    ];
+                if ($producer) {
+                    $producerId = $this->getIdFromService($producer, $currentProtocolId);
+                    $producerClass = get_class($producer);
+                    if (!array_key_exists($producerClass, $protocols[$currentProtocolId]['producers'])) {
+                        $protocols[$currentProtocolId]['producers'][$producerId] = [
+                            'class' => $producerClass,
+                            'routes' => [],
+                            'options' => [],
+                        ];
 
-                    if ($producer instanceof ConfigurableInterface) {
-                        $protocols[$currentProtocolId]['producers'][$producerClass]['options'] =
-                            $producer->getOptionsDescriptions();
+                        if ($producer instanceof ConfigurableInterface) {
+                            $protocols[$currentProtocolId]['producers'][$producerId]['options'] =
+                                $producer->getOptionsDescriptions();
+                        }
                     }
+                    $protocols[$currentProtocolId]['producers'][$producerId]['routes'][] = $route->getPath();
                 }
-                $protocols[$currentProtocolId]['producers'][$producerClass]['routes'][] = $route->getPath();
 
-                /** @var HandlerInterface|ConfigurableInterface $handler */
+                /** @var HandlerInterface|ConfigurableInterface|Service $handler */
                 $handler = $this->getHandlerForRoute($route, $currentProtocol);
-                $handlerClass = get_class($handler);
-                if (!array_key_exists($handlerClass, $protocols[$currentProtocolId]['handlers'])) {
-                    $protocols[$currentProtocolId]['handlers'][$handlerClass] = [
-                        'class' => $handlerClass,
-                        'routes' => [],
-                        'options' => [],
-                    ];
+                if ($handler) {
+                    $handlerId = $this->getIdFromService($handler, $currentProtocolId);
+                    $handlerClass = get_class($handler);
+                    if (!array_key_exists($handlerClass, $protocols[$currentProtocolId]['handlers'])) {
+                        $protocols[$currentProtocolId]['handlers'][$handlerId] = [
+                            'class' => $handlerClass,
+                            'routes' => [],
+                            'options' => [],
+                        ];
 
-                    if ($handler instanceof ConfigurableInterface) {
-                        $protocols[$currentProtocolId]['handlers'][$handlerClass]['options'] =
-                            $handler->getOptionsDescriptions();
+                        if ($handler instanceof ConfigurableInterface) {
+                            $protocols[$currentProtocolId]['handlers'][$handlerId]['options'] =
+                                $handler->getOptionsDescriptions();
+                        }
+                        $protocols[$currentProtocolId]['handlers'][$handlerId]['routes'][] = $route->getPath();
                     }
                 }
-                $protocols[$currentProtocolId]['handlers'][$handlerClass]['routes'][] = $route->getPath();
-            } else {
-                // if not detailed
+
+            } else { // if not detailed
                 $protocols[$currentProtocolId] = [
                     'class' => get_class($currentProtocol),
                     'description' => $description,
@@ -262,6 +184,7 @@ class ProtocolDebugCommand extends ContainerAwareCommand
 
     protected function renderProtocolInfo($protocolId, array $p, OutputInterface $output)
     {
+        $output->writeln('');
         $formatter = new FormatterHelper();
         $header = $formatter->formatSection('Protocol', '');
         $output->writeln($header);
@@ -282,6 +205,7 @@ class ProtocolDebugCommand extends ContainerAwareCommand
             $output->writeln($optionsHeader);
 
             foreach ($p['options'] as $optionName => $option) {
+                $output->writeln('');
                 $output->writeln(" <comment>$optionName</comment>:");
                 $output->writeln("   $option[0]");
                 if (!empty($option[1])) {
@@ -290,7 +214,6 @@ class ProtocolDebugCommand extends ContainerAwareCommand
                         $output->writeln("   - <comment>$value</comment>: $valueDescription");
                     }
                 }
-                $output->writeln('');
             }
         }
 
@@ -308,6 +231,8 @@ class ProtocolDebugCommand extends ContainerAwareCommand
         if (!empty($p['handlers'])) {
             $this->renderSection('Handlers', $p['handlers'], $output, $formatter);
         }
+
+        $output->writeln('');
     }
 
     /**
@@ -325,21 +250,26 @@ class ProtocolDebugCommand extends ContainerAwareCommand
         $optionsHeader = $formatter->formatSection($sectionName, '');
         $output->writeln($optionsHeader);
 
-        $output->writeln('');
-        foreach ($sectionData as $consumerClass => $consumer) {
-            $output->writeln(" - <comment>$consumerClass</comment>:");
+        foreach ($sectionData as $serviceId => $service) {
+            $output->writeln('');
+            $output->writeln(" - <comment>$serviceId</comment>:");
+
+            // Class
+            $output->writeln('');
+            $output->writeln("     <comment>Class</comment>: ${service['class']}");
 
             // Routes
+            $output->writeln('');
             $output->writeln('     <comment>Routes</comment>:');
-            foreach ($consumer['routes'] as $consumerRoute) {
+            foreach ($service['routes'] as $consumerRoute) {
                 $output->writeln("     - $consumerRoute");
             }
 
             // Options
-            if (!empty($consumer['options'])) {
+            if (!empty($service['options'])) {
                 $output->writeln('');
                 $output->writeln('     <comment>Options</comment>:');
-                foreach ($consumer['options'] as $consumerOptionName => $consumerOption) {
+                foreach ($service['options'] as $consumerOptionName => $consumerOption) {
                     $output->writeln("     - <comment>$consumerOptionName</comment>:");
                     $output->writeln("         $consumerOption[0]");
                     if (!empty($consumerOption[1])) {
@@ -351,5 +281,116 @@ class ProtocolDebugCommand extends ContainerAwareCommand
                 }
             }
         }
+    }
+
+    /**
+     * @return RouterInterface
+     */
+    protected function getRouter()
+    {
+        return $this->getContainer()->get('smartesb.router.endpoints');
+    }
+
+    /**
+     * @param Route $route
+     *
+     * @return array an array with two elements:
+     *               - a string with the id of the protocol
+     *               - the protocol instance
+     */
+    protected function getProtocolForRoute(Route $route)
+    {
+        $protocolId = $route->getDefault(Protocol::OPTION_PROTOCOL);
+        if (!$protocolId) {
+            throw new InvalidConfigurationException(sprintf(
+                'Route "%s" has no protocol defined',
+                $route->getPath()
+            ));
+        }
+
+        $protocolId = substr($protocolId, 1);
+
+        return [$protocolId, $this->getContainer()->get($protocolId)];
+    }
+
+    /**
+     * @param Route             $route
+     * @param ProtocolInterface $protocol
+     *
+     * @return ConsumerInterface
+     */
+    protected function getConsumerForRoute(Route $route, ProtocolInterface $protocol)
+    {
+        $consumerId = $route->getDefault(Protocol::OPTION_CONSUMER);
+        if ($consumerId) {
+            $consumerId = substr($consumerId, 1);
+
+            return $this->getContainer()->get($consumerId);
+        } else {
+            return $protocol->getDefaultConsumer();
+        }
+    }
+
+    /**
+     * @param Route             $route
+     * @param ProtocolInterface $protocol
+     *
+     * @return ProducerInterface
+     */
+    protected function getProducerForRoute(Route $route, ProtocolInterface $protocol)
+    {
+        $producerId = $route->getDefault(Protocol::OPTION_PRODUCER);
+        if ($producerId) {
+            $producerId = substr($producerId, 1);
+
+            return $this->getContainer()->get($producerId);
+        } else {
+            return $protocol->getDefaultProducer();
+        }
+    }
+
+    /**
+     * @param Route             $route
+     * @param ProtocolInterface $protocol
+     *
+     * @return HandlerInterface
+     */
+    protected function getHandlerForRoute(Route $route, ProtocolInterface $protocol)
+    {
+        $handlerId = $route->getDefault(Protocol::OPTION_HANDLER);
+        if ($handlerId) {
+            $handlerId = substr($handlerId, 1);
+
+            return $this->getContainer()->get($handlerId);
+        } else {
+            return $protocol->getDefaultHandler();
+        }
+    }
+
+    /**
+     * Tries to read the id of a specific service found inside a given protocol.
+     * If it's not possible to get the id (it was not set) it throws an exception
+     *
+     * @param Service $service
+     * @param string  $protocolId
+     *
+     * @return string
+     * @throws InvalidConfigurationException when the id was not set in the service
+     */
+    protected function getIdFromService(Service $service, $protocolId)
+    {
+        $id = $service->getId();
+        if (null === $id) {
+            $class = get_class($service);
+            throw new InvalidConfigurationException(
+                sprintf(
+                    'Service "%s" found in protocol "%s" does not have an id. It must be set in its configuration.',
+                    $class,
+                    $protocolId
+                )
+            );
+        }
+
+        return $id;
     }
 }

@@ -5,11 +5,12 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
+use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
  * Class AbstractConsumer
  */
-abstract class AbstractConsumer implements ConsumerInterface
+abstract class AbstractConsumer extends Service implements ConsumerInterface
 {
     use UsesSmartesbHelper;
 

@@ -7,21 +7,23 @@ parameters:
 
 services:
   ########## PRODUCERS  ##########
-
   smartesb.producer.direct:
       class: %smartesb.producers.direct.class%
       calls:
+        - [setId, ['smartesb.producer.direct']]
         - [setItinerariesRouter, [@smartesb.router.itineraries]]
 
   smartesb.producers.json_file:
       class: %smartesb.producers.json_file.class%
       calls:
+        - [setId, ['smartesb.producers.json_file']]
         - [setSerializer, [@serializer]]
 
   # STOMP
   smartesb.producers.queue:
       class: %smartesb.producers.queue.class%
       calls:
+        - [setId, ['smartesb.producers.queue']]
         - [setSerializer, [@serializer]]
         - [setDriverRegistry, [@smartesb.drivers.queue._registry]]
 
@@ -29,4 +31,5 @@ services:
   smartesb.producers.nosql:
       class: %smartesb.producers.nosql.class%
       calls:
+        - [setId, ['smartesb.producers.nosql']]
         - [setDriverRegistry, [@smartesb.drivers.nosql._registry]]

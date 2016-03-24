@@ -9,11 +9,12 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\FlowsVersionAware;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
+use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
  * Class DeferredEventsHandler.
  */
-class DeferredEventsHandler implements HandlerInterface
+class DeferredEventsHandler extends Service implements HandlerInterface
 {
     use HasInternalType;
     use UsesEventDispatcher;

@@ -33,6 +33,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const QUEUE_DRIVER_PREFIX = 'smartesb.drivers.queue.';
     const NOSQL_DRIVER_PREFIX = 'smartesb.drivers.nosql.';
     const HANDLER_PREFIX = 'smartesb.handlers.';
+    const PRODUCER_PREFIX = 'smartesb.producers.';
     const CONSUMER_PREFIX = 'smartesb.consumers.';
     const PARAM_DEFERRED_EVENTS_URI = 'smartesb.uris.deferred_events';
 
@@ -85,12 +86,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                 }
             }
 
+            $producerId = self::PRODUCER_PREFIX.$producerName;
+            $definition->addMethodCall('setId', [$producerId]);
             $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
             $definition->addMethodCall('setOptions', [$options]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
-
-            $container->setDefinition('smartesb.producers.'.$producerName, $definition);
+            $container->setDefinition($producerId, $definition);
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {
                 $definition->addTag(ConnectivityCheckSmokeTest::TAG_TEST_CONNECTIVITY);
@@ -208,12 +210,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     {
         // Create services for message consumers
         foreach ($this->config['message_consumers'] as $consumerName => $consumerConfig) {
-            $consumerName = self::CONSUMER_PREFIX.$consumerName;
-
-            $driverDef = new Definition(QueueConsumer::class, array());
-            $driverDef->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
-            $driverDef->addMethodCall('setHandler', [new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
-            $container->setDefinition($consumerName, $driverDef);
+            $consumerId = self::CONSUMER_PREFIX.$consumerName;
+            $consumerDef = new Definition(QueueConsumer::class, []);
+            $consumerDef->addMethodCall('setId', [$consumerId]);
+            $consumerDef->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
+            $consumerDef->addMethodCall('setHandler', [new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
+            $container->setDefinition($consumerId, $consumerDef);
         }
     }
 

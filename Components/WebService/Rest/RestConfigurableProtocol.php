@@ -3,12 +3,13 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Rest;
 
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
+use Smartbox\Integration\FrameworkBundle\Configurability\DescriptableInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class RestConfigurableProtocol
  */
-class RestConfigurableProtocol extends ConfigurableWebserviceProtocol
+class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements DescriptableInterface
 {
     const OPTION_BASE_URI = 'base_uri';
     const OPTION_HEADERS = 'headers';
@@ -71,5 +72,15 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol
         $resolver->setAllowedTypes(self::OPTION_AUTH, ['string', 'null']);
         $resolver->setAllowedTypes(self::OPTION_ENCODING, ['string']);
         $resolver->setAllowedValues(self::OPTION_ENCODING, [self::ENCODING_JSON, self::ENCODING_XML]);
+    }
+
+    /**
+     * Get a textual description of this object
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return 'Configurable protocol to integrate with REST-based web services';
     }
 }

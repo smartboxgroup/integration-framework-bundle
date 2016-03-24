@@ -242,7 +242,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     {
         $options = [];
         foreach ($this->configuredOptions as $option => $value) {
-            $options[] = [$option => 'Custom option added in a ConfigurableProducer',[]];
+            $options[$option] = ['Custom option added in configurable producer',[]];
         }
 
         return $options;
