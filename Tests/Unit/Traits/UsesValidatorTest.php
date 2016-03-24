@@ -5,10 +5,9 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Traits;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Class UsesValidatorTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Traits
+ * Class UsesValidatorTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Traits\UsesValidator
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesValidator
  */
 class UsesValidatorTest extends \PHPUnit_Framework_TestCase
 {

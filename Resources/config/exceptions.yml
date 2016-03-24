@@ -1,2 +1,2 @@
 parameters:
-  exceptions.bad_request.class: Smartbox\Integration\FrameworkBundle\Exceptions\BadRequestException
+  exceptions.bad_request.class: Smartbox\Integration\FrameworkBundle\Exceptions\Deprecated\BadRequestException

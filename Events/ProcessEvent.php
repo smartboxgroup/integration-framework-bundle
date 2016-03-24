@@ -2,26 +2,25 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Events;
 
-use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Processors\Processor;
 use JMS\Serializer\Annotation as JMS;
+use Smartbox\CoreBundle\Type\SerializableArray;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 /**
- * Class ProcessEvent
- * @package Smartbox\Integration\FrameworkBundle\Events
+ * Class ProcessEvent.
  */
 class ProcessEvent extends Event
 {
     /** Event type constants */
-    const TYPE_BEFORE = "smartesb.process.before_process";
-    const TYPE_AFTER = "smartesb.process.after_process";
+    const TYPE_BEFORE = 'smartesb.process.before_process';
+    const TYPE_AFTER = 'smartesb.process.after_process';
 
     /**
      * @var Processor
      * @JMS\Expose
      * @JMS\Groups({"logs"})
-     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Processors\Processor")
+     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Processors\Processor")
      */
     protected $processor;
 
@@ -29,7 +28,7 @@ class ProcessEvent extends Event
      * @var Exchange
      * @JMS\Expose
      * @JMS\Groups({"logs"})
-     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Messages\Exchange")
+     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Exchange")
      */
     protected $exchange;
 
@@ -82,7 +81,7 @@ class ProcessEvent extends Event
     }
 
     /**
-     * @param Exchange $exchange
+     * @param \Smartbox\Integration\FrameworkBundle\Core\Exchange $exchange
      */
     public function setExchange($exchange)
     {
@@ -94,6 +93,6 @@ class ProcessEvent extends Event
      */
     public function getHash()
     {
-        return sha1($this->processor->getId()."_".$this->exchange->getId().'_'.$this->type);
+        return sha1($this->processor->getId().'_'.$this->exchange->getId().'_'.$this->type);
     }
 }

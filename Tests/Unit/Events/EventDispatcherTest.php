@@ -1,23 +1,29 @@
 <?php
 
-
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Events;
 
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
+use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
-use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ArrayQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Events\EventDispatcher;
-use Smartbox\Integration\FrameworkBundle\Events\EventFilterInterface;
-use Smartbox\Integration\FrameworkBundle\Events\EventFiltersRegistry;
-use Smartbox\Integration\FrameworkBundle\Helper\SmartesbHelper;
-use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
-use Smartbox\Integration\FrameworkBundle\Messages\MessageFactory;
-use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
+use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher;
+use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFilterInterface;
+use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFiltersRegistry;
+use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventMessage;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
-
-    public function testShouldDeferEvent(){
+class EventDispatcherTest extends \PHPUnit_Framework_TestCase
+{
+    public function testShouldDeferEvent()
+    {
         $filterPass = $this->getMock(EventFilterInterface::class);
         $filterPass->method('filter')->willReturn(true);
 
@@ -34,33 +40,60 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $event->setTimestampToCurrent();
         $helper = new SmartesbHelper();
 
+        $deferredURI = 'queue://events';
+
         $container = new Container();
-        $container->set('smartesb.registry.event_filters',$filtersRegistry);
-        $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events',$queueDriver);
-        $container->set('smartesb.helper',$helper);
+        $container->setParameter(SmartboxIntegrationFrameworkExtension::PARAM_DEFERRED_EVENTS_URI, $deferredURI);
+        $container->set('smartesb.registry.event_filters', $filtersRegistry);
+        $container->set('smartesb.helper', $helper);
         $container->setParameter('smartesb.flows_version', '0');
 
-        $container->setParameter('smartesb.events_queue_name', 'test_queue');
+        $driverRegistry = new DriverRegistry();
+        $driverRegistry->setDriver('array', $queueDriver);
+
+        $protocol = new QueueProtocol();
+        $producer = new QueueProducer();
+        $producer->setDriverRegistry($driverRegistry);
+
+        $resolver = new OptionsResolver();
+
+        $protocol->configureOptionsResolver($resolver);
+        $opts = $resolver->resolve([
+            'queue' => 'test_queue',
+            'queue_driver' => 'array',
+        ]);
+
+        $endpoint = new Endpoint($deferredURI, $opts, $protocol, $producer);
+
+        $endpointFactoryMock = $this->getMock(EndpointFactory::class);
+        $endpointFactoryMock
+            ->expects($this->once())
+            ->method('createEndpoint')
+            ->with($deferredURI)
+            ->willReturn($endpoint);
+
+        $container->set('smartesb.endpoint_factory', $endpointFactoryMock);
+
         $helper->setContainer($container);
 
         $dispatcher = new EventDispatcher($container);
-        $dispatcher->dispatch("test_event", $event);
+        $dispatcher->dispatch('test_event', $event);
 
         $messages = $queueDriver->getArrayForQueue('test_queue');
 
-        $this->assertCount(1,$messages);
+        $this->assertCount(1, $messages);
         /** @var QueueMessage $message */
         $message = $messages[0];
 
-        $this->assertInstanceOf(QueueMessage::class,$message);
+        $this->assertInstanceOf(QueueMessage::class, $message);
 
-        $this->assertInstanceOf(EventMessage::class,$message->getBody());
+        $this->assertInstanceOf(EventMessage::class, $message->getBody());
 
-        $this->assertEquals($message->getBody()->getBody(),$event);
+        $this->assertEquals($message->getBody()->getBody(), $event);
     }
 
-
-    public function testShouldNotDeferEventIfDeferred(){
+    public function testShouldNotDeferEventIfDeferred()
+    {
         $filterPass = $this->getMock(EventFilterInterface::class);
         $filterPass->method('filter')->willReturn(true);
 
@@ -73,21 +106,19 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $event->setTimestampToCurrent();
 
         $container = new Container();
-        $container->set('smartesb.registry.event_filters',$filtersRegistry);
-        $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events',$queueDriver);
-
-        $container->setParameter('smartesb.events_queue_name', 'test_queue');
+        $container->set('smartesb.registry.event_filters', $filtersRegistry);
+        $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events', $queueDriver);
 
         $dispatcher = new EventDispatcher($container);
-        $dispatcher->dispatch("test_event.deferred", $event);
+        $dispatcher->dispatch('test_event.deferred', $event);
 
         $messages = $queueDriver->getArrayForQueue('test_queue');
 
-        $this->assertCount(0,$messages);
+        $this->assertCount(0, $messages);
     }
 
-
-    public function testShouldNotDeferEventIfDoesNotPassFilter(){
+    public function testShouldNotDeferEventIfDoesNotPassFilter()
+    {
         $filterDoesNotPass = $this->getMock(EventFilterInterface::class);
         $filterDoesNotPass->method('filter')->willReturn(false);
 
@@ -100,22 +131,20 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase{
         $event->setTimestampToCurrent();
 
         $container = new Container();
-        $container->set('smartesb.registry.event_filters',$filtersRegistry);
-        $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events',$queueDriver);
-
-        $container->setParameter('smartesb.events_queue_name', 'test_queue');
+        $container->set('smartesb.registry.event_filters', $filtersRegistry);
+        $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events', $queueDriver);
 
         $dispatcher = new EventDispatcher($container);
-        $dispatcher->dispatch("test_event.deferred", $event);
+        $dispatcher->dispatch('test_event.deferred', $event);
 
         $messages = $queueDriver->getArrayForQueue('test_queue');
 
-        $this->assertCount(0,$messages);
+        $this->assertCount(0, $messages);
     }
 
-    public function tearDown(){
+    public function tearDown()
+    {
         parent::tearDown();
         ArrayQueueDriver::$array = array();
     }
-
 }

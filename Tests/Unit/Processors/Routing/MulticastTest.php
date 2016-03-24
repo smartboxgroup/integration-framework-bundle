@@ -2,15 +2,14 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing;
 
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\Multicast;
 use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Processors\Routing\Multicast;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class MulticastTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing
+ * Class MulticastTest.
  */
 class MulticastTest extends \PHPUnit_Framework_TestCase
 {
@@ -36,7 +35,7 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
     public function testItShouldAddItineraries()
     {
         $this->assertEmpty($this->multicast->getItineraries());
-        /** @var Itinerary $itinerary */
+        /** @var \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary $itinerary */
         $itinerary = $this->getMock(Itinerary::class);
         $this->multicast->addItinerary($itinerary);
         $this->assertCount(1, $this->multicast->getItineraries());
@@ -76,15 +75,14 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
         $this->multicast->setEventDispatcher($eventDispatcher);
         $this->multicast->setItineraries($itineraries);
 
-
         $dispatchedEventsCounter = 0;
 
         $eventDispatcher
             ->expects($this->any())
             ->method('dispatch')
-            ->with($this->callback(function($eventName) use (&$dispatchedEventsCounter){
+            ->with($this->callback(function ($eventName) use (&$dispatchedEventsCounter) {
                 if ($eventName === NewExchangeEvent::TYPE_NEW_EXCHANGE_EVENT) {
-                    $dispatchedEventsCounter++;
+                    ++$dispatchedEventsCounter;
                 }
 
                 return true;
@@ -95,5 +93,4 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(count($itineraries), $dispatchedEventsCounter);
     }
-
 }

@@ -15,6 +15,7 @@ class SimpleObject implements SerializableInterface
     /**
      * @JMS\Type("integer")
      * @JMS\Expose
+     *
      * @var int
      */
     protected $integerValue;
@@ -22,13 +23,15 @@ class SimpleObject implements SerializableInterface
     /**
      * @JMS\Type("double")
      * @JMS\Expose
-     * @var double
+     *
+     * @var float
      */
     protected $doubleValue;
 
     /**
      * @JMS\Type("string")
      * @JMS\Expose
+     *
      * @var string
      */
     protected $stringValue;
@@ -43,6 +46,7 @@ class SimpleObject implements SerializableInterface
     /**
      * @JMS\Type("array<Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity>")
      * @JMS\Expose
+     *
      * @var \Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity[]
      */
     protected $arrayOfEntities = [];
@@ -50,6 +54,7 @@ class SimpleObject implements SerializableInterface
     /**
      * @JMS\Type("array<Smartbox\CoreBundle\Type\Integer>")
      * @JMS\Expose
+     *
      * @var \Smartbox\CoreBundle\Type\Integer[]
      */
     protected $arrayOfIntegers = [];
@@ -57,6 +62,7 @@ class SimpleObject implements SerializableInterface
     /**
      * @JMS\Type("array<Smartbox\CoreBundle\Type\String>")
      * @JMS\Expose
+     *
      * @var \Smartbox\CoreBundle\Type\String[]
      */
     protected $arrayOfStrings = [];
@@ -64,6 +70,7 @@ class SimpleObject implements SerializableInterface
     /**
      * @JMS\Type("array<Smartbox\CoreBundle\Type\Double>")
      * @JMS\Expose
+     *
      * @var \Smartbox\CoreBundle\Type\Double[]
      */
     protected $arrayOfDoubles = [];
@@ -71,6 +78,7 @@ class SimpleObject implements SerializableInterface
     /**
      * @JMS\Type("array<Smartbox\CoreBundle\Type\Date>")
      * @JMS\Expose
+     *
      * @var \Smartbox\CoreBundle\Type\Date[]
      */
     protected $arrayOfDates = [];

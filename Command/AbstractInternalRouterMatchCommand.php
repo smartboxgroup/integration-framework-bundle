@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
-
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,11 +10,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Routing\Matcher\TraceableUrlMatcher;
 use Symfony\Component\Routing\RouterInterface;
 
-abstract class AbstractInternalRouterMatchCommand extends ContainerAwareCommand {
+/**
+ * Class AbstractInternalRouterMatchCommand.
+ */
+abstract class AbstractInternalRouterMatchCommand extends ContainerAwareCommand
+{
+    abstract public function getInternalRouterName();
 
-    public abstract function getInternalRouterName();
-
-    public function getRouterServiceId(){
+    public function getRouterServiceId()
+    {
         return 'smartesb.router.'.$this->getInternalRouterName();
     }
 
@@ -35,14 +38,15 @@ abstract class AbstractInternalRouterMatchCommand extends ContainerAwareCommand 
         return parent::isEnabled();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output){
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
         $router = $this->getContainer()->get($this->getRouterServiceId());
         $context = $router->getContext();
 
         $matcher = new TraceableUrlMatcher($router->getRouteCollection(), $context);
 
         $pathinfo = $input->getArgument('path_info');
-        if($pathinfo[0] !== '/'){
+        if ($pathinfo[0] !== '/') {
             $pathinfo = '/'.$pathinfo;
         }
 

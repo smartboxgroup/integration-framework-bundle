@@ -1,40 +1,32 @@
 <?php
 
-
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Connectors\APIConnector;
-use Smartbox\Integration\FrameworkBundle\Connectors\DirectConnector;
-use Smartbox\Integration\FrameworkBundle\Messages\Context;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\DirectProducer;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\SpyProcessor;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesEvaluator;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesEventDispatcher;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesSerializer;
-use Smartbox\Integration\FrameworkBundle\Traits\UsesValidator;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesValidator;
 use Smartbox\Integration\FrameworkBundle\Service;
 
-// @todo move cration methods to factory
+/**
+ * Class BaseTestCase.
+ */
 abstract class BaseTestCase extends BaseKernelTestCase
 {
     /**
-     * @return APIConnector
+     * @return DirectProducer
      */
-    public function createAPIConnector()
+    public function createDirectProducer()
     {
-        return $this->createBasicService(APIConnector::class);
+        return $this->createBasicService(DirectProducer::class);
     }
 
-    /**
-     * @return DirectConnector
-     */
-    public function createDirectConnector()
-    {
-        return $this->createBasicService(DirectConnector::class);
-    }
-
-    function class_uses_deep($class, $autoload = true)
+    public function class_uses_deep($class, $autoload = true)
     {
         $traits = [];
         do {
@@ -50,7 +42,8 @@ abstract class BaseTestCase extends BaseKernelTestCase
     /**
      * @return SpyProcessor
      */
-    public function createSpy(){
+    public function createSpy()
+    {
         return $this->createBasicService(SpyProcessor::class);
     }
 
@@ -96,18 +89,20 @@ abstract class BaseTestCase extends BaseKernelTestCase
             }
         }
 
-        $this->getContainer()->set($id,$instance);
+        $this->getContainer()->set($id, $instance);
 
         return $instance;
     }
 
     /**
      * @param SerializableInterface $body
-     * @param array $headers
-     * @param Context $context
-     * @return \Smartbox\Integration\FrameworkBundle\Messages\Message
+     * @param array                 $headers
+     * @param Context               $context
+     *
+     * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\Message
      */
-    protected function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null){
-        return $this->getContainer()->get('smartesb.message_factory')->createMessage($body,$headers,$context);
+    protected function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null)
+    {
+        return $this->getContainer()->get('smartesb.message_factory')->createMessage($body, $headers, $context);
     }
 }

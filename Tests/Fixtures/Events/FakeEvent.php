@@ -8,8 +8,7 @@ use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class FakeEvent
- * @package Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Events
+ * Class FakeEvent.
  */
 class FakeEvent implements SerializableInterface
 {
@@ -23,6 +22,7 @@ class FakeEvent implements SerializableInterface
      * @JMS\Expose
      * @JMS\Groups({"logs"})
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s.uP'>")
+     *
      * @var \DateTime
      */
     protected $timestamp;
@@ -32,10 +32,10 @@ class FakeEvent implements SerializableInterface
      * @JMS\Expose
      * @JMS\Groups({"logs"})
      * @JMS\Type("string")
+     *
      * @var string
      */
     protected $name;
-
 
     /**
      * @return \DateTime

@@ -2,18 +2,17 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Transformation;
 
-use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Processors\Transformation\Transformer;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Transformation\Transformer;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\Entity\SerializableSimpleEntity;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class TransformerTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Transformation
+ * Class TransformerTest.
  */
 class TransformerTest extends KernelTestCase
 {
@@ -119,6 +118,7 @@ class TransformerTest extends KernelTestCase
      *
      * @param MessageInterface $inMessage
      * @param $expression
+     *
      * @throws \Exception
      */
     public function testItShouldThrowException(MessageInterface $inMessage, $expression)
@@ -127,9 +127,9 @@ class TransformerTest extends KernelTestCase
         $exchange = new Exchange($inMessage);
 
         $this->transformer->setExpression($expression);
-        try{
+        try {
             $this->transformer->process($exchange);
-        }catch (ProcessingException $pe){
+        } catch (ProcessingException $pe) {
             throw $pe->getOriginalException();
         }
     }

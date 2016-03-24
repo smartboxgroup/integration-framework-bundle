@@ -1,26 +1,24 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Tests\Processors\ControlFlow;
 
-
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
-use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidMessageException;
-use Smartbox\Integration\FrameworkBundle\Exceptions\ProcessingException;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Processors\ControlFlow\ThrowException;
-use Smartbox\Integration\FrameworkBundle\Processors\Processor;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrowException;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
+use Smartbox\Integration\FrameworkBundle\Exceptions\Deprecated\InvalidMessageException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Validator\Validator\RecursiveValidator;
 
 /**
- * Class ThrowExceptionTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Processors\ControlFlow
+ * Class ThrowExceptionTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Processors\ControlFlow\ThrowException
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrowException
  */
-class ThrowExceptionTest extends \PHPUnit_Framework_TestCase{
-
+class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
+{
     /**
      * @var ThrowException
      */
@@ -35,7 +33,8 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase{
         $this->throwException->setEventDispatcher($eventDispatcherMock);
     }
 
-    public function invalidExceptionClassesProvider(){
+    public function invalidExceptionClassesProvider()
+    {
         return array(
             array(null),
             array(123),
@@ -49,7 +48,7 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase{
     public function testSetExceptionClassOK()
     {
         $this->throwException->setExceptionClass(InvalidMessageException::class);
-        $this->assertEquals(InvalidMessageException::class,$this->throwException->getExceptionClass());
+        $this->assertEquals(InvalidMessageException::class, $this->throwException->getExceptionClass());
     }
 
     /**
@@ -72,11 +71,10 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase{
 
         $ex = new Exchange(new Message(new TestEntity()));
 
-        try{
+        try {
             $this->throwException->process($ex);
-        }catch (ProcessingException $pe){
+        } catch (ProcessingException $pe) {
             throw $pe->getOriginalException();
         }
     }
-
 }

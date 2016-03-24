@@ -1,0 +1,9 @@
+parameters:
+  smartesb.consumers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer
+
+services:
+  smartesb.consumers.queue:
+      class: %smartesb.consumers.queue.class%
+      calls:
+          - [ setId, ['smartesb.consumers.queue']]
+          - [ setSmartesbHelper, [@smartesb.helper]]

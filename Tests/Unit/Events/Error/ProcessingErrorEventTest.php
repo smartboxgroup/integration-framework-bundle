@@ -2,18 +2,16 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Events\Error;
 
-use Smartbox\Integration\FrameworkBundle\Events\Error\ProcessingErrorEvent;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Processors\Processor;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class ProcessingErrorEventTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Events\Error
+ * Class ProcessingErrorEventTest.
  */
 class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var ProcessingErrorEvent */
+    /** @var \Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent */
     private $event;
 
     /** @var \PHPUnit_Framework_MockObject_MockObject|Exchange */
@@ -35,7 +33,7 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
         $this->exception = $this->getMock(\Exception::class);
         $this->name = 'some_name';
 
-        $this->event = new ProcessingErrorEvent($this->processor, $this->exchange, $this->exception, $this->name);
+        $this->event = new \Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent($this->processor, $this->exchange, $this->exception, $this->name);
         $this->event->setTimestampToCurrent();
     }
 
@@ -66,5 +64,4 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
         $this->event->setRequestStack($requestStack);
         $this->assertEquals($requestStack, $this->event->getRequestStack());
     }
-
 }

@@ -1,0 +1,54 @@
+parameters:
+  ########## PROTOCOL CLASSES  ##########
+  smartesb.protocols.base.class: Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol
+  smartesb.protocols.direct.class: Smartbox\Integration\FrameworkBundle\Core\Protocols\DirectProtocol
+  smartesb.protocols.json_file.class: Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader\JsonFileLoaderProtocol
+  smartesb.protocols.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol
+  smartesb.protocols.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLProtocol
+  smartesb.protocols.configurable.webservice.class: Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol
+  smartesb.protocols.configurable.rest.class: Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\RestConfigurableProtocol
+  smartesb.protocols.configurable.soap.class: Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\SoapConfigurableProtocol
+
+services:
+  ########## PROTOCOLS  ##########
+
+  # Base
+  smartesb.protocols.base:
+      class: %smartesb.protocols.base.class%
+
+  # Direct
+  smartesb.protocols.direct:
+      class: %smartesb.protocols.direct.class%
+      calls:
+        - [setDefaultProducer, [@smartesb.producer.direct]]
+        - [setDefaultHandler, [@smartesb.handlers.sync]]
+
+  # JSON FILE
+  smartesb.protocols.json_file:
+      class: %smartesb.protocols.json_file.class%
+      calls:
+        - [setDefaultProducer, [@smartesb.producers.json_file]]
+
+  # Queues
+  smartesb.protocols.queue:
+      class: %smartesb.protocols.queue.class%
+      calls:
+        - [setDefaultProducer, [@smartesb.producers.queue]]
+        - [setDefaultConsumer, [@smartesb.consumers.queue]]
+        - [setDefaultHandler, [@smartesb.handlers.async]]
+
+  # NoSQL
+  smartesb.protocols.nosql:
+      class: %smartesb.protocols.nosql.class%
+      calls:
+        - [setDefaultProducer, [@smartesb.producers.nosql]]
+        - [setDefaultHandler, [@smartesb.handlers.async]]
+
+  smartesb.protocols.configurable.webservice:
+      class: %smartesb.protocols.configurable.webservice.class%
+
+  smartesb.protocols.configurable.rest:
+      class: %smartesb.protocols.configurable.rest.class%
+
+  smartesb.protocols.configurable.soap:
+      class: %smartesb.protocols.configurable.soap.class%

@@ -3,24 +3,19 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Storage\Driver;
 
 use JMS\Serializer\SerializerInterface;
-use Smartbox\CoreBundle\Type\Date;
-use Smartbox\CoreBundle\Type\Integer;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient;
-use Smartbox\Integration\FrameworkBundle\Storage\Exception\StorageException;
-use Smartbox\Integration\FrameworkBundle\Storage\Query\QueryOptions;
-use Smartbox\Integration\FrameworkBundle\Storage\StorageClientInterface;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBClient;
+use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Exception\StorageException;
+use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\StorageClientInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Events\FakeEvent;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\Entity\SerializableSimpleEntity;
-use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\SimpleObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class MongoDBClientTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Storage\Driver
+ * Class MongoDBClientTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBClient
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBClient
  */
 class MongoDBClientTest extends KernelTestCase
 {
@@ -69,6 +64,7 @@ class MongoDBClientTest extends KernelTestCase
 
     /**
      * @dataProvider dataProviderForStorageDriverCorrectConfiguration
+     *
      * @param array $configuration
      *
      * @covers ::configure
@@ -105,6 +101,7 @@ class MongoDBClientTest extends KernelTestCase
 
     /**
      * @dataProvider dataProviderForStorageDriverIncorrectConfiguration
+     *
      * @param array $configuration
      *
      * @covers ::configure
@@ -126,10 +123,10 @@ class MongoDBClientTest extends KernelTestCase
     {
         $dataSets = [];
 
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 5; ++$i) {
             $object = new FakeEvent();
             $object->setTimestamp(new \DateTime());
-            $object->setName('test_' . $i);
+            $object->setName('test_'.$i);
             $dataSets[] = [$object];
         }
 

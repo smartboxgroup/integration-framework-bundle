@@ -8,8 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * Class JsonFilesValidationCommandTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Command
+ * Class JsonFilesValidationCommandTest.
  */
 class JsonFilesValidationCommandTest extends BaseKernelTestCase
 {
@@ -21,8 +20,8 @@ class JsonFilesValidationCommandTest extends BaseKernelTestCase
         $command = $application->find('smartbox:validate:json');
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
-            'command'      => $command->getName(),
-            'path'         => '@SmartboxIntegrationFrameworkBundle/Tests/Unit/Command/fixtures/success',
+            'command' => $command->getName(),
+            'path' => '@SmartboxIntegrationFrameworkBundle/Tests/Unit/Command/fixtures/success',
         ));
 
         $this->assertRegExp('/Everything is OK./', $commandTester->getDisplay());
@@ -38,8 +37,8 @@ class JsonFilesValidationCommandTest extends BaseKernelTestCase
         $command = $application->find('smartbox:validate:json');
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
-            'command'      => $command->getName(),
-            'path'         => $path,
+            'command' => $command->getName(),
+            'path' => $path,
         ));
 
         $this->assertRegExp(

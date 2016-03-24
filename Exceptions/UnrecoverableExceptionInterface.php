@@ -2,7 +2,9 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Exceptions;
 
-
-interface UnrecoverableExceptionInterface {
-
+/**
+ * Interface UnrecoverableExceptionInterface.
+ */
+interface UnrecoverableExceptionInterface
+{
 }

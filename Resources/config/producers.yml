@@ -1,0 +1,35 @@
+parameters:
+  ########## PRODUCER CLASSES  ##########
+  smartesb.producers.direct.class: Smartbox\Integration\FrameworkBundle\Core\Producers\DirectProducer
+  smartesb.producers.json_file.class: Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader\JsonFileLoaderProducer
+  smartesb.producers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer
+  smartesb.producers.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLProducer
+
+services:
+  ########## PRODUCERS  ##########
+  smartesb.producer.direct:
+      class: %smartesb.producers.direct.class%
+      calls:
+        - [setId, ['smartesb.producer.direct']]
+        - [setItinerariesRouter, [@smartesb.router.itineraries]]
+
+  smartesb.producers.json_file:
+      class: %smartesb.producers.json_file.class%
+      calls:
+        - [setId, ['smartesb.producers.json_file']]
+        - [setSerializer, [@serializer]]
+
+  # STOMP
+  smartesb.producers.queue:
+      class: %smartesb.producers.queue.class%
+      calls:
+        - [setId, ['smartesb.producers.queue']]
+        - [setSerializer, [@serializer]]
+        - [setDriverRegistry, [@smartesb.drivers.queue._registry]]
+
+  # NoSQL
+  smartesb.producers.nosql:
+      class: %smartesb.producers.nosql.class%
+      calls:
+        - [setId, ['smartesb.producers.nosql']]
+        - [setDriverRegistry, [@smartesb.drivers.nosql._registry]]

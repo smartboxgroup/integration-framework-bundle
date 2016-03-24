@@ -1,0 +1,3 @@
+smartbox_integration_platform:
+    resource: "@SmartboxIntegrationFrameworkBundle/Resources/config/default_endpoint_routes.yml"
+    prefix:   /

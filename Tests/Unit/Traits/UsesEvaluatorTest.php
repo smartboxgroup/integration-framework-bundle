@@ -2,13 +2,12 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Traits;
 
-use Smartbox\Integration\FrameworkBundle\Util\ExpressionEvaluator;
+use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 
 /**
- * Class UsesEvaluatorTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Traits
+ * Class UsesEvaluatorTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Traits\UsesEvaluator
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator
  */
 class UsesEvaluatorTest extends \PHPUnit_Framework_TestCase
 {

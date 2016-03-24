@@ -2,18 +2,17 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing;
 
-use Smartbox\Integration\FrameworkBundle\Util\ExpressionEvaluator;
+use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ContentRouter;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause;
+use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Smartbox\Integration\FrameworkBundle\Messages\Exchange;
-use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter;
-use Smartbox\Integration\FrameworkBundle\Processors\Routing\WhenClause;
 
 /**
- * Class ContentRouterTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing
+ * Class ContentRouterTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Processors\Routing\ContentRouter
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ContentRouter
  */
 class ContentRouterTest extends \PHPUnit_Framework_TestCase
 {
@@ -97,8 +96,8 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
             ->expects($this->any())
             ->method('evaluateWithExchange')
             ->will(
-                $this->returnCallback(function($expression, $ex){
-                    switch($expression){
+                $this->returnCallback(function ($expression, $ex) {
+                    switch ($expression) {
                         case 'condition_which_fails_1':
                         case 'condition_which_fails_2':
                             return false;

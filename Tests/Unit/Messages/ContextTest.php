@@ -4,19 +4,17 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Messages;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\String;
-use Smartbox\Integration\FrameworkBundle\Messages\Context;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 
 /**
- * Class ContextTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Messages
+ * Class ContextTest.
  */
 class ContextTest extends \PHPUnit_Framework_TestCase
 {
-
     public function testItShouldBeConstructedWithASerializableArray()
     {
         $values = new SerializableArray([
-            Context::ORIGINAL_FROM => new String('bar')
+            Context::ORIGINAL_FROM => new String('bar'),
         ]);
 
         $context = new Context($values);

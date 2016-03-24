@@ -6,8 +6,7 @@ use JMS\Serializer\Annotation as JMS;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class HandlerEvent
- * @package Smartbox\Integration\FrameworkBundle\Events
+ * Class HandlerEvent.
  */
 class HandlerEvent extends Event
 {
@@ -15,16 +14,17 @@ class HandlerEvent extends Event
     const AFTER_HANDLE_EVENT_NAME = 'smartesb.handler.after_handle';
 
     /**
-     * @Assert\Type(type="Smartbox\Integration\FrameworkBundle\Messages\Exchange")
+     * @Assert\Type(type="Smartbox\Integration\FrameworkBundle\Core\Exchange")
      * @JMS\Expose
      * @JMS\Groups({"logs"})
-     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Messages\Exchange")
-     * @var \Smartbox\Integration\FrameworkBundle\Messages\Exchange
+     * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Exchange")
+     *
+     * @var \Smartbox\Integration\FrameworkBundle\Core\Exchange
      */
     protected $exchange;
 
     /**
-     * @return \Smartbox\Integration\FrameworkBundle\Messages\Exchange
+     * @return \Smartbox\Integration\FrameworkBundle\Core\Exchange
      */
     public function getExchange()
     {
@@ -32,7 +32,7 @@ class HandlerEvent extends Event
     }
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Messages\Exchange $exchange
+     * @param \Smartbox\Integration\FrameworkBundle\Core\Exchange $exchange
      */
     public function setExchange($exchange)
     {

@@ -4,18 +4,15 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\EventListener;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Smartbox\Integration\FrameworkBundle\EventListener\EventsLoggerListener;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
-use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Events\FakeErrorEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class EventsLoggerListenerTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\EventListener
+ * Class EventsLoggerListenerTest.
  */
 class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var EventsLoggerListener */
+    /** @var \Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener */
     private $listener;
 
     /** @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject */
@@ -29,7 +26,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
         $this->logger = $this->getMockBuilder(LoggerInterface::class)->getMock();
         /** @var RequestStack $requestStack */
         $requestStack = $this->getMockBuilder(RequestStack::class)->getMock();
-        $this->listener = new EventsLoggerListener($this->logger, $requestStack, $this->logLevel);
+        $this->listener = new \Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener($this->logger, $requestStack, $this->logLevel);
     }
 
     public function testItShouldLogEventWhenItOccurs()

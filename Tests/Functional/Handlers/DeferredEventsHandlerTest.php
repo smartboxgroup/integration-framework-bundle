@@ -2,17 +2,18 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
-use Smartbox\Integration\FrameworkBundle\Handlers\DeferredEventsHandler;
-use Smartbox\Integration\FrameworkBundle\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\Messages\EventMessage;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
+use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler;
+use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventMessage;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class DeferredEventsHandlerTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers
+ * Class DeferredEventsHandlerTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Handlers\DeferredEventsHandler
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler
  */
 class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
 {
@@ -36,7 +37,10 @@ class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
     public function testHandle()
     {
         /** @var Event|\PHPUnit_Framework_MockObject_MockObject $eventMock */
-        $eventMock = $this->getMockForAbstractClass(Event::class,array('test'));
+        $eventMock = $this->getMockForAbstractClass(Event::class, array('test'));
+        $arr = [];
+        $endpointMock = new Endpoint('xxx', $arr, new Protocol());
+
         $message = new EventMessage($eventMock, [EventMessage::HEADER_EVENT_NAME => 'test'], new Context([Context::VERSION => '0']));
 
         $this->eventDispatcherMock
@@ -45,6 +49,6 @@ class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
             ->with('test.deferred', $message->getBody())
         ;
 
-        $this->handler->handle($message);
+        $this->handler->handle($message, $endpointMock);
     }
 }

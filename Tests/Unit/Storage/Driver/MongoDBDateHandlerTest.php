@@ -5,11 +5,10 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Storage\Driver;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\VisitorInterface;
-use Smartbox\Integration\FrameworkBundle\Storage\Driver\MongoDBDateHandler;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBDateHandler;
 
 /**
- * Class MongoDBDateHandlerTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Storage\Driver
+ * Class MongoDBDateHandlerTest.
  */
 class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
 {

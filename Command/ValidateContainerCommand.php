@@ -2,125 +2,126 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
-
-use Smartbox\Integration\FrameworkBundle\Connectors\Connector;
-use Smartbox\Integration\FrameworkBundle\Connectors\ConnectorInterface;
-use Smartbox\Integration\FrameworkBundle\Exceptions\InvalidOptionException;
-use Smartbox\Integration\FrameworkBundle\Processors\Endpoint;
-use Smartbox\Integration\FrameworkBundle\Processors\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\Matcher\TraceableUrlMatcher;
-use Symfony\Component\Routing\RouterInterface;
 
-class ValidateContainerCommand extends ContainerAwareCommand {
-
-    protected function execute(InputInterface $input, OutputInterface $output){
-
+class ValidateContainerCommand extends ContainerAwareCommand
+{
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
         $exitCode = 0;
 
-        // CHECK CONNECTOR ROUTES
-        $output->writeln("Validating routes...");
-        $routerConnectors = $this->getContainer()->get('smartesb.router.connectors');
-        foreach($routerConnectors->getRouteCollection()->all() as $name => $route){
+        // CHECK producer ROUTES
+        $output->writeln('Validating routes...');
+        $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
+        foreach ($routerProducers->getRouteCollection()->all() as $name => $route) {
             $options = $route->getDefaults();
-            if(!array_key_exists(InternalRouter::KEY_CONNECTOR,$options)){
-                $output->writeln("<error>Connector not defined for route '$name': ".$route->getPath()."</error>");
+            if (!array_key_exists(InternalRouter::KEY_PRODUCER, $options)) {
+                $output->writeln("<error>Producer not defined for route '$name': ".$route->getPath().'</error>');
                 $exitCode = 1;
                 continue;
             }
 
-            $connectorId = str_replace('@','',$options[InternalRouter::KEY_CONNECTOR]);
+            $producerId = str_replace('@', '', $options[InternalRouter::KEY_PRODUCER]);
 
-            if(!$this->getContainer()->has($connectorId)){
-                $output->writeln("<error>Connector '$connectorId' not found for route '$name'</error>");
-
-                $exitCode = 1;
-                continue;
-            }
-
-            $connector = $this->getContainer()->get($connectorId);
-
-            if(!$connector instanceof ConnectorInterface){
-                $output->writeln("<error>Connector '$connectorId' does not implement ConnectorInterface</error>");
+            if (!$this->getContainer()->has($producerId)) {
+                $output->writeln("<error>Producer '$producerId' not found for route '$name'</error>");
 
                 $exitCode = 1;
                 continue;
             }
 
-            $routerConnectors->resolveServices($options);
+            $producer = $this->getContainer()->get($producerId);
 
-            $options = array_merge($connector->getDefaultOptions(),$options);
+            if (!$producer instanceof ProducerInterface) {
+                $output->writeln("<error>Producer '$producerId' does not implement ProducerInterface</error>");
+
+                $exitCode = 1;
+                continue;
+            }
+
+            $routerProducers->resolveServices($options);
+
+            $options = array_merge($producer->getDefaultOptions(), $options);
 
             try {
-                $connector->validateOptions($options,false);
-            }catch (InvalidOptionException $exception){
-                $output->writeln("<error>The route '$name' has an invalid option '".$exception->getFieldName()."' for connector ".$exception->getConnectorClass()." with message ".$exception->getMessage());
+                $producer->validateOptions($options, false);
+            } catch (InvalidOptionException $exception) {
+                $output->writeln("<error>The route '$name' has an invalid option '".$exception->getOptionName()."' for producer ".$exception->getClassName().' with message '.$exception->getMessage());
 
                 $exitCode = 1;
                 continue;
             }
         }
 
-        // CHECK CONNECTOR ROUTES URIs
-        $output->writeln("Validating endpoints...");
+        // CHECK producer ROUTES URIs
+        $output->writeln('Validating endpoints...');
         $itinerariesRepo = $this->getContainer()->get('smartesb.map.itineraries');
 
-        foreach($itinerariesRepo->getItineraries() as $itineraryId){
+        foreach ($itinerariesRepo->getItineraries() as $itineraryId) {
             /** @var Itinerary $itinerary */
             $itinerary = $this->getContainer()->get($itineraryId);
-            foreach($itinerary->getProcessors() as $processor){
-                if($processor instanceof Endpoint){
+            foreach ($itinerary->getProcessors() as $processor) {
+                if ($processor instanceof EndpointProcessor) {
                     $uri = $processor->getURI();
-                    if(!$this->checkEndpointURI($uri,$output)){
+                    if (!$this->checkEndpointURI($uri, $output)) {
                         $exitCode = 1;
                     }
                 }
             }
         }
 
-        $output->writeln("Validation finished");
+        $output->writeln('Validation finished');
+
         return $exitCode;
     }
 
-    protected function checkEndpointURI($uri, OutputInterface $output){
-        $routerConnectors = $this->getContainer()->get('smartesb.router.connectors');
-        $uri = preg_replace("/{[^{}]+}/",'xxx',$uri);
-
-        try{
-            $options = $routerConnectors->match($uri);
-        }catch (ResourceNotFoundException $exception){
-            $output->writeln("<error>Route not found for URI: '$uri'</error>");
-            return false;
-        }
-
-        if(!array_key_exists(InternalRouter::KEY_CONNECTOR,$options)){
-            $output->writeln("<error>Connector not defined for URI '$uri'</error>");
-            return false;
-        }
-
-        /** @var Connector $connector */
-        $connector = $options[InternalRouter::KEY_CONNECTOR];
-
-        if(!$connector instanceof ConnectorInterface){
-            $output->writeln("<error>Connector '".$connector->getId()."' does not implement ConnectorInterface</error>");
-            return false;
-        }
-
-        $options = array_merge($connector->getDefaultOptions(),$options);
+    protected function checkEndpointURI($uri, OutputInterface $output)
+    {
+        $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
+        $uri = preg_replace('/{[^{}]+}/', 'xxx', $uri);
 
         try {
-            $connector->validateOptions($options,true);
-        }catch (InvalidOptionException $exception){
-            $output->writeln("<error>The URI: '$uri', has an invalid option ".$exception->getFieldName()." for connector ".$exception->getConnectorClass()." with message ".$exception->getMessage());
+            $options = $routerProducers->match($uri);
+        } catch (ResourceNotFoundException $exception) {
+            $output->writeln("<error>Route not found for URI: '$uri'</error>");
+
             return false;
-        }catch (\Exception $exception){
+        }
+
+        if (!array_key_exists(InternalRouter::KEY_PRODUCER, $options)) {
+            $output->writeln("<error>Producer not defined for URI '$uri'</error>");
+
+            return false;
+        }
+
+        /** @var Producer $producer */
+        $producer = $options[InternalRouter::KEY_PRODUCER];
+
+        if (!$producer instanceof ProducerInterface) {
+            $output->writeln("<error>Producer '".$producer->getId()."' does not implement ProducerInterface</error>");
+
+            return false;
+        }
+
+        $options = array_merge($producer->getDefaultOptions(), $options);
+
+        try {
+            $producer->validateOptions($options, true);
+        } catch (InvalidOptionException $exception) {
+            $output->writeln("<error>The URI: '$uri', has an invalid option ".$exception->getOptionName().' for producer '.$exception->getClassName().' with message '.$exception->getMessage());
+
+            return false;
+        } catch (\Exception $exception) {
             $output->writeln("<error>Error trying to validate options for URI '$uri', ".$exception->getMessage());
+
             return false;
         }
 
@@ -135,7 +136,7 @@ class ValidateContainerCommand extends ContainerAwareCommand {
         $this
             ->setName('smartesb:validate')
             ->setDefinition(array())
-            ->setDescription('Validates connector routes and endpoint URIs')
+            ->setDescription('Validates producer routes and endpoint URIs')
         ;
     }
 }

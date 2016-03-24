@@ -1,0 +1,22 @@
+queues.generic:
+  pattern: "queue://{queue_driver}/{queue}"
+  defaults:
+    _protocol: @smartesb.protocols.queue
+    prefix: "%kernel.environment%/fv_%flows.version%/"
+  requirements:
+    queue: "[a-zA-Z0-9/]+"
+
+nosql.generic:
+  pattern: "nosql://{nosql_driver}/{collection}"
+  defaults:
+    _protocol: @smartesb.protocols.nosql
+    prefix: db_
+  requirements:
+    collection: "[_\-a-zA-Z0-9/]+"
+
+direct:
+  pattern: "direct://{path}"
+  defaults:
+    _protocol: @smartesb.protocols.direct
+  requirements:
+    path: "[a-zA-Z0-9/_]+"

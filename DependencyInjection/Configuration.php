@@ -6,12 +6,15 @@ use Psr\Log\LogLevel;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * Class Configuration.
+ */
 class Configuration implements ConfigurationInterface
 {
     const NAME = 'smartbox_integration_framework';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getConfigTreeBuilder()
     {
@@ -32,10 +35,7 @@ class Configuration implements ConfigurationInterface
                 ])
             ->end()
 
-            ->scalarNode('events_queue_name')
-            ->defaultValue('smartesb_events_queue')->end()
-
-            ->scalarNode('events_queue_driver')
+            ->scalarNode('defer_events_to_uri')
             ->isRequired()->end()
 
             ->scalarNode('default_queue_driver')
@@ -51,7 +51,7 @@ class Configuration implements ConfigurationInterface
             ->defaultValue(0)->end()
 
             ->end()
-            ->append($this->addConnectorsNode())
+            ->append($this->addProducersNode())
             ->append($this->addQueueDriversNode())
             ->append($this->addNoSQLDriversNode())
             ->append($this->addConsumersNode())
@@ -66,7 +66,7 @@ class Configuration implements ConfigurationInterface
     {
         $builder = new TreeBuilder();
         $node = $builder->root('message_consumers');
-        $node->info("Section where the message consumers are defined.");
+        $node->info('Section where the message consumers are defined.');
 
         $node->useAttributeAsKey('name')
             ->prototype('array')
@@ -74,17 +74,7 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('description')
             ->info('This description will be used in the documentation.')
-            ->defaultValue("")
-            ->end()
-
-            ->scalarNode('type')
-            ->info('Type of consumer (queue, file, db, ...)')
-            ->isRequired()
-            ->end()
-
-            ->scalarNode('driver')
-            ->info('The name of the driver to use')
-            ->isRequired()
+            ->defaultValue('')
             ->end()
 
             ->scalarNode('handler')
@@ -99,8 +89,8 @@ class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    public function addMappingsNode(){
-
+    public function addMappingsNode()
+    {
         $builder = new TreeBuilder();
         $node = $builder->root('mappings');
 
@@ -115,11 +105,11 @@ class Configuration implements ConfigurationInterface
         return $node;
     }
 
-    public function addConnectorsNode()
+    public function addProducersNode()
     {
         $builder = new TreeBuilder();
-        $node = $builder->root('connectors');
-        $node->info("Section where the connectors are defined.");
+        $node = $builder->root('producers');
+        $node->info('Section where the producers are defined.');
 
         $node->useAttributeAsKey('name')
             ->prototype('array')
@@ -131,20 +121,20 @@ class Configuration implements ConfigurationInterface
             ->end()
 
             ->scalarNode('class')
-            ->info('Class to be used for the connector, you can use a generic class like RESTConfigurableConnector or create a custom class implementing ConfigurableConnectorInterface')
+            ->info('Class to be used for the producer, you can use a generic class like RestConfigurableProducer or create a custom class implementing ConfigurableProducerInterface')
             ->isRequired()
             ->end()
 
             ->arrayNode('calls')
             ->prototype('variable')->end()
-            ->info('Additional calls to inject dependencies to the connector')
+            ->info('Additional calls to inject dependencies to the producer')
             ->end()
 
             ->arrayNode('options')
             ->useAttributeAsKey('name')
             ->prototype('variable')
             ->end()
-            ->info('Default options for this connector')
+            ->info('Default options for this producer')
             ->isRequired()
             ->end()
 
@@ -207,7 +197,7 @@ class Configuration implements ConfigurationInterface
     {
         $builder = new TreeBuilder();
         $node = $builder->root('message_handlers');
-        $node->info("Section where the handlers are defined.");
+        $node->info("Section where the handlers are defined. You must define at least two: 'sync' and 'async'");
 
         $node->useAttributeAsKey('name')
             ->prototype('array')
@@ -215,7 +205,7 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('description')
             ->info('This description will be used in the documentation.')
-            ->defaultValue("")
+            ->defaultValue('')
             ->end()
 
             ->scalarNode('retries_max')
@@ -246,7 +236,14 @@ class Configuration implements ConfigurationInterface
 
             ->end()
             ->end()
-        ->isRequired();
+        ->isRequired()
+        ->validate()->ifTrue(
+            function ($handlers) {
+                return (!array_key_exists('sync', $handlers) || !array_key_exists('async', $handlers));
+            })
+            ->thenInvalid('You must define at least two handlers, called "sync" and "async" in the smartesb configuration.')
+        ->end()
+        ;
 
         return $node;
     }
@@ -256,7 +253,7 @@ class Configuration implements ConfigurationInterface
         $builder = new TreeBuilder();
 
         $node = $builder->root('queue_drivers');
-        $node->info("Section where the queue drivers are defined");
+        $node->info('Section where the queue drivers are defined');
 
         $node->useAttributeAsKey('name')
             ->prototype('array')
@@ -264,12 +261,12 @@ class Configuration implements ConfigurationInterface
 
                 ->scalarNode('type')
                     ->info('Driver type (e.g.: ActiveMQ')
-                    ->defaultValue("")
+                    ->defaultValue('')
                 ->end()
 
                 ->scalarNode('description')
                     ->info('This description will be used in the documentation.')
-                    ->defaultValue("")
+                    ->defaultValue('')
                 ->end()
 
                 ->scalarNode('host')
@@ -308,12 +305,12 @@ class Configuration implements ConfigurationInterface
 
                 ->scalarNode('type')
                     ->info('Driver type (e.g.: MongoDB')
-                    ->defaultValue("")
+                    ->defaultValue('')
                 ->end()
 
                 ->scalarNode('description')
                     ->info('This description will be used in the documentation.')
-                    ->defaultValue("")
+                    ->defaultValue('')
                 ->end()
 
                 ->scalarNode('host')
@@ -327,7 +324,7 @@ class Configuration implements ConfigurationInterface
                 ->variableNode('connection_options')
                     ->defaultValue(null)
                     ->validate()->ifTrue(
-                        function($value) {
+                        function ($value) {
                             return !(is_array($value) || $value === null);
                         })
                         ->thenInvalid('Invalid connection options it should be an array or null')

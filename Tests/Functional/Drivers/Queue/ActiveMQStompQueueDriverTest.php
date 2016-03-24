@@ -4,39 +4,14 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Drivers\Queue\ActiveMQStompQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Messages\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 
 /**
- * Class StompConnectorTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Connectors
- *
- * This is a functional test for the StompConnector working with ActiveMQ, and it relies on the existence of a running
- * activemq service in host %showcase.hostname%, port 61613, and with the following redelivery configuration:
- *
- * File: /opt/apache-activemq-5.12.0/conf/activemq.xml
- *
- *  <plugins>
- *      <redeliveryPlugin fallbackToDeadLetter="true" sendToDlqIfMaxRetriesExceeded="true">
- *      <redeliveryPolicyMap>
- *          <redeliveryPolicyMap>
- *              <redeliveryPolicyEntries>
- *                  <!-- a destination specific policy -->
- *                  <redeliveryPolicy queue="*" maximumRedeliveries="4" initialRedeliveryDelay="1000" redeliveryDelay="1000" />
- *              </redeliveryPolicyEntries>
- *              <!-- the fallback policy for all other destinations -->
- *              <defaultEntry>
- *                  <redeliveryPolicy maximumRedeliveries="4" initialRedeliveryDelay="1000" redeliveryDelay="1000" />
- *              </defaultEntry>
- *          </redeliveryPolicyMap>
- *      </redeliveryPolicyMap>
- *      </redeliveryPlugin>
- *  </plugins>
- *
+ * Class StompProducerTest.
  */
 class ActiveMQStompQueueDriverTest extends BaseTestCase
 {
@@ -45,55 +20,62 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
     private $queueName;
     private static $testIndex = 0;
 
-    /** @var  ActiveMQStompQueueDriver */
+    /** @var  \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver */
     protected $driver;
 
     public function setUp()
     {
         parent::setUp();
         $this->driver = $this->createDriver();
-        self::$testIndex++;
-        $this->queueName = self::QUEUE_PREFIX . (new \ReflectionClass($this))->getShortName() . self::$testIndex;
+        ++self::$testIndex;
+        $this->queueName = self::QUEUE_PREFIX.(new \ReflectionClass($this))->getShortName().self::$testIndex;
     }
 
-    public function tearDown(){
+    public function tearDown()
+    {
         $this->driver->disconnect();
         $this->driver = null;
         parent::tearDown();
     }
 
     /**
-     * @return ActiveMQStompQueueDriver
+     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver
      */
     protected function createDriver()
     {
         $host = $this->getContainer()->getParameter('hostname');
-        /** @var ActiveMQStompQueueDriver $processor */
-        $driver = new ActiveMQStompQueueDriver();
+        /* @var \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver $processor */
+        $driver = new \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver();
         $driver->setMessageFactory($this->getContainer()->get('smartesb.message_factory'));
         $driver->setSerializer($this->getContainer()->get('serializer'));
-        $driver->configure($host,'','');
+        $driver->configure($host, '', '');
         $driver->connect();
+
         return $driver;
     }
 
     /**
      * @param $message
+     *
      * @return QueueMessage
      */
-    protected function createQueueMessage($message){
+    protected function createQueueMessage($message)
+    {
         $msg = $this->driver->createQueueMessage();
         $msg->setPersistent(false);
         $msg->setBody($message);
         $msg->setQueue($this->queueName);
+
         return $msg;
     }
 
     /**
      * @dataProvider getMessages
+     *
      * @param MessageInterface $msg
      */
-    public function testSendShouldNotChangeMessage(MessageInterface $msg){
+    public function testSendShouldNotChangeMessage(MessageInterface $msg)
+    {
         $clone = unserialize(serialize($msg));
 
         $this->driver->send($this->createQueueMessage($msg));
@@ -103,9 +85,11 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
 
     /**
      * @dataProvider getMessages
+     *
      * @param MessageInterface $msg
      */
-    public function testShouldSendReceiveAndAckOnce(MessageInterface $msg){
+    public function testShouldSendReceiveAndAckOnce(MessageInterface $msg)
+    {
         $messageToSend = $this->createQueueMessage($msg);
         $this->driver->send($messageToSend);
 
@@ -128,9 +112,11 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
 
     /**
      * @dataProvider getMessages
+     *
      * @param MessageInterface $msg
      */
-    public function testAfterNackShouldBeRetried($msg){
+    public function testAfterNackShouldBeRetried($msg)
+    {
         $this->driver->send($this->createQueueMessage($msg));
 
         $this->driver->subscribe($this->queueName);
@@ -151,9 +137,11 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
 
     /**
      * @dataProvider getMessages
+     *
      * @param MessageInterface $msg
      */
-    public function testAfterRetriesShouldDiscard($msg){
+    public function testAfterRetriesShouldDiscard($msg)
+    {
         $this->driver->send($this->createQueueMessage($msg));
 
         $this->driver->subscribe($this->queueName);
@@ -162,9 +150,9 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $this->assertEquals($msg, $msgOut->getBody());
 
         // It should be discarded after exactly 5 nacks (4 retries)
-        for($i = 0; $i < 5; $i++){
+        for ($i = 0; $i < 5; ++$i) {
             $this->assertNotNull($msgOut);
-            if($msgOut){
+            if ($msgOut) {
                 $this->driver->nack();
             }
             $msgOut = $this->driver->receive();
@@ -173,7 +161,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
 
         $msgOut = $this->driver->receive();
         $this->assertNull($msgOut);
-        if($msgOut){
+        if ($msgOut) {
             $this->driver->nack();
         }
 
@@ -185,11 +173,12 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
      *
      * @param MessageInterface $msg
      */
-    public function testAfterExpiresShouldDiscard(MessageInterface $msg){
+    public function testAfterExpiresShouldDiscard(MessageInterface $msg)
+    {
         $ttlSeconds = 2;
 
         $msgIn = $this->createQueueMessage($msg);
-        $msgIn->setExpires((time()+$ttlSeconds)*1000);
+        $msgIn->setExpires((time() + $ttlSeconds) * 1000);
 
         $this->driver->send($msgIn);
         $this->driver->subscribe($this->queueName);
@@ -198,7 +187,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         sleep(1);
         $msgOut = $this->driver->receive();
         $this->assertEquals($msg, $msgOut->getBody());
-        if($msgOut){
+        if ($msgOut) {
             $this->driver->nack();
         }
         $this->driver->unSubscribe();
@@ -208,7 +197,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $this->driver->subscribe($this->queueName);
         $msgOut = $this->driver->receive();
         $this->assertNull($msgOut);
-        if($msgOut){
+        if ($msgOut) {
             $this->driver->nack();
         }
 
@@ -217,9 +206,11 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
 
     /**
      * @dataProvider getMessages
+     *
      * @param MessageInterface $msg
      */
-    public function testAfterTtlShouldDiscard(MessageInterface $msg){
+    public function testAfterTtlShouldDiscard(MessageInterface $msg)
+    {
         $queueMessage = $this->createQueueMessage($msg);
         $queueMessage->setTTL(2);
         $this->driver->send($queueMessage);
@@ -230,7 +221,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $msgOut = $this->driver->receive();
         $this->assertNotNull($msgOut);
 
-        if($msgOut){
+        if ($msgOut) {
             $this->assertEquals($msg, $msgOut->getBody());
             $this->driver->nack();
         }
@@ -241,7 +232,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $this->driver->subscribe($this->queueName);
         $msgOut = $this->driver->receive();
         $this->assertNull($msgOut);
-        if($msgOut){
+        if ($msgOut) {
             $this->driver->nack();
         }
 
@@ -250,39 +241,43 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
 
     /**
      * @dataProvider getMessages
+     *
      * @param MessageInterface $msg
      */
-    public function testShouldSelect(MessageInterface $msg){
+    public function testShouldSelect(MessageInterface $msg)
+    {
         $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header','12345');
+        $msgIn->addHeader('test_header', '12345');
         $this->driver->send($msgIn);
 
-        $this->driver->subscribe($this->queueName,'test_header = 12345');
+        $this->driver->subscribe($this->queueName, 'test_header = 12345');
 
         $msgOut = $this->driver->receive();
-        if($msgOut){
+        if ($msgOut) {
             $this->driver->ack();
         }
 
-        $this->assertEquals($msg,$msgOut->getBody());
+        $this->assertEquals($msg, $msgOut->getBody());
         $this->driver->unSubscribe();
     }
 
     /**
      * @dataProvider getMessages
+     *
      * @param MessageInterface $msg
      */
-    public function testShouldNotSelect(MessageInterface $msg){
+    public function testShouldNotSelect(MessageInterface $msg)
+    {
         $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header','12345');
+        $msgIn->addHeader('test_header', '12345');
         $this->driver->send($msgIn);
 
-        $this->driver->subscribe($this->queueName,'test_header = 6666');
+        $this->driver->subscribe($this->queueName, 'test_header = 6666');
 
         $msgOut = $this->driver->receive();
 
         $this->assertNull($msgOut);
-        if($msgOut){
+        if ($msgOut) {
             $this->driver->ack();
         }
         $this->driver->unSubscribe();
@@ -293,8 +288,8 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         // populate the queue with some messages
         $numMessages = 3;
         $sentMessages = [];
-        for ($i=0; $i < $numMessages; $i++) {
-            $message = $this->createQueueMessage($this->createSimpleEntity('item' . $i));
+        for ($i = 0; $i < $numMessages; ++$i) {
+            $message = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
             $this->driver->send($message);
             $sentMessages[] = $message;
         }
@@ -319,8 +314,8 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $prefetchSize = 3;
         $numMessagesSent = 10;
         $sentMessages = [];
-        for ($i=0; $i < $numMessagesSent; $i++) {
-            $message = $this->createQueueMessage($this->createSimpleEntity('item' . $i));
+        for ($i = 0; $i < $numMessagesSent; ++$i) {
+            $message = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
             $this->driver->send($message);
             $sentMessages[] = $message;
         }
@@ -334,7 +329,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $this->driver->ack();
 
         // send an additional message to the queue
-        $message = $this->createQueueMessage($this->createSimpleEntity('item' . $numMessagesSent));
+        $message = $this->createQueueMessage($this->createSimpleEntity('item'.$numMessagesSent));
         $this->driver->send($message);
         $sentMessages[] = $message;
 
@@ -361,29 +356,32 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
 
         $complex = new Message(new SerializableArray(array('x' => $x1, 'item' => $item, 'item2' => $item, 'item3' => $item)));
 
-        $complex->setHeader('tracking-test-id',uniqid());
-        $x1->setHeader('tracking-test-id',uniqid());
-        $item->setHeader('tracking-test-id',uniqid());
+        $complex->setHeader('tracking-test-id', uniqid());
+        $x1->setHeader('tracking-test-id', uniqid());
+        $item->setHeader('tracking-test-id', uniqid());
 
         return array(
-            array($complex)
+            array($complex),
         );
     }
 
-    private function createSimpleEntity($title='item', $description = 'a simple item')
+    private function createSimpleEntity($title = 'item', $description = 'a simple item')
     {
         $entity = new TestEntity();
         $entity->setDescription($description);
         $entity->setTitle($title);
-        $entity->setNote("Note here");
+        $entity->setNote('Note here');
+
         return new Message($entity);
     }
 
-    public static function mapTitle(QueueMessage $message) {
+    public static function mapTitle(QueueMessage $message)
+    {
         /** @var Message $wrappedMessage */
         $wrappedMessage = $message->getBody();
         /** @var TestEntity $item */
         $item = $wrappedMessage->getBody();
+
         return $item->getTitle();
     }
 }

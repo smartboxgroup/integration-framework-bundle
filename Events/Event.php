@@ -5,12 +5,10 @@ namespace Smartbox\Integration\FrameworkBundle\Events;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Symfony\Component\EventDispatcher\Event as BaseEvent;
-use Symfony\Component\Validator\Constraints as Assert;
 use JMS\Serializer\Annotation as JMS;
 
 /**
- * Class Event
- * @package Smartbox\Integration\FrameworkBundle\Events
+ * Class Event.
  */
 abstract class Event extends BaseEvent implements SerializableInterface
 {
@@ -20,6 +18,7 @@ abstract class Event extends BaseEvent implements SerializableInterface
      * @JMS\Expose
      * @JMS\Groups({"logs"})
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s.uP'>")
+     *
      * @var \DateTime
      */
     protected $timestamp;
@@ -30,7 +29,9 @@ abstract class Event extends BaseEvent implements SerializableInterface
     protected $eventName;
 
     /**
-     * Constructor
+     * Constructor.
+     *
+     * @param string|null $eventName
      */
     public function __construct($eventName = null)
     {
@@ -54,11 +55,12 @@ abstract class Event extends BaseEvent implements SerializableInterface
         $this->timestamp = $timestamp;
     }
 
-    public function setTimestampToCurrent(){
+    public function setTimestampToCurrent()
+    {
         // Generates the date time including microseconds correctly
         $t = microtime(true);
-        $micro = sprintf("%06d",($t - floor($t)) * 1000000);
-        $this->setTimestamp(new \DateTime(date('Y-m-d H:i:s.'.$micro,$t)));
+        $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
+        $this->setTimestamp(new \DateTime(date('Y-m-d H:i:s.'.$micro, $t)));
     }
 
     /**
