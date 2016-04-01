@@ -42,7 +42,7 @@ class ConsumeCommand extends ContainerAwareCommand
         $this->addArgument(
             'uri',
             InputArgument::REQUIRED,
-            'Source URI ( e.g.: queue://api/*/*/* )'
+            'Source URI ( e.g.: queue://api/*/*/*/* )'
         );
     }
 
@@ -54,14 +54,13 @@ class ConsumeCommand extends ContainerAwareCommand
         $this->input = $input;
         $producer = null;
 
-        declare (ticks = 1);
-        pcntl_signal(SIGINT, [$this, 'handleSignal']);
-        pcntl_signal(SIGTERM, [$this, 'handleSignal']);
-
         $this->endpoint = $this->getSourceEndpoint();
 
         $output->writeln('<info>Consuming from '.$this->endpoint->getURI().'.</info>');
 
+        declare (ticks = 10);
+        pcntl_signal(SIGINT, [$this, 'handleSignal']);
+        pcntl_signal(SIGTERM, [$this, 'handleSignal']);
         $this->endpoint->consume();
 
         $output->writeln('<info>Consumer was gracefully stopped for: '.$this->endpoint->getURI().'</info>');
