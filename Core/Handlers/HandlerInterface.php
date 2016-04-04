@@ -4,11 +4,13 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Handlers;
 
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\Service;
+use Smartbox\Integration\FrameworkBundle\ServiceInterface;
 
 /**
  * Interface HandlerInterface.
  */
-interface HandlerInterface
+interface HandlerInterface extends ServiceInterface
 {
     /**
      * Handles a message coming from an Endpoint.

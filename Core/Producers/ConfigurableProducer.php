@@ -21,6 +21,8 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     use UsesEvaluator;
     use UsesSerializer;
 
+    const OPTION_METHOD = 'method';
+
     const KEY_VARS = 'vars';
     const KEY_PRODUCER = 'producer';
     const KEY_PRODUCER_SHORT = 'c';
@@ -240,7 +242,15 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
      */
     public function getOptionsDescriptions()
     {
-        $options = [];
+        $methodDescriptions = [];
+        foreach($this->methodsConfiguration as $method => $methodConfig){
+            $methodDescriptions[$method] = $methodConfig['description'];
+        }
+
+        $options = [
+            self::OPTION_METHOD => ["Method of the producer to be executed",$methodDescriptions]
+        ];
+
         foreach ($this->configuredOptions as $option => $value) {
             $options[$option] = ['Custom option added in configurable producer',[]];
         }
@@ -253,6 +263,9 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
      */
     public function configureOptionsResolver(OptionsResolver $resolver)
     {
+        $resolver->setRequired([self::OPTION_METHOD]);
+        $resolver->setAllowedValues(self::OPTION_METHOD,array_keys($this->methodsConfiguration));
+
         foreach ($this->configuredOptions as $option => $value) {
             $resolver->setDefault($option, $value);
         }
