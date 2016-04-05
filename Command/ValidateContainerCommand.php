@@ -2,14 +2,20 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
+use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
+use Smartbox\Integration\FrameworkBundle\Core\Protocols\ProtocolInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class ValidateContainerCommand extends ContainerAwareCommand
@@ -19,50 +25,104 @@ class ValidateContainerCommand extends ContainerAwareCommand
         $exitCode = 0;
 
         // CHECK producer ROUTES
-        $output->writeln('Validating routes...');
-        $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
-        foreach ($routerProducers->getRouteCollection()->all() as $name => $route) {
+        $output->writeln('<info>Validating routes...</info>');
+        $routerEndpoints = $this->getContainer()->get('smartesb.router.endpoints');
+        foreach ($routerEndpoints->getRouteCollection()->all() as $name => $route) {
+            $cleanPath = $route->getPath();
+            if($cleanPath[0] == '/'){
+                $cleanPath = substr($cleanPath,1);
+            }
+
             $options = $route->getDefaults();
-            if (!array_key_exists(InternalRouter::KEY_PRODUCER, $options)) {
-                $output->writeln("<error>Producer not defined for route '$name': ".$route->getPath().'</error>');
+            $routerEndpoints->resolveServices($options);
+            $optionsResolver = new OptionsResolver();
+
+            // Check protocol
+            if (!array_key_exists(Protocol::OPTION_PROTOCOL, $options)) {
+                $output->writeln("<error>Protocol not defined for route '$name': $cleanPath </error>");
                 $exitCode = 1;
                 continue;
             }
 
-            $producerId = str_replace('@', '', $options[InternalRouter::KEY_PRODUCER]);
+            $protocol = $options[Protocol::OPTION_PROTOCOL];
 
-            if (!$this->getContainer()->has($producerId)) {
-                $output->writeln("<error>Producer '$producerId' not found for route '$name'</error>");
-
-                $exitCode = 1;
-                continue;
-            }
-
-            $producer = $this->getContainer()->get($producerId);
-
-            if (!$producer instanceof ProducerInterface) {
-                $output->writeln("<error>Producer '$producerId' does not implement ProducerInterface</error>");
+            if (!$protocol instanceof ProtocolInterface) {
+                $output->writeln("<error>Protocol '".get_class($protocol)."' found in route '$name' does not implement ProducerInterface</error>");
 
                 $exitCode = 1;
                 continue;
             }
 
-            $routerProducers->resolveServices($options);
+            $protocol->configureOptionsResolver($optionsResolver);
 
-            $options = array_merge($producer->getDefaultOptions(), $options);
+            // Check producer, consumer, handler
+            $producer = array_key_exists(Protocol::OPTION_PRODUCER,$options) ? $options[Protocol::OPTION_PRODUCER] : $protocol->getDefaultProducer();
+            $consumer = array_key_exists(Protocol::OPTION_CONSUMER,$options) ? $options[Protocol::OPTION_CONSUMER] : $protocol->getDefaultConsumer();
+            $handler = array_key_exists(Protocol::OPTION_HANDLER,$options) ? $options[Protocol::OPTION_HANDLER] : $protocol->getDefaultHandler();
+
+            if(!empty($producer)){
+                if (!$producer instanceof ProducerInterface) {
+                    $output->writeln("<error>Producer of class ".get_class($producer)." found in route: '$name' does not implement ProducerInterface</error>");
+                    $exitCode = 1;
+                    continue;
+                }
+
+                if($producer instanceof ConfigurableInterface){
+                    $producer->configureOptionsResolver($optionsResolver);
+                }
+            }
+
+            if(!empty($consumer)){
+                if (!$consumer instanceof ConsumerInterface) {
+                    $output->writeln("<error>Consumer of class ".get_class($consumer)." found in route: '$name' does not implement ConsumerInterface</error>");
+                    $exitCode = 1;
+                    continue;
+                }
+
+                if($consumer instanceof ConfigurableInterface){
+                    $consumer->configureOptionsResolver($optionsResolver);
+                }
+            }
+
+            if(!empty($handler)){
+                if (!$handler instanceof HandlerInterface) {
+                    $output->writeln("<error>Handler of class ".get_class($handler)." found in route: '$name' does not implement HandlerInterface</error>");
+                    $exitCode = 1;
+                    continue;
+                }
+
+                if($handler instanceof ConfigurableInterface){
+                    $handler->configureOptionsResolver($optionsResolver);
+                }
+            }
+
+            // Remove undesired options
+            unset($options[Protocol::OPTION_PROTOCOL]);
+            unset($options[Protocol::OPTION_PRODUCER]);
+            unset($options[Protocol::OPTION_CONSUMER]);
+            unset($options[Protocol::OPTION_HANDLER]);
+
+            // Don't check options which should by defined in the route somewhere
+            $missingRequirements = array_diff(array_keys($route->getRequirements()),array_keys($options));
+            $requirements = $missingRequirements;
+            $optionsResolver->remove($requirements);
 
             try {
-                $producer->validateOptions($options, false);
-            } catch (InvalidOptionException $exception) {
-                $output->writeln("<error>The route '$name' has an invalid option '".$exception->getOptionName()."' for producer ".$exception->getClassName().' with message '.$exception->getMessage());
+                $optionsResolver->resolve($options);
+            } catch (\Exception $exception) {
+                $output->writeln("<error>The route '$name' has an problem in its options. ".$exception->getMessage()."</error>");
 
                 $exitCode = 1;
                 continue;
+            }
+
+            if($output->getVerbosity() >= OutputInterface::VERBOSITY_NORMAL){
+                $output->writeln("<info>Checked route $name: ".$cleanPath."</info>");
             }
         }
 
         // CHECK producer ROUTES URIs
-        $output->writeln('Validating endpoints...');
+        $output->writeln('<info>Validating endpoints...</info>');
         $itinerariesRepo = $this->getContainer()->get('smartesb.map.itineraries');
 
         foreach ($itinerariesRepo->getItineraries() as $itineraryId) {
@@ -78,51 +138,25 @@ class ValidateContainerCommand extends ContainerAwareCommand
             }
         }
 
-        $output->writeln('Validation finished');
+        $output->writeln('<info>Validation finished</info>');
 
         return $exitCode;
     }
 
     protected function checkEndpointURI($uri, OutputInterface $output)
     {
-        $routerProducers = $this->getContainer()->get('smartesb.router.endpoints');
+        $endpointFactory = $this->getContainer()->get('smartesb.endpoint_factory');
         $uri = preg_replace('/{[^{}]+}/', 'xxx', $uri);
 
         try {
-            $options = $routerProducers->match($uri);
-        } catch (ResourceNotFoundException $exception) {
-            $output->writeln("<error>Route not found for URI: '$uri'</error>");
-
-            return false;
-        }
-
-        if (!array_key_exists(InternalRouter::KEY_PRODUCER, $options)) {
-            $output->writeln("<error>Producer not defined for URI '$uri'</error>");
-
-            return false;
-        }
-
-        /** @var Producer $producer */
-        $producer = $options[InternalRouter::KEY_PRODUCER];
-
-        if (!$producer instanceof ProducerInterface) {
-            $output->writeln("<error>Producer '".$producer->getId()."' does not implement ProducerInterface</error>");
-
-            return false;
-        }
-
-        $options = array_merge($producer->getDefaultOptions(), $options);
-
-        try {
-            $producer->validateOptions($options, true);
-        } catch (InvalidOptionException $exception) {
-            $output->writeln("<error>The URI: '$uri', has an invalid option ".$exception->getOptionName().' for producer '.$exception->getClassName().' with message '.$exception->getMessage());
-
-            return false;
+            $endpoint = $endpointFactory->createEndpoint($uri);
         } catch (\Exception $exception) {
-            $output->writeln("<error>Error trying to validate options for URI '$uri', ".$exception->getMessage());
-
+            $output->writeln("<error>Problem detected for URI: '$uri'</error>");
             return false;
+        }
+
+        if($output->getVerbosity() >= OutputInterface::VERBOSITY_NORMAL){
+            $output->writeln("<info>Checked endpoint URI: $uri</info>");
         }
 
         return true;

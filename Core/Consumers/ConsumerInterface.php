@@ -3,12 +3,13 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\ServiceInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 
 /**
  * Interface ConsumerInterface
  */
-interface ConsumerInterface
+interface ConsumerInterface extends ServiceInterface
 {
     /**
      * Signal the consumer to stop before processing the next message.
