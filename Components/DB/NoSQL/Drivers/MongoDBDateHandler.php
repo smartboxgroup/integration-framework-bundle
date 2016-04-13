@@ -44,6 +44,8 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
     }
 
     /**
+     * Method converts \MongoDB\BSON\UTCDateTime to \DateTime
+     *
      * @param VisitorInterface          $visitor
      * @param \MongoDB\BSON\UTCDateTime $date
      * @param array                     $type
@@ -53,23 +55,53 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
      */
     public function convertFromMongoFormatToDateTime(VisitorInterface $visitor, \MongoDB\BSON\UTCDateTime $date, array $type, Context $context)
     {
-        return $date->toDateTime();
+        /**
+         * this $dateTime object is incorrect in case of using microseconds
+         * because after conversion of \MongoDB\BSON\UTCDateTime to \DateTime
+         * method $dateTime->format('U.u') returns invalid string xxxxxxxxx.zzzzzzzzz
+         * part after "." contains 9 digits but it should contain up to 6 digits
+         * so we have to reduce this part to 6 digits
+         *
+         * @var \DateTime $dateTime
+         */
+        $dateTime = $date->toDateTime();
+
+        $seconds = $dateTime->format('U');
+        $microseconds = substr($dateTime->format('u'), 0, 5); // we allow max 6 digits
+        $fixedDateTime = \DateTime::createFromFormat('U.u', sprintf('%s.%s', $seconds, $microseconds));
+
+        return $fixedDateTime;
     }
 
+    /**
+     * Method converts \DateTime to \MongoDB\BSON\UTCDateTime
+     *
+     * With this conversion we may loose some precision because \MongoDB\BSON\UTCDateTime accepts milliseconds as integer
+     * so everything under 1000 microseconds will be lost
+     *
+     * @param \DateTime $date
+     * @return \MongoDB\BSON\UTCDateTime
+     */
     public static function convertDateTimeToMongoFormat(\DateTime $date)
     {
         return new \MongoDB\BSON\UTCDateTime(self::getUnixTimestampWithMilliseconds($date));
     }
 
-    protected static function getDateMilliseconds(\DateTime $dateTime)
-    {
-        return intval($dateTime->format('u') / 1000);
-    }
-
+    /**
+     * This method returns milliseconds as integer value (we need milliseconds to create \MongoDB\BSON\UTCDateTime)
+     *
+     * In case of having microseconds in DateTime we will loose some precision
+     * because to represent f.e.: 1800 microseconds as milliseconds we should use float value 1.8
+     * but this method should return integer so we will round to 1 (0.8 will be lost)
+     *
+     * @param \DateTime $dateTime
+     * @return int
+     */
     protected static function getUnixTimestampWithMilliseconds(\DateTime $dateTime)
     {
-        $timestampWithMillisTo0 = intval($dateTime->format('U')) * 1000;
-        $timestampWithMillis = $timestampWithMillisTo0 + self::getDateMilliseconds($dateTime);
+        $millisecondsFromSeconds = intval($dateTime->format('U')) * 1000;
+        $millisecondsFromMicroseconds = intval($dateTime->format('u') / 1000);
+        $timestampWithMillis = $millisecondsFromSeconds + $millisecondsFromMicroseconds;
 
         return $timestampWithMillis;
     }

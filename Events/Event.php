@@ -57,10 +57,7 @@ abstract class Event extends BaseEvent implements SerializableInterface
 
     public function setTimestampToCurrent()
     {
-        // Generates the date time including microseconds correctly
-        $t = microtime(true);
-        $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
-        $this->setTimestamp(new \DateTime(date('Y-m-d H:i:s.'.$micro, $t)));
+        $this->setTimestamp(\DateTime::createFromFormat("U.u", microtime(true), new \DateTimeZone('UTC')));
     }
 
     /**
