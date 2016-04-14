@@ -73,10 +73,25 @@ class Mapper implements MapperInterface
         }
     }
 
+    /**
+     * Get the first element of an array.
+     *
+     * @param array $array
+     * @return mixed
+     */
+    public function first(array $array)
+    {
+        return reset($array);
+    }
+
+    /**
+     * Convert an string to date.
+     *
+     * @param string $date
+     * @return \DateTime
+     */
     public function stringToDate($date)
     {
-        $res = new \DateTime($date);
-
-        return $res;
+        return new \DateTime($date);
     }
 }
