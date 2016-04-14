@@ -50,7 +50,7 @@ class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedDateTime, $convertedDateTime);
     }
 
-    public function testOfBugWithLoosingPrecisionDuringConversionFromDateTimeToMongoFormat()
+    public function testOfBugWithLosingPrecisionDuringConversionFromDateTimeToMongoFormat()
     {
         $expectedDateTime = \DateTime::createFromFormat('U.u', microtime(true), new \DateTimeZone('UTC'));
 
