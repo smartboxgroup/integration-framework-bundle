@@ -3,9 +3,8 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouterResourceNotFound;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
  * Trait UsesItinerariesRouter.
@@ -43,11 +42,15 @@ trait UsesItinerariesRouter
         // Find itinerary
         try {
             $params = $this->getItinerariesRouter()->match($from);
-        } catch (ResourceNotFoundException $exception) {
-            throw new RouteNotFoundException("Itinerary not found for uri: $from");
+        } catch (InternalRouterResourceNotFound $exception) {
+            throw new InternalRouterResourceNotFound(
+                "Itinerary not found for uri: $from",
+                $exception->getCode(),
+                $exception
+            );
         }
-        if (empty($params || !array_key_exists(InternalRouter::KEY_ITINERARY, $params))) {
-            throw new RouteNotFoundException("Itinerary not found for uri: $from");
+        if (empty($params) || !array_key_exists(InternalRouter::KEY_ITINERARY, $params)) {
+            throw new InternalRouterResourceNotFound("Itinerary not found for uri: $from");
         }
 
         $itinerary = $params[InternalRouter::KEY_ITINERARY];

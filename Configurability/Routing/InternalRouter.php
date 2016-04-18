@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Configurability\Routing;
 
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
  * Class InternalRouter.
@@ -107,7 +108,11 @@ class InternalRouter extends Router
             $internalPath = '/'.$internalPath;
         }
 
-        $result = parent::match($internalPath);
+        try {
+            $result = parent::match($internalPath);
+        } catch (ResourceNotFoundException $e) {
+            throw new InternalRouterResourceNotFound("Internal resource is not found: $uri");
+        }
 
         $result = array_merge($result, $options);
         $this->resolveServices($result);
