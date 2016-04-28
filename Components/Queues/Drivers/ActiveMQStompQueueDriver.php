@@ -435,7 +435,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     public function createQueueMessage()
     {
         $msg = new QueueMessage();
-        $msg->setContext(new Context([Context::VERSION => $this->getFlowsVersion()]));
+        $msg->setContext(new Context([Context::FLOWS_VERSION => $this->getFlowsVersion()]));
 
         /*
          * By default, messages created with this driver would be sent to the subscribed queue

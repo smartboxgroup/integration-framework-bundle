@@ -2,7 +2,7 @@ queues.generic:
   pattern: "queue://{queue_driver}/{queue}"
   defaults:
     _protocol: @smartesb.protocols.queue
-    prefix: "%kernel.environment%/fv_%flows.version%/"
+    prefix: "%kernel.environment%"
   requirements:
     queue: "[a-zA-Z0-9/]+"
     queue_driver: "[a-zA-Z0-9]+"

@@ -32,7 +32,7 @@ class MongoDbDriver extends Service implements NoSQLDriverInterface, Serializabl
     public function createMessage()
     {
         $message = new NoSQLMessage();
-        $message->setContext(new Context([Context::VERSION => $this->getFlowsVersion()]));
+        $message->setContext(new Context([Context::FLOWS_VERSION => $this->getFlowsVersion()]));
 
         return $message;
     }
