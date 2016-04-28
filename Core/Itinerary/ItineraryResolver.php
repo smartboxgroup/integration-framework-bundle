@@ -3,6 +3,7 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Itinerary;
 
 
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouterResourceNotFound;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesItinerariesRouter;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -39,15 +40,15 @@ class ItineraryResolver {
         // Find itinerary
         try {
             $params = $this->getItinerariesRouter()->match($from);
-        } catch (ResourceNotFoundException $exception) {
-            throw new RouteNotFoundException("Itinerary not found for uri: $from");
+        } catch (InternalRouterResourceNotFound $exception) {
+            throw new InternalRouterResourceNotFound("Itinerary not found for uri: $from");
         }
         if (empty($params || !array_key_exists(InternalRouter::KEY_ITINERARY, $params))) {
-            throw new RouteNotFoundException("Itinerary not found for uri: $from");
+            throw new InternalRouterResourceNotFound("Itinerary not found for uri: $from");
         }
 
         $itinerary = $params[InternalRouter::KEY_ITINERARY];
-        if (!$itinerary instanceof Itinerary) {
+        if (!$itinerary instanceof Itinerary){
             throw new \Exception("Error trying to get itinerary for '$from', the itinerary must be an instance of Itinerary.");
         }
 
