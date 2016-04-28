@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
+use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouterResourceNotFound;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
@@ -12,7 +13,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Protocols\ProtocolInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEndpointRouter;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
  * Class EndpointFactory.
@@ -52,8 +52,12 @@ class EndpointFactory extends Service
 
         try {
             $routeOptions = $router->match($uri);
-        } catch (RouteNotFoundException $exception) {
-            throw new RouteNotFoundException("Endpoint not found for URI: $uri", 0, $exception);
+        } catch (InternalRouterResourceNotFound $exception) {
+            throw new InternalRouterResourceNotFound(
+                "Endpoint not found for URI: $uri",
+                $exception->getCode(),
+                $exception
+            );
         }
 
         // Get and remove _protocol from the options

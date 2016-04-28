@@ -7,7 +7,10 @@ parse_git_branch() {
 branch=$(parse_git_branch)
 
 path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+sudo php5dismod xdebug
 cd "${path}/../" && composer update smartbox/core-bundle smartbox/besimple/soap
+sudo php5enmod xdebug
 
 git add composer.lock
 

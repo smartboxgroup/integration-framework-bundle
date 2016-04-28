@@ -1583,7 +1583,7 @@
             "source": {
                 "type": "git",
                 "url": "git@gitlab.production.smartbox.com:smartesb/BeSimpleSoap.git",
-                "reference": "76f210922c9e6cb569a7a061c08753f7f5bd6929"
+                "reference": "fda110ea8263d597bc97dc4bc0ee05da89834c95"
             },
             "require": {
                 "ass/xmlsecurity": "~1.0",
@@ -1640,7 +1640,7 @@
             "keywords": [
                 "soap"
             ],
-            "time": "2016-03-18 15:17:26"
+            "time": "2016-04-27 14:02:11"
         },
         {
             "name": "smartbox/core-bundle",
@@ -1648,16 +1648,16 @@
             "source": {
                 "type": "git",
                 "url": "git@gitlab.production.smartbox.com:smartesb/core-bundle.git",
-                "reference": "c6750b0c5b904f12edc8a6f5944abd35bd8a5d51"
+                "reference": "c782ada1a540cbef94da98ad73fee49faaf233b8"
             },
             "require": {
-                "doctrine/annotations": "1.2.*",
-                "jms/serializer-bundle": "^0.13.0",
+                "doctrine/annotations": ">=1.2.0",
+                "jms/serializer-bundle": ">=0.13.0",
                 "php": ">=5.4",
-                "sensio/distribution-bundle": "~4.0",
-                "sensio/framework-extra-bundle": "^3.0",
-                "symfony/monolog-bundle": "~2.4",
-                "symfony/symfony": "2.7.*"
+                "sensio/distribution-bundle": ">=4.0",
+                "sensio/framework-extra-bundle": ">=3.0",
+                "symfony/monolog-bundle": ">=2.4",
+                "symfony/symfony": ">=2.7.0"
             },
             "require-dev": {
                 "digitalnature/php-ref": "dev-master",
@@ -1675,7 +1675,8 @@
             "license": [
                 "MIT"
             ],
-            "time": "2016-04-05 08:38:52"
+            "description": "Smartbox Core Bundle",
+            "time": "2016-04-18 10:57:09"
         },
         {
             "name": "symfony/assetic-bundle",
