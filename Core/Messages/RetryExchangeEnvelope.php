@@ -13,6 +13,8 @@ class RetryExchangeEnvelope extends ErrorExchangeEnvelope
 {
     const KEY_RETRIES = 'retries';
     const HEADER_LAST_ERROR = 'last_error';
+    const HEADER_LAST_RETRY_AT = 'last_retry_at';
+    const HEADER_RETRY_DELAY = 'retry_delay';
 
     /**
      * RetryExchangeEnvelope constructor.
