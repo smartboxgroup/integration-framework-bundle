@@ -12,7 +12,7 @@ class Context implements \ArrayAccess
 {
     const ORIGINAL_FROM = 'from';
     const ORIGINAL_TIMESTAMP = 'timestamp';
-    const VERSION = 'version';
+    const FLOWS_VERSION = 'version';
 
     /**
      * @JMS\Type("Smartbox\CoreBundle\Type\SerializableArray")

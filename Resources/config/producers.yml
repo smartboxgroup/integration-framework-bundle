@@ -11,7 +11,7 @@ services:
       class: %smartesb.producers.direct.class%
       calls:
         - [setId, ['smartesb.producer.direct']]
-        - [setItinerariesRouter, [@smartesb.router.itineraries]]
+        - [setItineraryResolver, [@smartesb.itineray_resolver]]
 
   smartesb.producers.json_file:
       class: %smartesb.producers.json_file.class%

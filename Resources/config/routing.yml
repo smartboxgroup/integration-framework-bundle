@@ -6,10 +6,12 @@ parameters:
   smartesb.router.itineraries.options:
       cache_dir: %kernel.cache_dir%
       debug: %kernel.debug%
-      generator_class: 'SmartesbItinerariesUrlGenerator'
+
+      generator_class: %router.options.generator_class%
       generator_base_class: %router.options.generator_base_class%
       generator_dumper_class: %router.options.generator_dumper_class%
-      generator_cache_class: %router.options.generator.cache_class%
+      generator_cache_class: 'SmartesbItinerariesUrlMatcher'
+
       matcher_class: %router.options.matcher_class%
       matcher_base_class: %router.options.matcher_base_class%
       matcher_dumper_class: %router.options.matcher_dumper_class%
@@ -18,10 +20,12 @@ parameters:
   smartesb.router.endpoints.options:
       cache_dir: %kernel.cache_dir%
       debug: %kernel.debug%
-      generator_class: 'SmartesbEndpointsUrlGenerator'
+
+      generator_class: %router.options.generator_class%
       generator_base_class: %router.options.generator_base_class%
       generator_dumper_class: %router.options.generator_dumper_class%
-      generator_cache_class: %router.options.generator.cache_class%
+      generator_cache_class: 'SmartesbEndpointsUrlGenerator'
+
       matcher_class: %router.options.matcher_class%
       matcher_base_class: %router.options.matcher_base_class%
       matcher_dumper_class: %router.options.matcher_dumper_class%
@@ -45,7 +49,7 @@ services:
         - "%kernel.root_dir%/config/routing_endpoints_%kernel.environment%.yml"
         - %smartesb.router.endpoints.options%
       tags:
-        - { name: monolog.logger, channel: "router.producers" }
+        - { name: monolog.logger, channel: "router.endpoints" }
 
   smartesb.router.itineraries.cache_warmer:
     class: %router.cache_warmer.class%

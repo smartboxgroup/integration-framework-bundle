@@ -13,6 +13,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
+use Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItineraryResolver;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactoryInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
@@ -72,16 +73,17 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $from = 'xxx';
         $itinerary = new Itinerary();
 
-        $itinerariesRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
-        $itinerariesRouterMock
+        $itineraryResolverMock = $this->getMockBuilder(ItineraryResolver::class)->disableOriginalConstructor()->getMock();
+        $itineraryResolverMock->method('filterItineraryParamsToPropagate')->willReturn([]);
+        $itineraryResolverMock
             ->expects($this->once())
-            ->method('match')
-            ->with($from)
-        ->willReturn(array(
-            InternalRouter::KEY_ITINERARY => $itinerary,
-        ));
+            ->method('getItineraryParams')
+            ->with($from,'0')
+            ->willReturn(array(
+                InternalRouter::KEY_ITINERARY => $itinerary,
+            ));
 
-        $this->handler->setItinerariesRouter($itinerariesRouterMock);
+        $this->handler->setItineraryResolver($itineraryResolverMock);
 
         /** @var Exchange $exchangeProcessedManually */
         $exchangeProcessedManually = new Exchange(unserialize(serialize($message)));
@@ -111,16 +113,17 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $from = 'direct://test';
         $itinerary = new Itinerary();
 
-        $itinerariesRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
-        $itinerariesRouterMock
+        $itineraryResolverMock = $this->getMockBuilder(ItineraryResolver::class)->disableOriginalConstructor()->getMock();
+        $itineraryResolverMock->method('filterItineraryParamsToPropagate')->willReturn([]);
+        $itineraryResolverMock
             ->expects($this->once())
-            ->method('match')
-            ->with($from)
+            ->method('getItineraryParams')
+            ->with($from,'0')
             ->willReturn(array(
                 InternalRouter::KEY_ITINERARY => $itinerary,
             ));
 
-        $this->handler->setItinerariesRouter($itinerariesRouterMock);
+        $this->handler->setItineraryResolver($itineraryResolverMock);
 
         $this->setExpectedException(HandlerException::class);
 
@@ -142,11 +145,12 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $failedQueue = 'failed_queue';
 
         // Itineraries router mock
-        $itinerariesRouterMock = $this->getMockBuilder(InternalRouter::class)->disableOriginalConstructor()->getMock();
-        $itinerariesRouterMock
+        $itineraryResolverMock = $this->getMockBuilder(ItineraryResolver::class)->disableOriginalConstructor()->getMock();
+        $itineraryResolverMock->method('filterItineraryParamsToPropagate')->willReturn([]);
+        $itineraryResolverMock
             ->expects($this->once())
-            ->method('match')
-            ->with($fromURI)
+            ->method('getItineraryParams')
+            ->with($fromURI,'0')
             ->willReturn(array(
                 InternalRouter::KEY_ITINERARY => $itinerary,
             ));
@@ -184,7 +188,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->with($failedUri)
             ->willReturn($failedUriEndpoint);
 
-        $this->handler->setItinerariesRouter($itinerariesRouterMock);
+        $this->handler->setItineraryResolver($itineraryResolverMock);
         $this->handler->setEndpointFactory($endpointFactoryMock);
         $this->handler->setFailedURI($failedUri);
 

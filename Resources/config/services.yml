@@ -15,6 +15,7 @@ parameters:
   smartesb.helper.class: Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper
   smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
   smartesb.event_listener.events_logger.class: Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener
+  smartesb.itineray_resolver.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItineraryResolver
 
 services:
   # SERIALIZATION
@@ -58,6 +59,11 @@ services:
       class: %smartesb.helper.class%
       calls:
           - [ setContainer, [ @service_container ] ]
+
+  smartesb.itineray_resolver:
+      class: %smartesb.itineray_resolver.class%
+      calls:
+          - [ setItinerariesRouter, [ @smartesb.router.itineraries ] ]
 
   # EVENTS LOGGING
   smartesb.event_listener.events_logger:
