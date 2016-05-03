@@ -292,7 +292,7 @@ class MessageHandler extends Service implements HandlerInterface
             if ($message instanceof RetryExchangeEnvelope) {
                 $retries = $message->getRetries();
                 $delaySinceLastRetry = round(microtime(true) * 1000) - $message->getHeader(RetryExchangeEnvelope::HEADER_LAST_RETRY_AT);
-                if ($delaySinceLastRetry < $message->getHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY)) {
+                if ($delaySinceLastRetry < $message->getHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY) * 1000) {
                     $this->deferRetryExchangeMessage($exchange);
                     return ;
                 }

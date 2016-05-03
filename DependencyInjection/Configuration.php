@@ -215,7 +215,7 @@ class Configuration implements ConfigurationInterface
             ->end()
 
             ->scalarNode('delay')
-            ->info('Minimum delay in milliseconds used by the handler between two retry of the same message')
+            ->info('Minimum delay in seconds used by the handler between two retry of the same message')
             ->defaultValue(0)
             ->isRequired()
             ->end()
