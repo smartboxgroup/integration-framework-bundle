@@ -16,6 +16,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\RetryExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\ProcessorInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesItineraryResolver;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
@@ -23,7 +24,6 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterfac
 use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEndpointFactory;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesItinerariesRouter;
 
 /**
  * Class MessageHandler.
@@ -32,7 +32,7 @@ class MessageHandler extends Service implements HandlerInterface
 {
     use UsesEventDispatcher;
     use UsesEndpointFactory;
-    use UsesItinerariesRouter;
+    use UsesItineraryResolver;
 
     /** @var  int */
     protected $retriesMax;
@@ -274,15 +274,6 @@ class MessageHandler extends Service implements HandlerInterface
      */
     public function handle(MessageInterface $message, EndpointInterface $endpointFrom)
     {
-        $version = $message->getContext()->get(Context::VERSION);
-        $expectedVersion = $this->getFlowsVersion();
-
-        if ($version !== $expectedVersion) {
-            throw new HandlerException(
-                "Received message with wrong version. Expected: $expectedVersion, received: $version", $message
-            );
-        }
-
         $retries = 0;
 
         // If this is an exchange envelope
@@ -300,18 +291,7 @@ class MessageHandler extends Service implements HandlerInterface
         }
         // Otherwise create the exchange
         else {
-            // Find from URI
-            if ($endpointFrom) {
-                $from = $endpointFrom->getURI();
-            } else {
-                $from = $message->getHeader(Message::HEADER_FROM);
-            }
-
-            if (empty($from)) {
-                throw new HandlerException('Missing FROM header while trying to handle a message', $message);
-            }
-
-            $exchange = $this->createExchangeForMessageFromURI($message, $from);
+            $exchange = $this->createExchangeForMessageFromURI($message, $endpointFrom->getURI());
         }
 
         $this->onHandleStart($exchange);
@@ -331,14 +311,15 @@ class MessageHandler extends Service implements HandlerInterface
      */
     protected function createExchangeForMessageFromURI(MessageInterface $message, $from)
     {
-        $params = $this->findItineraryParams($from);
+        $version = $message->getContext()->get(Context::FLOWS_VERSION);
+        $params = $this->itineraryResolver->getItineraryParams($from,$version);
         $itinerary = $params[InternalRouter::KEY_ITINERARY];
 
         $exchange = new Exchange($message, clone $itinerary);
         $exchange->setHeader(Exchange::HEADER_HANDLER, $this->getId());
         $exchange->setHeader(Exchange::HEADER_FROM, $from);
 
-        foreach ($this->filterItineraryParamsToPropagate($params) as $key => $value) {
+        foreach ($this->itineraryResolver->filterItineraryParamsToPropagate($params) as $key => $value) {
             $exchange->setHeader($key, $value);
         }
 

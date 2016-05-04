@@ -29,19 +29,6 @@ class DeferredEventsHandler extends Service implements HandlerInterface
             throw new \InvalidArgumentException('Expected EventMessage as an argument');
         }
 
-        $version = $message->getContext()->get(Context::VERSION);
-        $expectedVersion = $this->getFlowsVersion();
-
-        if ($version !== $expectedVersion) {
-            throw new \Exception(
-                sprintf(
-                    'Received message with wrong version in deferred events handler. Expected: %s, received: %s',
-                    $expectedVersion,
-                    $version
-                )
-            );
-        }
-
         $this->eventDispatcher->dispatch($message->getHeader(EventMessage::HEADER_EVENT_NAME).'.deferred', $message->getBody());
 
         return $message;

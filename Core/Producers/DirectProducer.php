@@ -6,14 +6,16 @@ use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesItinerariesRouter;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesItineraryResolver;
 
 /**
  * Class DirectProducer.
  */
 class DirectProducer extends Producer
 {
-    use UsesItinerariesRouter;
+    use UsesItineraryResolver;
 
     /** {@inheritdoc} */
     public function send(Exchange $ex, EndpointInterface $endpoint)
@@ -23,9 +25,10 @@ class DirectProducer extends Producer
         }
 
         $uri = $endpoint->getURI();
-        $itineraryParams = $this->findItineraryParams($uri);
+        $version = $ex->getIn()->getContext()->get(Context::FLOWS_VERSION);
+        $itineraryParams = $this->itineraryResolver->getItineraryParams($uri,$version);
         $itinerary = $itineraryParams[InternalRouter::KEY_ITINERARY];
-        $headersToPropagate = $this->filterItineraryParamsToPropagate($itineraryParams);
+        $headersToPropagate = $this->itineraryResolver->filterItineraryParamsToPropagate($itineraryParams);
 
         // Update exchange
         $ex->getItinerary()->prepend($itinerary);

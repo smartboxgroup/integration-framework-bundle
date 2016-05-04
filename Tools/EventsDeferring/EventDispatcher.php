@@ -40,7 +40,7 @@ class EventDispatcher extends ContainerAwareEventDispatcher
         if (!empty($deferToURI)) {
             $endpoint = $this->getContainer()->get('smartesb.endpoint_factory')->createEndpoint($deferToURI);
             $flowsVersion = $this->getContainer()->getParameter('smartesb.flows_version');
-            $exchange = new Exchange(new EventMessage($event, [], new Context([Context::VERSION => $flowsVersion])));
+            $exchange = new Exchange(new EventMessage($event, [], new Context([Context::FLOWS_VERSION => $flowsVersion])));
             $endpoint->produce($exchange);
         }
     }

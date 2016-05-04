@@ -2,9 +2,9 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Producers\Clients;
 
-use BeSimple\SoapClient\SoapClient;
+use BeSimple\SoapClient\BasicAuthSoapClient;
 
-class FakeSoapClient extends SoapClient
+class FakeSoapClient extends BasicAuthSoapClient
 {
     use FakeClientTrait;
 

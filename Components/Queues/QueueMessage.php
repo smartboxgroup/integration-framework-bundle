@@ -79,7 +79,7 @@ class QueueMessage extends Message implements QueueMessageInterface
 
     public function getVersion()
     {
-        return $this->getContext()->get(Context::VERSION);
+        return $this->getContext()->get(Context::FLOWS_VERSION);
     }
 
     public function getMessageType()

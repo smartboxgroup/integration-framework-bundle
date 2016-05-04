@@ -23,7 +23,7 @@ class MessageFactory implements MessageFactoryInterface
     {
         if (!$context) {
             $context = new Context([
-                Context::VERSION => $this->getFlowsVersion(),
+                Context::FLOWS_VERSION => $this->getFlowsVersion(),
             ]);
         }
 
