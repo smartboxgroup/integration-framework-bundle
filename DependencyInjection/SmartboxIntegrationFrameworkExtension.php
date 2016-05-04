@@ -229,7 +229,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $driverDef->addMethodCall('setId', [$handlerName]);
             $driverDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $driverDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
-            $driverDef->addMethodCall('setDelay', [$handlerConfig['delay']]);
+            $driverDef->addMethodCall('setRetryDelay', [$handlerConfig['retry_delay']]);
             $driverDef->addMethodCall('setEndpointFactory', [new Reference('smartesb.endpoint_factory')]);
             $driverDef->addMethodCall('setItineraryResolver', [new Reference('smartesb.itineray_resolver')]);
             $driverDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);

@@ -43,7 +43,7 @@ smartbox_integration_framework:
         sync:
             description: Message hanlder to handle messages comming from the API
             retries_max: 5
-            delay: 0
+            retry_delay: 0
             failed_uri: queue://main/sync/failed
             retry_uri: queue://main/sync/retry
             throw_exceptions: true
@@ -52,7 +52,7 @@ smartbox_integration_framework:
         async:
             description: Message hanlder to handle messages comming from a queue
             retries_max: 5
-            delay: 0
+            retry_delay: 0
             failed_uri: queue://main/async/failed
             retry_uri: original
             throw_exceptions: false
