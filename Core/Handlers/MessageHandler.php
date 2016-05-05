@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Handlers;
 
-use Smartbox\CoreBundle\Tests\Fixtures\Entity\EntityConstants;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
