@@ -26,7 +26,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class AsyncHandlerTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Handlers\AsyncHandler
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler
  */
 class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 {

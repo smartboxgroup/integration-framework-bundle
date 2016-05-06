@@ -16,11 +16,14 @@
     </testsuite>
 
     <filter>
-        <blacklist>
-            <directory>vendor</directory>
-            <directory>bin</directory>
-            <directory>Resources</directory>
-            <directory>Tests</directory>
-        </blacklist>
+        <whitelist>
+            <directory>.</directory>
+            <exclude>
+                <directory>vendor</directory>
+                <directory>bin</directory>
+                <directory>Resources</directory>
+                <directory>Tests</directory>
+            </exclude>
+        </whitelist>
     </filter>
 </phpunit>
