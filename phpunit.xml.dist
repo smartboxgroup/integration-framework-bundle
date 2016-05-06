@@ -15,4 +15,12 @@
         <directory>./Tests/</directory>
     </testsuite>
 
+    <filter>
+        <blacklist>
+            <directory>vendor</directory>
+            <directory>bin</directory>
+            <directory>Resources</directory>
+            <directory>Tests</directory>
+        </blacklist>
+    </filter>
 </phpunit>
