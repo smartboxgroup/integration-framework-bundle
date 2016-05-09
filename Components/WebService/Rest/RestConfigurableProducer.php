@@ -27,23 +27,27 @@ class RestConfigurableProducer extends ConfigurableProducer
 
     /**
      * @param       $options
-     * @param array $options
+     * @param array $endpointOptions
      *
      * @return array
      */
-    protected function getBasicHTTPOptions($options, array &$options)
+    protected function getBasicHTTPOptions($options, array &$endpointOptions)
     {
         $result = [
-            RequestOptions::CONNECT_TIMEOUT => $options[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT],
-            RequestOptions::TIMEOUT => $options[ConfigurableWebserviceProtocol::OPTION_TIMEOUT],
-            RequestOptions::HEADERS => $options[RestConfigurableProtocol::OPTION_HEADERS],
+            RequestOptions::CONNECT_TIMEOUT => $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT],
+            RequestOptions::TIMEOUT => $endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT],
+            RequestOptions::HEADERS => array_merge(
+                $endpointOptions[RestConfigurableProtocol::OPTION_HEADERS],
+                array_key_exists(RestConfigurableProtocol::OPTION_HEADERS, $options)? $options[RestConfigurableProtocol::OPTION_HEADERS] : []
+            ),
         ];
 
-        $auth = $options[RestConfigurableProtocol::OPTION_AUTH];
+        $auth = $endpointOptions[RestConfigurableProtocol::OPTION_AUTH];
         if ($auth === RestConfigurableProtocol::AUTH_BASIC) {
             $result['auth'] = [
-                $options[Protocol::OPTION_USERNAME],
-                $options[Protocol::OPTION_PASSWORD], ];
+                $endpointOptions[Protocol::OPTION_USERNAME],
+                $endpointOptions[Protocol::OPTION_PASSWORD],
+            ];
         }
 
         return $result;

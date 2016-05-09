@@ -52,26 +52,26 @@ class SimpleObject implements SerializableInterface
     protected $arrayOfEntities = [];
 
     /**
-     * @JMS\Type("array<Smartbox\CoreBundle\Type\Integer>")
+     * @JMS\Type("array<Smartbox\CoreBundle\Type\IntegerType>")
      * @JMS\Expose
      *
-     * @var \Smartbox\CoreBundle\Type\Integer[]
+     * @var \Smartbox\CoreBundle\Type\IntegerType[]
      */
     protected $arrayOfIntegers = [];
 
     /**
-     * @JMS\Type("array<Smartbox\CoreBundle\Type\String>")
+     * @JMS\Type("array<Smartbox\CoreBundle\Type\StringType>")
      * @JMS\Expose
      *
-     * @var \Smartbox\CoreBundle\Type\String[]
+     * @var \Smartbox\CoreBundle\Type\StringType[]
      */
     protected $arrayOfStrings = [];
 
     /**
-     * @JMS\Type("array<Smartbox\CoreBundle\Type\Double>")
+     * @JMS\Type("array<Smartbox\CoreBundle\Type\DoubleType>")
      * @JMS\Expose
      *
-     * @var \Smartbox\CoreBundle\Type\Double[]
+     * @var \Smartbox\CoreBundle\Type\DoubleType[]
      */
     protected $arrayOfDoubles = [];
 
@@ -168,7 +168,7 @@ class SimpleObject implements SerializableInterface
     }
 
     /**
-     * @return \Smartbox\CoreBundle\Type\Integer[]
+     * @return \Smartbox\CoreBundle\Type\IntegerType[]
      */
     public function getArrayOfIntegers()
     {
@@ -176,7 +176,7 @@ class SimpleObject implements SerializableInterface
     }
 
     /**
-     * @param \Smartbox\CoreBundle\Type\Integer[] $arrayOfIntegers
+     * @param \Smartbox\CoreBundle\Type\IntegerType[] $arrayOfIntegers
      */
     public function setArrayOfIntegers($arrayOfIntegers)
     {
@@ -184,7 +184,7 @@ class SimpleObject implements SerializableInterface
     }
 
     /**
-     * @return \Smartbox\CoreBundle\Type\String[]
+     * @return \Smartbox\CoreBundle\Type\StringType[]
      */
     public function getArrayOfStrings()
     {
@@ -192,7 +192,7 @@ class SimpleObject implements SerializableInterface
     }
 
     /**
-     * @param \Smartbox\CoreBundle\Type\String[] $arrayOfStrings
+     * @param \Smartbox\CoreBundle\Type\StringType[] $arrayOfStrings
      */
     public function setArrayOfStrings($arrayOfStrings)
     {
@@ -200,7 +200,7 @@ class SimpleObject implements SerializableInterface
     }
 
     /**
-     * @return \Smartbox\CoreBundle\Type\Double[]
+     * @return \Smartbox\CoreBundle\Type\DoubleType[]
      */
     public function getArrayOfDoubles()
     {
@@ -208,7 +208,7 @@ class SimpleObject implements SerializableInterface
     }
 
     /**
-     * @param \Smartbox\CoreBundle\Type\Double[] $arrayOfDoubles
+     * @param \Smartbox\CoreBundle\Type\DoubleType[] $arrayOfDoubles
      */
     public function setArrayOfDoubles($arrayOfDoubles)
     {
