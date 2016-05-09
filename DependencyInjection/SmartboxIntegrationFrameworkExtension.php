@@ -30,6 +30,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  */
 class SmartboxIntegrationFrameworkExtension extends Extension
 {
+    const EVENTS_LOGGER_ID = 'smartesb.event_listener.events_logger';
+
     const QUEUE_DRIVER_PREFIX = 'smartesb.drivers.queue.';
     const NOSQL_DRIVER_PREFIX = 'smartesb.drivers.nosql.';
     const HANDLER_PREFIX = 'smartesb.handlers.';
@@ -252,6 +254,41 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         }
     }
 
+    public function enableLogging(ContainerBuilder $container){
+        $def = new Definition('%smartesb.event_listener.events_logger.class%',[
+            new Reference('monolog.logger.tracking'),
+            new Reference('request_stack'),
+           '%smartesb.event_listener.events_logger.log_level%'
+        ]);
+
+        $def->addTag('kernel.event_listener',[
+            'event' => 'smartesb.handler.before_handle',
+            'method' => 'onEvent'
+        ]);
+
+        $def->addTag('kernel.event_listener',[
+            'event' => 'smartesb.process.before_process',
+            'method' => 'onEvent'
+        ]);
+
+        $def->addTag('kernel.event_listener',[
+            'event' => 'smartesb.event.error',
+            'method' => 'onEvent'
+        ]);
+
+        $def->addTag('kernel.event_listener',[
+            'event' => 'smartesb.process.after_process',
+            'method' => 'onEvent'
+        ]);
+
+        $def->addTag('kernel.event_listener',[
+            'event' => 'smartesb.handler.after_handle',
+            'method' => 'onEvent'
+        ]);
+
+        $container->setDefinition(self::EVENTS_LOGGER_ID,$def);
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -285,6 +322,17 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $loader->load('events_deferring.yml');
         $loader->load('routing.yml');
         $loader->load('smoke_tests.yml');
+
+        // FEATURE FLAGS
+        $container->setParameter('smartesb.enable_events_deferring',$config['enable_events_deferring']);
+
+        if($config['enable_logging']){
+            $this->enableLogging($container);
+        }
+
+        $queueProtocolDef = $container->getDefinition('smartesb.protocols.queue');
+        $queueProtocolDef->addMethodCall('setDefaultPersistence',[$config['queues_default_persistence']]);
+        $queueProtocolDef->addMethodCall('setDefaultTTL',[$config['queues_default_ttl']]);
 
         $this->loadHandlers($container);
         $this->loadConsumers($container);
