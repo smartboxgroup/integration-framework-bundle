@@ -96,7 +96,7 @@ class QueueProtocol extends Protocol implements DescriptableInterface
     {
         parent::configureOptionsResolver($resolver);
         $resolver->setDefaults([
-            self::OPTION_TTL => 86400,
+            self::OPTION_TTL => $this->defaultTTL,
             self::OPTION_PERSISTENT => $this->defaultPersistence,
             self::OPTION_PRIORITY => 4,
             self::OPTION_EXCHANGE_PATTERN => self::EXCHANGE_PATTERN_IN_ONLY,

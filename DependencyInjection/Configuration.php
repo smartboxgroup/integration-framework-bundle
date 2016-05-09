@@ -36,6 +36,7 @@ class Configuration implements ConfigurationInterface
             ->end()
 
             ->scalarNode('enable_events_deferring')
+            ->info('Feature flag for events deferring. True to enable, false to disable.')
             ->defaultValue(true)
             ->end()
 
