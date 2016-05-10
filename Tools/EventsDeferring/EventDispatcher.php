@@ -6,6 +6,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
 
 /**
@@ -13,8 +14,38 @@ use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
  */
 class EventDispatcher extends ContainerAwareEventDispatcher
 {
+    /**
+     * @var bool
+     */
+    protected $deferringEnabled = true;
+
+    /**
+     * @return boolean
+     */
+    public function isDeferringEnabled()
+    {
+        return $this->deferringEnabled;
+    }
+
+    public function __construct(ContainerInterface $container){
+        parent::__construct($container);
+        $this->deferringEnabled = $container->getParameter('smartesb.enable_events_deferring');
+    }
+
+    /**
+     * @param boolean $deferringEnabled
+     */
+    public function setDeferringEnabled($deferringEnabled)
+    {
+        $this->deferringEnabled = $deferringEnabled;
+    }
+
     protected function shouldDefer(\Symfony\Component\EventDispatcher\Event $event)
     {
+        if(!$this->deferringEnabled){
+            return false;
+        }
+
         if ($event instanceof \Smartbox\Integration\FrameworkBundle\Events\Event) {
             $filtersRegistry = $this->getContainer()->get('smartesb.registry.event_filters');
             $filters = $filtersRegistry->getDeferringFilters();

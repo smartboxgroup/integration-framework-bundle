@@ -167,7 +167,7 @@ class MessageHandler extends Service implements HandlerInterface
         $afterHandleEvent = new HandlerEvent(HandlerEvent::AFTER_HANDLE_EVENT_NAME);
         $afterHandleEvent->setTimestampToCurrent();
         $afterHandleEvent->setExchange($exchange);
-        $this->eventDispatcher->dispatch(HandlerEvent::BEFORE_HANDLE_EVENT_NAME, $afterHandleEvent);
+        $this->eventDispatcher->dispatch(HandlerEvent::AFTER_HANDLE_EVENT_NAME, $afterHandleEvent);
     }
 
     /**
