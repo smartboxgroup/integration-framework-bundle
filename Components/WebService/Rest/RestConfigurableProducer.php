@@ -108,7 +108,7 @@ class RestConfigurableProducer extends ConfigurableProducer
         $httpMethod = strtoupper($httpMethod);
 
         /* @var Response $response */
-        $request = new Request($httpMethod, $resolvedURI);
+        $request = new Request($httpMethod, $resolvedURI, $stepActionParams[RestConfigurableProtocol::OPTION_HEADERS]);
         $response = $client->send($request, $restOptions);
         $responseContent = $response->getBody()->getContents();
 
