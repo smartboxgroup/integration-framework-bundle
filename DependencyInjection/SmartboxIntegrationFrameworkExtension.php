@@ -332,8 +332,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         }
 
         $queueProtocolDef = $container->getDefinition('smartesb.protocols.queue');
-        $queueProtocolDef->addMethodCall('setDefaultPersistence',[$config['queues_default_persistence']]);
-        $queueProtocolDef->addMethodCall('setDefaultTTL',[$config['queues_default_ttl']]);
+        $queueProtocolDef->setArguments([$config['queues_default_persistence'],$config['queues_default_ttl']]);
 
         $this->loadHandlers($container);
         $this->loadConsumers($container);

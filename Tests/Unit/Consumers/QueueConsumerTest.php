@@ -105,7 +105,7 @@ class QueueConsumerTest extends BaseKernelTestCase
             ))
             ->willReturn(true);
 
-        $queueProtocol = new QueueProtocol();
+        $queueProtocol = new QueueProtocol(true,3600);
         $optionsResolver = new OptionsResolver();
         $queueProtocol->configureOptionsResolver($optionsResolver);
 
