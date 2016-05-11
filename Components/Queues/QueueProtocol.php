@@ -30,6 +30,13 @@ class QueueProtocol extends Protocol implements DescriptableInterface
     protected $defaultPersistence;
     protected $defaultTTL;
 
+
+    public function __construct($defaultPersistence, $defaultTTL)
+    {
+        $this->defaultPersistence = $defaultPersistence;
+        $this->defaultTTL = $defaultTTL;
+    }
+
     /**
      * @return mixed
      */
