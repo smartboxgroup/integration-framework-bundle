@@ -94,4 +94,17 @@ class Mapper implements MapperInterface
     {
         return new \DateTime($date);
     }
+
+    /**
+     * Create a Soap object var.
+     *
+     * @param mixed $data Data to create the SoapVar object
+     * @param string $type Entity type name
+     *
+     * @return \SoapVar
+     */
+    public function toSoapObjVar($data, $type)
+    {
+        return new \SoapVar($data, SOAP_ENC_OBJECT, $type);
+    }
 }
