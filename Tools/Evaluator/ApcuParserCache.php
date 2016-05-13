@@ -6,9 +6,9 @@ use Symfony\Component\ExpressionLanguage\ParsedExpression;
 use Symfony\Component\ExpressionLanguage\ParserCache\ParserCacheInterface;
 
 /**
- * Class ApcParserCache
+ * Class ApcuParserCache
  */
-class ApcParserCache implements ParserCacheInterface
+class ApcuParserCache implements ParserCacheInterface
 {
     /**
      * Saves an expression in the cache.
@@ -18,7 +18,7 @@ class ApcParserCache implements ParserCacheInterface
      */
     public function save($key, ParsedExpression $expression)
     {
-        apc_add($key, $expression);
+        apcu_add($key, $expression);
     }
 
     /**
@@ -30,7 +30,7 @@ class ApcParserCache implements ParserCacheInterface
      */
     public function fetch($key)
     {
-        $cached = apc_fetch($key);
+        $cached = apcu_fetch($key);
         if (!$cached) {
             return;
         }
