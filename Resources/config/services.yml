@@ -65,17 +65,6 @@ services:
       calls:
           - [ setItinerariesRouter, [ @smartesb.router.itineraries ] ]
 
-  # EVENTS LOGGING
-  smartesb.event_listener.events_logger:
-      class: %smartesb.event_listener.events_logger.class%
-      arguments: [@monolog.logger.tracking, @request_stack, %smartesb.event_listener.events_logger.log_level%]
-      tags:
-        - { name: kernel.event_listener, event: smartesb.handler.before_handle, method: onEvent }
-        - { name: kernel.event_listener, event: smartesb.process.before_process, method: onEvent }
-        - { name: kernel.event_listener, event: smartesb.event.error, method: onEvent }
-        - { name: kernel.event_listener, event: smartesb.process.after_process, method: onEvent }
-        - { name: kernel.event_listener, event: smartesb.handler.after_handle, method: onEvent }
-
   # PLACEHOLDERS FOR CONFIGURED HANLDERS
   smartesb.handlers.sync:
       class: %smartesb.handlers.message_routing.class%

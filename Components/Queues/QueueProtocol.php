@@ -27,8 +27,52 @@ class QueueProtocol extends Protocol implements DescriptableInterface
     const OPTION_QUEUE_NAME = 'queue';
     const OPTION_QUEUE_DRIVER = 'queue_driver';
 
+    protected $defaultPersistence;
+    protected $defaultTTL;
+
+
+    public function __construct($defaultPersistence, $defaultTTL)
+    {
+        $this->defaultPersistence = $defaultPersistence;
+        $this->defaultTTL = $defaultTTL;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultPersistence()
+    {
+        return $this->defaultPersistence;
+    }
+
+    /**
+     * @param mixed $defaultPersistence
+     */
+    public function setDefaultPersistence($defaultPersistence)
+    {
+        $this->defaultPersistence = $defaultPersistence;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultTTL()
+    {
+        return $this->defaultTTL;
+    }
+
+    /**
+     * @param mixed $defaultTTL
+     */
+    public function setDefaultTTL($defaultTTL)
+    {
+        $this->defaultTTL = $defaultTTL;
+    }
+
     protected $defaultOptions = array(
     );
+
+
 
     public function getOptionsDescriptions()
     {
@@ -59,8 +103,8 @@ class QueueProtocol extends Protocol implements DescriptableInterface
     {
         parent::configureOptionsResolver($resolver);
         $resolver->setDefaults([
-            self::OPTION_TTL => 86400,
-            self::OPTION_PERSISTENT => true,
+            self::OPTION_TTL => $this->defaultTTL,
+            self::OPTION_PERSISTENT => $this->defaultPersistence,
             self::OPTION_PRIORITY => 4,
             self::OPTION_EXCHANGE_PATTERN => self::EXCHANGE_PATTERN_IN_ONLY,
             self::OPTION_TRACK => true,

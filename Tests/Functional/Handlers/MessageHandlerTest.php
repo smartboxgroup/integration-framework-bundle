@@ -170,7 +170,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
         $optionsResolver = new OptionsResolver();
 
-        $queueProtocol = new QueueProtocol();
+        $queueProtocol = new QueueProtocol(true,3600);
         $queueProtocol->configureOptionsResolver($optionsResolver);
 
         $failedEndpointOptions = $optionsResolver->resolve([

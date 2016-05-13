@@ -35,6 +35,26 @@ class Configuration implements ConfigurationInterface
                 ])
             ->end()
 
+            ->scalarNode('enable_events_deferring')
+            ->info('Feature flag for events deferring. True to enable, false to disable.')
+            ->defaultValue(true)
+            ->end()
+
+            ->scalarNode('enable_logging')
+            ->info('Feature flag for events logging. True to enable, false to disable.')
+            ->defaultValue(true)
+            ->end()
+
+            ->scalarNode('queues_default_persistence')
+            ->info('Use persistent messages for queues by default or not')
+            ->defaultValue(true)
+            ->end()
+
+            ->scalarNode('queues_default_ttl')
+            ->info('Default value for TTL of messages when they are sent to queues')
+            ->defaultValue(86400)
+            ->end()
+
             ->scalarNode('defer_events_to_uri')
             ->isRequired()->end()
 
@@ -211,6 +231,12 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('retries_max')
             ->info('Max number of times that the handler will retry to deliver a message failing in the same point of error')
             ->defaultValue(5)
+            ->isRequired()
+            ->end()
+
+            ->scalarNode('retry_delay')
+            ->info('Minimum delay in seconds used by the handler between two retry of the same message')
+            ->defaultValue(0)
             ->isRequired()
             ->end()
 
