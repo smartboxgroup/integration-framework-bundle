@@ -7,6 +7,7 @@ use ProxyManager\Proxy\LazyLoadingInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\RecoverableSoapException;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\UnrecoverableSoapException;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,6 +22,10 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     const SOAP_METHOD_NAME = 'soap_method';
     const SOAP_OPTIONS = 'soap_options';
     const SOAP_HEADERS = 'soap_headers';
+    const VALIDATION = 'validations';
+    const VALIDATION_RULE = 'rule';
+    const VALIDATION_MESSAGE = 'message';
+    const VALIDATION_RECOVERABLE = 'recoverable';
 
     /** @var  SoapClient */
     protected $soapClient;
@@ -28,7 +33,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     /**
      * @param $endpointOptions
      *
-     * @return SoapClient
+     * @return \BeSimple\SoapClient\SoapClient
      */
     abstract public function getSoapClient(array &$endpointOptions);
 
@@ -61,6 +66,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     protected function performRequest($methodName, $params, array &$endpointOptions, array $soapOptions = [], array $soapHeaders = [])
     {
         $soapClient = $this->getSoapClient($endpointOptions);
+        $response = null;
         try {
             if (!$soapClient) {
                 throw new \RuntimeException('SoapConfigurableProducer requires a SoapClient as a dependency');
@@ -84,10 +90,12 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
 
             $soapClient->setExecutionTimeout($endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT]);
 
-            return $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
+            $response = $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
         } catch (\Exception $ex) {
-            $this->throwSoapProducerException($soapClient, $ex->getMessage(), $ex->getCode(), $ex);
+            $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, $ex->getCode(), $ex);
         }
+
+        return $response;
     }
 
     /**
@@ -96,8 +104,8 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
      * @param array $context
      *
      * @return \stdClass
-     *
      * @throws RecoverableSoapException
+     * @throws UnrecoverableSoapException
      */
     protected function request(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
@@ -111,9 +119,28 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
         $paramsResolver->setDefined([
             self::SOAP_OPTIONS,
             self::SOAP_HEADERS,
+            self::VALIDATION,
         ]);
 
         $params = $paramsResolver->resolve($stepActionParams);
+
+        // parses validation steps (if any)
+        $validationSteps = [];
+        if (isset($params[self::VALIDATION]) && !empty($params[self::VALIDATION])) {
+            if (!is_array($params[self::VALIDATION])) {
+                $params[self::VALIDATION] = [$params[self::VALIDATION]];
+            }
+            $validationParamsResolver = new OptionsResolver();
+            $validationParamsResolver->setRequired([
+                self::VALIDATION_RULE,
+                self::VALIDATION_MESSAGE,
+                self::VALIDATION_RECOVERABLE,
+            ]);
+
+            foreach($params[self::VALIDATION] as $validation) {
+                $validationSteps[] = $validationParamsResolver->resolve($validation);
+            }
+        }
 
         $requestName = $params[self::REQUEST_NAME];
         $soapMethodName = $params[self::SOAP_METHOD_NAME];
@@ -124,16 +151,64 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
         $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
 
         $result = $this->performRequest($soapMethodName, $soapMethodParams, $endpointOptions, $soapOptions, $soapHeaders);
-
         $context[self::KEY_RESPONSES][$requestName] = $result;
+
+        // Validates response (if needed)
+        foreach ($validationSteps as $validationStep) {
+            $isValid = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_RULE], $context);
+            if (!$isValid) {
+                $message = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_MESSAGE], $context);
+                $recoverable = $validationStep[self::VALIDATION_RECOVERABLE];
+
+                $soapClient = $this->getSoapClient($endpointOptions);
+
+                if ($recoverable) {
+                   $this->throwRecoverableSoapProducerException($message, $soapClient);
+                } else {
+                   $this->throwUnrecoverableSoapProducerException($message, $soapClient);
+                }
+            }
+        }
 
         return $result;
     }
 
-    protected function throwSoapProducerException(\SoapClient $soapClient, $message, $code = 0, $previousException = null)
+    /**
+     * @param string      $message
+     * @param \SoapClient $soapClient
+     * @param int         $code
+     * @param null        $previousException
+     *
+     * @throws RecoverableSoapException
+     */
+    protected function throwRecoverableSoapProducerException($message, \SoapClient $soapClient, $code = 0, $previousException = null)
     {
         /* @var \SoapClient $soapClient */
         $exception = new RecoverableSoapException(
+            $message,
+            $soapClient->__getLastRequestHeaders(),
+            $soapClient->__getLastRequest(),
+            $soapClient->__getLastResponseHeaders(),
+            $soapClient->__getLastResponse(),
+            $code,
+            $previousException
+        );
+
+        throw $exception;
+    }
+
+    /**
+     * @param string      $message
+     * @param \SoapClient $soapClient
+     * @param int         $code
+     * @param null        $previousException
+     *
+     * @throws UnrecoverableSoapException
+     */
+    protected function throwUnrecoverableSoapProducerException($message, \SoapClient $soapClient, $code = 0, $previousException = null)
+    {
+        /* @var \SoapClient $soapClient */
+        $exception = new UnrecoverableSoapException(
             $message,
             $soapClient->__getLastRequestHeaders(),
             $soapClient->__getLastRequest(),
