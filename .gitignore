@@ -9,5 +9,5 @@ Tests/App/logs/*
 # IDE files
 /.idea
 
-#coverage
+# Coverage report files
 /.coverage
