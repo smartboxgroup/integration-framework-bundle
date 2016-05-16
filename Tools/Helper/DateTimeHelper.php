@@ -2,22 +2,22 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\Helper;
 
-
-class DateTimeHelper {
-
+class DateTimeHelper
+{
     /**
-     * @param $timestamp
+     * @param mixed $timestamp
      * @return \DateTime
      */
-    public static function createDateTimeFromTimestampWithMilliseconds($timestamp){
-        $datetime = \DateTime::createFromFormat("U.u",$timestamp, new \DateTimeZone('UTC'));
+    public static function createDateTimeFromTimestampWithMilliseconds($timestamp)
+    {
+        $datetime = \DateTime::createFromFormat("U.u", $timestamp, new \DateTimeZone('UTC'));
 
-        if($datetime == false){
-            $datetime =  \DateTime::createFromFormat("U",$timestamp, new \DateTimeZone('UTC'));
-        }
+        if ($datetime == false) {
+            $datetime = \DateTime::createFromFormat("U", $timestamp, new \DateTimeZone('UTC'));
 
-        if($datetime == false){
-            throw new \RuntimeException("Could not create datetime: ".print_r(\DateTime::getLastErrors(),true));
+            if ($datetime == false) {
+                throw new \RuntimeException("Could not create datetime: " . print_r(\DateTime::getLastErrors(), true));
+            }
         }
 
         return $datetime;
@@ -26,12 +26,12 @@ class DateTimeHelper {
     /**
      * @return \DateTime
      */
-    public static function createDateTimeFromCurrentMicrotime(){
-        try{
+    public static function createDateTimeFromCurrentMicrotime()
+    {
+        try {
             return self::createDateTimeFromTimestampWithMilliseconds(microtime(true));
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             return new \DateTime();
         }
     }
-
 }

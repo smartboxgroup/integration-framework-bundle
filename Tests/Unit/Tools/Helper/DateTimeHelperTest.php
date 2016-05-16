@@ -9,7 +9,8 @@ use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
  */
 class DateTimeHelperTest extends \PHPUnit_Framework_TestCase
 {
-    public function timestampCaseProvider(){
+    public function timestampCaseProvider()
+    {
         return [
             ['1463132313.1234'],
             ['1463132313.0000'],
