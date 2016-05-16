@@ -28,9 +28,9 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
 
     public function setup()
     {
-        $this->processor = $this->getMock(Processor::class);
-        $this->exchange = $this->getMock(Exchange::class);
-        $this->exception = $this->getMock(\Exception::class);
+        $this->processor = $this->createMock(Processor::class);
+        $this->exchange = $this->createMock(Exchange::class);
+        $this->exception = $this->createMock(\Exception::class);
         $this->name = 'some_name';
 
         $this->event = new \Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent($this->processor, $this->exchange, $this->exception, $this->name);
@@ -60,7 +60,7 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
     public function testItShouldSetAndGetARequestStack()
     {
         /** @var RequestStack $requestStack */
-        $requestStack = $this->getMock(RequestStack::class);
+        $requestStack = $this->createMock(RequestStack::class);
         $this->event->setRequestStack($requestStack);
         $this->assertEquals($requestStack, $this->event->getRequestStack());
     }

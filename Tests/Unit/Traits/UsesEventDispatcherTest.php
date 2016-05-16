@@ -28,7 +28,7 @@ class UsesEventDispatcherTest extends \PHPUnit_Framework_TestCase
     public function testSetAndGetEventDispatcher()
     {
         /** @var EventDispatcher|\PHPUnit_Framework_MockObject_MockObject $eventDispatcherMock */
-        $eventDispatcherMock = $this->getMock(EventDispatcher::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
 
         $this->fakeObject->setEventDispatcher($eventDispatcherMock);
 

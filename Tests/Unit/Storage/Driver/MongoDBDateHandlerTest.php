@@ -25,9 +25,9 @@ class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
         $dateTime = new \DateTime('2015-12-25 22:17:05');
 
         /** @var VisitorInterface $visitor */
-        $visitor = $this->getMock(VisitorInterface::class);
+        $visitor = $this->createMock(VisitorInterface::class);
         /** @var SerializationContext $context */
-        $context = $this->getMock(SerializationContext::class);
+        $context = $this->createMock(SerializationContext::class);
 
         $mongoDate = $this->handler->convertFromDateTimeToMongoFormat($visitor, $dateTime, [], $context);
 
@@ -41,9 +41,9 @@ class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
         $mongoDate = MongoDBDateHandler::convertDateTimeToMongoFormat($expectedDateTime);
 
         /** @var VisitorInterface $visitor */
-        $visitor = $this->getMock(VisitorInterface::class);
+        $visitor = $this->createMock(VisitorInterface::class);
         /** @var DeserializationContext $context */
-        $context = $this->getMock(DeserializationContext::class);
+        $context = $this->createMock(DeserializationContext::class);
 
         $convertedDateTime = $this->handler->convertFromMongoFormatToDateTime($visitor, $mongoDate, [], $context);
 
@@ -57,9 +57,9 @@ class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
         $mongoDate = MongoDBDateHandler::convertDateTimeToMongoFormat($expectedDateTime);
 
         /** @var VisitorInterface $visitor */
-        $visitor = $this->getMock(VisitorInterface::class);
+        $visitor = $this->createMock(VisitorInterface::class);
         /** @var DeserializationContext $context */
-        $context = $this->getMock(DeserializationContext::class);
+        $context = $this->createMock(DeserializationContext::class);
 
         $convertedDateTime = $this->handler->convertFromMongoFormatToDateTime($visitor, $mongoDate, [], $context);
 

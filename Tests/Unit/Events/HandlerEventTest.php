@@ -20,7 +20,7 @@ class HandlerEventTest extends \PHPUnit_Framework_TestCase
 
     public function testItShouldGetAndSetExchange()
     {
-        $exchange = $this->getMock(Exchange::class);
+        $exchange = $this->createMock(Exchange::class);
         $this->event->setExchange($exchange);
         $this->assertSame($exchange, $this->event->getExchange());
     }
