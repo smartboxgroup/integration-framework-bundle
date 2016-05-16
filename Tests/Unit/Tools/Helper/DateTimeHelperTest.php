@@ -2,15 +2,12 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Messages;
 
-use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\CoreBundle\Type\String;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 
 /**
  * Class ContextTest.
  */
-class ContextTest extends \PHPUnit_Framework_TestCase
+class DateTimeHelperTest extends \PHPUnit_Framework_TestCase
 {
     public function timestampCaseProvider(){
         return [
@@ -28,11 +25,11 @@ class ContextTest extends \PHPUnit_Framework_TestCase
     public function testCreateDateTimeFromTimestampWithMilliseconds($millis)
     {
         $datetime = DateTimeHelper::createDateTimeFromTimestampWithMilliseconds($millis);
-        $this->assertInstanceOf(\DateTime::class,$datetime);
+        $this->assertInstanceOf(\DateTime::class, $datetime);
     }
 
     public function testCreateDateTimeFromCurrentMicrotime(){
         $datetime = DateTimeHelper::createDateTimeFromCurrentMicrotime();
-        $this->assertInstanceOf(\DateTime::class,$datetime);
+        $this->assertInstanceOf(\DateTime::class, $datetime);
     }
 }
