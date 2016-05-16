@@ -8,3 +8,6 @@ Tests/App/logs/*
 
 # IDE files
 /.idea
+
+# Coverage report files
+/.coverage
