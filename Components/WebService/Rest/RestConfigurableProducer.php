@@ -24,6 +24,7 @@ class RestConfigurableProducer extends ConfigurableProducer
     const REQUEST_NAME = 'name';
     const REQUEST_HTTP_VERB = 'http_method';
     const REQUEST_URI = 'uri';
+    const REQUEST_EXPECTED_RESPONSE_TYPE = 'response_type';
 
     /**
      * @param       $options
@@ -85,6 +86,8 @@ class RestConfigurableProducer extends ConfigurableProducer
         $stepParamsResolver->setRequired(
             [self::REQUEST_NAME, self::REQUEST_HTTP_VERB, self::REQUEST_BODY, self::REQUEST_URI]
         );
+
+        $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_TYPE,'array');
         $stepParamsResolver->setDefined([
             RestConfigurableProtocol::OPTION_HEADERS,
         ]);
@@ -108,7 +111,7 @@ class RestConfigurableProducer extends ConfigurableProducer
         $httpMethod = strtoupper($httpMethod);
 
         /* @var Response $response */
-        $request = new Request($httpMethod, $resolvedURI);
+        $request = new Request($httpMethod, $resolvedURI, $stepActionParams[RestConfigurableProtocol::OPTION_HEADERS]);
         $response = $client->send($request, $restOptions);
         $responseContent = $response->getBody()->getContents();
 
@@ -116,7 +119,7 @@ class RestConfigurableProducer extends ConfigurableProducer
             'statusCode' => $response->getStatusCode(),
             'body' => $this->getSerializer()->deserialize(
                 $responseContent,
-                'array',
+                $resolvedParams[self::REQUEST_EXPECTED_RESPONSE_TYPE],
                 $encoding
             ),
             'headers' => $response->getHeaders(),
