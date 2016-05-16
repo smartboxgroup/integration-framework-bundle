@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Producers;
 
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointUnrecoverableException;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 
 class DirectProducerTest extends \PHPUnit_Framework_TestCase
@@ -26,7 +26,7 @@ class DirectProducerTest extends \PHPUnit_Framework_TestCase
             ->method('getURI')
             ->will($this->returnValue(false));
 
-        $this->setExpectedException(EndpointUnrecoverableException::class);
+        $this->setExpectedException(ProducerUnrecoverableException::class);
 
         $this->directProducer->send(new Exchange, $endpoint);
     }
