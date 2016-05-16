@@ -74,17 +74,6 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Wrap the argument into an array
-     *
-     * @param mixed $obj
-     * @return array
-     */
-    public function wrapInArray($obj)
-    {
-        return [$obj];
-    }
-
-    /**
      * Get the first element of an array.
      *
      * @param array $array
