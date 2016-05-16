@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Messages;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 
 /**
- * Class ContextTest.
+ * Class DateTimeHelperTest.
  */
 class DateTimeHelperTest extends \PHPUnit_Framework_TestCase
 {
