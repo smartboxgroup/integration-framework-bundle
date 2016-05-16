@@ -50,7 +50,7 @@ class EndpointProcessor extends Processor
      *
      * @return bool
      *
-     * @throws EndpointUnrecoverableException
+     * @throws \RuntimeException
      */
     protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
     {

@@ -205,7 +205,7 @@ class EndpointFactory extends Service
                 if (array_key_exists($param, $headers)) {
                     $uri = str_replace('{'.$param.'}', $headers[$param], $uri);
                 } else {
-                    throw new EndpointUnrecoverableException(
+                    throw new \RuntimeException(
                         "Missing exchange header \"$param\" required to resolve the uri \"$uri\""
                     );
                 }
