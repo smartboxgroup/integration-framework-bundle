@@ -6,6 +6,7 @@ use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\VisitorInterface;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 
 /**
  * Class MongoDBDateHandler.
@@ -68,7 +69,7 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
 
         $seconds = $dateTime->format('U');
         $microseconds = substr($dateTime->format('u'), 0, 5); // we allow max 6 digits
-        $fixedDateTime = \DateTime::createFromFormat('U.u', sprintf('%s.%s', $seconds, $microseconds));
+        $fixedDateTime = DateTimeHelper::createDateTimeFromTimestampWithMilliseconds(sprintf('%s.%s', $seconds, $microseconds));
 
         return $fixedDateTime;
     }

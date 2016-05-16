@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Events;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 use Symfony\Component\EventDispatcher\Event as BaseEvent;
 use JMS\Serializer\Annotation as JMS;
 
@@ -57,7 +58,7 @@ abstract class Event extends BaseEvent implements SerializableInterface
 
     public function setTimestampToCurrent()
     {
-        $this->setTimestamp(\DateTime::createFromFormat("U.u", microtime(true), new \DateTimeZone('UTC')));
+        $this->setTimestamp(DateTimeHelper::createDateTimeFromCurrentMicrotime());
     }
 
     /**
