@@ -5,11 +5,11 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerRecoverableException;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -179,7 +179,7 @@ class ConfigurableProducerTest extends BaseTestCase
             new Message(new SerializableArray(['value' => 1313666]))
         );
 
-        $this->setExpectedException(EndpointUnrecoverableException::class, 'Too ugly number!!');
+        $this->setExpectedException(ProducerUnrecoverableException::class, 'Too ugly number!!');
 
         $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',

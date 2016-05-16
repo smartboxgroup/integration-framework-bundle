@@ -37,6 +37,9 @@ class MessageHandler extends Service implements HandlerInterface
     /** @var  int */
     protected $retriesMax;
 
+    /** @var  int */
+    protected $retryDelay;
+
     /** @var  bool */
     protected $throwExceptions;
 
@@ -79,6 +82,22 @@ class MessageHandler extends Service implements HandlerInterface
     public function setRetriesMax($retriesMax)
     {
         $this->retriesMax = $retriesMax;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRetryDelay()
+    {
+        return $this->retryDelay;
+    }
+
+    /**
+     * @param int retryDelay
+     */
+    public function setRetryDelay($retryDelay)
+    {
+        $this->retryDelay = $retryDelay;
     }
 
     /**
@@ -148,7 +167,7 @@ class MessageHandler extends Service implements HandlerInterface
         $afterHandleEvent = new HandlerEvent(HandlerEvent::AFTER_HANDLE_EVENT_NAME);
         $afterHandleEvent->setTimestampToCurrent();
         $afterHandleEvent->setExchange($exchange);
-        $this->eventDispatcher->dispatch(HandlerEvent::BEFORE_HANDLE_EVENT_NAME, $afterHandleEvent);
+        $this->eventDispatcher->dispatch(HandlerEvent::AFTER_HANDLE_EVENT_NAME, $afterHandleEvent);
     }
 
     /**
@@ -206,15 +225,7 @@ class MessageHandler extends Service implements HandlerInterface
             $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
 
             $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
-            $recoveryExchange = new Exchange($retryExchangeEnvelope);
-
-            $retryEndpoint = $this->retryEndpoint;
-            if (!$retryEndpoint) {
-                $retryURI = $exchangeBackup->getHeader(Exchange::HEADER_FROM);
-                $retryEndpoint = $this->getEndpointFactory()->createEndpoint($retryURI);
-            }
-
-            $retryEndpoint->produce($recoveryExchange);
+            $this->deferRetryExchangeMessage($retryExchangeEnvelope);
         }
         // Or not..
         else {
@@ -244,6 +255,8 @@ class MessageHandler extends Service implements HandlerInterface
 
         if ($envelope instanceof RetryExchangeEnvelope) {
             $envelope->setHeader(RetryExchangeEnvelope::HEADER_LAST_ERROR, $errorDescription);
+            $envelope->setHeader(RetryExchangeEnvelope::HEADER_LAST_RETRY_AT, round(microtime(true) * 1000));
+            $envelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY, $this->getRetryDelay());
         }
 
         $envelope->setHeader(ErrorExchangeEnvelope::HEADER_CREATED_AT, round(microtime(true) * 1000));
@@ -266,6 +279,12 @@ class MessageHandler extends Service implements HandlerInterface
 
             if ($message instanceof RetryExchangeEnvelope) {
                 $retries = $message->getRetries();
+                $delaySinceLastRetry = round(microtime(true) * 1000) - $message->getHeader(RetryExchangeEnvelope::HEADER_LAST_RETRY_AT);
+                $retryDelay = $message->getHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY) * 1000;
+                if ($delaySinceLastRetry < $retryDelay) {
+                    $this->deferRetryExchangeMessage($message);
+                    return ;
+                }
             }
         }
         // Otherwise create the exchange
@@ -343,5 +362,23 @@ class MessageHandler extends Service implements HandlerInterface
         }
 
         return $exchange->getResult();
+    }
+
+    /**
+     * @param ExchangeEnvelope $deferredExchange
+     */
+    public function deferRetryExchangeMessage(ExchangeEnvelope $deferredExchange)
+    {
+        $oldExchange = $deferredExchange->getBody();
+
+        $exchange = new Exchange($deferredExchange);
+
+        $retryEndpoint = $this->retryEndpoint;
+        if (!$retryEndpoint) {
+            $retryURI = $oldExchange->getHeader(Exchange::HEADER_FROM);
+            $retryEndpoint = $this->getEndpointFactory()->createEndpoint($retryURI);
+        }
+
+        $retryEndpoint->produce($exchange);
     }
 }
