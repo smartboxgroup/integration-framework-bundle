@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ae24446384be822fab715f4b21f68141",
-    "content-hash": "4170becbd2f6f1c24d4ad5464055a81f",
+    "hash": "103f3fb68bc84f01b097402c8b9eb7ee",
+    "content-hash": "c39e2a1042785844982174d6a3c4f511",
     "packages": [
         {
             "name": "ass/xmlsecurity",
@@ -1631,7 +1631,7 @@
             "source": {
                 "type": "git",
                 "url": "git@gitlab.production.smartbox.com:smartesb/BeSimpleSoap.git",
-                "reference": "fda110ea8263d597bc97dc4bc0ee05da89834c95"
+                "reference": "f989c1c3c234b63795395ff0f51e07945552cac6"
             },
             "require": {
                 "ass/xmlsecurity": "~1.0",
@@ -1688,7 +1688,7 @@
             "keywords": [
                 "soap"
             ],
-            "time": "2016-04-27 14:02:11"
+            "time": "2016-05-16 10:59:09"
         },
         {
             "name": "smartbox/core-bundle",
@@ -1696,7 +1696,7 @@
             "source": {
                 "type": "git",
                 "url": "git@gitlab.production.smartbox.com:smartesb/core-bundle.git",
-                "reference": "c782ada1a540cbef94da98ad73fee49faaf233b8"
+                "reference": "c9b1f52dfc1375a3b1f979511f602353a2b3f850"
             },
             "require": {
                 "doctrine/annotations": ">=1.2.0",
@@ -1724,7 +1724,7 @@
                 "MIT"
             ],
             "description": "Smartbox Core Bundle",
-            "time": "2016-04-18 10:57:09"
+            "time": "2016-05-16 15:59:53"
         },
         {
             "name": "symfony/assetic-bundle",

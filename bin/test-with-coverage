@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" && cd ${path}/../
+
+echo 'Running tests with coverage (report saved in .coverage/) ...'
+rm -rf Tests/App/cache/*
+bin/phpunit -c . --coverage-html ./.coverage --report-useless-tests
+
+sudo service activemq restart
+
+sleep 2
