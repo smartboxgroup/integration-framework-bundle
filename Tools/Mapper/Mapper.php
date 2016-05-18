@@ -96,15 +96,16 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Create a Soap object var.
+     * Create a Soap var object.
      *
      * @param mixed $data Data to create the SoapVar object
+     * @param string $encoding The encoding id
      * @param string $type Entity type name
      *
      * @return \SoapVar
      */
-    public function toSoapObjVar($data, $type)
+    public function toSoapVarObj($data, $encoding, $type)
     {
-        return new \SoapVar($data, SOAP_ENC_OBJECT, $type);
+        return new \SoapVar($data, $encoding, $type);
     }
 }
