@@ -6,6 +6,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
+use JMS\Serializer\Exception\RuntimeException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
@@ -103,6 +104,7 @@ class RestConfigurableProducer extends ConfigurableProducer
         $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_TYPE,'array');
         $stepParamsResolver->setDefined([
             RestConfigurableProtocol::OPTION_HEADERS,
+            self::VALIDATION,
         ]);
 
         $stepParamsResolver->setAllowedValues(self::REQUEST_HTTP_VERB, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
@@ -140,19 +142,34 @@ class RestConfigurableProducer extends ConfigurableProducer
         $restOptions['body'] = $this->getSerializer()->serialize($body, $encoding);
 
         $httpMethod = strtoupper($httpMethod);
+        $requestHeaders = isset($params[RestConfigurableProtocol::OPTION_HEADERS]) ?
+            $params[RestConfigurableProtocol::OPTION_HEADERS] :
+            []
+        ;
 
         /* @var Response $response */
-        $request = new Request($httpMethod, $resolvedURI, $params[RestConfigurableProtocol::OPTION_HEADERS]);
+        $request = new Request($httpMethod, $resolvedURI, $requestHeaders);
         $response = $client->send($request, $restOptions);
         $responseContent = $response->getBody()->getContents();
 
+        // Tries to parse the body and convert it into an object
+        $responseBody = null;
+        if ($responseContent) {
+            try {
+                $responseBody = $this->getSerializer()->deserialize(
+                    $responseContent,
+                    $params[self::REQUEST_EXPECTED_RESPONSE_TYPE],
+                    $encoding
+                );
+            } catch (RuntimeException $e){
+                // if it cannot parse the response fallback to the textual content of the body
+                $responseBody = $responseContent;
+            }
+        }
+
         $context[self::KEY_RESPONSES][$name] = [
             'statusCode' => $response->getStatusCode(),
-            'body' => $this->getSerializer()->deserialize(
-                $responseContent,
-                $params[self::REQUEST_EXPECTED_RESPONSE_TYPE],
-                $encoding
-            ),
+            'body' => $responseBody,
             'headers' => $response->getHeaders(),
         ];
 
@@ -190,7 +207,9 @@ class RestConfigurableProducer extends ConfigurableProducer
         $code = 0,
         \Exception $previousException = null
     ){
-        throw new RecoverableRestException($message, $request, $response, $code, $previousException);
+        $exception = new RecoverableRestException($message, $request, $response, $code, $previousException);
+        $exception->setExternalSystemName($this->getName());
+        throw $exception;
     }
 
     /**
@@ -209,6 +228,8 @@ class RestConfigurableProducer extends ConfigurableProducer
         $code = 0,
         \Exception $previousException = null
     ){
-        throw new UnrecoverableRestException($message, $request, $response, $code, $previousException);
+        $exception = new UnrecoverableRestException($message, $request, $response, $code, $previousException);
+        $exception->setExternalSystemName($this->getName());
+        throw $exception;
     }
 }

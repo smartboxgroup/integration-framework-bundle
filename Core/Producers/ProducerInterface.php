@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Producers;
 
-use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\ServiceInterface;
@@ -20,4 +19,10 @@ interface ProducerInterface extends ServiceInterface
      * @throws \Exception
      */
     public function send(Exchange $ex, EndpointInterface $endpoint);
+
+    /**
+     * Get a descriptive name of the producer
+     * @return string
+     */
+    public function getName();
 }

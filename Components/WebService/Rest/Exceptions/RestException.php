@@ -7,13 +7,16 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\HasExternalSystem;
 
 /**
  * Class RestException.
  */
-class RestException extends \Exception implements SerializableInterface
+class RestException extends \Exception implements SerializableInterface, ExternalSystemExceptionInterface
 {
     use HasInternalType;
+    use HasExternalSystem;
 
     /**
      * @var \Psr\Http\Message\RequestInterface
@@ -66,5 +69,13 @@ class RestException extends \Exception implements SerializableInterface
     public function getResponse()
     {
         return $this->response;
+    }
+
+    /**
+     * @param string $message
+     */
+    public function setMessage($message)
+    {
+        $this->message = $message;
     }
 }
