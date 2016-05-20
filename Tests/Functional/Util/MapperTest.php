@@ -4,11 +4,12 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Util;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
+use Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper;
 use Smartbox\Integration\FrameworkBundle\Tools\Mapper\MapperInterface;
 
 class MapperTest extends BaseTestCase
 {
-    /** @var  MapperInterface */
+    /** @var  Mapper|MapperInterface */
     protected $mapper;
 
     protected $exampleMappings = [
@@ -69,8 +70,12 @@ class MapperTest extends BaseTestCase
 
     public function testToSoapVarObj()
     {
+        /** @var \SoapVar $soapVar */
         $soapVar = $this->mapper->toSoapVarObj(['a' => 'b'], SOAP_ENC_OBJECT, 'Account');
 
         $this->assertInstanceOf(\SoapVar::class, $soapVar);
+        $this->assertEquals(SOAP_ENC_OBJECT, $soapVar->enc_type);
+        $this->assertEquals(['a' => 'b'], $soapVar->enc_value);
+        $this->assertEquals('Account', $soapVar->enc_stype);
     }
 }
