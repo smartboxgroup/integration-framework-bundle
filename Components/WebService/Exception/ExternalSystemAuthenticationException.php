@@ -2,8 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Exception;
 
-use Smartbox\CoreBundle\Type\Traits\HasExternalSystemName;
-use Smartbox\CoreBundle\Exception\ExternalSystemExceptionInterface;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\HasExternalSystemName;
 use Smartbox\Integration\FrameworkBundle\Exceptions\UnrecoverableExceptionInterface;
 
 /**

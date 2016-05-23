@@ -6,9 +6,9 @@ use JMS\Serializer\Annotation as JMS;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\CoreBundle\Type\Traits\HasExternalSystemName;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\HasExternalSystemName;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
-use Smartbox\CoreBundle\Exception\ExternalSystemExceptionInterface;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
 
 /**
  * Class RestException.
