@@ -6,7 +6,7 @@ use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\CoreBundle\Exception\ExternalSystemExceptionInterface;
-use Smartbox\CoreBundle\Type\Traits\HasExternalSystem;
+use Smartbox\CoreBundle\Type\Traits\HasExternalSystemName;
 
 /**
  * Class SoapException.
@@ -14,7 +14,7 @@ use Smartbox\CoreBundle\Type\Traits\HasExternalSystem;
 class SoapException extends \Exception implements SerializableInterface, ExternalSystemExceptionInterface
 {
     use HasInternalType;
-    use HasExternalSystem;
+    use HasExternalSystemName;
 
     /**
      * @var string

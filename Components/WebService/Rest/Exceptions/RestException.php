@@ -6,7 +6,7 @@ use JMS\Serializer\Annotation as JMS;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\CoreBundle\Type\Traits\HasExternalSystem;
+use Smartbox\CoreBundle\Type\Traits\HasExternalSystemName;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\CoreBundle\Exception\ExternalSystemExceptionInterface;
 
@@ -16,7 +16,7 @@ use Smartbox\CoreBundle\Exception\ExternalSystemExceptionInterface;
 class RestException extends \Exception implements SerializableInterface, ExternalSystemExceptionInterface
 {
     use HasInternalType;
-    use HasExternalSystem;
+    use HasExternalSystemName;
 
     /**
      * @var \Psr\Http\Message\RequestInterface
