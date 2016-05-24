@@ -3,6 +3,8 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Rest;
 
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
@@ -83,6 +85,8 @@ class RestConfigurableProducer extends ConfigurableProducer
      * @param array                       $context
      *
      * @return \GuzzleHttp\Psr7\Response
+     * @throws RecoverableRestException
+     * @throws UnrecoverableRestException
      */
     protected function request(ClientInterface $client, array $stepActionParams, array $endpointOptions, array &$context)
     {
@@ -149,61 +153,77 @@ class RestConfigurableProducer extends ConfigurableProducer
 
         /* @var Response $response */
         $request = new Request($httpMethod, $resolvedURI, $requestHeaders);
-        $response = $client->send($request, $restOptions);
-        $responseContent = $response->getBody()->getContents();
+        try {
+            $response = $client->send($request, $restOptions);
+            $responseContent = $response->getBody()->getContents();
 
-        // Tries to parse the body and convert it into an object
-        $responseBody = null;
-        if ($responseContent) {
-            try {
-                $responseBody = $this->getSerializer()->deserialize(
-                    $responseContent,
-                    $params[self::REQUEST_EXPECTED_RESPONSE_TYPE],
-                    $encoding
-                );
-            } catch (RuntimeException $e){
-                // if it cannot parse the response fallback to the textual content of the body
-                $responseBody = $responseContent;
-            }
-        }
-
-        $context[self::KEY_RESPONSES][$name] = [
-            'statusCode' => $response->getStatusCode(),
-            'body' => $responseBody,
-            'headers' => $response->getHeaders(),
-        ];
-
-        // Validates response (if needed)
-        foreach ($validationSteps as $validationStep) {
-            $isValid = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_RULE], $context);
-            if (!$isValid) {
-                $message = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_MESSAGE], $context);
-                $recoverable = $validationStep[self::VALIDATION_RECOVERABLE];
-
-                if ($recoverable) {
-                    $this->throwRecoverableRestProducerException($message, $request, $response);
-                } else {
-                    $this->throwUnrecoverableRestProducerException($message, $request, $response);
+            // Tries to parse the body and convert it into an object
+            $responseBody = null;
+            if ($responseContent) {
+                try {
+                    $responseBody = $this->getSerializer()->deserialize(
+                        $responseContent,
+                        $params[self::REQUEST_EXPECTED_RESPONSE_TYPE],
+                        $encoding
+                    );
+                } catch (RuntimeException $e){
+                    // if it cannot parse the response fallback to the textual content of the body
+                    $responseBody = $responseContent;
                 }
             }
-        }
 
-        return $response;
+            $context[self::KEY_RESPONSES][$name] = [
+                'statusCode' => $response->getStatusCode(),
+                'body' => $responseBody,
+                'headers' => $response->getHeaders(),
+            ];
+
+            // Validates response (if needed)
+            foreach ($validationSteps as $validationStep) {
+                $isValid = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_RULE], $context);
+                if (!$isValid) {
+                    $message = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_MESSAGE], $context);
+                    $recoverable = $validationStep[self::VALIDATION_RECOVERABLE];
+
+                    if ($recoverable) {
+                        $this->throwRecoverableRestProducerException($message, $request, $response);
+                    } else {
+                        $this->throwUnrecoverableRestProducerException($message, $request, $response);
+                    }
+                }
+            }
+
+            return $response;
+        } catch (GuzzleException $e) {
+            // manages request exceptions with sensible defaults:
+            // * 400-499 status codes: unrecoverable
+            // * 500-599 status codes: recoverable
+            $statusCode = $e->getCode();
+            $response = null;
+            if ($e instanceof RequestException) {
+                $response = $e->getResponse();
+            }
+            if ($statusCode >= 400 && $statusCode <= 499) {
+                $this->throwUnrecoverableRestProducerException($e->getMessage(), $request, $response, $statusCode, $e);
+            } else {
+                $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, $statusCode, $e);
+            }
+        }
     }
 
     /**
-     * @param string                              $message
-     * @param \Psr\Http\Message\RequestInterface  $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param int                                 $code
-     * @param \Exception|null                     $previousException
+     * @param string                                    $message
+     * @param \Psr\Http\Message\RequestInterface        $request
+     * @param \Psr\Http\Message\ResponseInterface|null  $response
+     * @param int                                       $code
+     * @param \Exception|null                           $previousException
      *
      * @throws RecoverableRestException
      */
     public function throwRecoverableRestProducerException(
         $message,
         RequestInterface $request,
-        ResponseInterface $response,
+        ResponseInterface $response = null,
         $code = 0,
         \Exception $previousException = null
     ){
@@ -213,18 +233,18 @@ class RestConfigurableProducer extends ConfigurableProducer
     }
 
     /**
-     * @param string                              $message
-     * @param \Psr\Http\Message\RequestInterface  $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param int                                 $code
-     * @param \Exception|null                     $previousException
+     * @param string                                    $message
+     * @param \Psr\Http\Message\RequestInterface        $request
+     * @param \Psr\Http\Message\ResponseInterface|null  $response
+     * @param int                                       $code
+     * @param \Exception|null                           $previousException
      *
      * @throws UnrecoverableRestException
      */
     public function throwUnrecoverableRestProducerException(
         $message,
         RequestInterface $request,
-        ResponseInterface $response,
+        ResponseInterface $response = null,
         $code = 0,
         \Exception $previousException = null
     ){
