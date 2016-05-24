@@ -47,7 +47,10 @@ class Mapper implements MapperInterface
 
         $res = [];
         foreach ($mapping as $key => $expression) {
-            $res[$key] = $this->evaluator->evaluateWithVars($expression, $dictionary);
+            $value = $this->evaluator->evaluateWithVars($expression, $dictionary);
+            if($value !== null){
+                $res[$key] = $value;
+            }
         }
 
         return $res;
