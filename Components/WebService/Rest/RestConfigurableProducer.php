@@ -99,10 +99,10 @@ class RestConfigurableProducer extends ConfigurableProducer
         $stepParamsResolver = new OptionsResolver();
 
         $stepParamsResolver->setRequired([
-                self::REQUEST_NAME,
-                self::REQUEST_HTTP_VERB,
-                self::REQUEST_BODY,
-                self::REQUEST_URI
+            self::REQUEST_NAME,
+            self::REQUEST_HTTP_VERB,
+            self::REQUEST_BODY,
+            self::REQUEST_URI
         ]);
 
         $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_TYPE,'array');
