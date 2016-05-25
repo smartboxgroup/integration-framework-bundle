@@ -193,6 +193,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
             $code,
             $previousException
         );
+        $exception->setExternalSystemName($this->getName());
 
         throw $exception;
     }
@@ -217,6 +218,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
             $code,
             $previousException
         );
+        $exception->setExternalSystemName($this->getName());
 
         throw $exception;
     }

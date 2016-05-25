@@ -42,12 +42,35 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     /** @var array  */
     protected $configuredOptions = [];
 
+    /** @var string */
+    protected $name;
+
     /**
      * {@inheritdoc}
      */
     public function __construct()
     {
         parent::__construct();
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        if (!$this->name) {
+            return parent::getName();
+        }
+
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
     /**
