@@ -153,6 +153,7 @@ class RestConfigurableProducer extends ConfigurableProducer
 
         /* @var Response $response */
         $request = new Request($httpMethod, $resolvedURI, $requestHeaders);
+        $response = null;
         try {
             $response = $client->send($request, $restOptions);
             $responseContent = $response->getBody()->getContents();
@@ -198,16 +199,27 @@ class RestConfigurableProducer extends ConfigurableProducer
             // manages request exceptions with sensible defaults:
             // * 400-499 status codes: unrecoverable
             // * 500-599 status codes: recoverable
-            $statusCode = $e->getCode();
+
             $response = null;
+            $statusCode = $e->getCode();
             if ($e instanceof RequestException) {
                 $response = $e->getResponse();
             }
+
+            if($response){
+                $response->getBody()->rewind();
+            }
+
             if ($statusCode >= 400 && $statusCode <= 499) {
                 $this->throwUnrecoverableRestProducerException($e->getMessage(), $request, $response, $statusCode, $e);
             } else {
                 $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, $statusCode, $e);
             }
+        }catch(\Exception $e){
+            if($response){
+                $response->getBody()->rewind();
+            }
+            $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, $response ? $response->getStatusCode() : null, $e);
         }
     }
 
