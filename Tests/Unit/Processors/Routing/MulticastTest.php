@@ -91,6 +91,6 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
 
         $this->multicast->process($exchange);
 
-        $this->assertEquals(count($itineraries), $dispatchedEventsCounter);
+        $this->assertCount(3, $dispatchedEventsCounter);
     }
 }
