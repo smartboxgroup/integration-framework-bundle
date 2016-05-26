@@ -37,7 +37,7 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
 
     public function testProcess()
     {
-        $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)->getMock();
+        $eventDispatcher = $this->getMock(EventDispatcherInterface::class);
 
         $endpointProcessor = new EndpointProcessor;
         $contentRouter     = new ContentRouter;
