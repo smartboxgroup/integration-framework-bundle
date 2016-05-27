@@ -17,26 +17,26 @@ class ProcessEvent extends Event
     const TYPE_AFTER = 'smartesb.process.after_process';
 
     /**
-     * @var Processor
      * @JMS\Expose
-     * @JMS\Groups({"logs"})
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Processors\Processor")
+     *
+     * @var Processor
      */
     protected $processor;
 
     /**
-     * @var Exchange
      * @JMS\Expose
-     * @JMS\Groups({"logs"})
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Exchange")
+     *
+     * @var Exchange
      */
     protected $exchange;
 
     /**
-     * @var SerializableArray
      * @JMS\Expose
-     * @JMS\Groups({"logs"})
      * @JMS\Type("Smartbox\CoreBundle\Type\SerializableArray")
+     *
+     * @var SerializableArray
      */
     protected $processingContext;
 
