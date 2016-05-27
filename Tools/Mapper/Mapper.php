@@ -26,6 +26,19 @@ class Mapper implements MapperInterface
     }
 
     /**
+     * @param $format
+     * @param \DateTime|null $date
+     * @return null|string
+     */
+    public function formatDate($format, \DateTime $date = null){
+        if ($date === null) {
+            return null;
+        } else {
+            return $date->format($format);
+        }
+    }
+
+    /**
      * @param mixed  $obj
      * @param string $mappingName
      *
@@ -47,7 +60,10 @@ class Mapper implements MapperInterface
 
         $res = [];
         foreach ($mapping as $key => $expression) {
-            $res[$key] = $this->evaluator->evaluateWithVars($expression, $dictionary);
+            $value = $this->evaluator->evaluateWithVars($expression, $dictionary);
+            if($value !== null){
+                $res[$key] = $value;
+            }
         }
 
         return $res;
