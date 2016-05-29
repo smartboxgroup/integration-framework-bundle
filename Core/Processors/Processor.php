@@ -49,12 +49,17 @@ abstract class Processor extends Service implements ProcessorInterface
      */
     protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
     {
-        $event = new ProcessEvent(ProcessEvent::TYPE_BEFORE);
-        $event->setTimestampToCurrent();
-        $event->setProcessor($this);
-        $event->setExchange($exchange);
-        $event->setProcessingContext($processingContext);
+        $event = $this->createProcessEvent($exchange, $processingContext, ProcessEvent::TYPE_BEFORE);
+        $this->enrichPreProcessEvent($event);
         $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_BEFORE, $event);
+    }
+
+    /**
+     * @param ProcessEvent $event
+     */
+    protected function enrichPreProcessEvent(ProcessEvent $event)
+    {
+        return;
     }
 
     /**
@@ -63,12 +68,37 @@ abstract class Processor extends Service implements ProcessorInterface
      */
     protected function postProcess(Exchange $exchange, SerializableArray $processingContext)
     {
-        $event = new ProcessEvent(ProcessEvent::TYPE_AFTER);
+        $event = $this->createProcessEvent($exchange, $processingContext, ProcessEvent::TYPE_AFTER);
+        $this->enrichPostProcessEvent($event);
+        $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_AFTER, $event);
+    }
+
+    /**
+     * @param ProcessEvent $event
+     */
+    protected function enrichPostProcessEvent(ProcessEvent $event)
+    {
+        return;
+    }
+
+    /**
+     * Method to create a process event.
+     *
+     * @param Exchange $exchange
+     * @param SerializableArray $processingContext
+     * @param string $type Event type
+     *
+     * @return ProcessEvent
+     */
+    protected function createProcessEvent(Exchange $exchange, SerializableArray $processingContext, $type)
+    {
+        $event = new ProcessEvent($type);
         $event->setTimestampToCurrent();
         $event->setProcessor($this);
         $event->setExchange($exchange);
         $event->setProcessingContext($processingContext);
-        $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_AFTER, $event);
+
+        return $event;
     }
 
     /**

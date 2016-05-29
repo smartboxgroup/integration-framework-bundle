@@ -17,7 +17,6 @@ abstract class Event extends BaseEvent implements SerializableInterface
 
     /**
      * @JMS\Expose
-     * @JMS\Groups({"logs"})
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s.uP'>")
      *
      * @var \DateTime
@@ -28,6 +27,14 @@ abstract class Event extends BaseEvent implements SerializableInterface
      * @var string
      */
     protected $eventName;
+
+    /**
+     * @JMS\Expose
+     * @JMS\Type("string")
+     *
+     * @var string
+     */
+    protected $eventDetails = '';
 
     /**
      * Constructor.
@@ -75,5 +82,21 @@ abstract class Event extends BaseEvent implements SerializableInterface
     public function setEventName($eventName)
     {
         $this->eventName = $eventName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEventDetails()
+    {
+        return $this->eventDetails;
+    }
+
+    /**
+     * @param string $eventDetails
+     */
+    public function setEventDetails($eventDetails)
+    {
+        $this->eventDetails = $eventDetails;
     }
 }

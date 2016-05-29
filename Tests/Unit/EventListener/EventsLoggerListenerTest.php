@@ -34,11 +34,19 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
         /** @var Event|\PHPUnit_Framework_MockObject_MockObject $event */
         $event = $this->getMockForAbstractClass(Event::class);
 
+        $expectedContext = [
+            'event_name'    => null,
+            'event_details' => '',
+        ];
+
         $this->logger
             ->expects($this->once())
             ->method('log')
-            ->with($this->logLevel, $this->isType('string'), ['event_details' => $event])
-        ;
+            ->with(
+                $this->equalTo($this->logLevel),
+                $this->isType('string'),
+                $this->equalTo($expectedContext)
+            );
 
         $this->listener->onEvent($event);
     }
