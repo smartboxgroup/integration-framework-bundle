@@ -50,7 +50,7 @@ class EndpointProcessor extends Processor implements LogsExchangeDetails
     /**
      * {@inheritdoc}
      */
-    protected function enrichPreProcessEvent(ProcessEvent $event)
+    protected function onPreProcessEvent(ProcessEvent $event)
     {
         $processingContext = $event->getProcessingContext();
 
@@ -68,7 +68,7 @@ class EndpointProcessor extends Processor implements LogsExchangeDetails
     /**
      * {@inheritdoc}
      */
-    protected function enrichPostProcessEvent(ProcessEvent $event)
+    protected function onPostProcessEvent(ProcessEvent $event)
     {
         $resolvedUri = $event->getProcessingContext()->get(self::CONTEXT_RESOLVED_URI);
 
