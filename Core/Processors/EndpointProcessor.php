@@ -8,11 +8,13 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEndpointFactory;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
+use Smartbox\Integration\FrameworkBundle\Tools\Logs\LogsExchangeDetails;
 
 /**
  * Class EndpointProcessor.
  */
-class EndpointProcessor extends Processor
+class EndpointProcessor extends Processor implements LogsExchangeDetails
 {
     const CONTEXT_ENDPOINT_REQUEST_ID = 'endpoint_request_id';
     const CONTEXT_RESOLVED_URI = 'resolved_uri';
@@ -44,25 +46,33 @@ class EndpointProcessor extends Processor
         $this->uri = $uri;
     }
 
+
     /**
-     * @param Exchange          $exchange
-     * @param SerializableArray $processingContext
-     *
-     * @return bool
-     *
-     * @throws \RuntimeException
+     * {@inheritdoc}
      */
-    protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
+    protected function onPreProcessEvent(ProcessEvent $event)
     {
-        $resolvedUri = EndpointFactory::resolveURIParams($exchange, $this->uri);
+        $processingContext = $event->getProcessingContext();
+
+        $resolvedUri = EndpointFactory::resolveURIParams($event->getExchange(), $this->uri);
         $endpoint = $this->getEndpointFactory()->createEndpoint($resolvedUri);
 
-        $processingContext->set(self::CONTEXT_RESOLVED_URI, $resolvedUri);  // TODO: REMOVE FROM CONTEXT, IS IN ENDPOINT
-        $processingContext->set(self::CONTEXT_OPTIONS, $endpoint->getOptions()); // TODO: REMOVE FROM CONTEXT, IS IN ENDPOINT
+        $processingContext->set(self::CONTEXT_RESOLVED_URI, $resolvedUri);  // TO CHECK: REMOVE FROM CONTEXT, IS IN ENDPOINT
+        $processingContext->set(self::CONTEXT_OPTIONS, $endpoint->getOptions()); // TO CHECK: REMOVE FROM CONTEXT, IS IN ENDPOINT
         $processingContext->set(self::CONTEXT_ENDPOINT, $endpoint);
         $processingContext->set(self::CONTEXT_ENDPOINT_REQUEST_ID, uniqid(null, true));
 
-        parent::preProcess($exchange, $processingContext);
+        $event->setEventDetails('Calling endpoint: ' . $resolvedUri);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function onPostProcessEvent(ProcessEvent $event)
+    {
+        $resolvedUri = $event->getProcessingContext()->get(self::CONTEXT_RESOLVED_URI);
+
+        $event->setEventDetails('Returning from endpoint: ' . $resolvedUri);
     }
 
     /**
@@ -73,13 +83,5 @@ class EndpointProcessor extends Processor
         /** @var EndpointInterface $endpoint */
         $endpoint = $processingContext->get(self::CONTEXT_ENDPOINT);
         $endpoint->produce($exchange);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function postProcess(Exchange $exchange, SerializableArray $processingContext)
-    {
-        parent::postProcess($exchange, $processingContext);
     }
 }

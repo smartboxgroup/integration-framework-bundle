@@ -24,7 +24,7 @@ class Message implements MessageInterface
     /**
      * @var Context
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Messages\Context")
-     * @JMS\Groups({"context", "logs"})
+     * @JMS\Groups({"context"})
      * @JMS\Expose
      */
     protected $context;
