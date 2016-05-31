@@ -113,15 +113,4 @@ class MapperTest extends BaseTestCase
 
         $this->assertEquals($expectedValue, $res);
     }
-
-    public function testToSoapVarObj()
-    {
-        /** @var \SoapVar $soapVar */
-        $soapVar = $this->mapper->toSoapVarObj(['a' => 'b'], SOAP_ENC_OBJECT, 'Account');
-
-        $this->assertInstanceOf(\SoapVar::class, $soapVar);
-        $this->assertEquals(SOAP_ENC_OBJECT, $soapVar->enc_type);
-        $this->assertEquals(['a' => 'b'], $soapVar->enc_value);
-        $this->assertEquals('Account', $soapVar->enc_stype);
-    }
 }

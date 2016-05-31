@@ -33,9 +33,9 @@ class Mapper implements MapperInterface
     public function formatDate($format, \DateTime $date = null){
         if ($date === null) {
             return null;
-        } else {
-            return $date->format($format);
         }
+
+        return $date->format($format);
     }
 
     /**
@@ -79,14 +79,14 @@ class Mapper implements MapperInterface
     {
         if (empty($elements)) {
             return $elements;
-        } else {
-            $res = [];
-            foreach ($elements as $key => $element) {
-                $res[$key] = $this->map($element, $mappingName);
-            }
-
-            return $res;
         }
+
+        $res = [];
+        foreach ($elements as $key => $element) {
+            $res[$key] = $this->map($element, $mappingName);
+        }
+
+        return $res;
     }
 
     /**
