@@ -2,8 +2,15 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Exception;
 
+use Smartbox\Integration\FrameworkBundle\Components\WebService\HasExternalSystemName;
 use Smartbox\Integration\FrameworkBundle\Exceptions\UnrecoverableExceptionInterface;
 
-class ExternalSystemAuthenticationException extends \RuntimeException implements UnrecoverableExceptionInterface
+/**
+ * Class ExternalSystemAuthenticationException
+ */
+class ExternalSystemAuthenticationException
+    extends \RuntimeException
+    implements UnrecoverableExceptionInterface, ExternalSystemExceptionInterface
 {
+    use HasExternalSystemName;
 }

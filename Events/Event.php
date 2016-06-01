@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Events;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 use Symfony\Component\EventDispatcher\Event as BaseEvent;
 use JMS\Serializer\Annotation as JMS;
 
@@ -16,7 +17,6 @@ abstract class Event extends BaseEvent implements SerializableInterface
 
     /**
      * @JMS\Expose
-     * @JMS\Groups({"logs"})
      * @JMS\Type("DateTime<'Y-m-d\TH:i:s.uP'>")
      *
      * @var \DateTime
@@ -27,6 +27,14 @@ abstract class Event extends BaseEvent implements SerializableInterface
      * @var string
      */
     protected $eventName;
+
+    /**
+     * @JMS\Expose
+     * @JMS\Type("string")
+     *
+     * @var string
+     */
+    protected $eventDetails = '';
 
     /**
      * Constructor.
@@ -57,7 +65,7 @@ abstract class Event extends BaseEvent implements SerializableInterface
 
     public function setTimestampToCurrent()
     {
-        $this->setTimestamp(\DateTime::createFromFormat("U.u", microtime(true), new \DateTimeZone('UTC')));
+        $this->setTimestamp(DateTimeHelper::createDateTimeFromCurrentMicrotime());
     }
 
     /**
@@ -74,5 +82,21 @@ abstract class Event extends BaseEvent implements SerializableInterface
     public function setEventName($eventName)
     {
         $this->eventName = $eventName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEventDetails()
+    {
+        return $this->eventDetails;
+    }
+
+    /**
+     * @param string $eventDetails
+     */
+    public function setEventDetails($eventDetails)
+    {
+        $this->eventDetails = $eventDetails;
     }
 }

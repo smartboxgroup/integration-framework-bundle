@@ -7,6 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 
 /**
  * Class ContentRouter.
@@ -14,6 +15,11 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluato
 class ContentRouter extends Processor
 {
     use UsesEvaluator;
+
+    /**
+     * @var string
+     */
+    const CONDITION_MATCHED = 'condition_matched';
 
     /**
      * @var WhenClause[]
@@ -61,6 +67,7 @@ class ContentRouter extends Processor
         foreach ($this->clauses as $clause) {
             if ($evaluator->evaluateWithExchange($clause->getCondition(), $exchange) === true) {
                 $exchange->getItinerary()->prepend($clause->getItinerary());
+                $processingContext->set(self::CONDITION_MATCHED, $clause->getCondition());
 
                 return true;
             }
@@ -68,10 +75,19 @@ class ContentRouter extends Processor
 
         if ($this->fallbackItinerary) {
             $exchange->getItinerary()->prepend($this->fallbackItinerary);
+            $processingContext->set(self::CONDITION_MATCHED, 'fallback itinerary');
 
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function onPostProcessEvent(ProcessEvent $event){
+        $condition = $event->getProcessingContext()->get(self::CONDITION_MATCHED);
+        $event->setEventDetails('Matched condition: ' . $condition);
     }
 }

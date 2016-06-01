@@ -94,6 +94,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setOptions', [$options]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
+            $definition->addMethodCall('setName',[$producerName]);
             $container->setDefinition($producerId, $definition);
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {

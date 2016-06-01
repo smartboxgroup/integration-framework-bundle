@@ -6,6 +6,7 @@ use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\VisitorInterface;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBDateHandler;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 
 /**
  * Class MongoDBDateHandlerTest.
@@ -52,7 +53,7 @@ class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function testOfBugWithLosingPrecisionDuringConversionFromDateTimeToMongoFormat()
     {
-        $expectedDateTime = \DateTime::createFromFormat('U.u', microtime(true), new \DateTimeZone('UTC'));
+        $expectedDateTime = DateTimeHelper::createDateTimeFromCurrentMicrotime();
 
         $mongoDate = MongoDBDateHandler::convertDateTimeToMongoFormat($expectedDateTime);
 

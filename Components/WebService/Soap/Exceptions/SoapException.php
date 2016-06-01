@@ -5,13 +5,16 @@ namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Except
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\HasExternalSystemName;
 
 /**
  * Class SoapException.
  */
-class SoapException extends \Exception implements SerializableInterface
+class SoapException extends \Exception implements SerializableInterface, ExternalSystemExceptionInterface
 {
     use HasInternalType;
+    use HasExternalSystemName;
 
     /**
      * @var string

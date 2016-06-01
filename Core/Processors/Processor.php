@@ -47,28 +47,64 @@ abstract class Processor extends Service implements ProcessorInterface
      * @param Exchange          $exchange
      * @param SerializableArray $processingContext
      */
-    protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
+    final protected function preProcess(Exchange $exchange, SerializableArray $processingContext)
     {
-        $event = new ProcessEvent(ProcessEvent::TYPE_BEFORE);
-        $event->setTimestampToCurrent();
-        $event->setProcessor($this);
-        $event->setExchange($exchange);
-        $event->setProcessingContext($processingContext);
+        $event = $this->createProcessEvent($exchange, $processingContext, ProcessEvent::TYPE_BEFORE);
+        $this->onPreProcessEvent($event);
         $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_BEFORE, $event);
+    }
+
+    /**
+     * Method to customize pre process event to add more specific information.
+     * This method is the entry point to do these customizations for the pre process event.
+     *
+     * @param ProcessEvent $event
+     */
+    protected function onPreProcessEvent(ProcessEvent $event)
+    {
+        return;
     }
 
     /**
      * @param Exchange          $exchange
      * @param SerializableArray $processingContext
      */
-    protected function postProcess(Exchange $exchange, SerializableArray $processingContext)
+    final protected function postProcess(Exchange $exchange, SerializableArray $processingContext)
     {
-        $event = new ProcessEvent(ProcessEvent::TYPE_AFTER);
+        $event = $this->createProcessEvent($exchange, $processingContext, ProcessEvent::TYPE_AFTER);
+        $this->onPostProcessEvent($event);
+        $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_AFTER, $event);
+    }
+
+    /**
+     * Method to customize post process event to add more specific information.
+     * This method is the entry point to do these customizations for the post process event.
+     *
+     * @param ProcessEvent $event
+     */
+    protected function onPostProcessEvent(ProcessEvent $event)
+    {
+        return;
+    }
+
+    /**
+     * Method to create a process event.
+     *
+     * @param Exchange $exchange
+     * @param SerializableArray $processingContext
+     * @param string $type Event type
+     *
+     * @return ProcessEvent
+     */
+    final protected function createProcessEvent(Exchange $exchange, SerializableArray $processingContext, $type)
+    {
+        $event = new ProcessEvent($type);
         $event->setTimestampToCurrent();
         $event->setProcessor($this);
         $event->setExchange($exchange);
         $event->setProcessingContext($processingContext);
-        $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_AFTER, $event);
+
+        return $event;
     }
 
     /**
@@ -96,11 +132,9 @@ abstract class Processor extends Service implements ProcessorInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @throws ProcessingException
      */
-    public function process(Exchange $exchange)
+    final public function process(Exchange $exchange)
     {
         if ($this->runtimeBreakpoint && function_exists('xdebug_break')) {
             xdebug_break();

@@ -5,7 +5,6 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Producers;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
@@ -43,12 +42,35 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     /** @var array  */
     protected $configuredOptions = [];
 
+    /** @var string */
+    protected $name;
+
     /**
      * {@inheritdoc}
      */
     public function __construct()
     {
         parent::__construct();
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        if (!$this->name) {
+            return parent::getName();
+        }
+
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
     /**
@@ -127,7 +149,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
                     if ($recoverable) {
                         throw new ProducerRecoverableException($message);
                     } else {
-                        throw new EndpointUnrecoverableException($message);
+                        throw new ProducerUnrecoverableException($message);
                     }
                 }
             }
