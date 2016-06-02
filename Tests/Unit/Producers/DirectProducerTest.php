@@ -20,13 +20,14 @@ class DirectProducerTest extends \PHPUnit_Framework_TestCase
 
     public function testWhenEndpointUriIsNotFound()
     {
-        $endpoint = $this->getMock(EndpointInterface::class);
+        /** @var EndpointInterface|\PHPUnit_Framework_MockObject_MockObject $endpoint */
+        $endpoint = $this->createMock(EndpointInterface::class);
         $endpoint
             ->expects($this->once())
             ->method('getURI')
             ->will($this->returnValue(false));
 
-        $this->setExpectedException(ProducerUnrecoverableException::class);
+        $this->expectException(ProducerUnrecoverableException::class);
 
         $this->directProducer->send(new Exchange, $endpoint);
     }

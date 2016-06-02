@@ -28,7 +28,7 @@ class UsesEvaluatorTest extends \PHPUnit_Framework_TestCase
     public function testSetAndGetEvaluator()
     {
         /** @var ExpressionEvaluator|\PHPUnit_Framework_MockObject_MockObject $evaluatorMock */
-        $evaluatorMock = $this->getMock(ExpressionEvaluator::class);
+        $evaluatorMock = $this->createMock(ExpressionEvaluator::class);
 
         $this->fakeObject->setEvaluator($evaluatorMock);
 

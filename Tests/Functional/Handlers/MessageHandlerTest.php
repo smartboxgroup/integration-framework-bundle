@@ -43,7 +43,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->eventDispatcherMock = $this->getMock(EventDispatcherInterface::class);
+        $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $this->handler = new MessageHandler();
         $this->handler->setId('test_id');
         $this->handler->setEventDispatcher($this->eventDispatcherMock);
@@ -158,7 +158,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $failedQueueDriver = new ArrayQueueDriver();
         $failedQueueDriver->setMessageFactory($this->factory);
 
-        $driverRegistryMock = $this->getMock(DriverRegistry::class);
+        $driverRegistryMock = $this->createMock(DriverRegistry::class);
         $driverRegistryMock
             ->expects($this->once())
             ->method('getDriver')
@@ -181,7 +181,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
         $failedUriEndpoint = new Endpoint($failedUri, $failedEndpointOptions, $queueProtocol, $failedProducer);
 
-        $endpointFactoryMock = $this->getMock(EndpointFactory::class);
+        $endpointFactoryMock = $this->createMock(EndpointFactory::class);
         $endpointFactoryMock
             ->expects($this->once())
             ->method('createEndpoint')

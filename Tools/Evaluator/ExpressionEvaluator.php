@@ -20,7 +20,7 @@ class ExpressionEvaluator
 
     public function __construct()
     {
-        $cache = new ApcParserCache();
+        $cache = new ApcuParserCache();
         $this->language = new ExpressionLanguage($cache);
         // Register any providers here
     }

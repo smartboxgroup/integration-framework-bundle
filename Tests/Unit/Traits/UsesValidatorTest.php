@@ -28,7 +28,7 @@ class UsesValidatorTest extends \PHPUnit_Framework_TestCase
     public function testSetAndGetValidator()
     {
         /** @var ValidatorInterface|\PHPUnit_Framework_MockObject_MockObject $serializer */
-        $serializer = $this->getMock(ValidatorInterface::class);
+        $serializer = $this->createMock(ValidatorInterface::class);
 
         $this->fakeObject->setValidator($serializer);
 

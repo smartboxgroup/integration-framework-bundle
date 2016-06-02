@@ -24,7 +24,7 @@ class Itinerary implements SerializableInterface
     protected $name;
 
     /** @var  Processor[] */
-    protected $processors;
+    protected $processors = [];
 
     /**
      * Itinerary constructor.
@@ -34,7 +34,6 @@ class Itinerary implements SerializableInterface
     public function __construct($name = null)
     {
         $this->name = $name;
-        $this->processors = array();
     }
 
     /**

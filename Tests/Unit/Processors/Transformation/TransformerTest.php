@@ -25,7 +25,7 @@ class TransformerTest extends KernelTestCase
         $container = static::$kernel->getContainer();
 
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcherMock */
-        $eventDispatcherMock = $this->getMock(EventDispatcherInterface::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
 
         $this->transformer = new Transformer();
         $this->transformer->setEventDispatcher($eventDispatcherMock);
