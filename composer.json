@@ -23,7 +23,7 @@
         "incenteev/composer-parameter-handler": "~2.0",
         "jms/serializer-bundle": "^0.13.0",
         "smartbox/besimple/soap": "dev-master",
-        "smartbox/core-bundle": "dev-master",
+        "smartbox/core-bundle": "dev-SIEAI-549",
         "mongodb/mongodb": "~1.0",
         "ocramius/proxy-manager": "~1.0"
     },
