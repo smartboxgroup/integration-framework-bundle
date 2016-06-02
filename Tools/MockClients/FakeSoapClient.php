@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Producers\Clients;
+namespace Smartbox\Integration\FrameworkBundle\Tools\MockClients;
 
 use BeSimple\SoapClient\BasicAuthSoapClient;
 
@@ -39,7 +39,7 @@ class FakeSoapClient extends BasicAuthSoapClient
     {
         $this->checkInitialisation();
 
-        $actionName = md5($location).'_'.$this->actionName;
+        $actionName = md5($location.$request).'_'.$this->actionName;
 
         try {
             $response = $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
