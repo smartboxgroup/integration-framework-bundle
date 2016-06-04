@@ -29,7 +29,7 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
 
     public function testSetAndGetItinerary()
     {
-        $itinerary = $this->getMock(Itinerary::class);
+        $itinerary = $this->createMock(Itinerary::class);
 
         $this->pipeline->setItinerary($itinerary);
         $this->assertSame($itinerary, $this->pipeline->getItinerary());
@@ -37,7 +37,7 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
 
     public function testProcess()
     {
-        $eventDispatcher = $this->getMock(EventDispatcherInterface::class);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $endpointProcessor = new EndpointProcessor;
         $contentRouter     = new ContentRouter;

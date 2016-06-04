@@ -34,8 +34,8 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->logger       = $this->getMock(LoggerInterface::class);
-        $this->requestStack = $this->getMock(RequestStack::class);
+        $this->logger       = $this->createMock(LoggerInterface::class);
+        $this->requestStack = $this->createMock(RequestStack::class);
         $this->listener     = new EventsLoggerListener($this->logger, $this->requestStack, $this->logLevel);
     }
 
@@ -69,7 +69,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testItShouldLogEventWhenHandlerEventOccurs()
     {
-        $exchange = $this->getMock(Exchange::class);
+        $exchange = $this->createMock(Exchange::class);
         $exchange
             ->expects($this->once())
             ->method('getId')
@@ -83,7 +83,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturnOnConsecutiveCalls('test://endpoint', false);
 
-        $event = $this->getMock(HandlerEvent::class);
+        $event = $this->createMock(HandlerEvent::class);
         $event
             ->expects($this->exactly(2))
             ->method('getExchange')
@@ -118,7 +118,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testItShouldLogEventWhenProcessEventOccurs()
     {
-        $exchange = $this->getMock(Exchange::class);
+        $exchange = $this->createMock(Exchange::class);
         $exchange
             ->expects($this->once())
             ->method('getId')
@@ -132,7 +132,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturnOnConsecutiveCalls('test://endpoint', true);
 
-        $processor = $this->getMock(Processor::class);
+        $processor = $this->createMock(Processor::class);
         $processor
             ->expects($this->once())
             ->method('getId')
@@ -142,9 +142,9 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             ->method('getDescription')
             ->will($this->returnValue('Processor 1 description'));
 
-        $processingContext = $this->getMock(SerializableArray::class);
+        $processingContext = $this->createMock(SerializableArray::class);
 
-        $event = $this->getMock(ProcessEvent::class);
+        $event = $this->createMock(ProcessEvent::class);
         $event
             ->expects($this->exactly(2))
             ->method('getEventName')
@@ -191,7 +191,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testItShouldLogEventWhenProcessEventWithEndpointUriOccurs()
     {
-        $exchange = $this->getMock(Exchange::class);
+        $exchange = $this->createMock(Exchange::class);
         $exchange
             ->expects($this->once())
             ->method('getId')
@@ -205,7 +205,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturnOnConsecutiveCalls('test://endpoint', true);
 
-        $processor = $this->getMock(Processor::class);
+        $processor = $this->createMock(Processor::class);
         $processor
             ->expects($this->once())
             ->method('getId')
@@ -215,13 +215,13 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             ->method('getDescription')
             ->will($this->returnValue('Processor 1 description'));
 
-        $processingContext = $this->getMock(SerializableArray::class);
+        $processingContext = $this->createMock(SerializableArray::class);
         $processingContext
             ->expects($this->once())
             ->method('get')
             ->will($this->returnValue('test://endpoint_uri'));
 
-        $event = $this->getMock(ProcessEvent::class);
+        $event = $this->createMock(ProcessEvent::class);
         $event
             ->expects($this->exactly(2))
             ->method('getEventName')
@@ -269,7 +269,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testItShouldLogEventWhenProcessEventWithProcessorUsingLogExchangeDetailsOccurs()
     {
-        $exchange = $this->getMock(Exchange::class);
+        $exchange = $this->createMock(Exchange::class);
         $exchange
             ->expects($this->once())
             ->method('getId')
@@ -283,7 +283,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturnOnConsecutiveCalls('test://endpoint', true);
 
-        $processor = $this->getMock(Transformer::class);
+        $processor = $this->createMock(Transformer::class);
         $processor
             ->expects($this->once())
             ->method('getId')
@@ -293,9 +293,9 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             ->method('getDescription')
             ->will($this->returnValue('Processor 1 description'));
 
-        $processingContext = $this->getMock(SerializableArray::class);
+        $processingContext = $this->createMock(SerializableArray::class);
 
-        $event = $this->getMock(ProcessEvent::class);
+        $event = $this->createMock(ProcessEvent::class);
         $event
             ->expects($this->exactly(2))
             ->method('getEventName')
@@ -345,7 +345,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
     {
         $exception = new \Exception('exception message');
 
-        $exchange = $this->getMock(Exchange::class);
+        $exchange = $this->createMock(Exchange::class);
         $exchange
             ->expects($this->once())
             ->method('getId')
@@ -359,7 +359,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             )
             ->willReturnOnConsecutiveCalls('test://endpoint', true);
 
-        $processor = $this->getMock(Processor::class);
+        $processor = $this->createMock(Processor::class);
         $processor
             ->expects($this->once())
             ->method('getId')
@@ -369,7 +369,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             ->method('getDescription')
             ->will($this->returnValue('Processor 1 description'));
 
-        $processingContext = $this->getMock(SerializableArray::class);
+        $processingContext = $this->createMock(SerializableArray::class);
 
         $event = $this->getMockBuilder(ProcessingErrorEvent::class)
             ->disableOriginalConstructor()
