@@ -27,7 +27,7 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcherMock */
-        $eventDispatcherMock = $this->getMock(EventDispatcher::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
 
         $this->throwException = new ThrowException();
         $this->throwException->setEventDispatcher($eventDispatcherMock);

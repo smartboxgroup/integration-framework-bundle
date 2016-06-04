@@ -85,7 +85,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $messages = array($message1,$message2, $message3);
         $queues = array(self::queue1,self::queue2,self::queue3);
 
-        $handlerMock = $this->getMock(MessageHandler::class);
+        $handlerMock = $this->createMock(MessageHandler::class);
         $handlerMock->expects($this->exactly(3))->method('handle')
             ->with($this->callback(
                 function ($message) use ($messages) {

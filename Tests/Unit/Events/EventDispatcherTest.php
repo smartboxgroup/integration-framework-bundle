@@ -24,7 +24,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
 {
     public function testShouldDeferEvent()
     {
-        $filterPass = $this->getMock(EventFilterInterface::class);
+        $filterPass = $this->createMock(EventFilterInterface::class);
         $filterPass->method('filter')->willReturn(true);
 
         $filtersRegistry = new EventFiltersRegistry();
@@ -65,7 +65,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
 
         $endpoint = new Endpoint($deferredURI, $opts, $protocol, $producer);
 
-        $endpointFactoryMock = $this->getMock(EndpointFactory::class);
+        $endpointFactoryMock = $this->createMock(EndpointFactory::class);
         $endpointFactoryMock
             ->expects($this->once())
             ->method('createEndpoint')
@@ -95,7 +95,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldNotDeferEventIfDeferred()
     {
-        $filterPass = $this->getMock(EventFilterInterface::class);
+        $filterPass = $this->createMock(EventFilterInterface::class);
         $filterPass->method('filter')->willReturn(true);
 
         $filtersRegistry = new EventFiltersRegistry();
@@ -121,7 +121,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldNotDeferEventIfDoesNotPassFilter()
     {
-        $filterDoesNotPass = $this->getMock(EventFilterInterface::class);
+        $filterDoesNotPass = $this->createMock(EventFilterInterface::class);
         $filterDoesNotPass->method('filter')->willReturn(false);
 
         $filtersRegistry = new EventFiltersRegistry();

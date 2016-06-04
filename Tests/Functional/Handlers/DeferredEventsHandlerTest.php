@@ -25,7 +25,7 @@ class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->eventDispatcherMock = $this->getMock(EventDispatcherInterface::class);
+        $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $this->handler = new DeferredEventsHandler();
         $this->handler->setEventDispatcher($this->eventDispatcherMock);
         $this->handler->setFlowsVersion(0);

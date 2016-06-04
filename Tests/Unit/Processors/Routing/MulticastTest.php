@@ -24,8 +24,8 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
     public function testItShouldSetAndGetItineraries()
     {
         $itineraries = [
-            $this->getMock(Itinerary::class),
-            $this->getMock(Itinerary::class),
+            $this->createMock(Itinerary::class),
+            $this->createMock(Itinerary::class),
         ];
 
         $this->multicast->setItineraries($itineraries);
@@ -36,7 +36,7 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEmpty($this->multicast->getItineraries());
         /** @var \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary $itinerary */
-        $itinerary = $this->getMock(Itinerary::class);
+        $itinerary = $this->createMock(Itinerary::class);
         $this->multicast->addItinerary($itinerary);
         $this->assertCount(1, $this->multicast->getItineraries());
     }
@@ -50,7 +50,7 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
 
     public function testItShouldNotSetAnUnsupportedAggregationStrategy()
     {
-        $this->setExpectedException(\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
 
         $strategy = 'unsupported aggregation strategy';
         $this->multicast->setAggregationStrategy($strategy);
@@ -61,15 +61,16 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcher */
         $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)->getMock();
 
+        /** @var Exchange|\PHPUnit_Framework_MockObject_MockObject $exchange */
         $exchange = $this->getMockBuilder(Exchange::class)->getMock();
         $exchange->method('getItinerary')->willReturn(new Itinerary());
         $exchange->method('getHeader')->willReturn('xxxx');
         $exchange->method('getId')->willReturn('123');
 
         $itineraries = [
-            $this->getMock(Itinerary::class),
-            $this->getMock(Itinerary::class),
-            $this->getMock(Itinerary::class),
+            $this->createMock(Itinerary::class),
+            $this->createMock(Itinerary::class),
+            $this->createMock(Itinerary::class),
         ];
 
         $this->multicast->setEventDispatcher($eventDispatcher);

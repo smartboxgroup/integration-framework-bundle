@@ -64,7 +64,7 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
         $itinerary = new Itinerary();
 
         /** @var Itinerary|\PHPUnit_Framework_MockObject_MockObject $itineraryMock */
-        $itineraryMock = $this->getMock(Itinerary::class);
+        $itineraryMock = $this->createMock(Itinerary::class);
         $itineraryMock
             ->expects($this->once())
             ->method('prepend')
@@ -72,7 +72,7 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
         ;
 
         /** @var Exchange|\PHPUnit_Framework_MockObject_MockObject $exchangeMock */
-        $exchangeMock = $this->getMock(Exchange::class, ['getItinerary']);
+        $exchangeMock = $this->createMock(Exchange::class, ['getItinerary']);
         $exchangeMock
             ->expects($this->any())
             ->method('getItinerary')
@@ -85,7 +85,7 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
         ;
 
         /** @var EventDispatcher|\PHPUnit_Framework_MockObject_MockObject $eventDispatcherMock */
-        $eventDispatcherMock = $this->getMock(EventDispatcher::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
 
         /** @var ExpressionEvaluator|\PHPUnit_Framework_MockObject_MockObject $evaluatorMock */
         $evaluatorMock = $this->getMockBuilder(ExpressionEvaluator::class)
@@ -132,7 +132,7 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
         $itinerary = new Itinerary();
 
         /** @var Itinerary|\PHPUnit_Framework_MockObject_MockObject $itineraryMock */
-        $itineraryMock = $this->getMock(Itinerary::class);
+        $itineraryMock = $this->createMock(Itinerary::class);
         $itineraryMock
             ->expects($this->once())
             ->method('prepend')
@@ -140,7 +140,7 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
         ;
 
         /** @var Exchange|\PHPUnit_Framework_MockObject_MockObject $exchangeMock */
-        $exchangeMock = $this->getMock(Exchange::class, ['getItinerary']);
+        $exchangeMock = $this->createMock(Exchange::class, ['getItinerary']);
         $exchangeMock
             ->expects($this->any())
             ->method('getItinerary')
@@ -148,7 +148,7 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
         ;
 
         /** @var EventDispatcher|\PHPUnit_Framework_MockObject_MockObject $eventDispatcherMock */
-        $eventDispatcherMock = $this->getMock(EventDispatcher::class);
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
 
         $this->contentRouter->setOtherwise($itinerary);
         $this->contentRouter->setEventDispatcher($eventDispatcherMock);

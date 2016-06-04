@@ -28,7 +28,7 @@ class UsesSerializerTest extends \PHPUnit_Framework_TestCase
     public function testSetAndGetSerializer()
     {
         /** @var SerializerInterface|\PHPUnit_Framework_MockObject_MockObject $serializer */
-        $serializer = $this->getMock(SerializerInterface::class);
+        $serializer = $this->createMock(SerializerInterface::class);
 
         $this->fakeObject->setSerializer($serializer);
 
