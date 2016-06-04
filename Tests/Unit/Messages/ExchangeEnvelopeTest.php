@@ -48,7 +48,7 @@ class ExchangeEnvelopeTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(Exchange::class, $this->exchangeEnvelope->getBody());
     }
 
-    public function testSetBodyWhenItIsNotAnExchange()
+    public function testSetBodyWhenBodyIsNotAnExchange()
     {
         $this->expectException(\InvalidArgumentException::class);
 
