@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Itinerary;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Itinerary;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouterResourceNotFound;
@@ -29,6 +29,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
         $internalRouter
             ->expects($this->once())
             ->method('match')
+            ->with($this->equalTo('v0-api://test'))
             ->will($this->returnValue($params));
 
         $this->itineraryResolver->setItinerariesRouter($internalRouter);
@@ -50,13 +51,14 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testGetItineraryParamsWhenRouteNotMatch()
     {
+        $this->expectException(InternalRouterResourceNotFound::class);
+
         $internalRouter = $this->createMock(InternalRouter::class);
         $internalRouter
             ->expects($this->once())
             ->method('match')
+            ->with($this->equalTo('v0-api://test'))
             ->will($this->throwException(new InternalRouterResourceNotFound));
-
-        $this->expectException(InternalRouterResourceNotFound::class);
 
         $this->itineraryResolver->setItinerariesRouter($internalRouter);
         $this->itineraryResolver->getItineraryParams('api://test', '0');
@@ -64,13 +66,14 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testGetItineraryParamsWhenRouteMatchIsEmpty()
     {
+        $this->expectException(InternalRouterResourceNotFound::class);
+
         $internalRouter = $this->createMock(InternalRouter::class);
         $internalRouter
             ->expects($this->once())
             ->method('match')
+            ->with($this->equalTo('v0-api://test'))
             ->will($this->returnValue([]));
-
-        $this->expectException(InternalRouterResourceNotFound::class);
 
         $this->itineraryResolver->setItinerariesRouter($internalRouter);
         $this->itineraryResolver->getItineraryParams('api://test', '0');
@@ -78,15 +81,16 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testGetItineraryParamsWhenItineraryKeyDoesNotExist()
     {
+        $this->expectException(InternalRouterResourceNotFound::class);
+
         $params = ['a' => 'b'];
 
         $internalRouter = $this->createMock(InternalRouter::class);
         $internalRouter
             ->expects($this->once())
             ->method('match')
+            ->with($this->equalTo('v0-api://test'))
             ->will($this->returnValue($params));
-
-        $this->expectException(InternalRouterResourceNotFound::class);
 
         $this->itineraryResolver->setItinerariesRouter($internalRouter);
         $this->itineraryResolver->getItineraryParams('api://test', '0');
@@ -94,15 +98,16 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testGetItineraryParamsWhenItineraryGotIsNotInstanceOfItineraryClass()
     {
+        $this->expectException(\Exception::class);
+
         $params = [InternalRouter::KEY_ITINERARY => new \stdClass];
 
         $internalRouter = $this->createMock(InternalRouter::class);
         $internalRouter
             ->expects($this->once())
             ->method('match')
+            ->with($this->equalTo('v0-api://test'))
             ->will($this->returnValue($params));
-
-        $this->expectException(\Exception::class);
 
         $this->itineraryResolver->setItinerariesRouter($internalRouter);
         $this->itineraryResolver->getItineraryParams('api://test', '0');
@@ -116,6 +121,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
         $internalRouter
             ->expects($this->once())
             ->method('match')
+            ->with($this->equalTo('v0-api://test'))
             ->will($this->returnValue($params));
 
 
