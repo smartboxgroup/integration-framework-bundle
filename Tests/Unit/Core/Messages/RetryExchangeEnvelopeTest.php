@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Messages;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Messages;
 
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
