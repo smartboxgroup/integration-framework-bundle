@@ -39,7 +39,7 @@ class FakeSoapClient extends BasicAuthSoapClient
     {
         $this->checkInitialisation();
 
-        $actionName = md5($location.$request).'_'.$this->actionName;
+        $actionName = md5($location).'_'.$this->actionName;
 
         try {
             $response = $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
