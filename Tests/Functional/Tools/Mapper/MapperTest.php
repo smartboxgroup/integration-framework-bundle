@@ -1,12 +1,18 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Util;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Tools\Mapper;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 use Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper;
 use Smartbox\Integration\FrameworkBundle\Tools\Mapper\MapperInterface;
 
+/**
+ * Class MapperTest
+ * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Tools\Mapper
+ *
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper
+ */
 class MapperTest extends BaseTestCase
 {
     /** @var  Mapper|MapperInterface */
@@ -49,6 +55,16 @@ class MapperTest extends BaseTestCase
                 [
                     'x' => 11,
                 ]
+            ],
+            'Test empty value' => [
+                [
+                    'mapping_name' => [
+                        'x' => "obj.get('x')",
+                    ],
+                ],
+                'mapping_name',
+                [], // "empty" value
+                []
             ],
             'Test nested data' => [
                 [
@@ -99,6 +115,9 @@ class MapperTest extends BaseTestCase
     }
 
     /**
+     * @covers ::map
+     * @covers ::addMappings
+     *
      * @dataProvider dataProviderForCorrectMappings
      * @param array $mappings
      * @param $mappingName
@@ -110,6 +129,114 @@ class MapperTest extends BaseTestCase
         $this->mapper->addMappings($mappings);
 
         $res = $this->mapper->map($mappedValue, $mappingName);
+
+        $this->assertEquals($expectedValue, $res);
+    }
+
+    /**
+     * @covers ::map
+     */
+    public function testMapForEmptyMappingName()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid mapping name ""');
+
+        $this->mapper->map(
+            new SerializableArray(['x' => 10]),
+            ''
+        );
+    }
+
+    /**
+     * @covers ::map
+     */
+    public function testMapForNotExistingMapping()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid mapping name "this_mapping_does_not_exist"');
+
+        $this->mapper->addMappings([
+            'example_mapping' => [
+                'x' => "obj.get('x')",
+            ]
+        ]);
+
+        $this->mapper->map(
+            new SerializableArray([
+                'x' => 10,
+                'y' => 5,
+                'z' => 1,
+            ]),
+            'this_mapping_does_not_exist'
+        );
+    }
+
+    public function dataProviderForMapAll()
+    {
+        return [
+            'Test mapping with no elements to map' => [
+                [
+                    'x_to_xyz' => [
+                        'x' => "obj.get('x') + 1",
+                        'y' => "obj.get('x') + 2",
+                        'z' => "obj.get('x') + 3",
+                    ],
+                ],
+                'x_to_xyz',
+                [],     // elements to map
+                []      // returned elements
+            ],
+            'Test mapping with simple expression' => [
+                [
+                    'x_to_xyz' => [
+                        'x' => "obj.get('x') + 1",
+                        'y' => "obj.get('x') + 2",
+                        'z' => "obj.get('x') + 3",
+                    ],
+                ],
+                'x_to_xyz',
+                [
+                    'x_10' => new SerializableArray(['x' => 10]),
+                    'x_11' => new SerializableArray(['x' => 11]),
+                    'x_12' => new SerializableArray(['x' => 12]),
+                ],
+                [
+                    'x_10' => [
+                        'x' => 11,
+                        'y' => 12,
+                        'z' => 13,
+                    ],
+                    'x_11' => [
+                        'x' => 12,
+                        'y' => 13,
+                        'z' => 14,
+                    ],
+                    'x_12' => [
+                        'x' => 13,
+                        'y' => 14,
+                        'z' => 15,
+                    ],
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @covers ::mapAll
+     * @covers ::map
+     * @covers ::addMappings
+     *
+     * @dataProvider dataProviderForMapAll
+     * @param array $mappings
+     * @param $mappingName
+     * @param array $elements
+     * @param array $expectedValue
+     */
+    public function testMapAll(array $mappings, $mappingName, array $elements, array $expectedValue)
+    {
+        $this->mapper->addMappings($mappings);
+
+        $res = $this->mapper->mapAll($elements, $mappingName);
 
         $this->assertEquals($expectedValue, $res);
     }
