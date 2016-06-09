@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Producers\Clients;
+namespace Smartbox\Integration\FrameworkBundle\Tools\MockClients;
 
 use Symfony\Component\Config\FileLocatorInterface;
 
