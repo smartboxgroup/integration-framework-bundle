@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Processors\Routing;
 
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause;

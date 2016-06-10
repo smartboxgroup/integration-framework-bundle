@@ -23,10 +23,10 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
     /** @var EventsLoggerListener */
     private $listener;
 
-    /** @var RequestStack */
+    /** @var RequestStack|\PHPUnit_Framework_MockObject_MockObject */
     private $requestStack;
 
-    /** @var LoggerInterface */
+    /** @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject */
     private $logger;
 
     /** @var string */

@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Processors\Routing;
 
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;

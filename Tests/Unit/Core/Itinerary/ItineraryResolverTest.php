@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItineraryResolver;
 
 class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var ItineraryResolver */
     private $itineraryResolver;
 
     public function setUp()
@@ -25,6 +26,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
     {
         $params = [InternalRouter::KEY_ITINERARY => new Itinerary];
 
+        /** @var InternalRouter|\PHPUnit_Framework_MockObject_MockObject $internalRouter */
         $internalRouter = $this->createMock(InternalRouter::class);
         $internalRouter
             ->expects($this->once())
@@ -53,6 +55,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
     {
         $this->expectException(InternalRouterResourceNotFound::class);
 
+        /** @var InternalRouter|\PHPUnit_Framework_MockObject_MockObject $internalRouter */
         $internalRouter = $this->createMock(InternalRouter::class);
         $internalRouter
             ->expects($this->once())
@@ -68,6 +71,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
     {
         $this->expectException(InternalRouterResourceNotFound::class);
 
+        /** @var InternalRouter|\PHPUnit_Framework_MockObject_MockObject $internalRouter */
         $internalRouter = $this->createMock(InternalRouter::class);
         $internalRouter
             ->expects($this->once())
@@ -85,6 +89,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 
         $params = ['a' => 'b'];
 
+        /** @var InternalRouter|\PHPUnit_Framework_MockObject_MockObject $internalRouter */
         $internalRouter = $this->createMock(InternalRouter::class);
         $internalRouter
             ->expects($this->once())
@@ -102,6 +107,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 
         $params = [InternalRouter::KEY_ITINERARY => new \stdClass];
 
+        /** @var InternalRouter|\PHPUnit_Framework_MockObject_MockObject $internalRouter */
         $internalRouter = $this->createMock(InternalRouter::class);
         $internalRouter
             ->expects($this->once())
@@ -117,13 +123,13 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
     {
         $params = [InternalRouter::KEY_ITINERARY => new Itinerary];
 
+        /** @var InternalRouter|\PHPUnit_Framework_MockObject_MockObject $internalRouter */
         $internalRouter = $this->createMock(InternalRouter::class);
         $internalRouter
             ->expects($this->once())
             ->method('match')
             ->with($this->equalTo('v0-api://test'))
             ->will($this->returnValue($params));
-
 
         $this->itineraryResolver->setItinerariesRouter($internalRouter);
         $itineraryParams = $this->itineraryResolver->getItineraryParams('api://test', '0');
