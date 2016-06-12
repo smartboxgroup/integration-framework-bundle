@@ -16,14 +16,17 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class ContentRouterTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var ContentRouter
-     */
+    /** @var ContentRouter */
     private $contentRouter;
 
-    public function setUp()
+    protected function setUp()
     {
-        $this->contentRouter = new ContentRouter();
+        $this->contentRouter = new ContentRouter;
+    }
+
+    protected function tearDown()
+    {
+        $this->contentRouter = null;
     }
 
     /**
@@ -72,7 +75,7 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
         ;
 
         /** @var Exchange|\PHPUnit_Framework_MockObject_MockObject $exchangeMock */
-        $exchangeMock = $this->createMock(Exchange::class, ['getItinerary']);
+        $exchangeMock = $this->createMock(Exchange::class);
         $exchangeMock
             ->expects($this->any())
             ->method('getItinerary')
@@ -140,7 +143,7 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
         ;
 
         /** @var Exchange|\PHPUnit_Framework_MockObject_MockObject $exchangeMock */
-        $exchangeMock = $this->createMock(Exchange::class, ['getItinerary']);
+        $exchangeMock = $this->createMock(Exchange::class);
         $exchangeMock
             ->expects($this->any())
             ->method('getItinerary')

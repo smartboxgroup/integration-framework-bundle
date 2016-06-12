@@ -16,9 +16,14 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
     /** @var Multicast */
     private $multicast;
 
-    public function setUp()
+    protected function setUp()
     {
-        $this->multicast = new Multicast();
+        $this->multicast = new Multicast;
+    }
+
+    protected function tearDown()
+    {
+        $this->multicast = null;
     }
 
     public function testItShouldSetAndGetItineraries()

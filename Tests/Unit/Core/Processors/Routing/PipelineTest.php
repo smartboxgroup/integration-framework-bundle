@@ -17,12 +17,12 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
     /** @var Pipeline */
     private $pipeline;
 
-    public function setUp()
+    protected function setUp()
     {
-        $this->pipeline = new Pipeline();
+        $this->pipeline = new Pipeline;
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->pipeline = null;
     }

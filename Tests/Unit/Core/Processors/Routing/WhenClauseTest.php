@@ -12,14 +12,17 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause;
  */
 class WhenClauseTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
-     */
+    /** @var Itinerary */
     private $itinerary;
 
-    public function setUp()
+    protected function setUp()
     {
-        $this->itinerary = new Itinerary();
+        $this->itinerary = new Itinerary;
+    }
+
+    protected function tearDown()
+    {
+        $this->itinerary = null;
     }
 
     /**
