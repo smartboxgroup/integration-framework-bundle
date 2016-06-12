@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Processors\ControlFlow;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Processors\ControlFlow;
 
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -19,12 +19,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var ThrowException
-     */
+    /** @var ThrowException */
     private $throwException;
 
-    public function setUp()
+    protected function setUp()
     {
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcherMock */
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
@@ -33,13 +31,18 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
         $this->throwException->setEventDispatcher($eventDispatcherMock);
     }
 
+    protected function tearDown()
+    {
+        $this->throwException = null;
+    }
+
     public function invalidExceptionClassesProvider()
     {
-        return array(
-            array(null),
-            array(123),
-            array(Processor::class),
-        );
+        return [
+            [null],
+            [123],
+            [Processor::class],
+        ];
     }
 
     /**
@@ -57,7 +60,8 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetExceptionClassInvalid($class)
     {
-        $this->setExpectedException(\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
+
         $this->throwException->setExceptionClass($class);
     }
 
@@ -66,10 +70,11 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
      */
     public function testProcessOK()
     {
-        $this->setExpectedException(InvalidMessageException::class);
+        $this->expectException(InvalidMessageException::class);
+
         $this->throwException->setExceptionClass(InvalidMessageException::class);
 
-        $ex = new Exchange(new Message(new TestEntity()));
+        $ex = new Exchange(new Message(new TestEntity));
 
         try {
             $this->throwException->process($ex);

@@ -1,9 +1,10 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Events\Error;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Events;
 
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -26,15 +27,24 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
     /** @var  string */
     private $name;
 
-    public function setup()
+    protected function setUp()
     {
         $this->processor = $this->createMock(Processor::class);
-        $this->exchange = $this->createMock(Exchange::class);
+        $this->exchange  = $this->createMock(Exchange::class);
         $this->exception = $this->createMock(\Exception::class);
         $this->name = 'some_name';
 
-        $this->event = new \Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent($this->processor, $this->exchange, $this->exception, $this->name);
+        $this->event = new ProcessingErrorEvent($this->processor, $this->exchange, $this->exception, $this->name);
         $this->event->setTimestampToCurrent();
+    }
+
+    protected function tearDown()
+    {
+        $this->processor = null;
+        $this->exchange  = null;
+        $this->exception = null;
+        $this->name      = null;
+        $this->event     = null;
     }
 
     public function testItShouldBeConstructedWithAnExchange()
