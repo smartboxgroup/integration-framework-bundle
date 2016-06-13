@@ -15,10 +15,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
         $id = 12345;
 
         /** @var Service|\PHPUnit_Framework_MockObject_MockObject $serviceMock */
-        $serviceMock = $this->getMockBuilder(Service::class)
-            ->setMethods(null)
-            ->getMock()
-        ;
+        $serviceMock = $this->getMockForAbstractClass(Service::class);
 
         $serviceMock->setId($id);
         $this->assertEquals($id, $serviceMock->getId());

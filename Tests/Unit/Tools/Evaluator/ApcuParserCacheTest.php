@@ -12,16 +12,16 @@ use Symfony\Component\ExpressionLanguage\ParsedExpression;
  */
 class ApcuParserCacheTest extends \PHPUnit_Framework_TestCase
 {
-    public $cache_key = 'apcu_key_for_testing_purposes';
+    private $cache_key = 'apcu_key_for_testing_purposes';
 
-    public function setUp()
+    protected function setUp()
     {
         if (!$this->apcuEnabled()) {
             $this->markTestSkipped('There is no APCu extension enabled.');
         }
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         if ($this->apcuEnabled()) {
             apcu_delete($this->cache_key);
@@ -51,10 +51,14 @@ class ApcuParserCacheTest extends \PHPUnit_Framework_TestCase
         $data = new ParsedExpression('a', new Node(['a' => 'test']));
         $apcuParserCache->save($this->cache_key, $data);
 
-        $this->assertEquals($data, $apcuParserCache->fetch($this->cache_key), 'The retrieved value should be the same as cached one.');
+        $this->assertEquals(
+            $data,
+            $apcuParserCache->fetch($this->cache_key),
+            'The retrieved value should be the same as cached one.'
+        );
     }
 
-    protected function apcuEnabled()
+    private function apcuEnabled()
     {
         return extension_loaded('apcu');
     }
