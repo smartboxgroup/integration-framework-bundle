@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Messages;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Messages;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\StringType;

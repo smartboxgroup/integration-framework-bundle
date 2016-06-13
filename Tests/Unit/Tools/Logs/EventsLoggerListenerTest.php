@@ -6,12 +6,12 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Transformation\Transformer;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
-use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
-use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
-use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
+use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Events\FakeErrorEvent;
+use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Events\FakeHandlerEvent;
+use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Events\FakeProcessEvent;
+use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\FakeProcessor;
 use Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -23,38 +23,48 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
     /** @var EventsLoggerListener */
     private $listener;
 
-    /** @var RequestStack */
-    private $requestStack;
-
-    /** @var LoggerInterface */
+    /** @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject */
     private $logger;
 
     /** @var string */
     private $logLevel = LogLevel::DEBUG;
 
-    public function setUp()
+    protected function setUp()
     {
-        $this->logger       = $this->createMock(LoggerInterface::class);
-        $this->requestStack = $this->createMock(RequestStack::class);
-        $this->listener     = new EventsLoggerListener($this->logger, $this->requestStack, $this->logLevel);
+        /** @var RequestStack|\PHPUnit_Framework_MockObject_MockObject $requestStack */
+        $requestStack = $this->createMock(RequestStack::class);
+
+        $this->logger   = $this->createMock(LoggerInterface::class);
+        $this->listener = new EventsLoggerListener($this->logger, $requestStack, $this->logLevel);
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
-        $this->logger       = null;
-        $this->requestStack = null;
-        $this->listener     = null;
+        $this->logger   = null;
+        $this->listener = null;
     }
 
-    public function testItShouldLogEventWhenItOccurs()
+    public function EventContextProvider()
     {
-        $event = $this->getMockForAbstractClass(Event::class);
-
-        $expectedContext = [
-            'event_name'    => null,
-            'event_details' => '',
+        return [
+            'Case when event occurs' => $this->getContextForEvent(),
+            'Case when handler event occurs' => $this->getContextForHandlerEvent(),
+            'Case when process event occurs' => $this->getContextForProcessEvent(),
+            'Case when process event with endpoint uri occurs' => $this->getContextForProcessEventWithEndpointUri(),
+            'Case when process event with processor implementing log exchange details interface occurs' =>
+                $this->getContextForProcessEventWithProcessorImplementingLogExchangeDetailsInterface(),
+            'Case when processing error event occurs'=> $this->getContextForProcessingErrorEvent(),
         ];
+    }
 
+    /**
+     * @dataProvider EventContextProvider
+     *
+     * @param Event $event
+     * @param array $expectedContext
+     */
+    public function testLogEvent(Event $event, array $expectedContext)
+    {
         $this->logger
             ->expects($this->once())
             ->method('log')
@@ -67,363 +77,197 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
         $this->listener->onEvent($event);
     }
 
-    public function testItShouldLogEventWhenHandlerEventOccurs()
+    private function getContextForEvent()
     {
-        $exchange = $this->createMock(Exchange::class);
-        $exchange
-            ->expects($this->once())
-            ->method('getId')
-            ->will($this->returnValue('exchange_id'));
-        $exchange
-            ->expects($this->exactly(2))
-            ->method('getHeader')
-            ->withConsecutive(
-                $this->equalTo('from'),
-                $this->equalTo('async')
-            )
-            ->willReturnOnConsecutiveCalls('test://endpoint', false);
-
-        $event = $this->createMock(HandlerEvent::class);
-        $event
-            ->expects($this->exactly(2))
-            ->method('getExchange')
-            ->will($this->returnValue($exchange));
-        $event
-            ->expects($this->exactly(2))
-            ->method('getEventName')
-            ->will($this->returnValue(HandlerEvent::BEFORE_HANDLE_EVENT_NAME));
-
-        $expectedContext = [
-            'event_name'    => HandlerEvent::BEFORE_HANDLE_EVENT_NAME,
-            'event_details' => null,
-            'exchange'      => [
-                'id'     => 'exchange_id',
-                'uri'    => 'test://endpoint',
-                'type'   => 'sync',
-                'detail' => $exchange
+        return [
+            'event'            => $this->getMockForAbstractClass(Event::class),
+            'expected_context' => [
+                'event_name'    => null,
+                'event_details' => '',
             ]
         ];
-
-        $this->logger
-            ->expects($this->once())
-            ->method('log')
-            ->with(
-                $this->equalTo($this->logLevel),
-                $this->isType('string'),
-                $this->equalTo($expectedContext)
-            );
-
-        $this->listener->onEvent($event);
     }
 
-    public function testItShouldLogEventWhenProcessEventOccurs()
+    private function getContextForHandlerEvent()
     {
-        $exchange = $this->createMock(Exchange::class);
-        $exchange
-            ->expects($this->once())
-            ->method('getId')
-            ->will($this->returnValue('exchange_id'));
-        $exchange
-            ->expects($this->exactly(2))
-            ->method('getHeader')
-            ->withConsecutive(
-                $this->equalTo('from'),
-                $this->equalTo('async')
-            )
-            ->willReturnOnConsecutiveCalls('test://endpoint', true);
+        $exchange = new Exchange;
+        $exchange->setHeaders([
+            'from'  => 'test://endpoint',
+            'async' => false,
+        ]);
 
-        $processor = $this->createMock(Processor::class);
-        $processor
-            ->expects($this->once())
-            ->method('getId')
-            ->will($this->returnValue('processor_1'));
-        $processor
-            ->expects($this->once())
-            ->method('getDescription')
-            ->will($this->returnValue('Processor 1 description'));
+        $event = new FakeHandlerEvent;
+        $event->setEventName(FakeHandlerEvent::BEFORE_HANDLE_EVENT_NAME);
+        $event->setExchange($exchange);
 
-        $processingContext = $this->createMock(SerializableArray::class);
-
-        $event = $this->createMock(ProcessEvent::class);
-        $event
-            ->expects($this->exactly(2))
-            ->method('getEventName')
-            ->will($this->returnValue(ProcessEvent::TYPE_BEFORE));
-        $event
-            ->expects($this->once())
-            ->method('getExchange')
-            ->will($this->returnValue($exchange));
-        $event
-            ->expects($this->once())
-            ->method('getProcessingContext')
-            ->will($this->returnValue($processingContext));
-        $event
-            ->expects($this->once())
-            ->method('getProcessor')
-            ->will($this->returnValue($processor));
-
-        $expectedContext = [
-            'event_name'    => ProcessEvent::TYPE_BEFORE,
-            'event_details' => null,
-            'exchange'      => [
-                'id'     => 'exchange_id',
-                'uri'    => 'test://endpoint',
-                'type'   => 'async',
-            ],
-            'processor'     => [
-                'id'          => 'processor_1',
-                'name'        => get_class($processor),
-                'description' => 'Processor 1 description',
+        return [
+            'event'            => $event,
+            'expected_context' => [
+                'event_name'    => FakeHandlerEvent::BEFORE_HANDLE_EVENT_NAME,
+                'event_details' => null,
+                'exchange'      => [
+                    'id'     => $exchange->getId(),
+                    'uri'    => 'test://endpoint',
+                    'type'   => 'sync',
+                    'detail' => $exchange
+                ]
             ]
         ];
-
-        $this->logger
-            ->expects($this->once())
-            ->method('log')
-            ->with(
-                $this->equalTo($this->logLevel),
-                $this->isType('string'),
-                $this->equalTo($expectedContext)
-            );
-
-        $this->listener->onEvent($event);
     }
 
-    public function testItShouldLogEventWhenProcessEventWithEndpointUriOccurs()
+    private function getContextForProcessEvent()
     {
-        $exchange = $this->createMock(Exchange::class);
-        $exchange
-            ->expects($this->once())
-            ->method('getId')
-            ->will($this->returnValue('exchange_id'));
-        $exchange
-            ->expects($this->exactly(2))
-            ->method('getHeader')
-            ->withConsecutive(
-                $this->equalTo('from'),
-                $this->equalTo('async')
-            )
-            ->willReturnOnConsecutiveCalls('test://endpoint', true);
+        $exchange = new Exchange;
+        $exchange->setHeaders([
+            'from'  => 'test://endpoint',
+            'async' => true,
+        ]);
 
-        $processor = $this->createMock(Processor::class);
-        $processor
-            ->expects($this->once())
-            ->method('getId')
-            ->will($this->returnValue('processor_1'));
-        $processor
-            ->expects($this->once())
-            ->method('getDescription')
-            ->will($this->returnValue('Processor 1 description'));
+        $processingContext = new SerializableArray;
 
-        $processingContext = $this->createMock(SerializableArray::class);
-        $processingContext
-            ->expects($this->once())
-            ->method('get')
-            ->will($this->returnValue('test://endpoint_uri'));
+        $processor = new FakeProcessor('processor_1');
+        $processor->setDescription('Processor 1 description');
 
-        $event = $this->createMock(ProcessEvent::class);
-        $event
-            ->expects($this->exactly(2))
-            ->method('getEventName')
-            ->will($this->returnValue(ProcessEvent::TYPE_BEFORE));
-        $event
-            ->expects($this->once())
-            ->method('getExchange')
-            ->will($this->returnValue($exchange));
-        $event
-            ->expects($this->once())
-            ->method('getProcessingContext')
-            ->will($this->returnValue($processingContext));
-        $event
-            ->expects($this->once())
-            ->method('getProcessor')
-            ->will($this->returnValue($processor));
+        $event = new FakeProcessEvent;
+        $event->setEventName(FakeProcessEvent::TYPE_BEFORE);
+        $event->setExchange($exchange);
+        $event->setProcessingContext($processingContext);
+        $event->setProcessor($processor);
 
-        $expectedContext = [
-            'event_name'    => ProcessEvent::TYPE_BEFORE,
-            'event_details' => null,
-            'endpoint_uri'  => 'test://endpoint_uri',
-            'exchange'      => [
-                'id'     => 'exchange_id',
-                'uri'    => 'test://endpoint',
-                'type'   => 'async',
-            ],
-            'processor'     => [
-                'id'          => 'processor_1',
-                'name'        => get_class($processor),
-                'description' => 'Processor 1 description',
+        return [
+            'event'            => $event,
+            'expected_context' => [
+                'event_name'    => FakeProcessEvent::TYPE_BEFORE,
+                'event_details' => '',
+                'exchange'      => [
+                    'id'     => $exchange->getId(),
+                    'uri'    => 'test://endpoint',
+                    'type'   => 'async',
+                ],
+                'processor'     => [
+                    'id'          => 'processor_1',
+                    'name'        => FakeProcessor::class,
+                    'description' => 'Processor 1 description',
+                ]
             ]
         ];
-
-        $this->logger
-            ->expects($this->once())
-            ->method('log')
-            ->with(
-                $this->equalTo($this->logLevel),
-                $this->isType('string'),
-                $this->equalTo($expectedContext)
-            );
-
-        $this->listener->onEvent($event);
     }
 
-    public function testItShouldLogEventWhenProcessEventWithProcessorUsingLogExchangeDetailsOccurs()
+    private function getContextForProcessEventWithEndpointUri()
     {
-        $exchange = $this->createMock(Exchange::class);
-        $exchange
-            ->expects($this->once())
-            ->method('getId')
-            ->will($this->returnValue('exchange_id'));
-        $exchange
-            ->expects($this->exactly(2))
-            ->method('getHeader')
-            ->withConsecutive(
-                $this->equalTo('from'),
-                $this->equalTo('async')
-            )
-            ->willReturnOnConsecutiveCalls('test://endpoint', true);
+        $exchange = new Exchange;
+        $exchange->setHeaders([
+            'from'  => 'test://endpoint',
+            'async' => true,
+        ]);
 
-        $processor = $this->createMock(Transformer::class);
-        $processor
-            ->expects($this->once())
-            ->method('getId')
-            ->will($this->returnValue('processor_1'));
-        $processor
-            ->expects($this->once())
-            ->method('getDescription')
-            ->will($this->returnValue('Processor 1 description'));
+        $processingContext = new SerializableArray(['resolved_uri' => 'test://endpoint_uri']);
 
-        $processingContext = $this->createMock(SerializableArray::class);
+        $processor = new FakeProcessor('processor_1');
+        $processor->setDescription('Processor 1 description');
 
-        $event = $this->createMock(ProcessEvent::class);
-        $event
-            ->expects($this->exactly(2))
-            ->method('getEventName')
-            ->will($this->returnValue(ProcessEvent::TYPE_BEFORE));
-        $event
-            ->expects($this->exactly(2))
-            ->method('getExchange')
-            ->will($this->returnValue($exchange));
-        $event
-            ->expects($this->once())
-            ->method('getProcessingContext')
-            ->will($this->returnValue($processingContext));
-        $event
-            ->expects($this->once())
-            ->method('getProcessor')
-            ->will($this->returnValue($processor));
+        $event = new FakeProcessEvent;
+        $event->setEventName(FakeProcessEvent::TYPE_BEFORE);
+        $event->setExchange($exchange);
+        $event->setProcessingContext($processingContext);
+        $event->setProcessor($processor);
 
-        $expectedContext = [
-            'event_name'    => ProcessEvent::TYPE_BEFORE,
-            'event_details' => null,
-            'exchange'      => [
-                'id'     => 'exchange_id',
-                'uri'    => 'test://endpoint',
-                'type'   => 'async',
-                'detail' => $exchange,
-            ],
-            'processor'     => [
-                'id'          => 'processor_1',
-                'name'        => get_class($processor),
-                'description' => 'Processor 1 description',
+        return [
+            'event'            => $event,
+            'expected_context' => [
+                'event_name'    => FakeProcessEvent::TYPE_BEFORE,
+                'event_details' => '',
+                'endpoint_uri'  => 'test://endpoint_uri',
+                'exchange'      => [
+                    'id'     => $exchange->getId(),
+                    'uri'    => 'test://endpoint',
+                    'type'   => 'async',
+                ],
+                'processor'     => [
+                    'id'          => 'processor_1',
+                    'name'        => FakeProcessor::class,
+                    'description' => 'Processor 1 description',
+                ]
             ]
         ];
-
-        $this->logger
-            ->expects($this->once())
-            ->method('log')
-            ->with(
-                $this->equalTo($this->logLevel),
-                $this->isType('string'),
-                $this->equalTo($expectedContext)
-            );
-
-        $this->listener->onEvent($event);
     }
 
-    public function testItShouldLogEventWhenProcessingEventOccurs()
+    private function getContextForProcessEventWithProcessorImplementingLogExchangeDetailsInterface()
     {
+        $exchange = new Exchange;
+        $exchange->setHeaders([
+            'from'  => 'test://endpoint',
+            'async' => true
+        ]);
+
+        $processingContext = new SerializableArray;
+
+        $processor = new Transformer;
+        $processor->setId('processor_1');
+        $processor->setDescription('Processor 1 description');
+
+        $event = new FakeProcessEvent;
+        $event->setEventName(FakeProcessEvent::TYPE_BEFORE);
+        $event->setExchange($exchange);
+        $event->setProcessingContext($processingContext);
+        $event->setProcessor($processor);
+
+        return [
+            'event'            => $event,
+            'expected_context' => [
+                'event_name'    => FakeProcessEvent::TYPE_BEFORE,
+                'event_details' => '',
+                'exchange'      => [
+                    'id'     => $exchange->getId(),
+                    'uri'    => 'test://endpoint',
+                    'type'   => 'async',
+                    'detail' => $exchange,
+                ],
+                'processor'     => [
+                    'id'          => 'processor_1',
+                    'name'        => Transformer::class,
+                    'description' => 'Processor 1 description',
+                ]
+            ]
+        ];
+    }
+
+    private function getContextForProcessingErrorEvent()
+    {
+        $processor = new FakeProcessor('processor_1');
+        $processor->setDescription('Processor 1 description');
+
+        $exchange = new Exchange;
+        $exchange->setHeaders([
+            'from'  => 'test://endpoint',
+            'async' => true,
+        ]);
+
         $exception = new \Exception('exception message');
 
-        $exchange = $this->createMock(Exchange::class);
-        $exchange
-            ->expects($this->once())
-            ->method('getId')
-            ->will($this->returnValue('exchange_id'));
-        $exchange
-            ->expects($this->exactly(2))
-            ->method('getHeader')
-            ->withConsecutive(
-                $this->equalTo('from'),
-                $this->equalTo('async')
-            )
-            ->willReturnOnConsecutiveCalls('test://endpoint', true);
+        $processingContext = new SerializableArray;
 
-        $processor = $this->createMock(Processor::class);
-        $processor
-            ->expects($this->once())
-            ->method('getId')
-            ->will($this->returnValue('processor_1'));
-        $processor
-            ->expects($this->once())
-            ->method('getDescription')
-            ->will($this->returnValue('Processor 1 description'));
+        $event = new FakeErrorEvent($processor, $exchange, $exception);
+        $event->setEventName(FakeErrorEvent::TYPE_BEFORE);
+        $event->setProcessingContext($processingContext);
 
-        $processingContext = $this->createMock(SerializableArray::class);
-
-        $event = $this->getMockBuilder(ProcessingErrorEvent::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $event
-            ->expects($this->once())
-            ->method('setRequestStack')
-            ->with($this->equalTo($this->requestStack));
-        $event
-            ->expects($this->exactly(2))
-            ->method('getException')
-            ->will($this->returnValue($exception));
-        $event
-            ->expects($this->once())
-            ->method('getEventName')
-            ->will($this->returnValue(ProcessEvent::TYPE_BEFORE));
-        $event
-            ->expects($this->once())
-            ->method('getExchange')
-            ->will($this->returnValue($exchange));
-        $event
-            ->expects($this->once())
-            ->method('getProcessingContext')
-            ->will($this->returnValue($processingContext));
-        $event
-            ->expects($this->once())
-            ->method('getProcessor')
-            ->will($this->returnValue($processor));
-
-        $expectedContext = [
-            'event_name'    => ProcessEvent::TYPE_BEFORE,
-            'event_details' => null,
-            'exchange'      => [
-                'id'     => 'exchange_id',
-                'uri'    => 'test://endpoint',
-                'type'   => 'async',
-            ],
-            'processor'     => [
-                'id'          => 'processor_1',
-                'name'        => get_class($processor),
-                'description' => 'Processor 1 description',
-            ],
-            'exception'     => $exception,
+        return [
+            'event'            => $event,
+            'expected_context' => [
+                'event_name'    => FakeErrorEvent::TYPE_BEFORE,
+                'event_details' => '',
+                'exchange'      => [
+                    'id'     => $exchange->getId(),
+                    'uri'    => 'test://endpoint',
+                    'type'   => 'async',
+                ],
+                'processor'     => [
+                    'id'          => 'processor_1',
+                    'name'        => FakeProcessor::class,
+                    'description' => 'Processor 1 description',
+                ],
+                'exception'     => $exception,
+            ]
         ];
-
-        $this->logger
-            ->expects($this->once())
-            ->method('log')
-            ->with(
-                $this->equalTo($this->logLevel),
-                $this->isType('string'),
-                $this->equalTo($expectedContext)
-            );
-
-        $this->listener->onEvent($event);
     }
 }

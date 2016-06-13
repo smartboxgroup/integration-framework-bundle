@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Transformation;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Processors\Transformation;
 
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
@@ -19,7 +19,7 @@ class TransformerTest extends KernelTestCase
     /** @var Transformer */
     private $transformer;
 
-    public function setUp()
+    protected function setUp()
     {
         static::bootKernel();
         $container = static::$kernel->getContainer();
@@ -27,9 +27,14 @@ class TransformerTest extends KernelTestCase
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcherMock */
         $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
 
-        $this->transformer = new Transformer();
+        $this->transformer = new Transformer;
         $this->transformer->setEventDispatcher($eventDispatcherMock);
         $this->transformer->setEvaluator($container->get('smartesb.util.evaluator'));
+    }
+
+    protected function tearDown()
+    {
+        $this->transformer = null;
     }
 
     /**
@@ -123,7 +128,8 @@ class TransformerTest extends KernelTestCase
      */
     public function testItShouldThrowException(MessageInterface $inMessage, $expression)
     {
-        $this->setExpectedException(\InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
+
         $exchange = new Exchange($inMessage);
 
         $this->transformer->setExpression($expression);

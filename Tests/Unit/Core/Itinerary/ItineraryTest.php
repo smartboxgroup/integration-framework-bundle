@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Itinerary;
 
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
@@ -13,14 +13,17 @@ use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\FakeProcessor
  */
 class ItineraryTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
-     */
+    /** @var Itinerary */
     private $itinerary;
 
-    public function setUp()
+    protected function setUp()
     {
-        $this->itinerary = new \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary();
+        $this->itinerary = new Itinerary;
+    }
+
+    protected function tearDown()
+    {
+        $this->itinerary = null;
     }
 
     /**
@@ -119,14 +122,14 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
         $processor5 = new FakeProcessor('processor_5');
 
         // initialize itinerary 1
-        $itinerary1 = new \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary();
+        $itinerary1 = new Itinerary;
         $itinerary1->setProcessors([
             $processor1,
             $processor2,
         ]);
 
         // initialize itinerary 2
-        $itinerary2 = new \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary();
+        $itinerary2 = new Itinerary;
         $itinerary2->setProcessors([
             $processor3,
             $processor4,
@@ -161,14 +164,14 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
         $processor5 = new FakeProcessor('processor_5');
 
         // initialize itinerary 1
-        $itinerary1 = new \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary();
+        $itinerary1 = new Itinerary;
         $itinerary1->setProcessors([
             $processor1,
             $processor2,
         ]);
 
         // initialize itinerary 2
-        $itinerary2 = new \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary();
+        $itinerary2 = new Itinerary;
         $itinerary2->setProcessors([
             $processor3,
             $processor4,
