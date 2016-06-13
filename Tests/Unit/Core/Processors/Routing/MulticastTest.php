@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Processors\Routing;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Processors\Routing;
 
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
@@ -16,9 +16,14 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
     /** @var Multicast */
     private $multicast;
 
-    public function setUp()
+    protected function setUp()
     {
-        $this->multicast = new Multicast();
+        $this->multicast = new Multicast;
+    }
+
+    protected function tearDown()
+    {
+        $this->multicast = null;
     }
 
     public function testItShouldSetAndGetItineraries()
@@ -92,6 +97,6 @@ class MulticastTest extends \PHPUnit_Framework_TestCase
 
         $this->multicast->process($exchange);
 
-        $this->assertEquals(count($itineraries), $dispatchedEventsCounter);
+        $this->assertCount($dispatchedEventsCounter, $itineraries);
     }
 }

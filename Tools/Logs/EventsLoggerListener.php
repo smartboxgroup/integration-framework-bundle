@@ -50,7 +50,7 @@ class EventsLoggerListener
     {
         if ($event instanceof ProcessingErrorEvent) {
             $event->setRequestStack($this->requestStack);
-            $message = 'Exception: '.$event->getException()->getMessage();
+            $message = 'Exception: ' . $event->getException()->getMessage();
         } else {
             $message = sprintf('Event "%s" occurred', $event->getEventName());
         }

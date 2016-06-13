@@ -1,19 +1,17 @@
 <?php
-namespace Smartbox\Integration\FrameworkBundle\Core\Itinerary;
 
+namespace Smartbox\Integration\FrameworkBundle\Core\Itinerary;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouterResourceNotFound;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesItinerariesRouter;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
-class ItineraryResolver {
-
+class ItineraryResolver
+{
     use UsesItinerariesRouter;
 
     public function getItinerary($from, $version){
-        $params = $this->getItineraryParams($from,$version);
+        $params = $this->getItineraryParams($from, $version);
 
         return $params[InternalRouter::KEY_ITINERARY];
     }
@@ -24,7 +22,7 @@ class ItineraryResolver {
      * @return string
      */
     public static function getItineraryURIWithVersion($uri, $version){
-        return 'v'.$version.'-'.$uri;
+        return 'v' . $version . '-' . $uri;
     }
 
     /**
@@ -43,7 +41,7 @@ class ItineraryResolver {
         } catch (InternalRouterResourceNotFound $exception) {
             throw new InternalRouterResourceNotFound("Itinerary not found for uri: $from");
         }
-        if (empty($params || !array_key_exists(InternalRouter::KEY_ITINERARY, $params))) {
+        if (empty($params) || !array_key_exists(InternalRouter::KEY_ITINERARY, $params)) {
             throw new InternalRouterResourceNotFound("Itinerary not found for uri: $from");
         }
 
