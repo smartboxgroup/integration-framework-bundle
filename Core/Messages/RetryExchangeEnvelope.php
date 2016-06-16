@@ -43,7 +43,7 @@ class RetryExchangeEnvelope extends ErrorExchangeEnvelope
      */
     public function setRetries($retries)
     {
-        if (!is_int($retries)) {
+        if (!is_int($retries) || $retries < 0) {
             throw new \InvalidArgumentException('Expected integer as input');
         }
         $this->setHeader(self::KEY_RETRIES, $retries);
