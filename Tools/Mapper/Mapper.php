@@ -120,7 +120,7 @@ class Mapper implements MapperInterface
      *
      * @return \SoapVar
      */
-    public function toSoapVarObj($data, $encoding, $type)
+    public function toSoapVarObj($data, $encoding, $type = null)
     {
         return new \SoapVar($data, $encoding, $type);
     }
