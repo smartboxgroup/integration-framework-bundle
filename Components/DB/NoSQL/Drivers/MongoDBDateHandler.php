@@ -7,6 +7,7 @@ use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\VisitorInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
+use MongoDB\BSON\UTCDatetime;
 
 /**
  * Class MongoDBDateHandler.
@@ -48,13 +49,34 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
      * Method converts \MongoDB\BSON\UTCDateTime to \DateTime
      *
      * @param VisitorInterface          $visitor
-     * @param \MongoDB\BSON\UTCDateTime $date
+     * @param UTCDatetime               $date
      * @param array                     $type
      * @param Context                   $context
      *
      * @return \DateTime
      */
-    public function convertFromMongoFormatToDateTime(VisitorInterface $visitor, \MongoDB\BSON\UTCDateTime $date, array $type, Context $context)
+    public function convertFromMongoFormatToDateTime(VisitorInterface $visitor, UTCDatetime $date, array $type, Context $context)
+    {
+        /**
+         * this $dateTime object is incorrect in case of using microseconds
+         * because after conversion of \MongoDB\BSON\UTCDateTime to \DateTime
+         * method $dateTime->format('U.u') returns invalid string xxxxxxxxx.zzzzzzzzz
+         * part after "." contains 9 digits but it should contain up to 6 digits
+         * so we have to reduce this part to 6 digits
+         *
+         * @var \DateTime $dateTime
+         */
+        return self::convertMongoFormatToDateTime($date);
+    }
+
+    /**
+     * Method converts \MongoDB\BSON\UTCDateTime to \DateTime preserving milliseconds
+     *
+     * @param UTCDatetime $date
+     *
+     * @return \DateTime
+     */
+    public static function convertMongoFormatToDateTime(UTCDatetime $date)
     {
         /**
          * this $dateTime object is incorrect in case of using microseconds
@@ -85,7 +107,7 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
      */
     public static function convertDateTimeToMongoFormat(\DateTime $date)
     {
-        return new \MongoDB\BSON\UTCDateTime(self::getUnixTimestampWithMilliseconds($date));
+        return new UTCDateTime(self::getUnixTimestampWithMilliseconds($date));
     }
 
     /**
