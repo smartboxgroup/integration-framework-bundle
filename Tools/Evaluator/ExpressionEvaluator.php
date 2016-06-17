@@ -22,7 +22,27 @@ class ExpressionEvaluator
     {
         $cache = new ApcuParserCache();
         $this->language = new ExpressionLanguage($cache);
-        // Register any providers here
+        $this->registerLanguageFunctions($this->language);
+    }
+
+    /**
+     * Method which registers additional functions to expression language
+     * Registered functions:
+     *  - array_key_exists
+     *
+     * @param ExpressionLanguage $language
+     */
+    protected function registerLanguageFunctions(ExpressionLanguage $language)
+    {
+        $language->register(
+            'array_key_exists',
+            function ($key, $array) {
+                return sprintf('(array_key_exists($s,$s)', $key, $array);
+            },
+            function ($arguments, $key, array $array) {
+                return array_key_exists($key, $array);
+            }
+        );
     }
 
     public function getExchangeExposedVars()
