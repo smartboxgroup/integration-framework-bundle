@@ -8,6 +8,8 @@ parameters:
   smartesb.processor.stop.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Miscellaneous\Stop
 
   smartesb.handlers.message_routing.class: Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler
+  smartesb.util.expression_language.class: Symfony\Component\ExpressionLanguage\ExpressionLanguage
+  smartesb.util.expression_language_factory.class: Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionLanguageFactory
   smartesb.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator
   smartesb.util.mapper.class: Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper
   smartesb.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItinerarySerializationHandler
@@ -32,8 +34,13 @@ services:
         - { name: jms_serializer.subscribing_handler }
 
   # UTILS
+  smartesb.util.expression_language:
+      class: %smartesb.util.expression_language.class%
+      factory: [%smartesb.util.expression_language_factory.class%, createExpressionLanguage]
+
   smartesb.util.evaluator:
       class: %smartesb.util.evaluator.class%
+      arguments: [@smartesb.util.expression_language]
       calls:
         - [setSerializer, [@serializer]]
         - [setMapper, [@smartesb.util.mapper]]

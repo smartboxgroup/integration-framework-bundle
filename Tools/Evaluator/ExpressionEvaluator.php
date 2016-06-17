@@ -18,11 +18,9 @@ class ExpressionEvaluator
     /** @var ExpressionLanguage */
     protected $language;
 
-    public function __construct()
+    public function __construct(ExpressionLanguage $language)
     {
-        $cache = new ApcuParserCache();
-        $this->language = new ExpressionLanguage($cache);
-        // Register any providers here
+        $this->language = $language;
     }
 
     public function getExchangeExposedVars()
