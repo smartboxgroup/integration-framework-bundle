@@ -12,7 +12,7 @@ class ExpressionLanguageFactory
     public function createExpressionLanguage()
     {
         $language = new ExpressionLanguage(new ApcuParserCache());
-        $language->registerProvider(new StringExpressionLanguageProvider());
+        $language->registerProvider(new CustomExpressionLanguageProvider());
 
         return $language;
     }

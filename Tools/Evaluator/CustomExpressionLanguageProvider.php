@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\Evaluator;
 use Symfony\Component\ExpressionLanguage\ExpressionFunction;
 use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
 
-class StringExpressionLanguageProvider implements ExpressionFunctionProviderInterface
+class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInterface
 {
     public function getFunctions()
     {
