@@ -36,7 +36,10 @@ class RestConfigurableProducerTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->client = $this->getMockBuilder(ClientInterface::class)->getMock();
-        $this->evaluator = $this->getMockBuilder(ExpressionEvaluator::class)->getMock();
+        $this->evaluator = $this->getMockBuilder(ExpressionEvaluator::class)
+            ->disableOriginalConstructor()
+            ->getMock()
+        ;
         $this->evaluator->method('evaluateWithVars')
             ->with($this->anything(), $this->anything())
             ->willReturnArgument(0)
