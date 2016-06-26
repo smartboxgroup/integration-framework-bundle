@@ -10,9 +10,9 @@ use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutputInterface;
 interface CanCheckConnectivityInterface
 {
     /**
-     * @param array|null $config
+     * @param array $config
      *
      * @return SmokeTestOutputInterface
      */
-    public function checkConnectivityForSmokeTest(array $config = null);
+    public function checkConnectivityForSmokeTest(array $config = []);
 }

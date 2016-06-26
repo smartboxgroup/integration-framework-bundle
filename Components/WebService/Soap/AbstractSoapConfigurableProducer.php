@@ -226,12 +226,12 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     /**
      * {@inheritdoc}
      */
-    public function checkConnectivityForSmokeTest(array $config = null)
+    public function checkConnectivityForSmokeTest(array $config = [])
     {
         $output = new SmokeTestOutput();
 
         try {
-            $client = $this->getSoapClient($this->getDefaultOptions());
+            $client = $this->getSoapClient($config);
             if ($client instanceof LazyLoadingInterface) {
                 $client->initializeProxy();
             }
