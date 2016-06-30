@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f38806d3b3eb76f526995f07d2e13736",
-    "content-hash": "fbeeb34eb24a937805a0eb00fbca9f95",
+    "hash": "49ae80b5b16f37cb225182df0adc5952",
+    "content-hash": "c45507aacb4affc9bc244d2dbc37bb5c",
     "packages": [
         {
             "name": "ass/xmlsecurity",
@@ -69,16 +69,16 @@
         },
         {
             "name": "centraldesktop/stomp",
-            "version": "2.0.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/centraldesktop/php-stomp.git",
-                "reference": "4710803d7686c19c3dfb9007886bc7956e1ee7d0"
+                "reference": "45a2fa09c6a70fb3c82c8964a3f233d59b2c4205"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centraldesktop/php-stomp/zipball/4710803d7686c19c3dfb9007886bc7956e1ee7d0",
-                "reference": "4710803d7686c19c3dfb9007886bc7956e1ee7d0",
+                "url": "https://api.github.com/repos/centraldesktop/php-stomp/zipball/45a2fa09c6a70fb3c82c8964a3f233d59b2c4205",
+                "reference": "45a2fa09c6a70fb3c82c8964a3f233d59b2c4205",
                 "shasum": ""
             },
             "require": {
@@ -104,7 +104,7 @@
                 "Apache-2.0"
             ],
             "description": "A Stomp 1.2 capable client",
-            "time": "2015-02-12 01:00:52"
+            "time": "2016-03-10 03:19:21"
         },
         {
             "name": "doctrine/annotations",
@@ -3502,6 +3502,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "centraldesktop/stomp": 20,
         "smartbox/besimple/soap": 20,
         "smartbox/core-bundle": 20,
         "phpunit/php-code-coverage": 20,

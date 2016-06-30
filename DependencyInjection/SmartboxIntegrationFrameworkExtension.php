@@ -2,8 +2,11 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
+use Smartbox\CoreBundle\DependencyInjection\SerializationCacheCompilerPass;
+use Smartbox\CoreBundle\Utils\Cache\PredisCacheService;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBClient;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDbDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQConnectionStrategyFactory;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
@@ -31,6 +34,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class SmartboxIntegrationFrameworkExtension extends Extension
 {
     const EVENTS_LOGGER_ID = 'smartesb.event_listener.events_logger';
+    const ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY = 'smartesb.activemq_connection_strategy_factory';
 
     const QUEUE_DRIVER_PREFIX = 'smartesb.drivers.queue.';
     const NOSQL_DRIVER_PREFIX = 'smartesb.drivers.nosql.';
@@ -125,8 +129,14 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             switch ($type) {
                 case 'activemq':
                     $driverDef = new Definition(ActiveMQStompQueueDriver::class, array());
-
                     $driverDef->addMethodCall('setId', array($driverId));
+
+                    $activeMQConnectionStrategyFactoryDef = new Definition(
+                        ActiveMQConnectionStrategyFactory::class,
+                        [new Reference('smartcore.cache_service')]
+                    );
+                    $container->setDefinition(self::ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY, $activeMQConnectionStrategyFactoryDef);
+                    $driverDef->addMethodCall('setConnectionStrategyFactory', [new Reference(self::ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY)]);
 
                     $driverDef->addMethodCall('configure', array(
                         $driverConfig['host'],
