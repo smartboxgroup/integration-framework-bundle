@@ -62,11 +62,14 @@ class ConnectivityCheckSmokeTest implements SmokeTestInterface
 
             $messages = $smokeTestOutputForItem->getMessages();
             foreach ($messages as $message) {
+                $status = $smokeTestOutputForItem->isOK() ? 'info' : 'error';
                 $smokeTestOutput->addMessage(
                     sprintf(
-                        '[%s]: %s',
+                        '<%s>[%s]: %s</%s>',
+                        $status,
                         $name,
-                        $message
+                        $message,
+                        $status
                     )
                 );
             }
