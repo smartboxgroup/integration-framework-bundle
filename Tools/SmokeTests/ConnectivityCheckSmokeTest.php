@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\SmokeTests;
 
 use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 
 /**
  * Class ConnectivityCheckSmokeTest
@@ -62,7 +63,7 @@ class ConnectivityCheckSmokeTest implements SmokeTestInterface
 
             $messages = $smokeTestOutputForItem->getMessages();
             foreach ($messages as $message) {
-                $status = $smokeTestOutputForItem->isOK() ? 'info' : 'error';
+                $status = $smokeTestOutputForItem->isOK() ? ConsoleLogger::INFO : ConsoleLogger::ERROR;
                 $smokeTestOutput->addMessage(
                     sprintf(
                         '<%s>[%s]: %s</%s>',
