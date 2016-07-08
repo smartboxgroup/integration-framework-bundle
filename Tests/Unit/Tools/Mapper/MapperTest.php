@@ -60,4 +60,14 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['a' => 'b'], $soapVar->enc_value);
         $this->assertEquals('Account', $soapVar->enc_stype);
     }
+
+    public function testConvertListToString()
+    {
+        $list = [
+            'a',
+            'b'
+        ];
+
+        $this->assertSame('a;b', $this->mapper->listToString($list, ';'));
+    }
 }
