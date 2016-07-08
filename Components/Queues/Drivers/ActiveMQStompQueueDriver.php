@@ -2,8 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use CentralDesktop\Stomp\Connection;
-use CentralDesktop\Stomp\ConnectionFactory\Simple as SimpleConnectionStrategy;
+use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\Connection;
 use CentralDesktop\Stomp\Frame;
 use CentralDesktop\Stomp\Message\Bytes;
 use JMS\Serializer\DeserializationContext;
@@ -25,7 +24,6 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
 
     const READ_TIMEOUT = 2;
     const BUFFER_SIZE = 1048576;
-    const DEFAULT_PORT = 61613;
 
     const HEADER_SELECTOR = 'selector';
 
@@ -51,9 +49,6 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     protected $host;
 
     /** @var  string */
-    protected $port;
-
-    /** @var  string */
     protected $username;
 
     /** @var  string */
@@ -63,19 +58,13 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     protected $stompVersion;
 
     /**
-     * @return string
+     * @var ActiveMQConnectionStrategyFactory
      */
-    public function getPort()
-    {
-        return $this->port;
-    }
+    protected $connectionStrategyFactory;
 
-    /**
-     * @param string $port
-     */
-    public function setPort($port)
+    public function setConnectionStrategyFactory(ActiveMQConnectionStrategyFactory $connectionStrategyFactory)
     {
-        $this->port = $port;
+        $this->connectionStrategyFactory = $connectionStrategyFactory;
     }
 
     /**
@@ -159,11 +148,10 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $port = self::DEFAULT_PORT, $version = 1.1)
+    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $version = 1.1)
     {
         $this->format = $format;
         $this->host = $host;
-        $this->port = $port;
         $this->username = $username;
         $this->pass = $password;
         $this->stompVersion = $version;
@@ -196,14 +184,19 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     protected function connectRead()
     {
         if (!$this->readConnection) {
-            $strategy = new SimpleConnectionStrategy("tcp://$this->host:$this->port");
+            $strategy = $this->connectionStrategyFactory->createConnectionStrategy($this->host);
             $this->readConnection = new Connection($strategy);
             $this->readConnection->setReadTimeout(self::READ_TIMEOUT);
             $this->readConnection->setBufferSize(self::BUFFER_SIZE);
             $connectionOK = $this->readConnection->connect($this->username, $this->pass, $this->stompVersion);
 
             if (!$connectionOK) {
-                throw new \RuntimeException('Could not connect to ActiveMQ in host: '.$this->host.', port: '.$this->port);
+                throw new \RuntimeException(
+                    sprintf(
+                        'Could not connect to ActiveMQ in host "%s".',
+                        $this->host
+                    )
+                );
             }
         }
     }
@@ -216,13 +209,18 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     protected function connectWrite()
     {
         if (!$this->writeConnection) {
-            $strategy = new SimpleConnectionStrategy("tcp://$this->host:$this->port");
+            $strategy = $this->connectionStrategyFactory->createConnectionStrategy($this->host);
             $this->writeConnection = new Connection($strategy);
             $this->writeConnection->setBufferSize(self::BUFFER_SIZE);
             $connectionOK = $this->writeConnection->connect($this->username, $this->pass, $this->stompVersion);
 
             if (!$connectionOK) {
-                throw new \RuntimeException('Could not connect to ActiveMQ in host: '.$this->host.', port: '.$this->port);
+                throw new \RuntimeException(
+                    sprintf(
+                        'Could not connect to ActiveMQ in host "%s".',
+                        $this->host
+                    )
+                );
             }
         }
     }
