@@ -1,0 +1,3 @@
+parameters:
+    hostname: real.smartesb.local
+    flows.version: 0

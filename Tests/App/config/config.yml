@@ -1,3 +1,7 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: services.yml }
+
 framework:
     secret: "5yg6u543wrftg34"
     validation:      { enable_annotations: true }
@@ -19,9 +23,12 @@ monolog:
             channels: [tracking]
 
 smartbox_core:
-  fixtures_path: "%kernel.root_dir%/JsonFixtures"
-  entities_namespaces:
-    - 'Smartbox\Integration\Framework\Entity'
+    cache_drivers:
+        custom:
+            service: "@smartesb.custom_cache_service_id"
+    fixtures_path: "%kernel.root_dir%/JsonFixtures"
+    entities_namespaces:
+        - 'Smartbox\Integration\Framework\Entity'
 
 smartbox_integration_framework:
     defer_events_to_uri: queue://events
@@ -29,7 +36,7 @@ smartbox_integration_framework:
         main:
             type: ActiveMQ
             description: Default queue driver
-            host: real.smartesb.local
+            host: "tcp://real.smartesb.local"
             username: ''
             password: ''
             format: json
@@ -61,7 +68,3 @@ smartbox_integration_framework:
     message_consumers:
 
     flows_version: 0
-
-parameters:
-  hostname: real.smartesb.local
-  flows.version: 0
