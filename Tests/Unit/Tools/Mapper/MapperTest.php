@@ -68,6 +68,6 @@ class MapperTest extends \PHPUnit_Framework_TestCase
             'b'
         ];
 
-        $this->assertSame('a;b', $this->mapper->listToString(';', $list));
+        $this->assertSame('a;b', $this->mapper->arrayToString(';', $list));
     }
 }

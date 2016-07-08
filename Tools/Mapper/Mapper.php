@@ -126,14 +126,14 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Convert a list to string.
+     * Convert an array into string.
      *
      * @param string $glue The string to use to glue the elements of the array
      * @param array $data The array of strings to join
      *
      * @return string
      */
-    public function listToString($glue, array $data)
+    public function arrayToString($glue, array $data)
     {
         return join($glue, $data);
     }
