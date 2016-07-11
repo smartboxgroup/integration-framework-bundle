@@ -124,4 +124,17 @@ class Mapper implements MapperInterface
     {
         return new \SoapVar($data, $encoding, $type);
     }
+
+    /**
+     * Convert an array into string.
+     *
+     * @param string $glue The string to use to glue the elements of the array
+     * @param array $data The array of strings to join
+     *
+     * @return string
+     */
+    public function arrayToString($glue, array $data)
+    {
+        return join($glue, $data);
+    }
 }

@@ -3,12 +3,16 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
+use Smartbox\CoreBundle\Tests\Utils\Cache\FakeCacheService;
 use Smartbox\CoreBundle\Type\SerializableArray;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQConnectionStrategyFactory;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
+use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFactory\SimpleConnectionStrategy;
 
 /**
  * Class StompProducerTest.
@@ -20,7 +24,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
     private $queueName;
     private static $testIndex = 0;
 
-    /** @var  \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver */
+    /** @var  ActiveMQStompQueueDriver */
     protected $driver;
 
     public function setUp()
@@ -39,16 +43,18 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
     }
 
     /**
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver
+     * @return ActiveMQStompQueueDriver
      */
     protected function createDriver()
     {
         $host = $this->getContainer()->getParameter('hostname');
-        /* @var \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver $processor */
-        $driver = new \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver();
+
+        /* @var ActiveMQStompQueueDriver $processor */
+        $driver = new ActiveMQStompQueueDriver();
+        $driver->setConnectionStrategyFactory(new ActiveMQConnectionStrategyFactory(new FakeCacheService()));
         $driver->setMessageFactory($this->getContainer()->get('smartesb.message_factory'));
         $driver->setSerializer($this->getContainer()->get('serializer'));
-        $driver->configure($host, '', '');
+        $driver->configure('tcp://' . $host, '', '');
         $driver->connect();
 
         return $driver;
