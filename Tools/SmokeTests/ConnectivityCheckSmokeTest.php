@@ -55,21 +55,36 @@ class ConnectivityCheckSmokeTest implements SmokeTestInterface
         }
 
         foreach ($this->items as $name => $item) {
-            $smokeTestOutputForItem = $item->checkConnectivityForSmokeTest();
+            try {
+                $smokeTestOutputForItem = $item->checkConnectivityForSmokeTest();
 
-            if (!$smokeTestOutputForItem->isOK()) {
+                if (!$smokeTestOutputForItem->isOK()) {
+                    $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
+                }
+
+                $messages = $smokeTestOutputForItem->getMessages();
+                foreach ($messages as $message) {
+                    $status = $smokeTestOutputForItem->isOK() ? ConsoleLogger::INFO : ConsoleLogger::ERROR;
+                    $smokeTestOutput->addMessage(
+                        sprintf(
+                            '<%s>[%s]: %s</%s>',
+                            $status,
+                            $name,
+                            $message,
+                            $status
+                        )
+                    );
+                }
+            } catch (\Exception $e) {
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
-            }
 
-            $messages = $smokeTestOutputForItem->getMessages();
-            foreach ($messages as $message) {
-                $status = $smokeTestOutputForItem->isOK() ? ConsoleLogger::INFO : ConsoleLogger::ERROR;
+                $status = ConsoleLogger::ERROR;
                 $smokeTestOutput->addMessage(
                     sprintf(
                         '<%s>[%s]: %s</%s>',
                         $status,
                         $name,
-                        $message,
+                        '[' . get_class($e) . '] ' . $e->getMessage(),
                         $status
                     )
                 );
