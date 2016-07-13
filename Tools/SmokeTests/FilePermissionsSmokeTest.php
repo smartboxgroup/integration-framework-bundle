@@ -28,10 +28,10 @@ class FilePermissionsSmokeTest implements SmokeTestInterface
 
         if (!is_writable($this->cacheDir)) {
             $smokeTestOutput->setCode(SmokeTestOutput::OUTPUT_CODE_FAILURE);
-            $smokeTestOutput->addMessage('Cache directory ('.$this->cacheDir.') should be writeable.');
+            $smokeTestOutput->addFailureMessage('Cache directory ('.$this->cacheDir.') should be writeable.');
         } else {
             $smokeTestOutput->setCode(SmokeTestOutput::OUTPUT_CODE_SUCCESS);
-            $smokeTestOutput->addMessage('Cache directory permissions checked.');
+            $smokeTestOutput->addSuccessMessage('Cache directory permissions checked.');
         }
 
         return $smokeTestOutput;

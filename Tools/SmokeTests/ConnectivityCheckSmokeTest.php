@@ -4,7 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\SmokeTests;
 
 use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 
 /**
  * Class ConnectivityCheckSmokeTest
@@ -49,7 +48,7 @@ class ConnectivityCheckSmokeTest implements SmokeTestInterface
         // if there are no items to check their connectivity this smoke test passes
         if (empty($this->items)) {
             $smokeTestOutput->setCode($exitCode);
-            $smokeTestOutput->addMessage('I\'m useless... There are no items which needs to check their connectivity.');
+            $smokeTestOutput->addInfoMessage('I\'m useless... There are no items which needs to check their connectivity.');
 
             return $smokeTestOutput;
         }
@@ -64,35 +63,31 @@ class ConnectivityCheckSmokeTest implements SmokeTestInterface
 
                 $messages = $smokeTestOutputForItem->getMessages();
                 foreach ($messages as $message) {
-                    $status = $smokeTestOutputForItem->isOK() ? ConsoleLogger::INFO : ConsoleLogger::ERROR;
-                    $smokeTestOutput->addMessage(
-                        sprintf(
-                            '<%s>[%s]: %s</%s>',
-                            $status,
-                            $name,
-                            $message,
-                            $status
-                        )
+                    $message = sprintf(
+                        '[%s]: %s',
+                        $name,
+                        $message->getValue()
                     );
+                    if ($smokeTestOutputForItem->isOK()) {
+                        $smokeTestOutput->addSuccessMessage($message);
+                    } else {
+                        $smokeTestOutput->addFailureMessage($message);
+                    }
                 }
             } catch (\Exception $e) {
                 $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;
-
-                $status = ConsoleLogger::ERROR;
-                $smokeTestOutput->addMessage(
+                $smokeTestOutput->addFailureMessage(
                     sprintf(
-                        '<%s>[%s]: %s</%s>',
-                        $status,
+                        '[%s]: %s',
                         $name,
-                        '[' . get_class($e) . '] ' . $e->getMessage(),
-                        $status
+                        '[' . get_class($e) . '] ' . $e->getMessage()
                     )
                 );
             }
         }
 
         if ($exitCode === SmokeTestOutput::OUTPUT_CODE_SUCCESS) {
-            $smokeTestOutput->addMessage('Connectivity checked.');
+            $smokeTestOutput->addSuccessMessage('Connectivity checked.');
         }
 
         $smokeTestOutput->setCode($exitCode);

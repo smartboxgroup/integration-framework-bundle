@@ -236,10 +236,10 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
                 $client->initializeProxy();
             }
             $output->setCode($output::OUTPUT_CODE_SUCCESS);
-            $output->addMessage('Connection was successfully established.');
+            $output->addSuccessMessage('Connection was successfully established.');
         } catch (\SoapFault $e) {
             $output->setCode($output::OUTPUT_CODE_FAILURE);
-            $output->addMessage(
+            $output->addFailureMessage(
                 sprintf(
                     'Could not establish connection. Error: %s',
                     $e->getMessage()
