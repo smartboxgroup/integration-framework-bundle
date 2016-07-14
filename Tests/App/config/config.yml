@@ -1,6 +1,5 @@
 imports:
     - { resource: parameters.yml }
-    - { resource: services.yml }
 
 framework:
     secret: "5yg6u543wrftg34"
@@ -24,8 +23,8 @@ monolog:
 
 smartbox_core:
     cache_drivers:
-        custom:
-            service: "@smartesb.custom_cache_service_id"
+        null:
+            service: ~
     fixtures_path: "%kernel.root_dir%/JsonFixtures"
     entities_namespaces:
         - 'Smartbox\Integration\Framework\Entity'
