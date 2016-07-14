@@ -1,7 +1,0 @@
-services:
-    smartesb.cache_service.fake_cache_service_spy:
-        class: Smartbox\CoreBundle\Tests\Utils\Cache\FakeCacheServiceSpy
-
-    smartesb.custom_cache_service_id:
-        class: Smartbox\CoreBundle\Tests\Utils\Cache\FakeCacheService
-        arguments: [ "@smartesb.cache_service.fake_cache_service_spy" ]
