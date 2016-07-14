@@ -34,10 +34,10 @@ class StorageConnectionSmokeTest implements SmokeTestInterface
             $this->storage->connect();
 
             $smokeTestOutput->setCode(SmokeTestOutput::OUTPUT_CODE_SUCCESS);
-            $smokeTestOutput->addMessage('Connection checked.');
+            $smokeTestOutput->addSuccessMessage('Connection checked.');
         } catch (\Exception $e) {
             $smokeTestOutput->setCode(SmokeTestOutput::OUTPUT_CODE_FAILURE);
-            $smokeTestOutput->addMessage($e->getMessage());
+            $smokeTestOutput->addFailureMessage($e->getMessage());
         }
 
         return $smokeTestOutput;
