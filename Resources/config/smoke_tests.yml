@@ -9,13 +9,10 @@ services:
       class: %smartesb.smoke_test.check_queue_driver_connection.class%
       arguments: [@smartesb.default_queue_driver]
       tags:
-          - { name: smartcore.smoke_test }
+          - { name: smartcore.smoke_test, labels: "critical" }
 
   smartesb.smoke_test.file_permissions:
       class: %smartesb.smoke_test.file_permissions.class%
       arguments: [ '%kernel.root_dir%/cache' ]
       tags:
-          - { name: smartcore.smoke_test }
-
-  smartesb.smoke_test.connectivity_check:
-      class: %smartesb.smoke_test.connectivity_check.class%
+          - { name: smartcore.smoke_test, labels: "important" }

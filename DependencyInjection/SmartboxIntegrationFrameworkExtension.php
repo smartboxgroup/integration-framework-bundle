@@ -102,7 +102,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $container->setDefinition($producerId, $definition);
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {
-                $definition->addTag(ConnectivityCheckSmokeTest::TAG_TEST_CONNECTIVITY);
+                $attrs = [
+                    'labels' => call_user_func([$definition->getClass(), 'getConnectivitySmokeTestLabels'])
+                ];
+                $definition->addTag(ConnectivityCheckSmokeTest::TAG_TEST_CONNECTIVITY, $attrs);
             }
         }
     }

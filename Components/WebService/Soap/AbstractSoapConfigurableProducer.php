@@ -249,4 +249,12 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
 
         return $output;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function getConnectivitySmokeTestLabels()
+    {
+        return '';
+    }
 }
