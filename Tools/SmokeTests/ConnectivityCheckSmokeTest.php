@@ -13,9 +13,28 @@ class ConnectivityCheckSmokeTest implements SmokeTestInterface
     const TAG_TEST_CONNECTIVITY = 'smartesb.smoke_test.test_connectivity';
 
     /**
+     * @var null|string
+     */
+    protected $description = 'Generic SmokeTest to check connectivity.';
+
+    /**
      * @var CanCheckConnectivityInterface[]
      */
     protected $items = [];
+
+    /**
+     * ConnectivityCheckSmokeTest constructor.
+     *
+     * @param string|null  $description
+     * @param CanCheckConnectivityInterface[] $items
+     */
+    public function __construct($description = null, $items = [])
+    {
+        if (null !== $description) {
+            $this->description = $description;
+        }
+        $this->items = $items;
+    }
 
     /**
      * @param $name
@@ -37,7 +56,7 @@ class ConnectivityCheckSmokeTest implements SmokeTestInterface
 
     public function getDescription()
     {
-        return 'Generic SmokeTest to check connectivity.';
+        return $this->description;
     }
 
     public function run()
