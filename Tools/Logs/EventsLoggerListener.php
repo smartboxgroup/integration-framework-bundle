@@ -27,14 +27,14 @@ class EventsLoggerListener
     /** @var  RequestStack */
     protected $requestStack;
 
-    protected static $eventsLogLevelOptions = [
+    protected static $eventsLogLevelChoices = [
         LogLevel::WARNING,
         LogLevel::NOTICE,
         LogLevel::INFO,
         LogLevel::DEBUG,
     ];
 
-    protected static $errorsLogLevelOptions = [
+    protected static $errorsLogLevelChoices = [
         LogLevel::EMERGENCY,
         LogLevel::ALERT,
         LogLevel::CRITICAL,
@@ -47,12 +47,12 @@ class EventsLoggerListener
     /**
      * @var string
      */
-    protected $eventsLogLevel = LogLevel::DEBUG;
+    protected $eventsLogLevel = self::DEFAULT_EVENTS_LEVEL;
 
     /**
      * @var string
      */
-    protected $errorsLogLevel = LogLevel::ERROR;
+    protected $errorsLogLevel = self::DEFAULT_ERRORS_LEVEL;
 
     /**
      * Constructor.
@@ -69,17 +69,17 @@ class EventsLoggerListener
     /**
      * @return array
      */
-    public static function getEventsLogLevelOptions()
+    public static function getEventsLogLevelChoices()
     {
-        return self::$eventsLogLevelOptions;
+        return self::$eventsLogLevelChoices;
     }
 
     /**
      * @return array
      */
-    public static function getErrorsLogLevelOptions()
+    public static function getErrorsLogLevelChoices()
     {
-        return self::$errorsLogLevelOptions;
+        return self::$errorsLogLevelChoices;
     }
 
     /**
