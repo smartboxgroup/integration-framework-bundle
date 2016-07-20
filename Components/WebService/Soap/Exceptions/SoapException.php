@@ -7,6 +7,7 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\HasExternalSystemName;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\HasShowExternalSystemErrorMessage;
 
 /**
  * Class SoapException.
@@ -15,6 +16,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
 {
     use HasInternalType;
     use HasExternalSystemName;
+    use HasShowExternalSystemErrorMessage;
 
     /**
      * @var string
