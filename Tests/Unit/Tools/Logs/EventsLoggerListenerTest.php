@@ -26,8 +26,6 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
     /** @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject */
     private $logger;
 
-    /** @var string */
-    private $logLevel = LogLevel::DEBUG;
 
     protected function setUp()
     {
@@ -35,7 +33,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
         $requestStack = $this->createMock(RequestStack::class);
 
         $this->logger   = $this->createMock(LoggerInterface::class);
-        $this->listener = new EventsLoggerListener($this->logger, $requestStack, $this->logLevel);
+        $this->listener = new EventsLoggerListener($this->logger, $requestStack);
     }
 
     protected function tearDown()
@@ -62,14 +60,15 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
      *
      * @param Event $event
      * @param array $expectedContext
+     * @param string $logLevel
      */
-    public function testLogEvent(Event $event, array $expectedContext)
+    public function testLogEvent(Event $event, array $expectedContext, $logLevel)
     {
         $this->logger
             ->expects($this->once())
             ->method('log')
             ->with(
-                $this->equalTo($this->logLevel),
+                $this->equalTo($logLevel),
                 $this->isType('string'),
                 $this->equalTo($expectedContext)
             );
@@ -84,7 +83,8 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             'expected_context' => [
                 'event_name'    => null,
                 'event_details' => '',
-            ]
+            ],
+            "logLevel" => LogLevel::DEBUG
         ];
     }
 
@@ -111,7 +111,8 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
                     'type'   => 'sync',
                     'detail' => $exchange
                 ]
-            ]
+            ],
+            "logLevel" => LogLevel::DEBUG
         ];
     }
 
@@ -149,7 +150,8 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
                     'name'        => FakeProcessor::class,
                     'description' => 'Processor 1 description',
                 ]
-            ]
+            ],
+            "logLevel" => LogLevel::DEBUG
         ];
     }
 
@@ -188,7 +190,8 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
                     'name'        => FakeProcessor::class,
                     'description' => 'Processor 1 description',
                 ]
-            ]
+            ],
+            "logLevel" => LogLevel::DEBUG
         ];
     }
 
@@ -228,7 +231,8 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
                     'name'        => Transformer::class,
                     'description' => 'Processor 1 description',
                 ]
-            ]
+            ],
+            "logLevel" => LogLevel::DEBUG
         ];
     }
 
@@ -267,7 +271,8 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
                     'description' => 'Processor 1 description',
                 ],
                 'exception'     => $exception,
-            ]
+            ],
+            "logLevel" => LogLevel::ERROR
         ];
     }
 }

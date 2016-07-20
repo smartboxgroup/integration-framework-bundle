@@ -272,9 +272,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     public function enableLogging(ContainerBuilder $container){
         $def = new Definition('%smartesb.event_listener.events_logger.class%',[
             new Reference('monolog.logger.tracking'),
-            new Reference('request_stack'),
-           '%smartesb.event_listener.events_logger.log_level%'
+            new Reference('request_stack')
         ]);
+
+        $def->addMethodCall('setEventsLogLevel',['%smartesb.event_listener.events_logger.events_log_level%']);
+        $def->addMethodCall('setErrorsLogLevel',['%smartesb.event_listener.events_logger.errors_log_level%']);
 
         $def->addTag('kernel.event_listener',[
             'event' => 'smartesb.handler.before_handle',
@@ -323,7 +325,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
 
         $eventsLogLevel = $config['events_log_level'];
-        $container->setParameter('smartesb.event_listener.events_logger.log_level', $eventsLogLevel);
+        $container->setParameter('smartesb.event_listener.events_logger.events_log_level', $eventsLogLevel);
+
+        $errorsLogLevel = $config['errors_log_level'];
+        $container->setParameter('smartesb.event_listener.events_logger.errors_log_level', $errorsLogLevel);
 
         $eventsDeferToURI = $config['defer_events_to_uri'];
         $container->setParameter(self::PARAM_DEFERRED_EVENTS_URI, $eventsDeferToURI);

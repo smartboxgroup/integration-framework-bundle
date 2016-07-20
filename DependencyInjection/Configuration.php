@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Psr\Log\LogLevel;
+use Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -22,17 +23,13 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->root(self::NAME);
         $rootNode->children()
             ->enumNode('events_log_level')
-                ->defaultValue(LogLevel::DEBUG)
-                ->values([
-                    LogLevel::EMERGENCY,
-                    LogLevel::ALERT,
-                    LogLevel::CRITICAL,
-                    LogLevel::ERROR,
-                    LogLevel::WARNING,
-                    LogLevel::NOTICE,
-                    LogLevel::INFO,
-                    LogLevel::DEBUG,
-                ])
+                ->defaultValue(EventsLoggerListener::DEFAULT_EVENTS_LEVEL)
+                ->values(EventsLoggerListener::getEventsLogLevelOptions())
+            ->end()
+
+            ->enumNode('errors_log_level')
+                ->defaultValue(EventsLoggerListener::DEFAULT_ERRORS_LEVEL)
+                ->values(EventsLoggerListener::getErrorsLogLevelOptions())
             ->end()
 
             ->scalarNode('enable_events_deferring')
