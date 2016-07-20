@@ -192,7 +192,7 @@ class RestConfigurableProducer extends ConfigurableProducer
             // Validates response (if needed)
             foreach ($validationSteps as $validationStep) {
                 $isValid = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_RULE], $context);
-                if ($isValid) {
+                if (!$isValid) {
                     $message = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_MESSAGE], $context);
                     $recoverable = $validationStep[self::VALIDATION_RECOVERABLE];
                     $showMessage = (
