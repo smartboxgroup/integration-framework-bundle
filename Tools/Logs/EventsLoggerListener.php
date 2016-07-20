@@ -27,14 +27,14 @@ class EventsLoggerListener
     /** @var  RequestStack */
     protected $requestStack;
 
-    protected static $eventsLogLevelChoices = [
+    protected static $availableEventsLogLevel = [
         LogLevel::WARNING,
         LogLevel::NOTICE,
         LogLevel::INFO,
         LogLevel::DEBUG,
     ];
 
-    protected static $errorsLogLevelChoices = [
+    protected static $availableErrorsLogLevel = [
         LogLevel::EMERGENCY,
         LogLevel::ALERT,
         LogLevel::CRITICAL,
@@ -69,32 +69,54 @@ class EventsLoggerListener
     /**
      * @return array
      */
-    public static function getEventsLogLevelChoices()
+    public static function getAvailableEventsLogLevel()
     {
-        return self::$eventsLogLevelChoices;
+        return self::$availableEventsLogLevel;
     }
 
     /**
      * @return array
      */
-    public static function getErrorsLogLevelChoices()
+    public static function getAvailableErrorsLogLevel()
     {
-        return self::$errorsLogLevelChoices;
+        return self::$availableErrorsLogLevel;
     }
 
     /**
      * @param $eventsLogLevel
+     * @throws \InvalidArgumentException
      */
     public function setEventsLogLevel($eventsLogLevel)
     {
+        if (!in_array($eventsLogLevel, $this->getAvailableEventsLogLevel())) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Unsupported events log level "%s". Use one of supported log levels: [%s].',
+                    $eventsLogLevel,
+                    implode(', ', $this->getAvailableEventsLogLevel())
+                )
+            );
+        }
+
         $this->eventsLogLevel = $eventsLogLevel;
     }
 
     /**
      * @param $errorsLogLevel
+     * @throws \InvalidArgumentException
      */
     public function setErrorsLogLevel($errorsLogLevel)
     {
+        if (!in_array($errorsLogLevel, $this->getAvailableErrorsLogLevel())) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Unsupported errors log level "%s". Use one of supported log levels: [%s].',
+                    $errorsLogLevel,
+                    implode(', ', $this->getAvailableErrorsLogLevel())
+                )
+            );
+        }
+
         $this->errorsLogLevel = $errorsLogLevel;
     }
 

@@ -112,7 +112,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
                     'detail' => $exchange
                 ]
             ],
-            "logLevel" => LogLevel::DEBUG
+            "logLevel" => EventsLoggerListener::DEFAULT_EVENTS_LEVEL
         ];
     }
 
@@ -151,7 +151,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
                     'description' => 'Processor 1 description',
                 ]
             ],
-            "logLevel" => LogLevel::DEBUG
+            "logLevel" => EventsLoggerListener::DEFAULT_EVENTS_LEVEL
         ];
     }
 
@@ -191,7 +191,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
                     'description' => 'Processor 1 description',
                 ]
             ],
-            "logLevel" => LogLevel::DEBUG
+            "logLevel" => EventsLoggerListener::DEFAULT_EVENTS_LEVEL
         ];
     }
 
@@ -232,7 +232,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
                     'description' => 'Processor 1 description',
                 ]
             ],
-            "logLevel" => LogLevel::DEBUG
+            "logLevel" => EventsLoggerListener::DEFAULT_EVENTS_LEVEL
         ];
     }
 
@@ -272,7 +272,7 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
                 ],
                 'exception'     => $exception,
             ],
-            "logLevel" => LogLevel::ERROR
+            "logLevel" => EventsLoggerListener::DEFAULT_ERRORS_LEVEL
         ];
     }
 }

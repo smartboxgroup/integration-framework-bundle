@@ -24,12 +24,12 @@ class Configuration implements ConfigurationInterface
         $rootNode->children()
             ->enumNode('events_log_level')
                 ->defaultValue(EventsLoggerListener::DEFAULT_EVENTS_LEVEL)
-                ->values(EventsLoggerListener::getEventsLogLevelChoices())
+                ->values(EventsLoggerListener::getAvailableEventsLogLevel())
             ->end()
 
             ->enumNode('errors_log_level')
                 ->defaultValue(EventsLoggerListener::DEFAULT_ERRORS_LEVEL)
-                ->values(EventsLoggerListener::getErrorsLogLevelChoices())
+                ->values(EventsLoggerListener::getAvailableErrorsLogLevel())
             ->end()
 
             ->scalarNode('enable_events_deferring')
