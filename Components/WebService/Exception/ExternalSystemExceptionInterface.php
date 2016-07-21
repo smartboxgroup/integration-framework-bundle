@@ -12,4 +12,10 @@ interface ExternalSystemExceptionInterface
      * @return string
      */
     public function getExternalSystemName();
+
+    /**
+     * If returns true, the message of the exception will be displayed to the user
+     * @return boolean
+     */
+    public function mustShowExternalSystemErrorMessage();
 }

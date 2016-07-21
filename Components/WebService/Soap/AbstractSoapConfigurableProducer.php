@@ -25,6 +25,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     const VALIDATION = 'validations';
     const VALIDATION_RULE = 'rule';
     const VALIDATION_MESSAGE = 'message';
+    const VALIDATION_DISPLAY_MESSAGE = 'display_message';
     const VALIDATION_RECOVERABLE = 'recoverable';
 
     /** @var  SoapClient */
@@ -92,7 +93,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
 
             $response = $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
         } catch (\Exception $ex) {
-            $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, $ex->getCode(), $ex);
+            $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, false, $ex->getCode(), $ex);
         }
 
         return $response;
@@ -137,6 +138,10 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
                 self::VALIDATION_RECOVERABLE,
             ]);
 
+            $validationParamsResolver->setDefined([
+                self::VALIDATION_DISPLAY_MESSAGE,
+            ]);
+
             foreach($params[self::VALIDATION] as $validation) {
                 $validationSteps[] = $validationParamsResolver->resolve($validation);
             }
@@ -161,11 +166,14 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
                 $recoverable = $validationStep[self::VALIDATION_RECOVERABLE];
 
                 $soapClient = $this->getSoapClient($endpointOptions);
-
+                $showMessage = (
+                    isset($validationStep[self::VALIDATION_DISPLAY_MESSAGE]) &&
+                    true === $validationStep[self::VALIDATION_DISPLAY_MESSAGE]
+                );
                 if ($recoverable) {
-                   $this->throwRecoverableSoapProducerException($message, $soapClient);
+                   $this->throwRecoverableSoapProducerException($message, $soapClient, $showMessage);
                 } else {
-                   $this->throwUnrecoverableSoapProducerException($message, $soapClient);
+                   $this->throwUnrecoverableSoapProducerException($message, $soapClient, $showMessage);
                 }
             }
         }
@@ -176,12 +184,13 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     /**
      * @param string      $message
      * @param \SoapClient $soapClient
+     * @param bool        $showMessage
      * @param int         $code
      * @param null        $previousException
      *
-     * @throws RecoverableSoapException
+     * @throws \Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\RecoverableSoapException
      */
-    protected function throwRecoverableSoapProducerException($message, \SoapClient $soapClient, $code = 0, $previousException = null)
+    protected function throwRecoverableSoapProducerException($message, \SoapClient $soapClient, $showMessage = false, $code = 0, $previousException = null)
     {
         /* @var \SoapClient $soapClient */
         $exception = new RecoverableSoapException(
@@ -193,6 +202,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
             $code,
             $previousException
         );
+        $exception->setShowExternalSystemErrorMessage($showMessage);
         $exception->setExternalSystemName($this->getName());
 
         throw $exception;
@@ -201,12 +211,13 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     /**
      * @param string      $message
      * @param \SoapClient $soapClient
+     * @param bool        $showMessage
      * @param int         $code
      * @param null        $previousException
      *
-     * @throws UnrecoverableSoapException
+     * @throws \Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\UnrecoverableSoapException
      */
-    protected function throwUnrecoverableSoapProducerException($message, \SoapClient $soapClient, $code = 0, $previousException = null)
+    protected function throwUnrecoverableSoapProducerException($message, \SoapClient $soapClient, $showMessage = false, $code = 0, $previousException = null)
     {
         /* @var \SoapClient $soapClient */
         $exception = new UnrecoverableSoapException(
@@ -218,6 +229,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
             $code,
             $previousException
         );
+        $exception->setShowExternalSystemErrorMessage($showMessage);
         $exception->setExternalSystemName($this->getName());
 
         throw $exception;

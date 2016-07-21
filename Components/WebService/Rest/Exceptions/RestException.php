@@ -9,6 +9,7 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\HasExternalSystemName;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\HasShowExternalSystemErrorMessage;
 
 /**
  * Class RestException.
@@ -17,6 +18,7 @@ class RestException extends \Exception implements SerializableInterface, Externa
 {
     use HasInternalType;
     use HasExternalSystemName;
+    use HasShowExternalSystemErrorMessage;
 
     /**
      * @var \Psr\Http\Message\RequestInterface
