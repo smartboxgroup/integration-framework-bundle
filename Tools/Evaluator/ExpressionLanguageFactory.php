@@ -9,7 +9,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
  */
 class ExpressionLanguageFactory
 {
-    public function createExpressionLanguage()
+    public static function createExpressionLanguage()
     {
         $language = new ExpressionLanguage(new ApcuParserCache());
         $language->registerProvider(new CustomExpressionLanguageProvider());

@@ -22,3 +22,11 @@ direct:
     _protocol: @smartesb.protocols.direct
   requirements:
     path: "[a-zA-Z0-9/_]+"
+
+service:
+  pattern: "service://{service}/{method}"
+  defaults:
+    _protocol: @smartesb.protocols.service
+  requirements:
+    service: "[a-zA-Z0-9/_.-]+"
+    method: "[a-zA-Z0-9_]+"
