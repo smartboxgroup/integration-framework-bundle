@@ -55,7 +55,7 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
      *
      * @return \DateTime
      */
-    public function convertFromMongoFormatToDateTime(VisitorInterface $visitor, UTCDatetime $date, array $type, Context $context)
+    public function convertFromMongoFormatToDateTime(VisitorInterface $visitor, $date, array $type, Context $context)
     {
         /**
          * this $dateTime object is incorrect in case of using microseconds
@@ -66,6 +66,18 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
          *
          * @var \DateTime $dateTime
          */
+        if (!is_string($date) && !$date instanceof UTCDatetime) {
+            throw new \InvalidArgumentException('The provided date must be a valid string or an instance of UTCDateTime');
+        }
+
+        if (is_string($date)) {
+            $dateTime = date_create($date);
+            if (false === $dateTime) {
+                throw new \InvalidArgumentException(sprintf('The provided date "%s" is not a valid date/time string', $date));
+            }
+            return $dateTime;
+        }
+
         return self::convertMongoFormatToDateTime($date);
     }
 
