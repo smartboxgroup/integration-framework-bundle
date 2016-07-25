@@ -6,6 +6,7 @@ parameters:
   smartesb.processor.transformer.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Transformation\Transformer
   smartesb.processor.throw_exception.class: Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrowException
   smartesb.processor.stop.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Miscellaneous\Stop
+  smartesb.processor.process.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Miscellaneous\Process
 
   smartesb.handlers.message_routing.class: Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler
   smartesb.util.expression_language.class: Symfony\Component\ExpressionLanguage\ExpressionLanguage

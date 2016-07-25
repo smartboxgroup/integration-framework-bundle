@@ -4,8 +4,9 @@ namespace Smartbox\Integration\FrameworkBundle\Tests;
 
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\Entity;
+use Smartbox\CoreBundle\Type\SerializableInterface;
 
-class EntityX extends Entity
+class EntityX extends Entity implements SerializableInterface
 {
     public function __construct($x = 0)
     {
