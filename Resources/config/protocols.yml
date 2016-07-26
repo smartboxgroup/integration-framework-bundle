@@ -8,6 +8,7 @@ parameters:
   smartesb.protocols.configurable.webservice.class: Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol
   smartesb.protocols.configurable.rest.class: Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\RestConfigurableProtocol
   smartesb.protocols.configurable.soap.class: Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\SoapConfigurableProtocol
+  smartesb.protocols.service.class: Smartbox\Integration\FrameworkBundle\Components\SymfonyService\SymfonyServiceProtocol
 
 services:
   ########## PROTOCOLS  ##########
@@ -28,6 +29,13 @@ services:
       class: %smartesb.protocols.json_file.class%
       calls:
         - [setDefaultProducer, [@smartesb.producers.json_file]]
+
+  # Queues
+  smartesb.protocols.service:
+      class: %smartesb.protocols.service.class%
+      calls:
+        - [setDefaultProducer, [@smartesb.producers.service]]
+        - [setDefaultHandler, [@smartesb.handlers.async]]
 
   # Queues
   smartesb.protocols.queue:

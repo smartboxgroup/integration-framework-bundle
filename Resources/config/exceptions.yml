@@ -1,2 +1,4 @@
 parameters:
   exceptions.bad_request.class: Smartbox\Integration\FrameworkBundle\Exceptions\Deprecated\BadRequestException
+  exceptions.unrecoverable_producer.class: Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerUnrecoverableException
+  exceptions.recoverable_producer.class: Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerRecoverableException

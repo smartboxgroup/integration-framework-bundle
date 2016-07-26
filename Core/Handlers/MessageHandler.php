@@ -217,6 +217,7 @@ class MessageHandler extends Service implements HandlerInterface
 
         // Dispatch event with error information
         $event = new ProcessingErrorEvent($processor, $exchangeBackup, $originalException);
+        $event->setId(uniqid("",true));
         $event->setTimestampToCurrent();
         $event->setProcessingContext($exception->getProcessingContext());
 

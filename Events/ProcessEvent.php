@@ -18,6 +18,14 @@ class ProcessEvent extends Event
 
     /**
      * @JMS\Expose
+     * @JMS\Type("string")
+     *
+     * @var string
+     */
+    protected $id;
+
+    /**
+     * @JMS\Expose
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Core\Processors\Processor")
      *
      * @var Processor
@@ -39,6 +47,22 @@ class ProcessEvent extends Event
      * @var SerializableArray
      */
     protected $processingContext;
+
+    /**
+     * @return string
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param string $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
 
     /**
      * @return SerializableArray
