@@ -15,7 +15,7 @@ class DateTimeHelper
         // manage negative timestamps (before unix epoch)
         if ($timestamp < 0) {
             $datetime = new \DateTime();
-            $datetime->setTimestamp($timestamp);
+            $datetime = $datetime->setTimestamp($timestamp);
         }
 
         if ($datetime == false) {
