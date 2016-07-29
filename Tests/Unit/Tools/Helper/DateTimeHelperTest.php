@@ -20,6 +20,16 @@ class DateTimeHelperTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    public function negativeTimestampCaseProvider()
+    {
+        return [
+            ['-2177449200.00000', '1901-01-01'],
+            ['-2177449200', '1901-01-01'],
+            ['-1.30023', '1969-12-31'],
+            ['-1', '1969-12-31'],
+        ];
+    }
+
     /**
      * @dataProvider timestampCaseProvider
      */
@@ -32,5 +42,14 @@ class DateTimeHelperTest extends \PHPUnit_Framework_TestCase
     public function testCreateDateTimeFromCurrentMicrotime(){
         $datetime = DateTimeHelper::createDateTimeFromCurrentMicrotime();
         $this->assertInstanceOf(\DateTime::class, $datetime);
+    }
+
+    /**
+     * @dataProvider negativeTimestampCaseProvider
+     */
+    public function testCreateDateTimeFromTimestampWithMillisecondsWithNegativeTimestamps($millis, $expectedDate)
+    {
+        $datetime = DateTimeHelper::createDateTimeFromTimestampWithMilliseconds($millis);
+        $this->assertEquals($expectedDate, $datetime->format('Y-m-d'));
     }
 }
