@@ -46,11 +46,11 @@ class DateTimeHelperTest extends \PHPUnit_Framework_TestCase
     public function testCreateDateTimeFromTimestampWithMilliseconds($millis, $expectedDate)
     {
         $datetime = DateTimeHelper::createDateTimeFromTimestampWithMilliseconds($millis);
-        $this->assertInstanceOf(\DateTime::class, $datetime);
         $this->assertEquals($expectedDate, $datetime->format('Y-m-d'));
     }
 
-    public function testCreateDateTimeFromCurrentMicrotime(){
+    public function testCreateDateTimeFromCurrentMicrotime()
+    {
         $datetime = DateTimeHelper::createDateTimeFromCurrentMicrotime();
         $this->assertInstanceOf(\DateTime::class, $datetime);
     }
