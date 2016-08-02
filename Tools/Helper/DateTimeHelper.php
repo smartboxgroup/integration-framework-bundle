@@ -10,29 +10,25 @@ class DateTimeHelper
      */
     public static function createDateTimeFromTimestampWithMilliseconds($timestamp)
     {
-        $datetime = false;
-
         // manage negative timestamps (before unix epoch)
         if ($timestamp < 0) {
             $datetime = new \DateTime();
             $datetime = $datetime->setTimestamp($timestamp);
-        }
-
-        if ($datetime == false) {
+        } else {
             $datetime = \DateTime::createFromFormat("U.u", $timestamp, new \DateTimeZone('UTC'));
 
             if ($datetime == false) {
                 $datetime = \DateTime::createFromFormat("U", $timestamp, new \DateTimeZone('UTC'));
-
-                if ($datetime == false) {
-                    throw new \RuntimeException(
-                        sprintf('Could not create datetime from "%s": %s',
-                            $timestamp,
-                            print_r(\DateTime::getLastErrors(), true)
-                        )
-                    );
-                }
             }
+        }
+
+        if ($datetime == false) {
+            throw new \RuntimeException(
+                sprintf('Could not create datetime from "%s": %s',
+                    $timestamp,
+                    print_r(\DateTime::getLastErrors(), true)
+                )
+            );
         }
         
         return $datetime;
