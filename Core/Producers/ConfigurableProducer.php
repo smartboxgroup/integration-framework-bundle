@@ -4,9 +4,11 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Producers;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
+use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -19,21 +21,16 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
 {
     use UsesEvaluator;
     use UsesSerializer;
+    use UsesConfigurableServiceHelper;
 
-    const OPTION_METHOD = 'method';
-
-    const KEY_VARS = 'vars';
     const KEY_PRODUCER = 'producer';
     const KEY_PRODUCER_SHORT = 'c';
     const KEY_RESPONSES = 'responses';
-    const KEY_RESPONSE = 'response';
     const KEY_VALIDATIONS = 'validations';
     const KEY_DESCRIPTION = 'description';
     const KEY_RULE = 'rule';
     const KEY_MESSAGE = 'message';
     const KEY_RECOVERABLE = 'recoverable';
-    const KEY_STEPS = 'steps';
-    const STEP_DEFINE = 'define';
     const STEP_REQUEST = 'request';
 
     /** @var  array */
@@ -44,6 +41,9 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
 
     /** @var string */
     protected $name;
+
+    /** @var  ConfigurableServiceHelper */
+    protected $configurableServiceHelper;
 
     /**
      * {@inheritdoc}
@@ -120,7 +120,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
             'headers' => $exchange->getIn()->getHeaders(),
             'body' => $exchange->getIn()->getBody(),
             'serializer' => $this->getSerializer(),
-            self::KEY_VARS => [],
+            ConfigurableServiceHelper::KEY_VARS => [],
             self::KEY_PRODUCER => $this,
             self::KEY_PRODUCER_SHORT => $this,
             self::KEY_RESPONSES => [],
@@ -129,7 +129,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         /*
          * PROCESSING
          */
-        foreach ($methodConf[self::KEY_STEPS] as $step) {
+        foreach ($methodConf[ConfigurableServiceHelper::KEY_STEPS] as $step) {
             foreach ($step as $stepAction => $stepActionParams) {
                 $this->executeStep($stepAction, $stepActionParams, $options, $context);
             }
@@ -144,7 +144,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
                 $message = $validationRule[self::KEY_MESSAGE];
                 $recoverable = $validationRule[self::KEY_RECOVERABLE];
 
-                $evaluation = $this->resolve($rule, $context);
+                $evaluation = $this->configurableServiceHelper->resolve($rule, $context);
                 if ($evaluation !== true) {
                     if ($recoverable) {
                         throw new ProducerRecoverableException($message);
@@ -161,7 +161,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         if ($options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT
             &&  array_key_exists(self::KEY_RESPONSE, $methodConf)) {
             $resultConfig = $methodConf[self::KEY_RESPONSE];
-            $result = $this->resolve($resultConfig, $context);
+            $result = $this->configurableServiceHelper->resolve($resultConfig, $context);
 
             if (is_array($result)) {
                 $result = new SerializableArray($result);
@@ -183,79 +183,12 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     public function executeStep($stepAction, &$stepActionParams, &$options, array &$context)
     {
         switch ($stepAction) {
-            case self::STEP_DEFINE:
-                $this->define($stepActionParams, $context);
+            case ConfigurableServiceHelper::STEP_DEFINE:
+                $this->configurableServiceHelper->define($stepActionParams, $context);
 
                 return true;
             default:
                 return false;
-        }
-    }
-
-    /**
-     * @param mixed $obj
-     * @param array $context
-     *
-     * @return array|string
-     */
-    protected function resolve($obj, array &$context)
-    {
-        if (empty($obj)) {
-            return $obj;
-        } elseif (is_array($obj)) {
-            $res = [];
-            foreach ($obj as $key => $value) {
-                $res[$key] = $this->resolve($value, $context);
-            }
-
-            return $res;
-        } elseif (is_string($obj)) {
-            $availableVars = array_merge($context, $context[self::KEY_VARS]);
-
-            return $this->evaluateStringOrExpression($obj, $availableVars);
-        } else {
-            return $obj;
-        }
-    }
-
-    /**
-     * @param string $string
-     * @param array  $availableVars
-     *
-     * @return string
-     */
-    protected function evaluateStringOrExpression($string, &$availableVars)
-    {
-        $regex = '/^eval: (?P<expr>.+)$/i';
-        $success = preg_match($regex, $string, $matches);
-
-        if (!$success) {
-            return $string;
-        }
-
-        $expression = $matches['expr'];
-
-        return $this->evaluator->evaluateWithVars($expression, $availableVars);
-    }
-
-    /**
-     * @param array $definitions
-     * @param array $context
-     */
-    protected function define($definitions, array &$context)
-    {
-        if (!is_array($definitions)) {
-            throw new InvalidConfigurationException(
-                "Step 'define' in ConfigurableProducer expected an array as configuration"
-            );
-        }
-
-        if (!array_key_exists(self::KEY_VARS, $context)) {
-            $context[self::KEY_VARS] = [];
-        }
-
-        foreach ($definitions as $key => $definition) {
-            $context[self::KEY_VARS][$key] = $this->resolve($definition, $context);
         }
     }
 
@@ -270,7 +203,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         }
 
         $options = [
-            self::OPTION_METHOD => ["Method of the producer to be executed",$methodDescriptions]
+            ConfigurableServiceHelper::OPTION_METHOD => ["Method of the producer to be executed",$methodDescriptions]
         ];
 
         foreach ($this->configuredOptions as $option => $value) {
@@ -285,8 +218,8 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
      */
     public function configureOptionsResolver(OptionsResolver $resolver)
     {
-        $resolver->setRequired([self::OPTION_METHOD]);
-        $resolver->setAllowedValues(self::OPTION_METHOD,array_keys($this->methodsConfiguration));
+        $resolver->setRequired([ConfigurableServiceHelper::OPTION_METHOD]);
+        $resolver->setAllowedValues(ConfigurableServiceHelper::OPTION_METHOD,array_keys($this->methodsConfiguration));
 
         foreach ($this->configuredOptions as $option => $value) {
             $resolver->setDefault($option, $value);

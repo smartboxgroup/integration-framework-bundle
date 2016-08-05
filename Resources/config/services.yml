@@ -63,6 +63,12 @@ services:
         - [ setEndpointsRouter, [ @smartesb.router.endpoints ] ]
         - [ setMessageFactory, [ @smartesb.message_factory ] ]
 
+  smartesb.configurable_service_helper:
+      class: Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper
+      calls:
+          - [ setEvaluator, [ @smartesb.util.evaluator ] ]
+          - [ setSerializer, [ @jms_serializer.serializer ] ]
+
   smartesb.helper:
       class: %smartesb.helper.class%
       calls:

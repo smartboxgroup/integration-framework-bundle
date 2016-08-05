@@ -11,6 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStomp
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\ConnectivityCheckSmokeTest;
@@ -60,7 +61,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         return @$this->config['producers_path'];
     }
 
-    public function loadProducers(ContainerBuilder $container)
+    public function loadConfigurableProducers(ContainerBuilder $container)
     {
         foreach ($this->config['producers'] as $producerName => $producerConfig) {
             $class = $producerConfig['class'];
@@ -96,10 +97,63 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setId', [$producerId]);
             $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
             $definition->addMethodCall('setOptions', [$options]);
+            $definition->addMethodCall('setConfigurableServiceHelper',[new Reference('smartesb.configurable_service_helper')]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
             $definition->addMethodCall('setName',[$producerName]);
             $container->setDefinition($producerId, $definition);
+
+            if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {
+                $attrs = [
+                    'labels' => call_user_func([$definition->getClass(), 'getConnectivitySmokeTestLabels'])
+                ];
+                $definition->addTag(ConnectivityCheckSmokeTest::TAG_TEST_CONNECTIVITY, $attrs);
+            }
+        }
+    }
+
+    public function loadConfigurableConsumers(ContainerBuilder $container)
+    {
+        foreach ($this->config['consumers'] as $consumerName => $consumerConfig) {
+            $class = $consumerConfig['class'];
+            $methodsSteps = $consumerConfig['methods'];
+            $options = $consumerConfig['options'];
+
+            if (!$class || !in_array(ConfigurableConsumerInterface::class, class_implements($class))) {
+                throw new InvalidConfigurationException(
+                    "Invalid class given for consumer $consumerName. The class must implement ConfigurableConsumerInterface, '$class' given."
+                );
+            }
+
+            $definition = new Definition($class);
+
+            if (array_key_exists('calls', $consumerConfig)) {
+                foreach ($consumerConfig['calls'] as $call) {
+                    $method = $call[0];
+                    $arguments = $call[1];
+                    $resolvedArguments = [];
+                    foreach ($arguments as $index => $arg) {
+                        if (strpos($arg, '@') === 0) {
+                            $resolvedArguments[$index] = new Reference(substr($arg, 1));
+                        } else {
+                            $resolvedArguments[$index] = $arg;
+                        }
+                    }
+
+                    $definition->addMethodCall($method, $resolvedArguments);
+                }
+            }
+
+            $consumerId = self::CONSUMER_PREFIX.$consumerName;
+            $definition->addMethodCall('setId', [$consumerId]);
+            $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
+            $definition->addMethodCall('setSmartesbHelper',[new Reference('smartesb.helper')]);
+            $definition->addMethodCall('setConfigurableServiceHelper',[new Reference('smartesb.configurable_service_helper')]);
+            $definition->addMethodCall('setOptions', [$options]);
+            $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
+            $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
+            $definition->addMethodCall('setName',[$consumerName]);
+            $container->setDefinition($consumerId, $definition);
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {
                 $attrs = [
@@ -222,19 +276,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         }
     }
 
-    protected function loadConsumers(ContainerBuilder $container)
-    {
-        // Create services for message consumers
-        foreach ($this->config['message_consumers'] as $consumerName => $consumerConfig) {
-            $consumerId = self::CONSUMER_PREFIX.$consumerName;
-            $consumerDef = new Definition(QueueConsumer::class, []);
-            $consumerDef->addMethodCall('setId', [$consumerId]);
-            $consumerDef->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
-            $consumerDef->addMethodCall('setHandler', [new Reference(self::HANDLER_PREFIX.$consumerConfig['handler'])]);
-            $container->setDefinition($consumerId, $consumerDef);
-        }
-    }
-
     protected function loadHandlers(ContainerBuilder $container)
     {
         // Create services for message handlers
@@ -354,10 +395,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $queueProtocolDef->setArguments([$config['queues_default_persistence'],$config['queues_default_ttl']]);
 
         $this->loadHandlers($container);
-        $this->loadConsumers($container);
+        $this->loadConfigurableConsumers($container);
         $this->loadQueueDrivers($container);
         $this->loadNoSQLDrivers($container);
-        $this->loadProducers($container);
+        $this->loadConfigurableProducers($container);
         $this->loadMappings($container);
     }
 }

@@ -37,7 +37,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     {
         $options = $endpoint->getOptions();
         $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
-        $queueDriver = $this->helper->getQueueDriver($queueDriverName);
+        $queueDriver = $this->configurableServiceHelper->getQueueDriver($queueDriverName);
 
         if ($queueDriver instanceof QueueDriverInterface) {
             return $queueDriver;
@@ -72,7 +72,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     {
         // If we used a wrapper to queue the message, that the handler doesn't understand, unwrap it
         if ($message instanceof QueueMessageInterface && !($queueEndpoint->getHandler() instanceof QueueMessageHandlerInterface)) {
-            $endpoint = $this->helper->getEndpointFactory()->createEndpoint($message->getDestinationURI());
+            $endpoint = $this->configurableServiceHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI());
             $queueEndpoint->getHandler()->handle($message->getBody(), $endpoint);
         } else {
             parent::process($queueEndpoint, $message);

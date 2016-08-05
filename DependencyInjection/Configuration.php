@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Psr\Log\LogLevel;
+use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -69,9 +70,9 @@ class Configuration implements ConfigurationInterface
 
             ->end()
             ->append($this->addProducersNode())
+            ->append($this->addConsumersNode())
             ->append($this->addQueueDriversNode())
             ->append($this->addNoSQLDriversNode())
-            ->append($this->addConsumersNode())
             ->append($this->addHandlersNode())
             ->append($this->addMappingsNode())
         ->end();
@@ -82,8 +83,8 @@ class Configuration implements ConfigurationInterface
     public function addConsumersNode()
     {
         $builder = new TreeBuilder();
-        $node = $builder->root('message_consumers');
-        $node->info('Section where the message consumers are defined.');
+        $node = $builder->root('consumers');
+        $node->info('Section where the consumers are defined.');
 
         $node->useAttributeAsKey('name')
             ->prototype('array')
@@ -91,17 +92,63 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('description')
             ->info('This description will be used in the documentation.')
-            ->defaultValue('')
+            ->isRequired()
             ->end()
 
-            ->scalarNode('handler')
-            ->info('The name of the message handler to use')
+            ->scalarNode('class')
+            ->info('Class to be used for the consumer, you can use a generic class like MongoDBConfigurableConsumer or create a custom class implementing ConfigurableConsumerInterface')
+            ->isRequired()
+            ->end()
+
+            ->arrayNode('calls')
+            ->prototype('variable')->end()
+            ->info('Additional calls to inject dependencies to the consumer')
+            ->end()
+
+            ->arrayNode('options')
+            ->useAttributeAsKey('name')
+            ->prototype('variable')
+            ->end()
+            ->info('Default options for this consumer')
+            ->isRequired()
+            ->end()
+
+            ->arrayNode('methods')
+            ->info('List of methods with their configuration')
+            ->useAttributeAsKey('name')
+            ->prototype('array')
+
+            ->children()
+            ->scalarNode(ConfigurableServiceHelper::KEY_DESCRIPTION)
+            ->info('This description will be used in the documentation.')
+            ->isRequired()
+            ->end()
+
+            ->arrayNode('query_options')
+            ->info('This are the configuration options for the query that will retrieve the results to be consumed')
+            ->prototype('variable')->end()
+            ->isRequired()
+            ->end()
+
+            ->arrayNode('on_consume')
+            ->info('This are the steps to execute after every message is consumed. For example here you can mark them as consumed')
+            ->prototype('variable')->end()
             ->isRequired()
             ->end()
 
             ->end()
             ->end()
-            ->isRequired();
+
+            ->end()
+            ->isRequired()
+
+            ->end()
+            ->info('Methods specification')
+            ->isRequired()
+            ->end()
+
+            ->end()
+            ->end();
 
         return $node;
     }
