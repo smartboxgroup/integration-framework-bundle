@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\Dbal;
 
-
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
@@ -10,13 +9,12 @@ use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConfigurableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class DbalConfigurableConsumer extends AbstractConfigurableConsumer{
-
-    /** @var  Registry */
+class DbalConfigurableConsumer extends AbstractConfigurableConsumer
+{
+    /** @var Registry */
     protected $doctrine;
 
     const STEP_EXECUTE = 'execute';
@@ -82,20 +80,21 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer{
         $parameters = [];
         $parameterTypes = [];
 
-        foreach($configuration[self::CONF_PARAMETERS] as $param => $info){
+        foreach ($configuration[self::CONF_PARAMETERS] as $param => $info){
             $value = $this->configurableServiceHelper->resolve($info['value'],$context);
-            if($value === null){
+            if ($value === null) {
                 throw new \RuntimeException("Error while trying to consume using DbalConfigurableConsumer, null value found for query parameter: '$param'");
             }
+
             $parameters[$param] = $value;
             $parameterTypes[$param] = $info['type'];
         }
 
-        $sql = $this->configurableServiceHelper->resolve($configuration[self::CONF_SQL],$context);
+        $sql = $this->configurableServiceHelper->resolve($configuration[self::CONF_SQL], $context);
 
-        $result = $this->doctrine->getConnection()->executeQuery($sql,$parameters,$parameterTypes);
+        $result = $this->doctrine->getConnection()->executeQuery($sql, $parameters, $parameterTypes);
 
-        if(array_key_exists(self::CONF_QUERY_NAME, $configuration)){
+        if (array_key_exists(self::CONF_QUERY_NAME, $configuration)) {
             $name = $configuration[self::CONF_QUERY_NAME];
             $context[self::CONTEXT_RESULTS][$name] = $result;
         }
@@ -107,7 +106,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer{
     {
         parent::__construct();
 
-        if(!$this->configResolver){
+        if (!$this->configResolver) {
             $this->configResolver = new OptionsResolver();
             $this->configResolver->setRequired([self::CONF_SQL,self::CONF_PARAMETERS,self::CONF_HYDRATION]);
             $this->configResolver->setDefaults([
@@ -178,10 +177,10 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer{
         $count = $results->rowCount();
         $message = null;
 
-        if($count > 0){
-            if($queryConfig[self::CONFIG_MULTI_ROW]){
+        if($count > 0) {
+            if ($queryConfig[self::CONFIG_MULTI_ROW]) {
                 $body = $results->fetchAll();
-            }else{
+            } else {
                 $body = $results->fetch();
             }
 
