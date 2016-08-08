@@ -5,11 +5,12 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
+use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractConfigurableConsumer extends AbstractConsumer implements ConfigurableConsumerInterface {
@@ -28,6 +29,26 @@ abstract class AbstractConfigurableConsumer extends AbstractConsumer implements 
 
     /** @var string */
     protected $name;
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        if (!$this->name) {
+            return parent::getName();
+        }
+
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
 
     /**
      * {@inheritdoc}

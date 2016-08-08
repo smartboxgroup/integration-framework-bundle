@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Core\Producers;
+namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use JMS\Serializer\SerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;

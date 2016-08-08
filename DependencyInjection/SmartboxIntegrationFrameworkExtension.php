@@ -11,7 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStomp
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\ConnectivityCheckSmokeTest;
@@ -116,7 +116,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     {
         foreach ($this->config['consumers'] as $consumerName => $consumerConfig) {
             $class = $consumerConfig['class'];
-            $methodsSteps = $consumerConfig['methods'];
+            $methodsConf = $consumerConfig['methods'];
             $options = $consumerConfig['options'];
 
             if (!$class || !in_array(ConfigurableConsumerInterface::class, class_implements($class))) {
@@ -146,7 +146,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
             $consumerId = self::CONSUMER_PREFIX.$consumerName;
             $definition->addMethodCall('setId', [$consumerId]);
-            $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
+            $definition->addMethodCall('setMethodsConfiguration', [$methodsConf]);
             $definition->addMethodCall('setSmartesbHelper',[new Reference('smartesb.helper')]);
             $definition->addMethodCall('setConfigurableServiceHelper',[new Reference('smartesb.configurable_service_helper')]);
             $definition->addMethodCall('setOptions', [$options]);
