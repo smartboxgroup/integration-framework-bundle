@@ -64,6 +64,4 @@ smartbox_integration_framework:
             throw_exceptions: false
             defer_new_exchanges: true
 
-    message_consumers:
-
     flows_version: 0

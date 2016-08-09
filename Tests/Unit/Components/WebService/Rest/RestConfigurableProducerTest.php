@@ -14,6 +14,7 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\R
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\RestConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\RestConfigurableProtocol;
+use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 
 /**
@@ -52,10 +53,15 @@ class RestConfigurableProducerTest extends \PHPUnit_Framework_TestCase
             })
         ;
 
+        $helper = new ConfigurableServiceHelper();
+        $helper->setEvaluator($this->evaluator);
+        $helper->setSerializer($this->serializer);
+
         $this->producer = new RestConfigurableProducer();
         $this->producer->setHttpClient($this->client);
         $this->producer->setEvaluator($this->evaluator);
         $this->producer->setSerializer($this->serializer);
+        $this->producer->setConfHelper($helper);
         $this->producer->setName('TestSystem');
     }
 
