@@ -42,9 +42,6 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     /** @var string */
     protected $name;
 
-    /** @var  ConfigurableServiceHelper */
-    protected $configurableServiceHelper;
-
     /**
      * {@inheritdoc}
      */
@@ -144,7 +141,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
                 $message = $validationRule[self::KEY_MESSAGE];
                 $recoverable = $validationRule[self::KEY_RECOVERABLE];
 
-                $evaluation = $this->configurableServiceHelper->resolve($rule, $context);
+                $evaluation = $this->confHelper->resolve($rule, $context);
                 if ($evaluation !== true) {
                     if ($recoverable) {
                         throw new ProducerRecoverableException($message);
@@ -161,7 +158,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         if ($options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT
             &&  array_key_exists(self::KEY_RESPONSE, $methodConf)) {
             $resultConfig = $methodConf[self::KEY_RESPONSE];
-            $result = $this->configurableServiceHelper->resolve($resultConfig, $context);
+            $result = $this->confHelper->resolve($resultConfig, $context);
 
             if (is_array($result)) {
                 $result = new SerializableArray($result);
@@ -184,7 +181,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     {
         switch ($stepAction) {
             case ConfigurableServiceHelper::STEP_DEFINE:
-                $this->configurableServiceHelper->define($stepActionParams, $context);
+                $this->confHelper->define($stepActionParams, $context);
 
                 return true;
             default:

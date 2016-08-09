@@ -85,7 +85,7 @@ abstract class AbstractConfigurableConsumer extends AbstractConsumer implements 
     {
         switch ($stepAction) {
             case ConfigurableServiceHelper::STEP_DEFINE:
-                $this->configurableServiceHelper->define($stepActionParams, $context);
+                $this->confHelper->define($stepActionParams, $context);
 
                 return true;
             default:

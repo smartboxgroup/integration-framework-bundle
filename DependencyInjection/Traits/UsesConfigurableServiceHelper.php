@@ -8,21 +8,21 @@ use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelp
 trait UsesConfigurableServiceHelper {
 
     /** @var  ConfigurableServiceHelper */
-    protected $configurableServiceHelper;
+    protected $confHelper;
 
     /**
      * @return ConfigurableServiceHelper
      */
-    public function getConfigurableServiceHelper()
+    public function getConfHelper()
     {
-        return $this->configurableServiceHelper;
+        return $this->confHelper;
     }
 
     /**
-     * @param ConfigurableServiceHelper $configurableServiceHelper
+     * @param ConfigurableServiceHelper $confHelper
      */
-    public function setConfigurableServiceHelper($configurableServiceHelper)
+    public function setConfHelper($confHelper)
     {
-        $this->configurableServiceHelper = $configurableServiceHelper;
+        $this->confHelper = $confHelper;
     }
 }

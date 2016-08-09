@@ -94,7 +94,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setId', [$producerId]);
             $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
             $definition->addMethodCall('setOptions', [$options]);
-            $definition->addMethodCall('setConfigurableServiceHelper',[new Reference('smartesb.configurable_service_helper')]);
+            $definition->addMethodCall('setConfHelper',[new Reference('smartesb.configurable_service_helper')]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
             $definition->addMethodCall('setName',[$producerName]);
@@ -145,7 +145,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setId', [$consumerId]);
             $definition->addMethodCall('setMethodsConfiguration', [$methodsConf]);
             $definition->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
-            $definition->addMethodCall('setConfigurableServiceHelper', [new Reference('smartesb.configurable_service_helper')]);
+            $definition->addMethodCall('setConfHelper', [new Reference('smartesb.configurable_service_helper')]);
             $definition->addMethodCall('setOptions', [$options]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);

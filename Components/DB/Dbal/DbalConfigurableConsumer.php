@@ -81,7 +81,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
         $parameterTypes = [];
 
         foreach ($configuration[self::CONF_PARAMETERS] as $param => $info) {
-            $value = $this->configurableServiceHelper->resolve($info['value'], $context);
+            $value = $this->confHelper->resolve($info['value'], $context);
             if ($value === null) {
                 throw new \RuntimeException("Error while trying to consume using DbalConfigurableConsumer, null value found for query parameter: '$param'");
             }
@@ -90,7 +90,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
             $parameterTypes[$param] = $info['type'];
         }
 
-        $sql = $this->configurableServiceHelper->resolve($configuration[self::CONF_SQL], $context);
+        $sql = $this->confHelper->resolve($configuration[self::CONF_SQL], $context);
 
         $result = $this->doctrine->getConnection()->executeQuery($sql, $parameters, $parameterTypes);
 
