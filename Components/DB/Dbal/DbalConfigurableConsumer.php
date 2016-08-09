@@ -168,7 +168,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
             self::CONTEXT_CONSUMER => $this,
         ];
 
-        $results = $this->performQuery($queryConfig, $endpoint->getOptions(), $context);
+        $results = $this->performQuery($queryConfig, $context);
 
         unset($context);
 
