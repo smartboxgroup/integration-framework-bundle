@@ -62,7 +62,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
             switch ($stepAction) {
                 case self::STEP_EXECUTE:
                     $stepActionParams = $this->configResolver->resolve($stepActionParams);
-                    $this->performQuery($stepActionParams, $options, $context);
+                    $this->performQuery($stepActionParams, $context);
                     return true;
             }
         }
@@ -149,8 +149,6 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
      *
      * If it was not possible to read a message, or there are no more messages in the Endpoint right now, this method
      * must return null to indicate that.
-     *
-     * @return MessageInterface
      *
      * @param EndpointInterface $endpoint
      *
