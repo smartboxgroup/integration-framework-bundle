@@ -2,13 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
-use Smartbox\CoreBundle\DependencyInjection\SerializationCacheCompilerPass;
-use Smartbox\CoreBundle\Utils\Cache\PredisCacheService;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBClient;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDbDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQConnectionStrategyFactory;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
@@ -133,10 +130,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $arguments = $call[1];
                     $resolvedArguments = [];
                     foreach ($arguments as $index => $arg) {
+                        $resolvedArguments[$index] = $arg;
+
                         if (strpos($arg, '@') === 0) {
                             $resolvedArguments[$index] = new Reference(substr($arg, 1));
-                        } else {
-                            $resolvedArguments[$index] = $arg;
                         }
                     }
 
@@ -144,15 +141,15 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                 }
             }
 
-            $consumerId = self::CONSUMER_PREFIX.$consumerName;
+            $consumerId = self::CONSUMER_PREFIX . $consumerName;
             $definition->addMethodCall('setId', [$consumerId]);
             $definition->addMethodCall('setMethodsConfiguration', [$methodsConf]);
-            $definition->addMethodCall('setSmartesbHelper',[new Reference('smartesb.helper')]);
-            $definition->addMethodCall('setConfigurableServiceHelper',[new Reference('smartesb.configurable_service_helper')]);
+            $definition->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
+            $definition->addMethodCall('setConfigurableServiceHelper', [new Reference('smartesb.configurable_service_helper')]);
             $definition->addMethodCall('setOptions', [$options]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
-            $definition->addMethodCall('setName',[$consumerName]);
+            $definition->addMethodCall('setName', [$consumerName]);
             $container->setDefinition($consumerId, $definition);
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {
