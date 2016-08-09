@@ -1,12 +1,12 @@
 <?php
 namespace Smartbox\Integration\FrameworkBundle\Configurability;
 
-
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class ConfigurableServiceHelper {
+class ConfigurableServiceHelper
+{
     use UsesEvaluator;
     use UsesSerializer;
 
@@ -16,7 +16,6 @@ class ConfigurableServiceHelper {
     const KEY_VARS = 'vars';
     const KEY_DESCRIPTION = 'description';
     const KEY_RESPONSE = 'response';
-
 
     /**
      * @param mixed $obj
@@ -39,9 +38,9 @@ class ConfigurableServiceHelper {
             $availableVars = array_merge($context, $context[self::KEY_VARS]);
 
             return $this->evaluateStringOrExpression($obj, $availableVars);
-        } else {
-            return $obj;
         }
+
+        return $obj;
     }
 
     /**
@@ -50,7 +49,7 @@ class ConfigurableServiceHelper {
      *
      * @return string
      */
-    public function evaluateStringOrExpression($string, &$availableVars)
+    public function evaluateStringOrExpression($string, array &$availableVars)
     {
         $regex = '/^eval: (?P<expr>.+)$/i';
         $success = preg_match($regex, $string, $matches);
@@ -85,5 +84,4 @@ class ConfigurableServiceHelper {
             $context[self::KEY_VARS][$key] = $this->resolve($definition, $context);
         }
     }
-
 }

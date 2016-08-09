@@ -62,7 +62,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
             switch ($stepAction) {
                 case self::STEP_EXECUTE:
                     $stepActionParams = $this->configResolver->resolve($stepActionParams);
-                    $this->performQuery($stepActionParams,$options,$context);
+                    $this->performQuery($stepActionParams, $options, $context);
                     return true;
             }
         }
@@ -80,8 +80,8 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
         $parameters = [];
         $parameterTypes = [];
 
-        foreach ($configuration[self::CONF_PARAMETERS] as $param => $info){
-            $value = $this->configurableServiceHelper->resolve($info['value'],$context);
+        foreach ($configuration[self::CONF_PARAMETERS] as $param => $info) {
+            $value = $this->configurableServiceHelper->resolve($info['value'], $context);
             if ($value === null) {
                 throw new \RuntimeException("Error while trying to consume using DbalConfigurableConsumer, null value found for query parameter: '$param'");
             }
@@ -108,17 +108,17 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
 
         if (!$this->configResolver) {
             $this->configResolver = new OptionsResolver();
-            $this->configResolver->setRequired([self::CONF_SQL,self::CONF_PARAMETERS,self::CONF_HYDRATION]);
+            $this->configResolver->setRequired([self::CONF_SQL, self::CONF_PARAMETERS, self::CONF_HYDRATION]);
             $this->configResolver->setDefaults([
                 self::CONF_PARAMETERS => [],
                 self::CONF_HYDRATION => self::HYDRATION_ARRAY,
                 self::CONFIG_MULTI_ROW => false
             ]);
             $this->configResolver->setDefined(self::CONF_QUERY_NAME);
-            $this->configResolver->setAllowedTypes(self::CONF_SQL,['string']);
-            $this->configResolver->setAllowedTypes(self::CONF_PARAMETERS,['array']);
-            $this->configResolver->setAllowedTypes(self::CONFIG_MULTI_ROW,['bool']);
-            $this->configResolver->setAllowedValues(self::CONF_HYDRATION,[self::HYDRATION_ARRAY]);
+            $this->configResolver->setAllowedTypes(self::CONF_SQL, ['string']);
+            $this->configResolver->setAllowedTypes(self::CONF_PARAMETERS, ['array']);
+            $this->configResolver->setAllowedTypes(self::CONFIG_MULTI_ROW, ['bool']);
+            $this->configResolver->setAllowedValues(self::CONF_HYDRATION, [self::HYDRATION_ARRAY]);
         }
     }
 
@@ -170,14 +170,14 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
             self::CONTEXT_CONSUMER => $this,
         ];
 
-        $results = $this->performQuery($queryConfig,$endpoint->getOptions(),$context);
+        $results = $this->performQuery($queryConfig, $endpoint->getOptions(), $context);
 
         unset($context);
 
         $count = $results->rowCount();
         $message = null;
 
-        if($count > 0) {
+        if ($count > 0) {
             if ($queryConfig[self::CONFIG_MULTI_ROW]) {
                 $body = $results->fetchAll();
             } else {

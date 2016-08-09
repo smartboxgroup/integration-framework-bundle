@@ -10,8 +10,8 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializ
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-abstract class AbstractConfigurableConsumer extends AbstractConsumer implements ConfigurableConsumerInterface {
-
+abstract class AbstractConfigurableConsumer extends AbstractConsumer implements ConfigurableConsumerInterface
+{
     use HasInternalType;
     use UsesSmartesbHelper;
     use UsesEvaluator;
@@ -71,7 +71,6 @@ abstract class AbstractConfigurableConsumer extends AbstractConsumer implements 
         $this->methodsConfiguration = $methodsConfiguration;
     }
 
-
     /**
      * Returns true if the step was executed, false if the step was not recognized.
      *
@@ -100,16 +99,16 @@ abstract class AbstractConfigurableConsumer extends AbstractConsumer implements 
     public function getOptionsDescriptions()
     {
         $methodDescriptions = [];
-        foreach($this->methodsConfiguration as $method => $methodConfig){
+        foreach ($this->methodsConfiguration as $method => $methodConfig) {
             $methodDescriptions[$method] = $methodConfig['description'];
         }
 
         $options = [
-            ConfigurableServiceHelper::OPTION_METHOD => ["Method of the consumer to be executed",$methodDescriptions]
+            ConfigurableServiceHelper::OPTION_METHOD => ["Method of the consumer to be executed", $methodDescriptions]
         ];
 
         foreach ($this->configuredOptions as $option => $value) {
-            $options[$option] = ['Custom option added in configurable consumer',[]];
+            $options[$option] = ['Custom option added in configurable consumer', []];
         }
 
         return $options;
@@ -121,7 +120,7 @@ abstract class AbstractConfigurableConsumer extends AbstractConsumer implements 
     public function configureOptionsResolver(OptionsResolver $resolver)
     {
         $resolver->setRequired([ConfigurableServiceHelper::OPTION_METHOD]);
-        $resolver->setAllowedValues(ConfigurableServiceHelper::OPTION_METHOD,array_keys($this->methodsConfiguration));
+        $resolver->setAllowedValues(ConfigurableServiceHelper::OPTION_METHOD, array_keys($this->methodsConfiguration));
 
         foreach ($this->configuredOptions as $option => $value) {
             $resolver->setDefault($option, $value);

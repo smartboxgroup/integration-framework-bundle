@@ -11,7 +11,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -198,12 +197,12 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     public function getOptionsDescriptions()
     {
         $methodDescriptions = [];
-        foreach($this->methodsConfiguration as $method => $methodConfig){
+        foreach ($this->methodsConfiguration as $method => $methodConfig) {
             $methodDescriptions[$method] = $methodConfig['description'];
         }
 
         $options = [
-            ConfigurableServiceHelper::OPTION_METHOD => ["Method of the producer to be executed",$methodDescriptions]
+            ConfigurableServiceHelper::OPTION_METHOD => ["Method of the producer to be executed", $methodDescriptions]
         ];
 
         foreach ($this->configuredOptions as $option => $value) {
@@ -219,7 +218,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     public function configureOptionsResolver(OptionsResolver $resolver)
     {
         $resolver->setRequired([ConfigurableServiceHelper::OPTION_METHOD]);
-        $resolver->setAllowedValues(ConfigurableServiceHelper::OPTION_METHOD,array_keys($this->methodsConfiguration));
+        $resolver->setAllowedValues(ConfigurableServiceHelper::OPTION_METHOD, array_keys($this->methodsConfiguration));
 
         foreach ($this->configuredOptions as $option => $value) {
             $resolver->setDefault($option, $value);

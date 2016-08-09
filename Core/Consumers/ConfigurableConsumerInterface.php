@@ -4,7 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use JMS\Serializer\SerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 
 interface ConfigurableConsumerInterface extends ConsumerInterface, ConfigurableInterface
