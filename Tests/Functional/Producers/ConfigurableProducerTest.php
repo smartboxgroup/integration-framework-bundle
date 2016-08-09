@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
+use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
@@ -32,13 +33,13 @@ class ConfigurableProducerTest extends BaseTestCase
 
     protected $simpleMethodsConfig = [
           'methodA' => [
-              ConfigurableProducer::KEY_DESCRIPTION => 'Description here',
-              ConfigurableProducer::KEY_STEPS => [
-                    [ConfigurableProducer::STEP_DEFINE => [
+              ConfigurableServiceHelper::KEY_DESCRIPTION => 'Description here',
+              ConfigurableServiceHelper::KEY_STEPS => [
+                    [ConfigurableServiceHelper::STEP_DEFINE => [
                       'x' => 'eval: 1 + 2',
                       'val' => 'eval: msg.getBody().get("value")',
                     ]],
-                    [ConfigurableProducer::STEP_DEFINE => [
+                    [ConfigurableServiceHelper::STEP_DEFINE => [
                       'result' => 'eval: x + val',
                     ]],
               ],
@@ -71,6 +72,11 @@ class ConfigurableProducerTest extends BaseTestCase
 
         $this->configurableProducer = $this->getMockBuilder(ConfigurableProducer::class)->setMethods(null)->getMock();
 
+        $confHelper = new ConfigurableServiceHelper();
+        $confHelper->setSerializer($this->getContainer()->get('serializer'));
+        $confHelper->setEvaluator($this->getContainer()->get('smartesb.util.evaluator'));
+
+        $this->configurableProducer->setConfHelper($confHelper);
         $this->configurableProducer->setEvaluator($this->getContainer()->get('smartesb.util.evaluator'));
         $this->configurableProducer->setSerializer($this->getContainer()->get('serializer'));
         $this->configurableProducer->setOptions($this->defaultOptions);

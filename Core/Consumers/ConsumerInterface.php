@@ -36,4 +36,10 @@ interface ConsumerInterface extends ServiceInterface
      * @return mixed
      */
     public function setSmartesbHelper(SmartesbHelper $helper = null);
+
+    /**
+     * Get a descriptive name of the producer
+     * @return string
+     */
+    public function getName();
 }
