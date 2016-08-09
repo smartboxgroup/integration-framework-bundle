@@ -77,7 +77,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer{
      * @param array $endpointOptions
      * @return Statement
      */
-    protected function performQuery(array $configuration, array $endpointOptions, &$context)
+    protected function performQuery(array $configuration, &$context)
     {
         $parameters = [];
         $parameterTypes = [];
@@ -223,5 +223,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer{
         }
 
         unset($context);
+
+        return $message;
     }
 }

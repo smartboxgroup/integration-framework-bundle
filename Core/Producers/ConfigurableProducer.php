@@ -32,6 +32,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     const KEY_MESSAGE = 'message';
     const KEY_RECOVERABLE = 'recoverable';
     const STEP_REQUEST = 'request';
+    const KEY_RESPONSE = 'response';
 
     /** @var  array */
     protected $methodsConfiguration;
