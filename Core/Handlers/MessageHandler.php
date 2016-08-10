@@ -13,6 +13,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\FailedExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\RetryExchangeEnvelope;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\RetryLater;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\ProcessorInterface;
@@ -93,7 +94,7 @@ class MessageHandler extends Service implements HandlerInterface
     }
 
     /**
-     * @param int retryDelay
+     * @param int $retryDelay
      */
     public function setRetryDelay($retryDelay)
     {
@@ -221,14 +222,24 @@ class MessageHandler extends Service implements HandlerInterface
         $event->setTimestampToCurrent();
         $event->setProcessingContext($exception->getProcessingContext());
 
-        // Try to recover
-        if ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
+        // If it's just an exchange that should be retried later
+        if ($originalException instanceof RetryLater) {
+            $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), 0);
+
+            $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, 0);
+            $retryExchangeEnvelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY,$originalException->getDelay());
+            $this->deferRetryExchangeMessage($retryExchangeEnvelope);
+        }
+
+        // If it's an exchange that can be retried later but it's failing due to an error
+        elseif ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
             $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
 
             $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
             $this->deferRetryExchangeMessage($retryExchangeEnvelope);
         }
-        // Or not..
+
+        // If it's an exchange that is failing and it should not be retried later
         else {
             $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
             $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
