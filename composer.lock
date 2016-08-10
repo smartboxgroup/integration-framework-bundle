@@ -1696,7 +1696,7 @@
             "source": {
                 "type": "git",
                 "url": "git@gitlab.production.smartbox.com:smartesb/core-bundle.git",
-                "reference": "c44ea84b3c1e19ea67d9477850b7a24e6026b609"
+                "reference": "ccdef0e26fddf35af97efca1737440d9a4ef33de"
             },
             "require": {
                 "doctrine/annotations": ">=1.2.0",
@@ -1726,7 +1726,7 @@
                 "MIT"
             ],
             "description": "Smartbox Core Bundle",
-            "time": "2016-07-08 11:13:24"
+            "time": "2016-07-18 15:01:48"
         },
         {
             "name": "symfony/assetic-bundle",

@@ -21,13 +21,18 @@ class SmokeTestConnectivityCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        $connectivityCheckSmokeTestDef = $container->getDefinition('smartesb.smoke_test.connectivity_check');
+        $smokeTestCommand = $container->getDefinition('smartcore.command.smoke_test');
+        $connectivityCheckSmokeTestClass= $container->getParameter('smartesb.smoke_test.connectivity_check.class');
         $connectivityCheckSmokeTestItems = $container->findTaggedServiceIds(ConnectivityCheckSmokeTest::TAG_TEST_CONNECTIVITY);
         foreach ($connectivityCheckSmokeTestItems as $serviceName => $tags) {
-            $connectivityCheckSmokeTestDef->addMethodCall('addItem', array($serviceName, new Reference($serviceName)));
+            $testServiceName = $serviceName.'.connectivity_smoke_test';
+            $container->register($testServiceName, $connectivityCheckSmokeTestClass)
+                ->setArguments([
+                    'Connectivity check for '. $serviceName,
+                    [$testServiceName => new Reference($serviceName)]
+                ])
+            ;
+            $smokeTestCommand->addMethodCall('addTest', [$testServiceName, new Reference($testServiceName)]);
         }
-
-        $smokeTestCommand = $container->getDefinition('smartcore.command.smoke_test');
-        $smokeTestCommand->addMethodCall('addTest', ['smartesb.smoke_test.connectivity_check', new Reference('smartesb.smoke_test.connectivity_check')]);
     }
 }

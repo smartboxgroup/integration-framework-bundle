@@ -12,6 +12,7 @@ use JMS\Serializer\Exception\RuntimeException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\RecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
@@ -34,6 +35,7 @@ class RestConfigurableProducer extends ConfigurableProducer
     const VALIDATION = 'validations';
     const VALIDATION_RULE = 'rule';
     const VALIDATION_MESSAGE = 'message';
+    const VALIDATION_DISPLAY_MESSAGE = 'display_message';
     const VALIDATION_RECOVERABLE = 'recoverable';
     const REQUEST_EXPECTED_RESPONSE_TYPE = 'response_type';
 
@@ -132,17 +134,21 @@ class RestConfigurableProducer extends ConfigurableProducer
                 self::VALIDATION_RECOVERABLE,
             ]);
 
+            $validationParamsResolver->setDefined([
+                self::VALIDATION_DISPLAY_MESSAGE,
+            ]);
+
             foreach($params[self::VALIDATION] as $validation) {
                 $validationSteps[] = $validationParamsResolver->resolve($validation);
             }
         }
 
-        $name = $this->resolve($params[self::REQUEST_NAME], $context);
-        $httpMethod = $this->resolve($params[self::REQUEST_HTTP_VERB], $context);
-        $body = $this->resolve($params[self::REQUEST_BODY], $context);
+        $name = $this->confHelper->resolve($params[self::REQUEST_NAME], $context);
+        $httpMethod = $this->confHelper->resolve($params[self::REQUEST_HTTP_VERB], $context);
+        $body = $this->confHelper->resolve($params[self::REQUEST_BODY], $context);
 
         $resolvedURI = $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
-        $resolvedURI .= $this->resolve($params[self::REQUEST_URI], $context);
+        $resolvedURI .= $this->confHelper->resolve($params[self::REQUEST_URI], $context);
 
         $restOptions = $this->getBasicHTTPOptions($params, $endpointOptions);
 
@@ -185,15 +191,18 @@ class RestConfigurableProducer extends ConfigurableProducer
 
             // Validates response (if needed)
             foreach ($validationSteps as $validationStep) {
-                $isValid = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_RULE], $context);
+                $isValid = $this->confHelper->evaluateStringOrExpression($validationStep[self::VALIDATION_RULE], $context);
                 if (!$isValid) {
-                    $message = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_MESSAGE], $context);
+                    $message = $this->confHelper->evaluateStringOrExpression($validationStep[self::VALIDATION_MESSAGE], $context);
                     $recoverable = $validationStep[self::VALIDATION_RECOVERABLE];
-
+                    $showMessage = (
+                        isset($validationStep[self::VALIDATION_DISPLAY_MESSAGE]) &&
+                        true === $validationStep[self::VALIDATION_DISPLAY_MESSAGE]
+                    );
                     if ($recoverable) {
-                        $this->throwRecoverableRestProducerException($message, $request, $response);
+                        $this->throwRecoverableRestProducerException($message, $request, $response, $showMessage);
                     } else {
-                        $this->throwUnrecoverableRestProducerException($message, $request, $response);
+                        $this->throwUnrecoverableRestProducerException($message, $request, $response, $showMessage);
                     }
                 }
             }
@@ -215,57 +224,64 @@ class RestConfigurableProducer extends ConfigurableProducer
             }
 
             if ($statusCode >= 400 && $statusCode <= 499) {
-                $this->throwUnrecoverableRestProducerException($e->getMessage(), $request, $response, $statusCode, $e);
+                $this->throwUnrecoverableRestProducerException($e->getMessage(), $request, $response, false, $statusCode, $e);
             } else {
-                $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, $statusCode, $e);
+                $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, false, $statusCode, $e);
             }
         }catch(\Exception $e){
             if($response){
                 $response->getBody()->rewind();
             }
-            $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, $response ? $response->getStatusCode() : null, $e);
+            $showMessage = ($e instanceof ExternalSystemExceptionInterface && $e->mustShowExternalSystemErrorMessage());
+            $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, $showMessage, $response ? $response->getStatusCode() : null, $e);
         }
     }
 
     /**
-     * @param string                                    $message
-     * @param \Psr\Http\Message\RequestInterface        $request
-     * @param \Psr\Http\Message\ResponseInterface|null  $response
-     * @param int                                       $code
-     * @param \Exception|null                           $previousException
+     * @param string                                   $message
+     * @param \Psr\Http\Message\RequestInterface       $request
+     * @param \Psr\Http\Message\ResponseInterface|null $response
+     * @param bool                                     $showMessage
+     * @param int                                      $code
+     * @param \Exception|null                          $previousException
      *
-     * @throws RecoverableRestException
+     * @throws \Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\RecoverableRestException
      */
     public function throwRecoverableRestProducerException(
         $message,
         RequestInterface $request,
         ResponseInterface $response = null,
+        $showMessage = false,
         $code = 0,
         \Exception $previousException = null
     ){
         $exception = new RecoverableRestException($message, $request, $response, $code, $previousException);
         $exception->setExternalSystemName($this->getName());
+        $exception->setShowExternalSystemErrorMessage($showMessage);
         throw $exception;
     }
 
     /**
-     * @param string                                    $message
-     * @param \Psr\Http\Message\RequestInterface        $request
-     * @param \Psr\Http\Message\ResponseInterface|null  $response
-     * @param int                                       $code
-     * @param \Exception|null                           $previousException
+     * @param string                                   $message
+     * @param \Psr\Http\Message\RequestInterface       $request
+     * @param \Psr\Http\Message\ResponseInterface|null $response
+     * @param bool                                     $showMessage
+     * @param int                                      $code
+     * @param \Exception|null                          $previousException
      *
-     * @throws UnrecoverableRestException
+     * @throws \Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException
      */
     public function throwUnrecoverableRestProducerException(
         $message,
         RequestInterface $request,
         ResponseInterface $response = null,
+        $showMessage = false,
         $code = 0,
         \Exception $previousException = null
     ){
         $exception = new UnrecoverableRestException($message, $request, $response, $code, $previousException);
         $exception->setExternalSystemName($this->getName());
+        $exception->setShowExternalSystemErrorMessage($showMessage);
         throw $exception;
     }
 }

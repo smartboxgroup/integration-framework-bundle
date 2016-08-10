@@ -15,4 +15,9 @@ interface CanCheckConnectivityInterface
      * @return SmokeTestOutputInterface
      */
     public function checkConnectivityForSmokeTest(array $config = []);
+
+    /**
+     * @return string   a comma separated list of labels
+     */
+    public static function getConnectivitySmokeTestLabels();
 }

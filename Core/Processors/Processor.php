@@ -99,6 +99,7 @@ abstract class Processor extends Service implements ProcessorInterface
     final protected function createProcessEvent(Exchange $exchange, SerializableArray $processingContext, $type)
     {
         $event = new ProcessEvent($type);
+        $event->setId(uniqid("",true));
         $event->setTimestampToCurrent();
         $event->setProcessor($this);
         $event->setExchange($exchange);

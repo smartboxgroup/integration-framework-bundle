@@ -98,6 +98,8 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         }
 
         $this->db = $this->connection->selectDatabase($this->configuration['database']);
+
+        return $this->connection;
     }
 
     /**

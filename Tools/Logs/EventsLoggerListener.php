@@ -16,6 +16,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class EventsLoggerListener
 {
+    const DEFAULT_EVENTS_LEVEL = LogLevel::DEBUG;
+    const DEFAULT_ERRORS_LEVEL = LogLevel::ERROR;
+
     /**
      * @var LoggerInterface
      */
@@ -24,23 +27,97 @@ class EventsLoggerListener
     /** @var  RequestStack */
     protected $requestStack;
 
+    protected static $availableEventsLogLevel = [
+        LogLevel::WARNING,
+        LogLevel::NOTICE,
+        LogLevel::INFO,
+        LogLevel::DEBUG,
+    ];
+
+    protected static $availableErrorsLogLevel = [
+        LogLevel::EMERGENCY,
+        LogLevel::ALERT,
+        LogLevel::CRITICAL,
+        LogLevel::ERROR,
+        LogLevel::WARNING,
+        LogLevel::NOTICE,
+        LogLevel::DEBUG,
+    ];
+
     /**
      * @var string
      */
-    protected $logLevel;
+    protected $eventsLogLevel = self::DEFAULT_EVENTS_LEVEL;
+
+    /**
+     * @var string
+     */
+    protected $errorsLogLevel = self::DEFAULT_ERRORS_LEVEL;
 
     /**
      * Constructor.
      *
      * @param LoggerInterface $logger
      * @param RequestStack    $requestStack
-     * @param string          $logLevel
      */
-    public function __construct(LoggerInterface $logger, RequestStack $requestStack, $logLevel = LogLevel::DEBUG)
+    public function __construct(LoggerInterface $logger, RequestStack $requestStack)
     {
         $this->logger = $logger;
         $this->requestStack = $requestStack;
-        $this->logLevel = $logLevel;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getAvailableEventsLogLevel()
+    {
+        return self::$availableEventsLogLevel;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getAvailableErrorsLogLevel()
+    {
+        return self::$availableErrorsLogLevel;
+    }
+
+    /**
+     * @param $eventsLogLevel
+     * @throws \InvalidArgumentException
+     */
+    public function setEventsLogLevel($eventsLogLevel)
+    {
+        if (!in_array($eventsLogLevel, $this->getAvailableEventsLogLevel())) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Unsupported events log level "%s". Use one of supported log levels: [%s].',
+                    $eventsLogLevel,
+                    implode(', ', $this->getAvailableEventsLogLevel())
+                )
+            );
+        }
+
+        $this->eventsLogLevel = $eventsLogLevel;
+    }
+
+    /**
+     * @param $errorsLogLevel
+     * @throws \InvalidArgumentException
+     */
+    public function setErrorsLogLevel($errorsLogLevel)
+    {
+        if (!in_array($errorsLogLevel, $this->getAvailableErrorsLogLevel())) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Unsupported errors log level "%s". Use one of supported log levels: [%s].',
+                    $errorsLogLevel,
+                    implode(', ', $this->getAvailableErrorsLogLevel())
+                )
+            );
+        }
+
+        $this->errorsLogLevel = $errorsLogLevel;
     }
 
     /**
@@ -48,16 +125,18 @@ class EventsLoggerListener
      */
     public function onEvent(Event $event)
     {
+        $logLevel = $this->eventsLogLevel;
         if ($event instanceof ProcessingErrorEvent) {
             $event->setRequestStack($this->requestStack);
             $message = 'Exception: ' . $event->getException()->getMessage();
+            $logLevel = $this->errorsLogLevel;
         } else {
             $message = sprintf('Event "%s" occurred', $event->getEventName());
         }
 
         $context = $this->getContext($event);
 
-        $this->logger->log($this->logLevel, $message, $context);
+        $this->logger->log($logLevel, $message, $context);
     }
 
     /**
