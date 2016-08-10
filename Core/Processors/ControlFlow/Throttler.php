@@ -5,8 +5,10 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Utils\Cache\CacheServiceInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Traits\HasItinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\RetryLater;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesCacheService;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 
 class Throttler extends Processor{
@@ -14,6 +16,8 @@ class Throttler extends Processor{
     const CACHE_PREFIX = 'throttler_';
 
     use UsesEvaluator;
+    use UsesCacheService;
+    use HasItinerary;
 
     /**
      * @var int Time in milliseconds to reset the throttling limit
@@ -24,11 +28,6 @@ class Throttler extends Processor{
      * @var string Symfony expression to determine the max amount of requests that can cross the throttler
      */
     protected $limitExpression;
-
-    /**
-     * @var CacheServiceInterface
-     */
-    protected $cacheService;
 
     /**
      * @return boolean
@@ -76,22 +75,6 @@ class Throttler extends Processor{
     public function setLimitExpression($limitExpression)
     {
         $this->limitExpression = $limitExpression;
-    }
-
-    /**
-     * @return CacheServiceInterface
-     */
-    public function getCacheService()
-    {
-        return $this->cacheService;
-    }
-
-    /**
-     * @param CacheServiceInterface $cacheService
-     */
-    public function setCacheService($cacheService)
-    {
-        $this->cacheService = $cacheService;
     }
 
     protected function getCacheKeyCount(){
@@ -143,6 +126,7 @@ class Throttler extends Processor{
             $exception = new RetryLater("This message can't be processed because the throttling limit is reached in processor with id: ".$this->getId());
             $exception->setDelay(rand($this->getPeriodMs(),$this->getPeriodMs()*2));
         }else{
+            $exchange->getItinerary()->prepend($this->itinerary);
             $this->increaseCounter();
         }
     }
