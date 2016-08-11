@@ -105,7 +105,7 @@ class Throttler extends Processor{
         $reset = $this->cacheService->get($this->getCacheKeyResetTime());
         $currentTime = (int)(1000.0*microtime(true));
 
-        if(!$reset || intval($reset) >= $currentTime){
+        if(!$reset || $currentTime >= intval($reset)){
             $newReset = $currentTime + $this->periodMs;
             $this->cacheService->set($this->getCacheKeyCount(),0);
             $this->cacheService->set($this->getCacheKeyResetTime(),$newReset);
@@ -124,7 +124,9 @@ class Throttler extends Processor{
 
         if(!$this->shouldPass($exchange)){
             $exception = new RetryLater("This message can't be processed because the throttling limit is reached in processor with id: ".$this->getId());
-            $exception->setDelay(rand($this->getPeriodMs(),$this->getPeriodMs()*2));
+            $delaySeconds = (int) ($this->getPeriodMs()/1000);
+            $exception->setDelay($delaySeconds);
+            throw $exception;
         }else{
             $exchange->getItinerary()->prepend($this->itinerary);
             $this->increaseCounter();

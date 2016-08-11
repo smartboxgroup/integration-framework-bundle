@@ -8,7 +8,7 @@ class RetryLater extends \RuntimeException{
     protected $delay;
 
     /**
-     * @return mixed
+     * @return int Delay in seconds
      */
     public function getDelay()
     {
@@ -16,7 +16,7 @@ class RetryLater extends \RuntimeException{
     }
 
     /**
-     * @param mixed $delay
+     * @param int $delay Delay in seconds
      */
     public function setDelay($delay)
     {
