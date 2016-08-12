@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Processors\Routin
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ContentRouter;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause;
 use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -35,11 +35,11 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
     public function dataProviderForWhenClauses()
     {
         return [
-            [[new WhenClause()]],
-            [[new WhenClause('condition')]],
-            [[new WhenClause('condition', new Itinerary())]],
-            [[new WhenClause(), new WhenClause('condition', new Itinerary())]],
-            [[new WhenClause(), new WhenClause(null, new Itinerary())]],
+            [[new ConditionalClause()]],
+            [[new ConditionalClause('condition')]],
+            [[new ConditionalClause('condition', new Itinerary())]],
+            [[new ConditionalClause(), new ConditionalClause('condition', new Itinerary())]],
+            [[new ConditionalClause(), new ConditionalClause(null, new Itinerary())]],
         ];
     }
 
@@ -47,7 +47,7 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
      * @covers ::addWhen
      * @dataProvider dataProviderForWhenClauses
      *
-     * @param WhenClause[] $whenClauses
+     * @param ConditionalClause[] $whenClauses
      */
     public function testAddWhen(array $whenClauses)
     {

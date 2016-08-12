@@ -22,7 +22,7 @@ class ContentRouter extends Processor
     const CONDITION_MATCHED = 'condition_matched';
 
     /**
-     * @var WhenClause[]
+     * @var ConditionalClause[]
      */
     protected $clauses = array();
 
@@ -39,7 +39,7 @@ class ContentRouter extends Processor
      */
     public function addWhen($condition = null, Itinerary $itinerary = null)
     {
-        $this->clauses[] = new WhenClause($condition, $itinerary);
+        $this->clauses[] = new ConditionalClause($condition, $itinerary);
     }
 
     public function setOtherwise(Itinerary $fallback)

@@ -3,12 +3,12 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Processors\Routing;
 
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause;
 
 /**
  * Class WhenClauseTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause
  */
 class WhenClauseTest extends \PHPUnit_Framework_TestCase
 {
@@ -51,7 +51,7 @@ class WhenClauseTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreationOfClass($condition, $itinerary)
     {
-        $whenClause = new WhenClause($condition, $itinerary);
+        $whenClause = new ConditionalClause($condition, $itinerary);
 
         $this->assertEquals($condition, $whenClause->getCondition());
         $this->assertSame($itinerary, $whenClause->getItinerary());
@@ -78,7 +78,7 @@ class WhenClauseTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetAndGetCondition($condition)
     {
-        $whenClause = new WhenClause();
+        $whenClause = new ConditionalClause();
         $whenClause->setCondition($condition);
 
         $this->assertEquals($condition, $whenClause->getCondition());
@@ -105,7 +105,7 @@ class WhenClauseTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetAndGetItinerary(Itinerary $itinerary)
     {
-        $whenClause = new WhenClause();
+        $whenClause = new ConditionalClause();
         $whenClause->setItinerary($itinerary);
 
         $this->assertSame($itinerary, $whenClause->getItinerary());
