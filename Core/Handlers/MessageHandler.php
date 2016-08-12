@@ -13,7 +13,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\FailedExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\RetryExchangeEnvelope;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\RetryLater;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\RetryLaterException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\ProcessorInterface;
@@ -223,7 +223,7 @@ class MessageHandler extends Service implements HandlerInterface
         $event->setProcessingContext($exception->getProcessingContext());
 
         // If it's just an exchange that should be retried later
-        if ($originalException instanceof RetryLater) {
+        if ($originalException instanceof RetryLaterException) {
             $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), 0);
 
             $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, 0);

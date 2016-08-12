@@ -6,7 +6,7 @@ use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Utils\Cache\CacheServiceInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Traits\HasItinerary;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\RetryLater;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\RetryLaterException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesCacheService;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
@@ -116,14 +116,14 @@ class Throttler extends Processor{
      * @param Exchange $exchange
      * @param SerializableArray $processingContext
      *
-     * @throws RetryLater
+     * @throws RetryLaterException
      */
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
         $this->checkReset();
 
         if(!$this->shouldPass($exchange)){
-            $exception = new RetryLater("This message can't be processed because the throttling limit is reached in processor with id: ".$this->getId());
+            $exception = new RetryLaterException("This message can't be processed because the throttling limit is reached in processor with id: ".$this->getId());
             $delaySeconds = (int) ($this->getPeriodMs()/1000);
             $exception->setDelay($delaySeconds);
             throw $exception;

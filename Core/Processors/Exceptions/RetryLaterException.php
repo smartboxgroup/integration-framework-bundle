@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions;
 
 
-class RetryLater extends \RuntimeException{
+class RetryLaterException extends \RuntimeException{
 
     protected $delay;
 
