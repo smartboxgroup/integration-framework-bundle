@@ -12,7 +12,7 @@ trait UsesSmartesbHelper
     /**
      * @var SmartesbHelper
      */
-    protected $configurableServiceHelper;
+    protected $smartesbHelper;
 
     /**
      * Sets the helper.
@@ -21,6 +21,6 @@ trait UsesSmartesbHelper
      */
     public function setSmartesbHelper(SmartesbHelper $helper = null)
     {
-        $this->configurableServiceHelper = $helper;
+        $this->smartesbHelper = $helper;
     }
 }

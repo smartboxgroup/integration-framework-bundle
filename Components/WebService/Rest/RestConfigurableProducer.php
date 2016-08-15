@@ -143,12 +143,12 @@ class RestConfigurableProducer extends ConfigurableProducer
             }
         }
 
-        $name = $this->resolve($params[self::REQUEST_NAME], $context);
-        $httpMethod = $this->resolve($params[self::REQUEST_HTTP_VERB], $context);
-        $body = $this->resolve($params[self::REQUEST_BODY], $context);
+        $name = $this->confHelper->resolve($params[self::REQUEST_NAME], $context);
+        $httpMethod = $this->confHelper->resolve($params[self::REQUEST_HTTP_VERB], $context);
+        $body = $this->confHelper->resolve($params[self::REQUEST_BODY], $context);
 
         $resolvedURI = $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
-        $resolvedURI .= $this->resolve($params[self::REQUEST_URI], $context);
+        $resolvedURI .= $this->confHelper->resolve($params[self::REQUEST_URI], $context);
 
         $restOptions = $this->getBasicHTTPOptions($params, $endpointOptions);
 
@@ -191,9 +191,9 @@ class RestConfigurableProducer extends ConfigurableProducer
 
             // Validates response (if needed)
             foreach ($validationSteps as $validationStep) {
-                $isValid = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_RULE], $context);
+                $isValid = $this->confHelper->evaluateStringOrExpression($validationStep[self::VALIDATION_RULE], $context);
                 if (!$isValid) {
-                    $message = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_MESSAGE], $context);
+                    $message = $this->confHelper->evaluateStringOrExpression($validationStep[self::VALIDATION_MESSAGE], $context);
                     $recoverable = $validationStep[self::VALIDATION_RECOVERABLE];
                     $showMessage = (
                         isset($validationStep[self::VALIDATION_DISPLAY_MESSAGE]) &&

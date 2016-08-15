@@ -131,4 +131,13 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
         $this->cleanUp($endpoint);
     }
+
+    /** {@inheritdoc} */
+    public function getName()
+    {
+        $reflection = new \ReflectionClass(self::class);
+        $name = $reflection->getShortName();
+
+        return basename($name, 'Consumer');
+    }
 }

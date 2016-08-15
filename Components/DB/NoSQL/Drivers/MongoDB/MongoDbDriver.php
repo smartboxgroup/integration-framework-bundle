@@ -17,7 +17,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class MongoDbDriver.
  */
-class MongoDbDriver extends Service implements NoSQLDriverInterface, SerializableInterface
+class MongoDBDriver extends Service implements NoSQLDriverInterface, SerializableInterface
 {
     use HasInternalType;
 

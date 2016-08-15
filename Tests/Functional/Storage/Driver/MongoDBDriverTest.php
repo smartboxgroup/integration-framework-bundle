@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Storage\Driver;
 use JMS\Serializer\SerializerInterface;
 use MongoDB\BSON\ObjectID;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDbDriver;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Exception\StorageException;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query\QueryOptions;
@@ -41,7 +41,7 @@ class MongoDBDriverTest extends KernelTestCase
         self::$container = $kernel->getContainer();
 
         self::$serializer = self::$container->get('serializer');
-        self::$storageDriver = new MongoDbDriver(self::$serializer);
+        self::$storageDriver = new MongoDBDriver(self::$serializer);
         self::$storageDriver->configure(['host' => 'mongodb://localhost:27017', 'database' => self::MONGO_DATABASE]);
 
         parent::setUpBeforeClass();
@@ -74,7 +74,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testConfigureForCorrectConfiguration(array $configuration)
     {
-        $storageDriver = new MongoDbDriver(self::$serializer);
+        $storageDriver = new MongoDBDriver(self::$serializer);
         $storageDriver->configure($configuration);
 
         $data = new SerializableSimpleEntity();
@@ -112,7 +112,7 @@ class MongoDBDriverTest extends KernelTestCase
     {
         $this->setExpectedException(StorageException::class);
 
-        $storageDriver = new MongoDbDriver(self::$serializer);
+        $storageDriver = new MongoDBDriver(self::$serializer);
         $storageDriver->configure($configuration);
 
         unset($storageDriver);

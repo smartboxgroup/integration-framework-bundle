@@ -11,7 +11,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -32,6 +31,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     const KEY_MESSAGE = 'message';
     const KEY_RECOVERABLE = 'recoverable';
     const STEP_REQUEST = 'request';
+    const KEY_RESPONSE = 'response';
 
     /** @var  array */
     protected $methodsConfiguration;
@@ -41,9 +41,6 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
 
     /** @var string */
     protected $name;
-
-    /** @var  ConfigurableServiceHelper */
-    protected $configurableServiceHelper;
 
     /**
      * {@inheritdoc}
@@ -144,7 +141,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
                 $message = $validationRule[self::KEY_MESSAGE];
                 $recoverable = $validationRule[self::KEY_RECOVERABLE];
 
-                $evaluation = $this->configurableServiceHelper->resolve($rule, $context);
+                $evaluation = $this->confHelper->resolve($rule, $context);
                 if ($evaluation !== true) {
                     if ($recoverable) {
                         throw new ProducerRecoverableException($message);
@@ -161,7 +158,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         if ($options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT
             &&  array_key_exists(self::KEY_RESPONSE, $methodConf)) {
             $resultConfig = $methodConf[self::KEY_RESPONSE];
-            $result = $this->configurableServiceHelper->resolve($resultConfig, $context);
+            $result = $this->confHelper->resolve($resultConfig, $context);
 
             if (is_array($result)) {
                 $result = new SerializableArray($result);
@@ -184,7 +181,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     {
         switch ($stepAction) {
             case ConfigurableServiceHelper::STEP_DEFINE:
-                $this->configurableServiceHelper->define($stepActionParams, $context);
+                $this->confHelper->define($stepActionParams, $context);
 
                 return true;
             default:
@@ -198,12 +195,12 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     public function getOptionsDescriptions()
     {
         $methodDescriptions = [];
-        foreach($this->methodsConfiguration as $method => $methodConfig){
+        foreach ($this->methodsConfiguration as $method => $methodConfig) {
             $methodDescriptions[$method] = $methodConfig['description'];
         }
 
         $options = [
-            ConfigurableServiceHelper::OPTION_METHOD => ["Method of the producer to be executed",$methodDescriptions]
+            ConfigurableServiceHelper::OPTION_METHOD => ["Method of the producer to be executed", $methodDescriptions]
         ];
 
         foreach ($this->configuredOptions as $option => $value) {
@@ -219,7 +216,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     public function configureOptionsResolver(OptionsResolver $resolver)
     {
         $resolver->setRequired([ConfigurableServiceHelper::OPTION_METHOD]);
-        $resolver->setAllowedValues(ConfigurableServiceHelper::OPTION_METHOD,array_keys($this->methodsConfiguration));
+        $resolver->setAllowedValues(ConfigurableServiceHelper::OPTION_METHOD, array_keys($this->methodsConfiguration));
 
         foreach ($this->configuredOptions as $option => $value) {
             $resolver->setDefault($option, $value);

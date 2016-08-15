@@ -149,7 +149,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
 
         $requestName = $params[self::REQUEST_NAME];
         $soapMethodName = $params[self::SOAP_METHOD_NAME];
-        $soapMethodParams = $this->resolve($params[self::REQUEST_PARAMETERS], $context);
+        $soapMethodParams = $this->confHelper->resolve($params[self::REQUEST_PARAMETERS], $context);
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
 
@@ -160,9 +160,9 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
 
         // Validates response (if needed)
         foreach ($validationSteps as $validationStep) {
-            $isValid = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_RULE], $context);
+            $isValid = $this->confHelper->evaluateStringOrExpression($validationStep[self::VALIDATION_RULE], $context);
             if (!$isValid) {
-                $message = $this->evaluateStringOrExpression($validationStep[self::VALIDATION_MESSAGE], $context);
+                $message = $this->confHelper->evaluateStringOrExpression($validationStep[self::VALIDATION_MESSAGE], $context);
                 $recoverable = $validationStep[self::VALIDATION_RECOVERABLE];
 
                 $soapClient = $this->getSoapClient($endpointOptions);
