@@ -3,10 +3,10 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\CoreBundle\Utils\Cache\CacheServiceInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Traits\HasItinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\RetryLaterException;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottlingLimitReachedException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesCacheService;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
