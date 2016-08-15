@@ -82,8 +82,8 @@ class QueueConsumerTest extends BaseKernelTestCase
         $msg->setDestinationURI('direct://test');
         $queueDriver->send($msg);
 
-        $messages = array($message1,$message2, $message3);
-        $queues = array(self::queue1,self::queue2,self::queue3);
+        $messages = array($message1, $message2, $message3);
+        $queues = array(self::queue1, self::queue2, self::queue3);
 
         $handlerMock = $this->createMock(MessageHandler::class);
         $handlerMock->expects($this->exactly(3))->method('handle')
@@ -105,7 +105,7 @@ class QueueConsumerTest extends BaseKernelTestCase
             ))
             ->willReturn(true);
 
-        $queueProtocol = new QueueProtocol(true,3600);
+        $queueProtocol = new QueueProtocol(true, 3600);
         $optionsResolver = new OptionsResolver();
         $queueProtocol->configureOptionsResolver($optionsResolver);
 

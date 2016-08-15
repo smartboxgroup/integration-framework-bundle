@@ -46,12 +46,12 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * Method converts \MongoDB\BSON\UTCDateTime to \DateTime
+     * Method converts \MongoDB\BSON\UTCDateTime to \DateTime.
      *
-     * @param VisitorInterface          $visitor
-     * @param UTCDatetime               $date
-     * @param array                     $type
-     * @param Context                   $context
+     * @param VisitorInterface $visitor
+     * @param UTCDatetime      $date
+     * @param array            $type
+     * @param Context          $context
      *
      * @return \DateTime
      */
@@ -62,9 +62,9 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
          * because after conversion of \MongoDB\BSON\UTCDateTime to \DateTime
          * method $dateTime->format('U.u') returns invalid string xxxxxxxxx.zzzzzzzzz
          * part after "." contains 9 digits but it should contain up to 6 digits
-         * so we have to reduce this part to 6 digits
+         * so we have to reduce this part to 6 digits.
          *
-         * @var \DateTime $dateTime
+         * @var \DateTime
          */
         if (!is_string($date) && !$date instanceof UTCDatetime) {
             throw new \InvalidArgumentException('The provided date must be a valid string or an instance of UTCDateTime');
@@ -75,6 +75,7 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
             if (false === $dateTime) {
                 throw new \InvalidArgumentException(sprintf('The provided date "%s" is not a valid date/time string', $date));
             }
+
             return $dateTime;
         }
 
@@ -82,7 +83,7 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * Method converts \MongoDB\BSON\UTCDateTime to \DateTime preserving milliseconds
+     * Method converts \MongoDB\BSON\UTCDateTime to \DateTime preserving milliseconds.
      *
      * @param UTCDatetime $date
      *
@@ -95,9 +96,9 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
          * because after conversion of \MongoDB\BSON\UTCDateTime to \DateTime
          * method $dateTime->format('U.u') returns invalid string xxxxxxxxx.zzzzzzzzz
          * part after "." contains 9 digits but it should contain up to 6 digits
-         * so we have to reduce this part to 6 digits
+         * so we have to reduce this part to 6 digits.
          *
-         * @var \DateTime $dateTime
+         * @var \DateTime
          */
         $dateTime = $date->toDateTime();
 
@@ -109,12 +110,13 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * Method converts \DateTime to \MongoDB\BSON\UTCDateTime
+     * Method converts \DateTime to \MongoDB\BSON\UTCDateTime.
      *
      * With this conversion we may loose some precision because \MongoDB\BSON\UTCDateTime accepts milliseconds as integer
      * so everything under 1000 microseconds will be lost
      *
      * @param \DateTime $date
+     *
      * @return \MongoDB\BSON\UTCDateTime
      */
     public static function convertDateTimeToMongoFormat(\DateTime $date)
@@ -123,13 +125,14 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * This method returns milliseconds as integer value (we need milliseconds to create \MongoDB\BSON\UTCDateTime)
+     * This method returns milliseconds as integer value (we need milliseconds to create \MongoDB\BSON\UTCDateTime).
      *
      * In case of having microseconds in DateTime we will loose some precision
      * because to represent f.e.: 1800 microseconds as milliseconds we should use float value 1.8
      * but this method should return integer so we will round to 1 (0.8 will be lost)
      *
      * @param \DateTime $dateTime
+     *
      * @return int
      */
     protected static function getUnixTimestampWithMilliseconds(\DateTime $dateTime)

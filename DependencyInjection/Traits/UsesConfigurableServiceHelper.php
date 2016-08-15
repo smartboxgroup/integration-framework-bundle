@@ -2,11 +2,10 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
-
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 
-trait UsesConfigurableServiceHelper {
-
+trait UsesConfigurableServiceHelper
+{
     /** @var  ConfigurableServiceHelper */
     protected $confHelper;
 

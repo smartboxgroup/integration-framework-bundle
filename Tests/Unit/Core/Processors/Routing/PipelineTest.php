@@ -10,7 +10,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\Pipeline;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Class PipelineTest
+ * Class PipelineTest.
  */
 class PipelineTest extends \PHPUnit_Framework_TestCase
 {
@@ -19,7 +19,7 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->pipeline = new Pipeline;
+        $this->pipeline = new Pipeline();
     }
 
     protected function tearDown()
@@ -41,8 +41,8 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcher */
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $endpointProcessor = new EndpointProcessor;
-        $contentRouter     = new ContentRouter;
+        $endpointProcessor = new EndpointProcessor();
+        $contentRouter = new ContentRouter();
 
         $itineraryA = new Itinerary('Itinerary A');
         $itineraryA->addProcessor($endpointProcessor);

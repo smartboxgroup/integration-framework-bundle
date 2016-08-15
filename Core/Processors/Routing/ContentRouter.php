@@ -86,8 +86,9 @@ class ContentRouter extends Processor
     /**
      * {@inheritdoc}
      */
-    protected function onPostProcessEvent(ProcessEvent $event){
+    protected function onPostProcessEvent(ProcessEvent $event)
+    {
         $condition = $event->getProcessingContext()->get(self::CONDITION_MATCHED);
-        $event->setEventDetails('Matched condition: ' . $condition);
+        $event->setEventDetails('Matched condition: '.$condition);
     }
 }

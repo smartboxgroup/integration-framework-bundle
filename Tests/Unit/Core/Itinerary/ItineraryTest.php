@@ -18,7 +18,7 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->itinerary = new Itinerary;
+        $this->itinerary = new Itinerary();
     }
 
     protected function tearDown()
@@ -122,14 +122,14 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
         $processor5 = new FakeProcessor('processor_5');
 
         // initialize itinerary 1
-        $itinerary1 = new Itinerary;
+        $itinerary1 = new Itinerary();
         $itinerary1->setProcessors([
             $processor1,
             $processor2,
         ]);
 
         // initialize itinerary 2
-        $itinerary2 = new Itinerary;
+        $itinerary2 = new Itinerary();
         $itinerary2->setProcessors([
             $processor3,
             $processor4,
@@ -164,14 +164,14 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
         $processor5 = new FakeProcessor('processor_5');
 
         // initialize itinerary 1
-        $itinerary1 = new Itinerary;
+        $itinerary1 = new Itinerary();
         $itinerary1->setProcessors([
             $processor1,
             $processor2,
         ]);
 
         // initialize itinerary 2
-        $itinerary2 = new Itinerary;
+        $itinerary2 = new Itinerary();
         $itinerary2->setProcessors([
             $processor3,
             $processor4,

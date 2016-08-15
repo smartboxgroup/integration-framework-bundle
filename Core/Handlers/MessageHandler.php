@@ -218,7 +218,7 @@ class MessageHandler extends Service implements HandlerInterface
 
         // Dispatch event with error information
         $event = new ProcessingErrorEvent($processor, $exchangeBackup, $originalException);
-        $event->setId(uniqid("",true));
+        $event->setId(uniqid('', true));
         $event->setTimestampToCurrent();
         $event->setProcessingContext($exception->getProcessingContext());
 
@@ -227,7 +227,7 @@ class MessageHandler extends Service implements HandlerInterface
             $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), 0);
 
             $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, 0);
-            $retryExchangeEnvelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY,$originalException->getDelay());
+            $retryExchangeEnvelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY, $originalException->getDelay());
             $this->deferRetryExchangeMessage($retryExchangeEnvelope);
         }
 
@@ -295,7 +295,8 @@ class MessageHandler extends Service implements HandlerInterface
                 $retryDelay = $message->getHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY) * 1000;
                 if ($delaySinceLastRetry < $retryDelay) {
                     $this->deferRetryExchangeMessage($message);
-                    return ;
+
+                    return;
                 }
             }
         }
@@ -322,7 +323,7 @@ class MessageHandler extends Service implements HandlerInterface
     protected function createExchangeForMessageFromURI(MessageInterface $message, $from)
     {
         $version = $message->getContext()->get(Context::FLOWS_VERSION);
-        $params = $this->itineraryResolver->getItineraryParams($from,$version);
+        $params = $this->itineraryResolver->getItineraryParams($from, $version);
         $itinerary = $params[InternalRouter::KEY_ITINERARY];
 
         $exchange = new Exchange($message, clone $itinerary);

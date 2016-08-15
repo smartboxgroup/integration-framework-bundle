@@ -7,7 +7,6 @@ class InfiniteIteratorWithAccessToLastAvailableHost extends \InfiniteIterator
     protected $lastAvailableHost = null;
 
     /**
-     * @return null
      */
     public function getLastAvailableHost()
     {
@@ -18,6 +17,7 @@ class InfiniteIteratorWithAccessToLastAvailableHost extends \InfiniteIterator
     {
         $current = parent::current();
         $this->lastAvailableHost = $current;
+
         return $current;
     }
 }

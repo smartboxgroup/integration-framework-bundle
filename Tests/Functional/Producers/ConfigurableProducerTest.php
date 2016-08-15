@@ -28,7 +28,7 @@ class ConfigurableProducerTest extends BaseTestCase
     protected $defaultOptions = [
         'x' => 1,
         'y' => 2,
-        'z' => [1,2,3],
+        'z' => [1, 2, 3],
     ];
 
     protected $simpleMethodsConfig = [

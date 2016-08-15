@@ -12,7 +12,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
-use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFactory\SimpleConnectionStrategy;
 
 /**
  * Class StompProducerTest.
@@ -54,7 +53,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
         $driver->setConnectionStrategyFactory(new ActiveMQConnectionStrategyFactory(new FakeCacheService()));
         $driver->setMessageFactory($this->getContainer()->get('smartesb.message_factory'));
         $driver->setSerializer($this->getContainer()->get('serializer'));
-        $driver->configure('tcp://' . $host, '', '');
+        $driver->configure('tcp://'.$host, '', '');
         $driver->connect();
 
         return $driver;

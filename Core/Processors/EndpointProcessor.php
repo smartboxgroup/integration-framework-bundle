@@ -46,7 +46,6 @@ class EndpointProcessor extends Processor implements LogsExchangeDetails
         $this->uri = $uri;
     }
 
-
     /**
      * {@inheritdoc}
      */
@@ -62,7 +61,7 @@ class EndpointProcessor extends Processor implements LogsExchangeDetails
         $processingContext->set(self::CONTEXT_ENDPOINT, $endpoint);
         $processingContext->set(self::CONTEXT_ENDPOINT_REQUEST_ID, uniqid(null, true));
 
-        $event->setEventDetails('Calling endpoint: ' . $resolvedUri);
+        $event->setEventDetails('Calling endpoint: '.$resolvedUri);
     }
 
     /**
@@ -72,7 +71,7 @@ class EndpointProcessor extends Processor implements LogsExchangeDetails
     {
         $resolvedUri = $event->getProcessingContext()->get(self::CONTEXT_RESOLVED_URI);
 
-        $event->setEventDetails('Returning from endpoint: ' . $resolvedUri);
+        $event->setEventDetails('Returning from endpoint: '.$resolvedUri);
     }
 
     /**

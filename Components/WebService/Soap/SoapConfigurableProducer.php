@@ -10,7 +10,7 @@ class SoapConfigurableProducer extends AbstractSoapConfigurableProducer
     protected $soapClient;
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getSoapClient(array &$options)
     {
@@ -18,7 +18,7 @@ class SoapConfigurableProducer extends AbstractSoapConfigurableProducer
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setSoapClient(SoapClient $client)
     {

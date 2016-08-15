@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\Dbal;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
@@ -63,6 +62,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
                 case self::STEP_EXECUTE:
                     $stepActionParams = $this->configResolver->resolve($stepActionParams);
                     $this->performQuery($stepActionParams, $context);
+
                     return true;
             }
         }
@@ -73,6 +73,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
     /**
      * @param array $configuration
      * @param array $endpointOptions
+     *
      * @return Statement
      */
     protected function performQuery(array $configuration, &$context)
@@ -112,7 +113,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
             $this->configResolver->setDefaults([
                 self::CONF_PARAMETERS => [],
                 self::CONF_HYDRATION => self::HYDRATION_ARRAY,
-                self::CONFIG_MULTI_ROW => false
+                self::CONFIG_MULTI_ROW => false,
             ]);
             $this->configResolver->setDefined(self::CONF_QUERY_NAME);
             $this->configResolver->setAllowedTypes(self::CONF_SQL, ['string']);
@@ -123,7 +124,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
     }
 
     /**
-     * Initializes the consumer for a given endpoint
+     * Initializes the consumer for a given endpoint.
      *
      * @param EndpointInterface $endpoint
      */

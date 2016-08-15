@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService;
 
 /**
- * Class HasShowExternalSystemErrorMessage
+ * Class HasShowExternalSystemErrorMessage.
  */
 trait HasShowExternalSystemErrorMessage
 {
@@ -11,7 +11,7 @@ trait HasShowExternalSystemErrorMessage
     protected $showExternalSystemErrorMessage = false;
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function mustShowExternalSystemErrorMessage()
     {
@@ -19,7 +19,7 @@ trait HasShowExternalSystemErrorMessage
     }
 
     /**
-     * @param boolean $showExternalSystemErrorMessage
+     * @param bool $showExternalSystemErrorMessage
      */
     public function setShowExternalSystemErrorMessage($showExternalSystemErrorMessage)
     {

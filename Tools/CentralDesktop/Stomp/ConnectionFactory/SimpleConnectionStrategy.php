@@ -6,28 +6,31 @@ use CentralDesktop\Stomp\ConnectionFactory\Simple;
 
 /**
  * Class supporting ActiveMQ tcp transport
- * http://activemq.apache.org/tcp-transport-reference.html
+ * http://activemq.apache.org/tcp-transport-reference.html.
  */
 class SimpleConnectionStrategy extends Simple implements FactoryI
 {
     /**
      * {@inheritdoc}
      */
-    public function __construct($uri) {
+    public function __construct($uri)
+    {
         parent::__construct($uri);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getHostIterator() {
+    public function getHostIterator()
+    {
         return parent::getHostIterator();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function __toString() {
+    public function __toString()
+    {
         return parent::__toString();
     }
 

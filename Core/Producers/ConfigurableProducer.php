@@ -200,11 +200,11 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
         }
 
         $options = [
-            ConfigurableServiceHelper::OPTION_METHOD => ["Method of the producer to be executed", $methodDescriptions]
+            ConfigurableServiceHelper::OPTION_METHOD => ['Method of the producer to be executed', $methodDescriptions],
         ];
 
         foreach ($this->configuredOptions as $option => $value) {
-            $options[$option] = ['Custom option added in configurable producer',[]];
+            $options[$option] = ['Custom option added in configurable producer', []];
         }
 
         return $options;

@@ -18,7 +18,7 @@ use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelp
 use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 
 /**
- * Class RestConfigurableProducerTest
+ * Class RestConfigurableProducerTest.
  */
 class RestConfigurableProducerTest extends \PHPUnit_Framework_TestCase
 {
@@ -66,9 +66,9 @@ class RestConfigurableProducerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param integer $statusCode
+     * @param int              $statusCode
      * @param RequestException $internalException
-     * @param string $expectedException
+     * @param string           $expectedException
      * @dataProvider getExpectedExceptionsForStatusCodes
      */
     public function testItShouldCreateProperRestExceptions(
@@ -84,8 +84,8 @@ class RestConfigurableProducerTest extends \PHPUnit_Framework_TestCase
         $requestParams = [
             RestConfigurableProducer::REQUEST_NAME => 'someRequest',
             RestConfigurableProducer::REQUEST_HTTP_VERB => 'POST',
-            RestConfigurableProducer::REQUEST_BODY => ["hello"=>"world"],
-            RestConfigurableProducer::REQUEST_URI => 'something'
+            RestConfigurableProducer::REQUEST_BODY => ['hello' => 'world'],
+            RestConfigurableProducer::REQUEST_URI => 'something',
         ];
 
         $options = [

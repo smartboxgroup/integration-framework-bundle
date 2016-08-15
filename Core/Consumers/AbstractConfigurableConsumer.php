@@ -104,7 +104,7 @@ abstract class AbstractConfigurableConsumer extends AbstractConsumer implements 
         }
 
         $options = [
-            ConfigurableServiceHelper::OPTION_METHOD => ["Method of the consumer to be executed", $methodDescriptions]
+            ConfigurableServiceHelper::OPTION_METHOD => ['Method of the consumer to be executed', $methodDescriptions],
         ];
 
         foreach ($this->configuredOptions as $option => $value) {

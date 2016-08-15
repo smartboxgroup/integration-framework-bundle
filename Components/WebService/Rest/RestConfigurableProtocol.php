@@ -7,7 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Configurability\DescriptableInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class RestConfigurableProtocol
+ * Class RestConfigurableProtocol.
  */
 class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements DescriptableInterface
 {
@@ -21,7 +21,7 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements
     const AUTH_BASIC = 'basic';
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getOptionsDescriptions()
     {
@@ -33,22 +33,22 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements
                     [
                         self::ENCODING_JSON => 'JSON encoding',
                         self::ENCODING_XML => 'XML encoding',
-                    ]
+                    ],
                 ],
                 self::OPTION_BASE_URI => ['Base URI for all requests', []],
                 self::OPTION_HEADERS => ['Default headers to include in all requests (key-value array)', []],
                 self::OPTION_AUTH => [
                     'Authentication method',
                     [
-                        self::AUTH_BASIC => 'Use this method for basic http authentication'
-                    ]
+                        self::AUTH_BASIC => 'Use this method for basic http authentication',
+                    ],
                 ],
             ]
         );
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function configureOptionsResolver(OptionsResolver $resolver)
     {
@@ -57,14 +57,14 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements
             self::OPTION_BASE_URI => '',
             self::OPTION_HEADERS => [],
             self::OPTION_AUTH => '',
-            self::OPTION_ENCODING => self::ENCODING_JSON
+            self::OPTION_ENCODING => self::ENCODING_JSON,
         ]);
 
         $resolver->setRequired([
             self::OPTION_BASE_URI,
             self::OPTION_HEADERS,
             self::OPTION_AUTH,
-            self::OPTION_ENCODING
+            self::OPTION_ENCODING,
         ]);
 
         $resolver->setAllowedTypes(self::OPTION_BASE_URI, ['string']);
@@ -75,7 +75,7 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements
     }
 
     /**
-     * Get a textual description of this object
+     * Get a textual description of this object.
      *
      * @return string
      */

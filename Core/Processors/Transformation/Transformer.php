@@ -55,7 +55,7 @@ class Transformer extends Processor implements LogsExchangeDetails
      */
     protected function onPreProcessEvent(ProcessEvent $event)
     {
-        $event->setEventDetails('About to apply transformation: ' . $this->expression);
+        $event->setEventDetails('About to apply transformation: '.$this->expression);
     }
 
     /**
@@ -63,6 +63,6 @@ class Transformer extends Processor implements LogsExchangeDetails
      */
     protected function onPostProcessEvent(ProcessEvent $event)
     {
-        $event->setEventDetails('Applied transformation: ' . $this->expression);
+        $event->setEventDetails('Applied transformation: '.$this->expression);
     }
 }

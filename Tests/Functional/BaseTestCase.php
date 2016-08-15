@@ -71,19 +71,19 @@ abstract class BaseTestCase extends BaseKernelTestCase
         $traits = $this->class_uses_deep($class);
         foreach ($traits as $trait) {
             switch ($trait) {
-                case (UsesEvaluator::class):
+                case UsesEvaluator::class:
                     $instance->setEvaluator($this->getContainer()->get('smartesb.util.evaluator'));
                     break;
 
-                case (UsesSerializer::class):
+                case UsesSerializer::class:
                     $instance->setSerializer($this->getContainer()->get('serializer'));
                     break;
 
-                case (UsesValidator::class):
+                case UsesValidator::class:
                     $instance->setValidator($this->getContainer()->get('validator'));
                     break;
 
-                case (UsesEventDispatcher::class):
+                case UsesEventDispatcher::class:
                     $instance->setEventDispatcher($this->getContainer()->get('event_dispatcher'));
                     break;
             }

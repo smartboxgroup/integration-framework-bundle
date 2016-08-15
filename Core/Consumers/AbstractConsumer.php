@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesb
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
- * Class AbstractConsumer
+ * Class AbstractConsumer.
  */
 abstract class AbstractConsumer extends Service implements ConsumerInterface
 {
@@ -21,7 +21,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     protected $expirationCount = -1;
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function stop()
     {
@@ -29,7 +29,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setExpirationCount($count)
     {
@@ -47,7 +47,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     }
 
     /**
-     * Initializes the consumer for a given endpoint
+     * Initializes the consumer for a given endpoint.
      *
      * @param EndpointInterface $endpoint
      */
@@ -100,7 +100,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     abstract protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message);
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * @throws \Exception
      */

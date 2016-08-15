@@ -84,6 +84,7 @@ class EventsLoggerListener
 
     /**
      * @param $eventsLogLevel
+     *
      * @throws \InvalidArgumentException
      */
     public function setEventsLogLevel($eventsLogLevel)
@@ -103,6 +104,7 @@ class EventsLoggerListener
 
     /**
      * @param $errorsLogLevel
+     *
      * @throws \InvalidArgumentException
      */
     public function setErrorsLogLevel($errorsLogLevel)
@@ -128,7 +130,7 @@ class EventsLoggerListener
         $logLevel = $this->eventsLogLevel;
         if ($event instanceof ProcessingErrorEvent) {
             $event->setRequestStack($this->requestStack);
-            $message = 'Exception: ' . $event->getException()->getMessage();
+            $message = 'Exception: '.$event->getException()->getMessage();
             $logLevel = $this->errorsLogLevel;
         } else {
             $message = sprintf('Event "%s" occurred', $event->getEventName());
@@ -147,7 +149,7 @@ class EventsLoggerListener
     protected function getContext(Event $event)
     {
         $context = [
-            'event_name'    => $event->getEventName(),
+            'event_name' => $event->getEventName(),
             'event_details' => $event->getEventDetails(),
         ];
 
@@ -157,8 +159,8 @@ class EventsLoggerListener
         ) {
             $contextExchangeDetails = $event->getExchange();
             $context['exchange'] = [
-                'id'   => $contextExchangeDetails->getId(),
-                'uri'  => $contextExchangeDetails->getHeader('from'),
+                'id' => $contextExchangeDetails->getId(),
+                'uri' => $contextExchangeDetails->getHeader('from'),
                 'type' => ($contextExchangeDetails->getHeader('async') === true) ? 'async' : 'sync',
             ];
         }
@@ -198,8 +200,8 @@ class EventsLoggerListener
     private function getProcessorInfo(Processor $processor)
     {
         return [
-            'id'          => $processor->getId(),
-            'name'        => get_class($processor),
+            'id' => $processor->getId(),
+            'name' => get_class($processor),
             'description' => $processor->getDescription(),
         ];
     }

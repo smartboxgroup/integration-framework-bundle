@@ -28,6 +28,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                 if (!is_array($array)) {
                     throw new \RuntimeException('Second argument passed to "hasKey" should be an array.');
                 }
+
                 return array_key_exists($key, $array);
             }
         );

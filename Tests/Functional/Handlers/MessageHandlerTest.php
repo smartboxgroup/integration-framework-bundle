@@ -78,7 +78,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $itineraryResolverMock
             ->expects($this->once())
             ->method('getItineraryParams')
-            ->with($from,'0')
+            ->with($from, '0')
             ->willReturn(array(
                 InternalRouter::KEY_ITINERARY => $itinerary,
             ));
@@ -118,7 +118,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $itineraryResolverMock
             ->expects($this->once())
             ->method('getItineraryParams')
-            ->with($from,'0')
+            ->with($from, '0')
             ->willReturn(array(
                 InternalRouter::KEY_ITINERARY => $itinerary,
             ));
@@ -150,7 +150,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $itineraryResolverMock
             ->expects($this->once())
             ->method('getItineraryParams')
-            ->with($fromURI,'0')
+            ->with($fromURI, '0')
             ->willReturn(array(
                 InternalRouter::KEY_ITINERARY => $itinerary,
             ));
@@ -170,7 +170,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
         $optionsResolver = new OptionsResolver();
 
-        $queueProtocol = new QueueProtocol(true,3600);
+        $queueProtocol = new QueueProtocol(true, 3600);
         $queueProtocol->configureOptionsResolver($optionsResolver);
 
         $failedEndpointOptions = $optionsResolver->resolve([

@@ -24,7 +24,7 @@ class ItinerarySerializationHandler implements SubscribingHandlerInterface, Cont
      */
     public static function getSubscribingMethods()
     {
-        $supportedFormats = ['json','xml','array','mongo_array'];
+        $supportedFormats = ['json', 'xml', 'array', 'mongo_array'];
 
         $res = [];
 

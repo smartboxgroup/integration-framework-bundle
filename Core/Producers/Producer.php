@@ -19,7 +19,7 @@ abstract class Producer extends Service implements ProducerInterface
     {
         $reflection = new \ReflectionClass(self::class);
         $name = $reflection->getShortName();
-        
+
         return basename($name, 'Producer');
     }
 }

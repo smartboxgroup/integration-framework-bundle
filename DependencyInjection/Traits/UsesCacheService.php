@@ -1,11 +1,11 @@
 <?php
-namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
+namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
 use Smartbox\CoreBundle\Utils\Cache\CacheServiceInterface;
 
-trait UsesCacheService {
-
+trait UsesCacheService
+{
     /**
      * @var CacheServiceInterface
      */
@@ -26,5 +26,4 @@ trait UsesCacheService {
     {
         $this->cacheService = $cacheService;
     }
-
 }

@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializ
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
- * Class ExpressionEvaluator
+ * Class ExpressionEvaluator.
  */
 class ExpressionEvaluator
 {

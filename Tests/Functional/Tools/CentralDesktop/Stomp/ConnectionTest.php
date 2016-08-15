@@ -9,8 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFa
 use Zend\Code\Reflection\PropertyReflection;
 
 /**
- * Class ConnectionTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Tools\CentralDesktop\Stomp
+ * Class ConnectionTest.
  */
 class ConnectionTest extends \PHPUnit_Framework_TestCase
 {
@@ -29,12 +28,12 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
         return [
             'simple strategy' => [
                 'host' => 'tcp://localhost',
-                'expectedAttempts' => null
+                'expectedAttempts' => null,
             ],
             'failover strategy' => [
                 'host' => 'failover:(tcp://host_1,tcp://host_2,tcp://host_3)',
-                'expectedAttempts' => 3
-            ]
+                'expectedAttempts' => 3,
+            ],
         ];
     }
 
@@ -83,6 +82,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
      * @dataProvider dataProviderForWorkingConnection
      *
      * @param $hosts
+     *
      * @throws \CentralDesktop\Stomp\Exception
      */
     public function testConnectWillNotifyConnectionFactoryOnSuccessfullConnection(array $hosts)

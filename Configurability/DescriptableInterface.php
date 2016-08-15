@@ -3,12 +3,12 @@
 namespace Smartbox\Integration\FrameworkBundle\Configurability;
 
 /**
- * Interface DescriptableInterface
+ * Interface DescriptableInterface.
  */
 interface DescriptableInterface
 {
     /**
-     * Get a textual description of this object
+     * Get a textual description of this object.
      *
      * @return string
      */

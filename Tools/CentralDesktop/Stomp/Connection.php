@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp;
 
 use CentralDesktop\Stomp\Connection as BaseConnection;
-
 use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFactory\FactoryI;
 
 class Connection extends BaseConnection
@@ -15,9 +14,11 @@ class Connection extends BaseConnection
 
     /**
      * Connection constructor.
+     *
      * @param FactoryI $cf
      */
-    public function __construct(FactoryI $cf) {
+    public function __construct(FactoryI $cf)
+    {
         parent::__construct($cf);
         $this->connectionFactory = $cf;
 

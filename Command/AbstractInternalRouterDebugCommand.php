@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Route;
 use Symfony\Bundle\FrameworkBundle\Console\Helper\DescriptorHelper;
 
 /**
- * Class AbstractInternalRouterDebugCommand
+ * Class AbstractInternalRouterDebugCommand.
  */
 abstract class AbstractInternalRouterDebugCommand extends ContainerAwareCommand
 {

@@ -105,6 +105,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
      * @param array $context
      *
      * @return \stdClass
+     *
      * @throws RecoverableSoapException
      * @throws UnrecoverableSoapException
      */
@@ -142,7 +143,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
                 self::VALIDATION_DISPLAY_MESSAGE,
             ]);
 
-            foreach($params[self::VALIDATION] as $validation) {
+            foreach ($params[self::VALIDATION] as $validation) {
                 $validationSteps[] = $validationParamsResolver->resolve($validation);
             }
         }
@@ -171,9 +172,9 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
                     true === $validationStep[self::VALIDATION_DISPLAY_MESSAGE]
                 );
                 if ($recoverable) {
-                   $this->throwRecoverableSoapProducerException($message, $soapClient, $showMessage);
+                    $this->throwRecoverableSoapProducerException($message, $soapClient, $showMessage);
                 } else {
-                   $this->throwUnrecoverableSoapProducerException($message, $soapClient, $showMessage);
+                    $this->throwUnrecoverableSoapProducerException($message, $soapClient, $showMessage);
                 }
             }
         }
@@ -263,7 +264,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public static function getConnectivitySmokeTestLabels()
     {
