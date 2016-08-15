@@ -29,6 +29,9 @@ class Throttler extends Processor{
      */
     protected $limitExpression;
 
+    /** @var bool If enabled then any messages which is delayed happens asynchronously  */
+    protected $asyncDelayed = false;
+
     /**
      * @return boolean
      */
@@ -86,6 +89,22 @@ class Throttler extends Processor{
     }
 
     /**
+     * @return boolean
+     */
+    public function isAsyncDelayed()
+    {
+        return $this->asyncDelayed;
+    }
+
+    /**
+     * @param boolean $asyncDelayed
+     */
+    public function setAsyncDelayed($asyncDelayed)
+    {
+        $this->asyncDelayed = $asyncDelayed;
+    }
+
+    /**
      * @param Exchange $exchange
      * @return boolean
      */
@@ -107,15 +126,16 @@ class Throttler extends Processor{
 
         if(!$reset || $currentTime >= intval($reset)){
             $newReset = $currentTime + $this->periodMs;
-            $this->cacheService->set($this->getCacheKeyCount(),0);
-            $this->cacheService->set($this->getCacheKeyResetTime(),$newReset);
+            $this->cacheService->set($this->getCacheKeyCount(), 0);
+            $this->cacheService->set($this->getCacheKeyResetTime(), $newReset);
         }
     }
 
     /**
-     * @param Exchange $exchange
+     * @param Exchange          $exchange
      * @param SerializableArray $processingContext
      *
+     * @throws ThrottlingLimitReachedException
      * @throws RetryLaterException
      */
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
@@ -123,9 +143,14 @@ class Throttler extends Processor{
         $this->checkReset();
 
         if(!$this->shouldPass($exchange)){
-            $exception = new RetryLaterException("This message can't be processed because the throttling limit is reached in processor with id: ".$this->getId());
-            $delaySeconds = (int) ($this->getPeriodMs()/1000);
-            $exception->setDelay($delaySeconds);
+            if ($this->asyncDelayed) {
+                $exception = new RetryLaterException("This message can't be processed because the throttling limit is reached in processor with id: " . $this->getId());
+                $delaySeconds = (int)($this->getPeriodMs() / 1000);
+                $exception->setDelay($delaySeconds);
+            } else {
+                $error = sprintf('Reached throttling limit in processor "%s"', $this->id);
+                $exception = new ThrottlingLimitReachedException($error);
+            }
             throw $exception;
         }else{
             $exchange->getItinerary()->prepend($this->itinerary);
