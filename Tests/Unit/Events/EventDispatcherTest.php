@@ -148,6 +148,6 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         parent::tearDown();
-        ArrayQueueDriver::$array = array();
+        ArrayQueueDriver::$array = [];
     }
 }

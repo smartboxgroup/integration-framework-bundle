@@ -303,9 +303,9 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
         $this->subscriptionId = uniqid();
         $this->subscribedQueue = $queue;
 
-        $properties = array(
+        $properties = [
             'id' => $this->subscriptionId,
-        );
+        ];
 
         if ($selector) {
             $properties[self::HEADER_SELECTOR] = $selector;
@@ -321,9 +321,9 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     public function unSubscribe()
     {
         if ($this->isSubscribed()) {
-            $properties = array(
+            $properties = [
                 'id' => $this->subscriptionId,
-            );
+            ];
             $this->readConnection->readFrame();
             $this->readConnection->unsubscribe($this->subscribedQueue, $properties);
             $this->subscriptionId = null;
@@ -369,7 +369,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
             }
 
             if (!empty($group)) {
-                $deserializationContext->setGroups(array($group));
+                $deserializationContext->setGroups([$group]);
             }
 
             /** @var QueueMessageInterface $msg */

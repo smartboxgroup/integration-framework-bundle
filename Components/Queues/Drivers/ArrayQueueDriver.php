@@ -12,7 +12,7 @@ use Smartbox\Integration\FrameworkBundle\Service;
  */
 class ArrayQueueDriver extends Service implements QueueDriverInterface
 {
-    public static $array = array();
+    public static $array = [];
 
     protected $connected = false;
     protected $subscribedQueue = false;

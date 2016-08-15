@@ -68,8 +68,8 @@ class QueueProtocol extends Protocol implements DescriptableInterface
         $this->defaultTTL = $defaultTTL;
     }
 
-    protected $defaultOptions = array(
-    );
+    protected $defaultOptions = [
+    ];
 
     public function getOptionsDescriptions()
     {

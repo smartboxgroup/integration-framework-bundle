@@ -59,11 +59,11 @@ class ItinerarySerializationHandler implements SubscribingHandlerInterface, Cont
     {
         $processors = $itinerary->getProcessorIds();
 
-        $data = array(
+        $data = [
             'type' => Itinerary::class,
             'name' => $itinerary->getName(),
             'processors' => $processors,
-        );
+        ];
 
         if (!$visitor->getRoot()) {
             $visitor->setRoot($data);

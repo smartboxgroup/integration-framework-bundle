@@ -354,20 +354,20 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
     {
         $simple = $this->createSimpleEntity();
 
-        $item = new Message(new SerializableArray(array($simple, $simple)));
+        $item = new Message(new SerializableArray([$simple, $simple]));
 
         $x = new EntityX(1);
         $x1 = new Message($x);
 
-        $complex = new Message(new SerializableArray(array('x' => $x1, 'item' => $item, 'item2' => $item, 'item3' => $item)));
+        $complex = new Message(new SerializableArray(['x' => $x1, 'item' => $item, 'item2' => $item, 'item3' => $item]));
 
         $complex->setHeader('tracking-test-id', uniqid());
         $x1->setHeader('tracking-test-id', uniqid());
         $item->setHeader('tracking-test-id', uniqid());
 
-        return array(
-            array($complex),
-        );
+        return [
+            [$complex],
+        ];
     }
 
     private function createSimpleEntity($title = 'item', $description = 'a simple item')

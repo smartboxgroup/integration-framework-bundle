@@ -24,7 +24,7 @@ class ContentRouter extends Processor
     /**
      * @var WhenClause[]
      */
-    protected $clauses = array();
+    protected $clauses = [];
 
     /**
      * Itinerary to use if none of the conditions on $paths is matched.

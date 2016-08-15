@@ -16,20 +16,20 @@ class MongoDBDateHandler implements SubscribingHandlerInterface
 {
     public static function getSubscribingMethods()
     {
-        return array(
-            array(
+        return [
+            [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'mongo_array',
                 'type' => 'DateTime',
                 'method' => 'convertFromDateTimeToMongoFormat',
-            ),
-            array(
+            ],
+            [
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
                 'format' => 'mongo_array',
                 'type' => 'DateTime',
                 'method' => 'convertFromMongoFormatToDateTime',
-            ),
-        );
+            ],
+        ];
     }
 
     /**

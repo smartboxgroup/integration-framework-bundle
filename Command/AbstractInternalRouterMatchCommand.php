@@ -61,7 +61,7 @@ abstract class AbstractInternalRouterMatchCommand extends ContainerAwareCommand
 
                 $routerDebugcommand = $this->getApplication()->find('router:debug:'.$this->getInternalRouterName());
                 $output->writeln('');
-                $routerDebugcommand->run(new ArrayInput(array('name' => $trace['name'])), $output);
+                $routerDebugcommand->run(new ArrayInput(['name' => $trace['name']]), $output);
 
                 $matches = true;
             } elseif ($input->getOption('verbose')) {
@@ -83,9 +83,9 @@ abstract class AbstractInternalRouterMatchCommand extends ContainerAwareCommand
     {
         $this
             ->setName('router:match:'.$this->getInternalRouterName())
-            ->setDefinition(array(
+            ->setDefinition([
                 new InputArgument('path_info', InputArgument::REQUIRED, 'A path info'),
-            ))
+            ])
             ->setDescription('Helps debug '.$this->getInternalRouterName().' by simulating a path info match')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> shows which routes match a given URI and which don't and for what reason:

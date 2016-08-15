@@ -26,7 +26,7 @@ class EventDeferringCompilerPass implements CompilerPassInterface
         $filtersRepoDef = $container->getDefinition('smartesb.registry.event_filters');
 
         foreach ($filters as $serviceName => $tags) {
-            $filtersRepoDef->addMethodCall('addDeferringFilter', array(new Reference($serviceName)));
+            $filtersRepoDef->addMethodCall('addDeferringFilter', [new Reference($serviceName)]);
         }
     }
 }

@@ -182,8 +182,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $type = strtolower($driverConfig['type']);
             switch ($type) {
                 case 'activemq':
-                    $driverDef = new Definition(ActiveMQStompQueueDriver::class, array());
-                    $driverDef->addMethodCall('setId', array($driverId));
+                    $driverDef = new Definition(ActiveMQStompQueueDriver::class, []);
+                    $driverDef->addMethodCall('setId', [$driverId]);
 
                     $activeMQConnectionStrategyFactoryDef = new Definition(
                         ActiveMQConnectionStrategyFactory::class,
@@ -192,12 +192,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $container->setDefinition(self::ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY, $activeMQConnectionStrategyFactoryDef);
                     $driverDef->addMethodCall('setConnectionStrategyFactory', [new Reference(self::ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY)]);
 
-                    $driverDef->addMethodCall('configure', array(
+                    $driverDef->addMethodCall('configure', [
                         $driverConfig['host'],
                         $driverConfig['username'],
                         $driverConfig['password'],
                         $driverConfig['format'],
-                    ));
+                    ]);
 
                     $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
@@ -278,7 +278,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         // Create services for message handlers
         foreach ($this->config['message_handlers'] as $handlerName => $handlerConfig) {
             $handlerName = self::HANDLER_PREFIX.$handlerName;
-            $driverDef = new Definition(MessageHandler::class, array());
+            $driverDef = new Definition(MessageHandler::class, []);
 
             $driverDef->addMethodCall('setId', [$handlerName]);
             $driverDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
@@ -298,10 +298,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $driverDef->addMethodCall('setThrowExceptions',  [$handlerConfig['throw_exceptions']]);
             $driverDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
 
-            $driverDef->addTag('kernel.event_listener', array(
+            $driverDef->addTag('kernel.event_listener', [
                 'event' => 'smartesb.exchange.new',
                 'method' => 'onNewExchangeEvent',
-            ));
+            ]);
 
             $container->setDefinition($handlerName, $driverDef);
         }

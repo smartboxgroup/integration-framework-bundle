@@ -9,9 +9,9 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
 {
     public function getFunctions()
     {
-        return array(
+        return [
             $this->createHasHeyFunction(),
-        );
+        ];
     }
 
     /**

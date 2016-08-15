@@ -168,7 +168,7 @@ class ValidateContainerCommand extends ContainerAwareCommand
     {
         $this
             ->setName('smartesb:validate')
-            ->setDefinition(array())
+            ->setDefinition([])
             ->setDescription('Validates producer routes and endpoint URIs')
         ;
     }

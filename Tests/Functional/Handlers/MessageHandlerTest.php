@@ -79,9 +79,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getItineraryParams')
             ->with($from, '0')
-            ->willReturn(array(
+            ->willReturn([
                 InternalRouter::KEY_ITINERARY => $itinerary,
-            ));
+            ]);
 
         $this->handler->setItineraryResolver($itineraryResolverMock);
 
@@ -119,9 +119,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getItineraryParams')
             ->with($from, '0')
-            ->willReturn(array(
+            ->willReturn([
                 InternalRouter::KEY_ITINERARY => $itinerary,
-            ));
+            ]);
 
         $this->handler->setItineraryResolver($itineraryResolverMock);
 
@@ -151,9 +151,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getItineraryParams')
             ->with($fromURI, '0')
-            ->willReturn(array(
+            ->willReturn([
                 InternalRouter::KEY_ITINERARY => $itinerary,
-            ));
+            ]);
 
         $failedQueueDriver = new ArrayQueueDriver();
         $failedQueueDriver->setMessageFactory($this->factory);

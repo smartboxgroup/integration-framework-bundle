@@ -63,7 +63,7 @@ class Itinerary implements SerializableInterface
      */
     public function getProcessorIds()
     {
-        $arr = array();
+        $arr = [];
         foreach ($this->processors as $processor) {
             $arr[] = $processor->getId();
         }

@@ -19,7 +19,7 @@ class MessageFactory implements MessageFactoryInterface
      *
      * @return Message
      */
-    public function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null)
+    public function createMessage(SerializableInterface $body = null, $headers = [], Context $context = null)
     {
         if (!$context) {
             $context = new Context([
