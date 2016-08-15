@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\ExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesDriverRegistry;
@@ -22,7 +23,7 @@ class NoSQLProducer extends Producer
     public function send(Exchange $ex, EndpointInterface $endpoint)
     {
         $options = $endpoint->getOptions();
-        $msg = $ex->getIn();
+        $message = $ex->getIn();
 
         $driverName = $options[NoSQLProtocol::OPTION_NOSQL_DRIVER];
         /** @var \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface $driver */
@@ -33,23 +34,17 @@ class NoSQLProducer extends Producer
         }
 
         $collectionName = $options[NoSQLProtocol::OPTION_COLLECTION_PREFIX].$options[NoSQLProtocol::OPTION_COLLECTION_NAME];
-
-        $message = $driver->createMessage();
-        $message->setBody($msg);
-        $message->setCollectionName($collectionName);
-        $message->setHeader(Message::HEADER_FROM, $endpoint->getURI());
-
         $success = false;
 
         switch ($options[NoSQLProtocol::OPTION_ACTION]) {
             case NoSQLProtocol::ACTION_CREATE:
-                $success = $driver->create($message);
+                $success = $driver->insert($collectionName,$message);
                 break;
             case NoSQLProtocol::ACTION_DELETE:
-                $success = $driver->delete($message);
+                //$success = $driver->delete($collectionName, $message);
                 break;
             case NoSQLProtocol::ACTION_UPDATE:
-                $success = $driver->update($message);
+                //$success = $driver->update($collectionName,$message, null);
                 break;
             case NoSQLProtocol::ACTION_GET:
                 throw new \Exception('Receiving from NOSQLProducer is not yet implemented');

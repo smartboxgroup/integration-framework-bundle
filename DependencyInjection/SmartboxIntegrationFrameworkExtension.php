@@ -6,6 +6,7 @@ use Smartbox\CoreBundle\DependencyInjection\SerializationCacheCompilerPass;
 use Smartbox\CoreBundle\Utils\Cache\PredisCacheService;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBClient;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDbDriver;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDbDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQConnectionStrategyFactory;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
@@ -234,9 +235,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $type = strtolower($driverConfig['type']);
             switch ($type) {
                 case 'mongodb':
-
                     $storageServiceName = $driverId.'.storage';
-                    $storageDef = new Definition(MongoDBClient::class, [new Reference('serializer')]);
+
+                    $driverDef = new Definition(MongoDbDriver::class, [new Reference('serializer')]);
+                    $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+
 
                     $mongoDriverOptions = [];
                     $connectionOptions = $driverConfig['connection_options'];
@@ -245,22 +248,18 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         unset($connectionOptions['driver_options']);
                     }
 
-                    $storageDef->addMethodCall('configure', [[
+                    $driverDef->addMethodCall('configure', [[
                         'host' => $driverConfig['host'],
                         'database' => $driverConfig['database'],
                         'options' => $connectionOptions,
                         'driver_options' => $mongoDriverOptions,
                     ]]);
-                    $storageDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
-                    $storageDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
+                    $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
+                    $driverDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
 
-                    $container->setDefinition($storageServiceName, $storageDef);
+                    $container->setDefinition($storageServiceName, $driverDef);
 
-                    $driverDef = new Definition(MongoDbDriver::class, [new Reference($storageServiceName)]);
-                    $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
-                    $container->setDefinition($driverId, $driverDef);
-
-                    $nosqlDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
+                    $nosqlDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($storageServiceName)]);
 
                     break;
 
@@ -269,11 +268,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             }
         }
 
-        // set the default nosql driver
+/*        // set the default nosql driver
         if (null !== $this->config['default_nosql_driver']) {
             $noSQLDriverAlias = new Alias(self::NOSQL_DRIVER_PREFIX.$this->config['default_nosql_driver']);
             $container->setAlias('smartesb.default_nosql_driver', $noSQLDriverAlias);
-        }
+        }*/
     }
 
     protected function loadHandlers(ContainerBuilder $container)

@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\SmokeTests;
 
 use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
-use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\StorageClientInterface;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface;
 
 /**
  * Class StorageConnectionSmokeTest
@@ -12,11 +12,11 @@ use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\StorageClientInte
 class StorageConnectionSmokeTest implements SmokeTestInterface
 {
     /**
-     * @var StorageClientInterface
+     * @var NoSQLDriverInterface
      */
     protected $storage;
 
-    public function __construct(StorageClientInterface $storage)
+    public function __construct(NoSQLDriverInterface $storage)
     {
         $this->storage = $storage;
     }

@@ -2,7 +2,9 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers;
 
+use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query\QueryOptionsInterface;
 
 /**
  * Interface NoSQLDriverInterface.
@@ -10,41 +12,42 @@ use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterfa
 interface NoSQLDriverInterface
 {
     /**
-     * @param NoSQLMessageInterface $message
+     * Delete all items matching a given $queryOptions.
      *
-     * @return string Id of the created record
+     * @param string                $storageResourceName
+     * @param QueryOptionsInterface $queryOptions
      */
-    public function create(NoSQLMessageInterface $message);
+    public function delete($storageResourceName, QueryOptionsInterface $queryOptions);
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface $message
+     * Find all items matching a given $queryOptions.
      *
-     * @return bool
+     * @param string                $storageResourceName
+     * @param QueryOptionsInterface $queryOptions
+     * @param array                 $fields
+     *
+     * @return SerializableInterface[]|SerializableInterface|null
      */
-    public function update(NoSQLMessageInterface $message);
+    public function find($storageResourceName, QueryOptionsInterface $queryOptions, array $fields = []);
 
     /**
-     * @param NoSQLMessageInterface $message
+     * Insert an item.
      *
-     * @return bool
+     * @param string                $storageResourceName
+     * @param SerializableInterface $data
+     *
+     * @return string $id
      */
-    public function delete(NoSQLMessageInterface $message);
+    public function insert($storageResourceName, SerializableInterface $data);
 
     /**
-     * Returns One Serializable object from the queue.
+     * Update one or many items matching the $queryOptions with the given $data.
      *
-     * It requires to subscribe previously to a specific queue
+     * @param string                $storageResourceName
+     * @param QueryOptionsInterface $queryOptions
+     * @param array $data
      *
-     * @param string $collection
-     * @param array  $query
-     * @param array  $options
-     *
-     * @return null|\Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface
+     * @return mixed $updateResult
      */
-    public function read($collection, array $query = [], $options = []);
-
-    /**
-     * @return \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface
-     */
-    public function createMessage();
+    public function update($storageResourceName, QueryOptionsInterface $queryOptions, array $data);
 }

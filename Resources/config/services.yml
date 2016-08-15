@@ -14,7 +14,7 @@ parameters:
   smartesb.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator
   smartesb.util.mapper.class: Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper
   smartesb.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItinerarySerializationHandler
-  smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBDateHandler
+  smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDateHandler
   smartesb.helper.class: Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper
   smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
   smartesb.event_listener.events_logger.class: Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener

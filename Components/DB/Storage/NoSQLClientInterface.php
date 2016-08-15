@@ -3,13 +3,14 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\Storage;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Exception\StorageException;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query\QueryOptionsInterface;
 
 /**
  * Interface StorageClientInterface.
  */
-interface StorageClientInterface
+interface NoSQLClientInterface extends NoSQLDriverInterface
 {
     /**
      * @param array $configuration
@@ -29,23 +30,6 @@ interface StorageClientInterface
      * Close connection to storage driver.
      */
     public function disconnect();
-
-    /**
-     * @param string                $storageResourceName
-     * @param SerializableInterface $data
-     *
-     * @return string $id
-     */
-    public function save($storageResourceName, SerializableInterface $data);
-
-    /**
-     * @param string                $storageResourceName
-     * @param QueryOptionsInterface $queryOptions
-     * @param array                 $fields
-     *
-     * @return SerializableInterface[]|SerializableInterface|null
-     */
-    public function find($storageResourceName, QueryOptionsInterface $queryOptions, array $fields = []);
 
     /**
      * @param string                $storageResourceName
@@ -75,14 +59,6 @@ interface StorageClientInterface
     public function count($storageResourceName, QueryOptionsInterface $queryOptions);
 
     /**
-     * Delete all items matching a given $filter.
-     *
-     * @param string                $storageResourceName
-     * @param QueryOptionsInterface $queryOptions
-     */
-    public function delete($storageResourceName, QueryOptionsInterface $queryOptions);
-
-    /**
      * Delete a single record matching a given $id.
      *
      * @param string $storageResourceName
@@ -94,4 +70,5 @@ interface StorageClientInterface
      * Clean all the opened resources, must be called just before terminating the current request.
      */
     public function doDestroy();
+
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers;
+namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB;
 
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigator;

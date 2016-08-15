@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers;
+namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB;
 
 use JMS\Serializer\SerializerInterface;
 use MongoDB\BSON\ObjectID;
@@ -10,7 +10,6 @@ use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Exception\DataSto
 use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Exception\StorageException;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query\QueryOptions;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query\QueryOptionsInterface;
-use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\StorageClientInterface;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,7 +17,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class MongoDBClient.
  */
-class MongoDBClient implements StorageClientInterface, SerializableInterface
+class MongoDBClient implements NoSQLDriverInterface, SerializableInterface
 {
     use HasInternalType;
 
@@ -122,7 +121,7 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     /**
      * {@inheritdoc}
      */
-    public function save($collection, SerializableInterface $storageData)
+    public function insert($collection, SerializableInterface $storageData)
     {
         $this->ensureConnection();
 
@@ -144,10 +143,39 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
     /**
      * {@inheritdoc}
      */
+    public function update($collection, QueryOptionsInterface $queryOptions, SerializableInterface $storageData)
+    {
+        $this->ensureConnection();
+
+        try {
+            $data = $this->serializer->serialize($storageData, 'mongo_array');
+            /** @var \MongoDB\UpdateResult $updateResult */
+            $updateResult = $this->db->$collection->updateMany($queryOptions->getQueryParams(), $data);
+        } catch (\Exception $e) {
+            $exception = new DataStorageException('Can not update data with storage: '.$e->getMessage(), $e->getCode(), $e);
+            $exception->setStorageData($storageData);
+            throw $exception;
+        }
+
+        return $updateResult;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function delete($collection, QueryOptionsInterface $queryOptions)
     {
         $this->ensureConnection();
-        $this->db->$collection->deleteMany($queryOptions->getQueryParams());
+
+        try {
+            /** @var \MongoDB\DeleteResult $deleteResult */
+            $deleteResult = $this->db->$collection->deleteMany($queryOptions->getQueryParams());
+        } catch (\Exception $e) {
+            $exception = new StorageException('Can not update data to storage: '.$e->getMessage(), $e->getCode(), $e);
+            throw $exception;
+        }
+
+        return $deleteResult;
     }
 
     /**
@@ -239,6 +267,14 @@ class MongoDBClient implements StorageClientInterface, SerializableInterface
         return $result;
     }
 
+    /**
+     * @param $collection
+     * @param QueryOptionsInterface $queryOptions
+     * @param array $fields
+     *
+     * @return \MongoDB\Driver\Cursor
+     * @throws StorageException
+     */
     public function findWithCursor($collection, QueryOptionsInterface $queryOptions, array $fields = [])
     {
         $this->ensureConnection();
