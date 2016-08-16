@@ -355,6 +355,10 @@ class MessageHandler extends Service implements HandlerInterface
                 ++$progress;
                 $retries = 0;   // If we make any progress the retries count is restarted
                 $exchangeBackup = clone $exchange;
+
+                // Make sure that we use the updated itinerary
+                $itinerary = $exchange->getItinerary();
+
             } catch (ProcessingException $exception) {
                 $this->onHandleException($exception, $processor, $exchangeBackup, $progress, $retries);
 

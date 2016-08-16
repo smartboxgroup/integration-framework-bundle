@@ -120,4 +120,8 @@ class Itinerary implements SerializableInterface
     {
         array_unshift($this->processors, $processor);
     }
+
+    public function getCount(){
+        return count($this->processors);
+    }
 }

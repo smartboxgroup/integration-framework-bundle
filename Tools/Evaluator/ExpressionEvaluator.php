@@ -27,6 +27,7 @@ class ExpressionEvaluator
     {
         return array(
             'exchange',
+            'exception',
             'msg',
             'headers',
             'body',
@@ -46,12 +47,13 @@ class ExpressionEvaluator
         return $this->language->evaluate($expression, $vars);
     }
 
-    public function evaluateWithExchange($expression, Exchange $exchange)
+    public function evaluateWithExchange($expression, Exchange $exchange, \Exception $exception = null)
     {
         $body = $exchange->getIn()->getBody();
 
         return $this->language->evaluate($expression, array(
             'exchange' => $exchange,
+            'exception' => $exception,
             'msg' => $exchange->getIn(),
             'headers' => $exchange->getIn()->getHeaders(),
             'body' => $body,
