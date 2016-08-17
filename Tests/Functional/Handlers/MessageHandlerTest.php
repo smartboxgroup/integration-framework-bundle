@@ -56,6 +56,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $this->factory->setFlowsVersion(0);
         $this->handler->setMessageFactory($this->factory);
         $this->fakeContainer = new Container();
+        $this->handler->setContainer($this->fakeContainer);
     }
 
     public function dataProviderForNumberOfProcessors()
