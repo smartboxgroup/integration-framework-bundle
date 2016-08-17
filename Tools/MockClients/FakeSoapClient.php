@@ -80,7 +80,7 @@ class FakeSoapClient extends BasicAuthSoapClient
     public function __doRequest($request, $location, $action, $version, $oneWay = 0)
     {
         $this->checkInitialisation();
-        $actionName = md5($location.$request).'_'.$this->actionName;
+        $actionName = md5($location).'_'.$this->actionName;
 
         if (getenv('MOCKS_ENABLED') === 'true') {
             try {
