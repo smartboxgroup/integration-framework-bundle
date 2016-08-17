@@ -35,17 +35,22 @@ class FakeSoapClient extends BasicAuthSoapClient
     /**
      * {@inheritdoc}
      */
-    public function __doRequest($request, $location, $action, $version, $one_way = 0)
+    public function __doRequest($request, $location, $action, $version, $oneWay = 0)
     {
         $this->checkInitialisation();
-
         $actionName = md5($location).'_'.$this->actionName;
 
-        try {
-            $response = $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
-        } catch (\InvalidArgumentException $e) {
-            $response = parent::__doRequest($request, $location, $action, $version, $one_way);
+        if (getenv('MOCKS_ENABLED') === 'true') {
+            try {
+                return $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
+            } catch (\InvalidArgumentException $e) {
+                throw $e;
+            }
+        }
 
+        $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
+
+        if (getenv('RECORD_RESPONSE') === 'true') {
             $this->setResponseInCache($actionName, $response, self::CACHE_SUFFIX);
         }
 
