@@ -7,13 +7,16 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\ProcessorInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 class TryCatch extends Processor{
 
     use UsesEvaluator;
+    use ContainerAwareTrait;
 
     /** @var  ConditionalClause[] */
     protected $catches;
@@ -75,10 +78,17 @@ class TryCatch extends Processor{
             $exchangeBackup = clone $exchange;
 
             // Take the next processor
-            $processor = $itinerary->shiftProcessor();
+            $processorId = $itinerary->shiftProcessor();
+            if(!$this->container->has($processorId)){
+                throw new \RuntimeException("Processor with $processorId not found in container.");
+            }
+            $processor = $this->container->get($processorId);
+            if(!$processor instanceof ProcessorInterface){
+                throw new \RuntimeException("Processors must implement ProcessorInterface.");
+            }
 
             // Prepend this processor
-            $itinerary->unShiftProcessor($this);
+            $itinerary->unShiftProcessor($this->getId());
 
             try{
                 $processor->process($exchange);
