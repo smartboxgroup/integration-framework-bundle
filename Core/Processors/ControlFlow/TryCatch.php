@@ -82,12 +82,8 @@ class TryCatch extends Processor{
 
             try{
                 $processor->process($exchange);
-            }catch (\Exception $exception){
-
-                $originalException = $exception;
-                if($exception instanceof ProcessingException){
-                    $originalException = $exception->getOriginalException();
-                }
+            }catch (ProcessingException $exception){
+                $originalException = $exception->getOriginalException();
 
                 // We try to catch the exception
                 foreach($this->catches as $catch){
@@ -103,7 +99,7 @@ class TryCatch extends Processor{
                 }
 
                 // If it's not catch, we just let go, if the exchange is retried, we will come to this processor again
-                throw $exception;
+                throw $originalException;
             }
         }else if($this->finallyItinerary){
             $exchange->getItinerary()->prepend($this->finallyItinerary);
