@@ -16,6 +16,7 @@ class Itinerary implements SerializableInterface
 
     /**
      * @JMS\Type("string")
+     * @JMS\SerializedName("name")
      * @JMS\Expose
      * @JMS\Groups({"logs"})
      *
@@ -23,7 +24,14 @@ class Itinerary implements SerializableInterface
      */
     protected $name;
 
-    /** @var  Processor[] */
+    /**
+     * @JMS\Type("array<string>")
+     * @JMS\SerializedName("processors")
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     *
+     * @var string
+     */
     protected $processors = [];
 
     /**
@@ -53,26 +61,7 @@ class Itinerary implements SerializableInterface
     }
 
     /**
-     * @JMS\VirtualProperty
-     * @JMS\SerializedName("processors")
-     * @JMS\Type("array<string>")
-     * @JMS\Expose
-     * @JMS\Groups({"metadata"})
-     *
-     * @return array
-     */
-    public function getProcessorIds()
-    {
-        $arr = array();
-        foreach ($this->processors as $processor) {
-            $arr[] = $processor->getId();
-        }
-
-        return $arr;
-    }
-
-    /**
-     * @return Processor[]
+     * @return string[]
      */
     public function getProcessors()
     {
@@ -80,7 +69,7 @@ class Itinerary implements SerializableInterface
     }
 
     /**
-     * @param Processor[] $processors
+     * @param string[] $processors
      */
     public function setProcessors(array $processors)
     {
@@ -88,10 +77,13 @@ class Itinerary implements SerializableInterface
     }
 
     /**
-     * @param Processor $processor
+     * @param string $processor
      */
-    public function addProcessor(Processor $processor)
+    public function addProcessor($processor)
     {
+        if(!is_string($processor)){
+            throw new \InvalidArgumentException("addProcessor first argument expected to be a string.");
+        }
         $this->processors[] = $processor;
     }
 
@@ -106,7 +98,7 @@ class Itinerary implements SerializableInterface
     }
 
     /**
-     * @return Processor
+     * @return string
      */
     public function shiftProcessor()
     {
@@ -114,10 +106,13 @@ class Itinerary implements SerializableInterface
     }
 
     /**
-     * @param Processor $processor
+     * @param string $processor
      */
-    public function unShiftProcessor(Processor $processor)
+    public function unShiftProcessor($processor)
     {
+        if(!is_string($processor)){
+            throw new \InvalidArgumentException("unShiftProcessor first argument expected to be a string.");
+        }
         array_unshift($this->processors, $processor);
     }
 
