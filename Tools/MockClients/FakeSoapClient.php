@@ -10,26 +10,68 @@ class FakeSoapClient extends BasicAuthSoapClient
 
     const CACHE_SUFFIX = 'xml';
 
+    const WSDL_SUFFIX = 'wsdl';
+
     /**
      * {@inheritdoc}
      */
-    public function __call($function_name, $arguments)
+    public function __construct($wsdl, array $options)
     {
-        $this->checkInitialisation();
-        $this->actionName = $function_name;
+        // Init method has to be executed in the constructor so that wsdl files can be cached.
+        $this->init($options['file_locator'], $options['cache_dir'], $options['cache_exclusions']);
+        unset($options['file_locator'], $options['cache_dir'], $options['cache_exclusions']);
 
-        return parent::__soapCall($function_name, $arguments);
+        parent::__construct($wsdl, $options);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function __soapCall($function_name, $arguments, $options = null, $input_headers = null, &$output_headers = null)
+    protected function loadWsdl($wsdl, array $options)
     {
         $this->checkInitialisation();
-        $this->actionName = $function_name;
+        $resourceName = md5($wsdl).'_'.self::WSDL_SUFFIX;
 
-        return parent::__soapCall($function_name, $arguments, $options, $input_headers, $output_headers);
+        if (getenv('MOCKS_ENABLED') === 'true') {
+            try {
+                $fileName = $this->getFileName($resourceName, self::CACHE_SUFFIX);
+
+                return $this->fileLocator->locate($fileName);
+            } catch (\InvalidArgumentException $e) {
+                throw $e;
+            }
+        }
+
+        $cacheFileName = parent::loadWsdl($wsdl, $options);
+
+        if (getenv('RECORD_RESPONSE') === 'true') {
+            $wsdlFile = file_get_contents($cacheFileName);
+            $this->setResponseInCache($resourceName, $wsdlFile, self::CACHE_SUFFIX);
+        }
+
+        return $cacheFileName;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __call($functionName, $arguments)
+    {
+        $this->checkInitialisation();
+        $this->actionName = $functionName;
+
+        return parent::__soapCall($functionName, $arguments);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __soapCall($functionName, $arguments, $options = null, $inputHeaders = null, &$outputHeaders = null)
+    {
+        $this->checkInitialisation();
+        $this->actionName = $functionName;
+
+        return parent::__soapCall($functionName, $arguments, $options, $inputHeaders, $outputHeaders);
     }
 
     /**
@@ -38,7 +80,7 @@ class FakeSoapClient extends BasicAuthSoapClient
     public function __doRequest($request, $location, $action, $version, $oneWay = 0)
     {
         $this->checkInitialisation();
-        $actionName = md5($location).'_'.$this->actionName;
+        $actionName = md5($location.$request).'_'.$this->actionName;
 
         if (getenv('MOCKS_ENABLED') === 'true') {
             try {
