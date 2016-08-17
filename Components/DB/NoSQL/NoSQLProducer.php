@@ -25,28 +25,28 @@ class NoSQLProducer extends Producer
         $options = $endpoint->getOptions();
         $message = $ex->getIn();
 
-        $driverName = $options[NoSQLProtocol::OPTION_NOSQL_DRIVER];
+        $driverName = $options[NoSQLConfigurableProtocol::OPTION_NOSQL_DRIVER];
         /** @var \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface $driver */
         $driver = $this->getDriverRegistry()->getDriver($driverName);
 
         if (empty($driver) || !$driver instanceof NoSQLDriverInterface) {
-            throw new \RuntimeException(self::class, NoSQLProtocol::OPTION_NOSQL_DRIVER, 'Expected NoSQLDriverInterface instance');
+            throw new \RuntimeException(self::class, NoSQLConfigurableProtocol::OPTION_NOSQL_DRIVER, 'Expected NoSQLDriverInterface instance');
         }
 
-        $collectionName = $options[NoSQLProtocol::OPTION_COLLECTION_PREFIX].$options[NoSQLProtocol::OPTION_COLLECTION_NAME];
+        $collectionName = $options[NoSQLConfigurableProtocol::OPTION_COLLECTION_PREFIX].$options[NoSQLConfigurableProtocol::OPTION_COLLECTION_NAME];
         $success = false;
 
-        switch ($options[NoSQLProtocol::OPTION_ACTION]) {
-            case NoSQLProtocol::ACTION_CREATE:
+        switch ($options[NoSQLConfigurableProtocol::OPTION_ACTION]) {
+            case NoSQLConfigurableProtocol::ACTION_INSERT:
                 $success = $driver->insert($collectionName,$message);
                 break;
-            case NoSQLProtocol::ACTION_DELETE:
-                //$success = $driver->delete($collectionName, $message);
+            case NoSQLConfigurableProtocol::ACTION_DELETE:
+                throw new \Exception("Action Delete from NOSQLProducer is not yet implemented");
                 break;
-            case NoSQLProtocol::ACTION_UPDATE:
-                //$success = $driver->update($collectionName,$message, null);
+            case NoSQLConfigurableProtocol::ACTION_UPDATE:
+                throw new \Exception('Updating from NOSQLProducer is not yet implemented');
                 break;
-            case NoSQLProtocol::ACTION_GET:
+            case NoSQLConfigurableProtocol::ACTION_FIND:
                 throw new \Exception('Receiving from NOSQLProducer is not yet implemented');
                 break;
         }

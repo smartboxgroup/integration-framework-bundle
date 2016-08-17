@@ -235,20 +235,23 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef = new Definition(MongoDBDriver::class, [new Reference('serializer')]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
-
-                    $mongoDriverOptions = [];
                     $connectionOptions = $driverConfig['connection_options'];
+
                     if (isset($connectionOptions['driver_options'])) {
                         $mongoDriverOptions = $connectionOptions['driver_options'];
                         unset($connectionOptions['driver_options']);
                     }
-
-                    $driverDef->addMethodCall('configure', [[
+                    $configuration = [
                         'host' => $driverConfig['host'],
                         'database' => $driverConfig['database'],
                         'options' => $connectionOptions,
-                        'driver_options' => $mongoDriverOptions,
-                    ]]);
+                    ];
+
+                    if(isset($mongoDriverOptions)){
+                        $configuration["driver_options"] = $mongoDriverOptions;
+                    }
+                    $driverDef->addMethodCall('configure', [$configuration]);
+
                     $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
                     $driverDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
 
@@ -262,12 +265,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     throw new InvalidDefinitionException(sprintf('Invalid NoSQL driver type "%s"', $type));
             }
         }
-
-/*        // set the default nosql driver
+        // set the default nosql driver
         if (null !== $this->config['default_nosql_driver']) {
             $noSQLDriverAlias = new Alias(self::NOSQL_DRIVER_PREFIX.$this->config['default_nosql_driver']);
-            $container->setAlias('smartesb.default_nosql_driver', $noSQLDriverAlias);
-        }*/
+            $container->setAlias('smartesb.default_nosql_driver', $noSQLDriverAlias.".storage");
+        }
+
     }
 
     protected function loadHandlers(ContainerBuilder $container)

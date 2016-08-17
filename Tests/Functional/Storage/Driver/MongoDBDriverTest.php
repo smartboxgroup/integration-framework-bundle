@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Class MongoDBDriverTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDbDriver
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver
  */
 class MongoDBDriverTest extends KernelTestCase
 {

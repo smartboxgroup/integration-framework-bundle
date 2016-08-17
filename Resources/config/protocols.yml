@@ -4,7 +4,7 @@ parameters:
   smartesb.protocols.direct.class: Smartbox\Integration\FrameworkBundle\Core\Protocols\DirectProtocol
   smartesb.protocols.json_file.class: Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader\JsonFileLoaderProtocol
   smartesb.protocols.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol
-  smartesb.protocols.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLProtocol
+  smartesb.protocols.configurable.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLConfigurableProtocol
   smartesb.protocols.configurable.webservice.class: Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol
   smartesb.protocols.configurable.rest.class: Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\RestConfigurableProtocol
   smartesb.protocols.configurable.soap.class: Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\SoapConfigurableProtocol
@@ -46,12 +46,12 @@ services:
         - [setDefaultConsumer, [@smartesb.consumers.queue]]
         - [setDefaultHandler, [@smartesb.handlers.async]]
 
-  # NoSQL
-  smartesb.protocols.nosql:
-      class: %smartesb.protocols.nosql.class%
+  #NoSQL
+  smartesb.protocols.configurable.nosql:
+      class: %smartesb.protocols.configurable.nosql.class%
       calls:
-        - [setDefaultProducer, [@smartesb.producers.nosql]]
-        - [setDefaultHandler, [@smartesb.handlers.async]]
+       - [setDefaultProducer, [@smartesb.producers.nosql]]
+       - [setDefaultHandler, [@smartesb.handlers.async]]
 
   smartesb.protocols.configurable.webservice:
       class: %smartesb.protocols.configurable.webservice.class%

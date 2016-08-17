@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class MongoDbDriver.
+ * Class MongoDBDriver.
  */
 class MongoDBDriver extends Service implements NoSQLDriverInterface, SerializableInterface
 {
@@ -41,8 +41,17 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
         $this->serializer = $serializer;
     }
 
+    public function __destruct()
+    {
+        $this->disconnect();
+    }
+
     /**
-     * {@inheritdoc}
+     * Define and apply the expected configuration for the driver
+     *
+     * @param array $configuration
+     *
+     * @throws StorageException
      */
     public function configure(array $configuration)
     {
@@ -72,13 +81,12 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
         }
     }
 
-    public function __destruct()
-    {
-        $this->disconnect();
-    }
-
     /**
-     * {@inheritdoc}
+     * Connect to the mongoDatabase
+     *
+     * @return \MongoDB\Client
+     *
+     * @throws StorageException
      */
     public function connect()
     {
@@ -101,9 +109,6 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
         return $this->connection;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function disconnect()
     {
         if ($this->connection instanceof \MongoDB\Client && $this->connection->connected) {
@@ -246,13 +251,9 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
      */
     public function hydrateResult(array $result)
     {
-        return $this->serializer->deserialize($result, SerializableInterface::class, 'mongo_array');
+         return $this->serializer->deserialize($result, SerializableInterface::class, 'mongo_array');
     }
 
-
-    /**
-     * {@inheritdoc}
-     */
     public function doDestroy()
     {
         $this->disconnect();
@@ -277,4 +278,106 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     {
         $this->doDestroy();
     }
+
+    /**
+     * Remove an entry of the mongo database
+     *
+     * @param $collection
+     * @param $id
+     */
+    public function deleteById($collection, $id)
+    {
+        try {
+            $id = new ObjectID((string) $id);
+        } catch (\Exception $e) {
+            return;
+        }
+
+        $queryOptions = new QueryOptions();
+        $queryOptions->setQueryParams([
+            '_id' => $id,
+        ]);
+
+        $this->ensureConnection();
+        $this->db->$collection->deleteOne($queryOptions->getQueryParams());
+    }
+
+    /**
+     * @param $collection
+     * @param QueryOptionsInterface $queryOptions
+     * @param array $fields
+     * @param bool $hydrateObject
+     *
+     * @return SerializableInterface|\Smartbox\CoreBundle\Type\SerializableInterface[]|void
+     * @throws StorageException
+     */
+    public function findOne($collection, QueryOptionsInterface $queryOptions, array $fields = [], $hydrateObject = true)
+    {
+        $this->ensureConnection();
+
+        try {
+            $result = $this->db->$collection->findOne($queryOptions->getQueryParams(), $fields);
+        } catch (\Exception $e) {
+            throw new StorageException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
+        }
+
+        $result = (array) $result;
+        if (!empty($result) && $hydrateObject) {
+            unset($result['_id']);
+
+            return $this->hydrateResult($result);
+        }
+
+        return;
+    }
+
+    /**
+     * @param $collection
+     * @param $id
+     * @param array $fields
+     * @param bool $hydrateObject
+     *
+     * @return SerializableInterface|\Smartbox\CoreBundle\Type\SerializableInterface[]|void
+     */
+    public function findOneById($collection, $id, array $fields = [], $hydrateObject = true)
+    {
+        try {
+            $id = new ObjectID((string) $id);
+        } catch (\Exception $e) {
+            return;
+        }
+
+        $queryOptions = new QueryOptions();
+        $queryOptions->setQueryParams([
+            '_id' => $id,
+        ]);
+
+        return $this->findOne($collection, $queryOptions, $fields, $hydrateObject);
+    }
+
+
+    /**
+     * @param string $collection
+     * @param QueryOptionsInterface $queryOptions
+     *
+     * @return int
+     * @throws StorageException
+     */
+    public function count($collection, QueryOptionsInterface $queryOptions)
+    {
+        $this->ensureConnection();
+
+        $queryParams = $queryOptions->getQueryParams();
+
+        try {
+            /** @var \MongoDB\Collection $collection */
+            $collection = $this->db->$collection;
+            $count = $collection->count($queryParams);
+        } catch (\Exception $e) {
+            throw new StorageException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
+        }
+
+        return $count;
+    }
+
 }
