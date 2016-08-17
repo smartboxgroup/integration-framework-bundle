@@ -41,8 +41,8 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcher */
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $endpointProcessor = new EndpointProcessor;
-        $contentRouter     = new ContentRouter;
+        $endpointProcessor = 'endpoint_p';
+        $contentRouter     = 'content_router_p';
 
         $itineraryA = new Itinerary('Itinerary A');
         $itineraryA->addProcessor($endpointProcessor);

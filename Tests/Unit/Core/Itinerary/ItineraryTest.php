@@ -32,9 +32,9 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
     public function dataProviderForProcessors()
     {
         return [
-            [[new FakeProcessor('id_1')]],
-            [[new FakeProcessor('id_1'), new FakeProcessor('id_2')]],
-            [[new FakeProcessor('id_1'), new FakeProcessor('id_2'), new FakeProcessor('id_3')]],
+            [['id_1']],
+            [['id_1', 'id_2']],
+            [['id_1', 'id_2', 'id_3']],
         ];
     }
 
@@ -63,34 +63,10 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddProcessors(array $processors)
     {
-        $this->itinerary->addProcessor(new FakeProcessor('previous_added_processor'));
+        $this->itinerary->addProcessor('previous_added_processor');
         $this->itinerary->setProcessors($processors);
 
         $this->assertEquals($processors, $this->itinerary->getProcessors());
-    }
-
-    /**
-     * @covers ::setProcessors
-     * @covers ::getProcessorIds
-     */
-    public function testGetProcessorIds()
-    {
-        $processors = [
-            new FakeProcessor('id_1'),
-            new FakeProcessor('id_2'),
-            new FakeProcessor('id_3'),
-            new FakeProcessor('id_4'),
-        ];
-        $processorIds = [
-            'id_1',
-            'id_2',
-            'id_3',
-            'id_4',
-        ];
-
-        $this->itinerary->setProcessors($processors);
-
-        $this->assertEquals($processorIds, $this->itinerary->getProcessorIds());
     }
 
     /**
@@ -115,11 +91,11 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
      */
     public function testAppend()
     {
-        $processor1 = new FakeProcessor('processor_1');
-        $processor2 = new FakeProcessor('processor_2');
-        $processor3 = new FakeProcessor('processor_3');
-        $processor4 = new FakeProcessor('processor_4');
-        $processor5 = new FakeProcessor('processor_5');
+        $processor1 = 'processor_1';
+        $processor2 = 'processor_2';
+        $processor3 = 'processor_3';
+        $processor4 = 'processor_4';
+        $processor5 = 'processor_5';
 
         // initialize itinerary 1
         $itinerary1 = new Itinerary;
@@ -157,11 +133,11 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
      */
     public function testPrepend()
     {
-        $processor1 = new FakeProcessor('processor_1');
-        $processor2 = new FakeProcessor('processor_2');
-        $processor3 = new FakeProcessor('processor_3');
-        $processor4 = new FakeProcessor('processor_4');
-        $processor5 = new FakeProcessor('processor_5');
+        $processor1 = 'processor_1';
+        $processor2 = 'processor_2';
+        $processor3 = 'processor_3';
+        $processor4 = 'processor_4';
+        $processor5 = 'processor_5';
 
         // initialize itinerary 1
         $itinerary1 = new Itinerary;

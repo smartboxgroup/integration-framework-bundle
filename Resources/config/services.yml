@@ -14,7 +14,6 @@ parameters:
   smartesb.util.expression_language_factory.class: Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionLanguageFactory
   smartesb.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator
   smartesb.util.mapper.class: Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper
-  smartesb.serialization.handler.itinerary.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItinerarySerializationHandler
   smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBDateHandler
   smartesb.helper.class: Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper
   smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
@@ -22,14 +21,6 @@ parameters:
   smartesb.itineray_resolver.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItineraryResolver
 
 services:
-  # SERIALIZATION
-  smartesb.serialization.handler.itinerary:
-      class:  %smartesb.serialization.handler.itinerary.class%
-      calls:
-        - [setContainer, [@service_container]]
-      tags:
-        - { name: jms_serializer.subscribing_handler }
-
   smartesb.serialization.handler.mongodate:
       class: %smartesb.serialization.handler.mongodate.class%
       tags:
