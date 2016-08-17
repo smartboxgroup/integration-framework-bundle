@@ -5,9 +5,11 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 
 class TryCatch extends Processor{
 
@@ -82,9 +84,14 @@ class TryCatch extends Processor{
                 $processor->process($exchange);
             }catch (\Exception $exception){
 
+                $originalException = $exception;
+                if($exception instanceof ProcessingException){
+                    $originalException = $exception->getOriginalException();
+                }
+
                 // We try to catch the exception
                 foreach($this->catches as $catch){
-                    if($this->evaluator->evaluateWithExchange($catch->getCondition(),$exchange)){
+                    if($this->evaluator->evaluateWithExchange($catch->getCondition(),$exchange, $originalException)){
                         $exchange->setIn($exchangeBackup->getIn());
                         $exchange->setOut(null);
                         $exchange->setItinerary($catch->getItinerary());
