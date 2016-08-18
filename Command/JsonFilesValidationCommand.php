@@ -48,7 +48,7 @@ class JsonFilesValidationCommand extends ContainerAwareCommand
             $realPath = $file->getRealPath();
 
             $context = new DeserializationContext();
-            $context->setGroups(array(EntityInterface::GROUP_METADATA, EntityInterface::GROUP_PUBLIC));
+            $context->setGroups([EntityInterface::GROUP_METADATA, EntityInterface::GROUP_PUBLIC]);
 
             try {
                 $entity = $serializer->deserialize(file_get_contents($realPath), SerializableInterface::class, 'json', $context);

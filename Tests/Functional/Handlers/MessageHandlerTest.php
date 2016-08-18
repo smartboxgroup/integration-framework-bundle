@@ -84,9 +84,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getItineraryParams')
             ->with($from, '0')
-            ->willReturn(array(
-                InternalRouter::KEY_ITINERARY => $itinerary,
-            ));
+            ->willReturn([InternalRouter::KEY_ITINERARY => $itinerary]);
 
         $this->handler->setItineraryResolver($itineraryResolverMock);
 
@@ -116,6 +114,8 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testHandleWithWrongVersionMustFail()
     {
+        $this->expectException(HandlerException::class);
+
         $message = $this->factory->createMessage(new EntityX(2));
         $from = 'direct://test';
         $itinerary = new Itinerary();
@@ -126,13 +126,9 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getItineraryParams')
             ->with($from, '0')
-            ->willReturn(array(
-                InternalRouter::KEY_ITINERARY => $itinerary,
-            ));
+            ->willReturn([InternalRouter::KEY_ITINERARY => $itinerary]);
 
         $this->handler->setItineraryResolver($itineraryResolverMock);
-
-        $this->setExpectedException(HandlerException::class);
 
         $arr = [];
         $endpoint = new Endpoint($from, $arr, new Protocol());
@@ -158,9 +154,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('getItineraryParams')
             ->with($fromURI, '0')
-            ->willReturn(array(
-                InternalRouter::KEY_ITINERARY => $itinerary,
-            ));
+            ->willReturn([InternalRouter::KEY_ITINERARY => $itinerary]);
 
         $failedQueueDriver = new ArrayQueueDriver();
         $failedQueueDriver->setMessageFactory($this->factory);

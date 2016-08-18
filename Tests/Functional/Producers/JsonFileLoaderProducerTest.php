@@ -11,7 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 
 class JsonFileLoaderProducerTest extends BaseTestCase
 {
-    /** @var  JsonFileLoaderProducer */
+    /** @var JsonFileLoaderProducer */
     protected $producer;
 
     public function setUp()

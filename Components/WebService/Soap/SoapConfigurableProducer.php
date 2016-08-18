@@ -6,11 +6,11 @@ use BeSimple\SoapClient\SoapClient;
 
 class SoapConfigurableProducer extends AbstractSoapConfigurableProducer
 {
-    /** @var  SoapClient */
+    /** @var SoapClient */
     protected $soapClient;
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getSoapClient(array &$options)
     {
@@ -18,7 +18,7 @@ class SoapConfigurableProducer extends AbstractSoapConfigurableProducer
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setSoapClient(SoapClient $client)
     {

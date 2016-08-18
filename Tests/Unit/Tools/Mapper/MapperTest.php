@@ -11,7 +11,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->mapper = new Mapper;
+        $this->mapper = new Mapper();
     }
 
     protected function tearDown()
@@ -38,7 +38,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $fruits = [
             'orange',
             'apple',
-            'banana'
+            'banana',
         ];
 
         $this->assertSame('orange', $this->mapper->first($fruits));
@@ -65,7 +65,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     {
         $list = [
             'a',
-            'b'
+            'b',
         ];
 
         $this->assertSame('a;b', $this->mapper->arrayToString(';', $list));

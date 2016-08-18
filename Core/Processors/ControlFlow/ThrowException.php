@@ -36,8 +36,8 @@ class ThrowException extends Processor
     public function setExceptionClass($exceptionClass)
     {
         if (empty($exceptionClass)
-            ||  !class_exists($exceptionClass)
-            ||  !is_a($exceptionClass, 'Exception', true)
+            || !class_exists($exceptionClass)
+            || !is_a($exceptionClass, 'Exception', true)
         ) {
             throw new \InvalidArgumentException("$exceptionClass is not a valid exception class");
         }

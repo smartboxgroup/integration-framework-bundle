@@ -12,7 +12,7 @@ class WhenClause
     /** @var string */
     protected $condition;
 
-    /** @var  Itinerary */
+    /** @var Itinerary */
     protected $itinerary;
 
     /**

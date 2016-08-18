@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\Mapper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 
 /**
- * Class Mapper
+ * Class Mapper.
  */
 class Mapper implements MapperInterface
 {
@@ -28,11 +28,13 @@ class Mapper implements MapperInterface
     /**
      * @param $format
      * @param \DateTime|null $date
+     *
      * @return null|string
      */
-    public function formatDate($format, \DateTime $date = null){
+    public function formatDate($format, \DateTime $date = null)
+    {
         if ($date === null) {
-            return null;
+            return;
         }
 
         return $date->format($format);
@@ -61,7 +63,7 @@ class Mapper implements MapperInterface
         $res = [];
         foreach ($mapping as $key => $expression) {
             $value = $this->evaluator->evaluateWithVars($expression, $dictionary);
-            if($value !== null){
+            if ($value !== null) {
                 $res[$key] = $value;
             }
         }
@@ -93,6 +95,7 @@ class Mapper implements MapperInterface
      * Get the first element of an array.
      *
      * @param array $array
+     *
      * @return mixed
      */
     public function first(array $array)
@@ -104,6 +107,7 @@ class Mapper implements MapperInterface
      * Convert an string to date.
      *
      * @param string $date
+     *
      * @return \DateTime
      */
     public function stringToDate($date)
@@ -114,9 +118,9 @@ class Mapper implements MapperInterface
     /**
      * Create a Soap var object.
      *
-     * @param mixed $data Data to create the SoapVar object
+     * @param mixed  $data     Data to create the SoapVar object
      * @param string $encoding The encoding id
-     * @param string $type Entity type name
+     * @param string $type     Entity type name
      *
      * @return \SoapVar
      */
@@ -129,12 +133,12 @@ class Mapper implements MapperInterface
      * Convert an array into string.
      *
      * @param string $glue The string to use to glue the elements of the array
-     * @param array $data The array of strings to join
+     * @param array  $data The array of strings to join
      *
      * @return string
      */
     public function arrayToString($glue, array $data)
     {
-        return join($glue, $data);
+        return implode($glue, $data);
     }
 }

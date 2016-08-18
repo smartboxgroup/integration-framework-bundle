@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 abstract class ProcessorTest extends BaseTestCase
 {
-    /** @var  Processor */
+    /** @var Processor */
     protected $processor;
 
     abstract protected function createProcessor();
