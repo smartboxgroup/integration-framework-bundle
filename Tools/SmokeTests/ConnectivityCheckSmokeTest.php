@@ -6,7 +6,7 @@ use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 
 /**
- * Class ConnectivityCheckSmokeTest
+ * Class ConnectivityCheckSmokeTest.
  */
 class ConnectivityCheckSmokeTest implements SmokeTestInterface
 {
@@ -25,7 +25,7 @@ class ConnectivityCheckSmokeTest implements SmokeTestInterface
     /**
      * ConnectivityCheckSmokeTest constructor.
      *
-     * @param string|null  $description
+     * @param string|null                     $description
      * @param CanCheckConnectivityInterface[] $items
      */
     public function __construct($description = null, $items = [])
@@ -99,7 +99,7 @@ class ConnectivityCheckSmokeTest implements SmokeTestInterface
                     sprintf(
                         '[%s]: %s',
                         $name,
-                        '[' . get_class($e) . '] ' . $e->getMessage()
+                        '['.get_class($e).'] '.$e->getMessage()
                     )
                 );
             }

@@ -6,7 +6,7 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\HasExternalSystem
 use Smartbox\Integration\FrameworkBundle\Components\WebService\HasShowExternalSystemErrorMessage;
 
 /**
- * Class ExternalSystemException
+ * Class ExternalSystemException.
  */
 class ExternalSystemException extends \Exception implements ExternalSystemExceptionInterface
 {
@@ -27,7 +27,7 @@ class ExternalSystemException extends \Exception implements ExternalSystemExcept
     {
         $message = sprintf(self::EXCEPTION_MESSAGE_TEMPLATE, $originalException->getExternalSystemName());
         if ($originalException->mustShowExternalSystemErrorMessage()) {
-            $message .= ': ' . $originalException->getMessage();
+            $message .= ': '.$originalException->getMessage();
         }
         $exception = new self($message);
         $exception->setOriginalException($originalException);

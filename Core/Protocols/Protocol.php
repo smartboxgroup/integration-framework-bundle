@@ -103,17 +103,17 @@ class Protocol implements ProtocolInterface
     public function getOptionsDescriptions()
     {
         return [
-            self::OPTION_ENDPOINT_ROUTE => array('Internal use only: Route that was applied to resolve the Endpoint URI', array()),
-            self::OPTION_EXCHANGE_PATTERN => array(
+            self::OPTION_ENDPOINT_ROUTE => ['Internal use only: Route that was applied to resolve the Endpoint URI', []],
+            self::OPTION_EXCHANGE_PATTERN => [
                 'Exchange pattern to communicate with this endpoint',
-                array(
+                [
                     self::EXCHANGE_PATTERN_IN_ONLY => 'The endpoint will not block the flow or modify the message',
                     self::EXCHANGE_PATTERN_IN_OUT => 'The endpoint will block the flow and update the message',
-                ),
-            ),
-            self::OPTION_USERNAME => array('Username to authenticate in this endpoint', array()),
-            self::OPTION_PASSWORD => array('Password to authenticate in this endpoint', array()),
-            self::OPTION_TRACK => array('Whether to track the events this endpoint or not', array()),
+                ],
+            ],
+            self::OPTION_USERNAME => ['Username to authenticate in this endpoint', []],
+            self::OPTION_PASSWORD => ['Password to authenticate in this endpoint', []],
+            self::OPTION_TRACK => ['Whether to track the events this endpoint or not', []],
         ];
     }
 

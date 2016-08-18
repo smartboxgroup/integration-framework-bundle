@@ -39,7 +39,7 @@ class DirectProtocol extends Protocol implements DescriptableInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDescription()
     {

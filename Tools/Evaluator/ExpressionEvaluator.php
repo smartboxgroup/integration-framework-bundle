@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializ
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
- * Class ExpressionEvaluator
+ * Class ExpressionEvaluator.
  */
 class ExpressionEvaluator
 {
@@ -25,7 +25,7 @@ class ExpressionEvaluator
 
     public function getExchangeExposedVars()
     {
-        return array(
+        return [
             'exchange',
             'msg',
             'headers',
@@ -33,7 +33,7 @@ class ExpressionEvaluator
             'serializer',
             'mapper',
             'now',
-        );
+        ];
     }
 
     public function evaluateWithVars($expression, $vars)
@@ -50,7 +50,7 @@ class ExpressionEvaluator
     {
         $body = $exchange->getIn()->getBody();
 
-        return $this->language->evaluate($expression, array(
+        return $this->language->evaluate($expression, [
             'exchange' => $exchange,
             'msg' => $exchange->getIn(),
             'headers' => $exchange->getIn()->getHeaders(),
@@ -58,7 +58,7 @@ class ExpressionEvaluator
             'serializer' => $this->getSerializer(),
             'mapper' => $this->getMapper(),
             'now' => new \DateTime(),
-        ));
+        ]);
     }
 
     /**
@@ -67,7 +67,7 @@ class ExpressionEvaluator
      *
      * @return string
      */
-    public function compile($expression, $names = array())
+    public function compile($expression, $names = [])
     {
         return $this->language->compile($expression, $names);
     }

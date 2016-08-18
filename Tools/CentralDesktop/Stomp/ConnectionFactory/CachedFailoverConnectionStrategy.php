@@ -6,7 +6,7 @@ use Smartbox\CoreBundle\Utils\Cache\CacheServiceInterface;
 
 /**
  * Class supporting ActiveMQ failover transport with cache
- * http://activemq.apache.org/failover-transport-reference.html
+ * http://activemq.apache.org/failover-transport-reference.html.
  *
  * Supported transport options:
  *  - randomize=[true|false] Default: true
@@ -31,9 +31,10 @@ class CachedFailoverConnectionStrategy implements FactoryI
 
     /**
      * @param CacheServiceInterface $cacheService
-     * @param string $host
+     * @param string                $host
      */
-    public function __construct(CacheServiceInterface $cacheService, $host) {
+    public function __construct(CacheServiceInterface $cacheService, $host)
+    {
         $this->cacheService = $cacheService;
         $transport = parse_url($host, PHP_URL_SCHEME);
 
@@ -84,14 +85,16 @@ class CachedFailoverConnectionStrategy implements FactoryI
     }
 
     /**
-     * Gets the next URL to connect to
+     * Gets the next URL to connect to.
      */
-    public function getHostIterator() {
+    public function getHostIterator()
+    {
         return $this->hostsIterator;
     }
 
-    public function __toString() {
-        return get_class($this) . "(" . join(",", $this->hosts) . ")";
+    public function __toString()
+    {
+        return get_class($this).'('.implode(',', $this->hosts).')';
     }
 
     /**

@@ -23,7 +23,7 @@ class HandlerException extends \Exception
      * @param string           $message
      * @param MessageInterface $failed
      */
-    public function __construct($message = '', MessageInterface $failed)
+    public function __construct($message, MessageInterface $failed)
     {
         parent::__construct($message);
         $this->failedMessage = $failed;

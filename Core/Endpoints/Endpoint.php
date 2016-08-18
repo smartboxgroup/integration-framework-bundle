@@ -32,13 +32,13 @@ class Endpoint implements EndpointInterface
      */
     protected $uri = null;
 
-    /** @var  ProtocolInterface */
+    /** @var ProtocolInterface */
     protected $protocol = null;
 
-    /** @var  ConsumerInterface */
+    /** @var ConsumerInterface */
     protected $consumer = null;
 
-    /** @var  ProducerInterface */
+    /** @var ProducerInterface */
     protected $producer = null;
 
     /** @var HandlerInterface */

@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  */
 class BaseKernelTestCase extends KernelTestCase
 {
-    /** @var  SmartesbHelper */
+    /** @var SmartesbHelper */
     protected $helper;
 
     public function setUp()
@@ -33,7 +33,7 @@ class BaseKernelTestCase extends KernelTestCase
      *
      * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\Message
      */
-    protected function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null)
+    protected function createMessage(SerializableInterface $body = null, $headers = [], Context $context = null)
     {
         return $this->getContainer()->get('smartesb.message_factory')->createMessage($body, $headers, $context);
     }

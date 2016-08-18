@@ -41,9 +41,9 @@ class ItinerariesRoutesLoader extends Loader
 
             $name = $itinerary->getName();
 
-            $defaults = array(
+            $defaults = [
                 InternalRouter::KEY_ITINERARY => '@'.$itineraryRef,
-            );
+            ];
 
             $route = new Route($uriFrom, $defaults);
 

@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class QueueProtocol
+ * Class QueueProtocol.
  */
 class QueueProtocol extends Protocol implements DescriptableInterface
 {
@@ -29,7 +29,6 @@ class QueueProtocol extends Protocol implements DescriptableInterface
 
     protected $defaultPersistence;
     protected $defaultTTL;
-
 
     public function __construct($defaultPersistence, $defaultTTL)
     {
@@ -69,10 +68,8 @@ class QueueProtocol extends Protocol implements DescriptableInterface
         $this->defaultTTL = $defaultTTL;
     }
 
-    protected $defaultOptions = array(
-    );
-
-
+    protected $defaultOptions = [
+    ];
 
     public function getOptionsDescriptions()
     {
@@ -124,7 +121,7 @@ class QueueProtocol extends Protocol implements DescriptableInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDescription()
     {

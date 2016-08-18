@@ -1,4 +1,5 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Configurability;
 
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
@@ -66,6 +67,7 @@ class ConfigurableServiceHelper
     /**
      * @param $definitions
      * @param array $context
+     *
      * @throws InvalidConfigurationException
      */
     public function define($definitions, array &$context)

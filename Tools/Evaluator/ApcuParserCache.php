@@ -6,7 +6,7 @@ use Symfony\Component\ExpressionLanguage\ParsedExpression;
 use Symfony\Component\ExpressionLanguage\ParserCache\ParserCacheInterface;
 
 /**
- * Class ApcuParserCache
+ * Class ApcuParserCache.
  */
 class ApcuParserCache implements ParserCacheInterface
 {

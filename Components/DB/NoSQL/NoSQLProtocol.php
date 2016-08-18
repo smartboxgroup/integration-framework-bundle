@@ -7,7 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class NoSQLProtocol
+ * Class NoSQLProtocol.
  */
 class NoSQLProtocol extends Protocol implements DescriptableInterface
 {
@@ -75,7 +75,7 @@ class NoSQLProtocol extends Protocol implements DescriptableInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDescription()
     {
