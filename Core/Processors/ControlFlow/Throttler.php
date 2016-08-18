@@ -29,7 +29,7 @@ class Throttler extends Processor
      */
     protected $limitExpression;
 
-    /** @var bool If enabled then any messages which is delayed happens asynchronously  */
+    /** @var bool If enabled then any messages which is delayed happens asynchronously */
     protected $asyncDelayed = false;
 
     /**

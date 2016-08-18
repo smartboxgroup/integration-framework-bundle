@@ -6,7 +6,7 @@ use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelp
 
 trait UsesConfigurableServiceHelper
 {
-    /** @var  ConfigurableServiceHelper */
+    /** @var ConfigurableServiceHelper */
     protected $confHelper;
 
     /**

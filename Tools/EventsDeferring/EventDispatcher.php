@@ -82,7 +82,7 @@ class EventDispatcher extends ContainerAwareEventDispatcher
     {
         $event = parent::dispatch($eventName, $event);
 
-        $isDeferred = strpos($eventName, '.deferred') !==  false;
+        $isDeferred = strpos($eventName, '.deferred') !== false;
 
         if (!$isDeferred && $this->shouldDefer($event)) {
             $this->deferEvent($event);

@@ -9,9 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\UnrecoverableExceptionInterf
 /**
  * Class ExternalSystemAuthenticationException.
  */
-class ExternalSystemAuthenticationException
-    extends \RuntimeException
-    implements UnrecoverableExceptionInterface, ExternalSystemExceptionInterface
+class ExternalSystemAuthenticationException extends \RuntimeException implements UnrecoverableExceptionInterface, ExternalSystemExceptionInterface
 {
     use HasExternalSystemName;
     use HasShowExternalSystemErrorMessage;

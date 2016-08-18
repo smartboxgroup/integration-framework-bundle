@@ -23,7 +23,7 @@ class ActiveMQStompQueueDriverTest extends BaseTestCase
     private $queueName;
     private static $testIndex = 0;
 
-    /** @var  ActiveMQStompQueueDriver */
+    /** @var ActiveMQStompQueueDriver */
     protected $driver;
 
     public function setUp()

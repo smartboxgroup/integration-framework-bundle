@@ -74,7 +74,7 @@ class RestConfigurableProducer extends ConfigurableProducer
     {
         if (!parent::executeStep($stepAction, $stepActionParams, $options, $context)) {
             switch ($stepAction) {
-                case self::STEP_REQUEST :
+                case self::STEP_REQUEST:
                     $this->request($this->getHttpClient(), $stepActionParams, $options, $context);
 
                     return true;

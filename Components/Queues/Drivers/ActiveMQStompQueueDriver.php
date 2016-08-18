@@ -27,10 +27,10 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
 
     const HEADER_SELECTOR = 'selector';
 
-    /** @var  Connection */
+    /** @var Connection */
     protected $writeConnection;
 
-    /** @var  Connection */
+    /** @var Connection */
     protected $readConnection;
 
     /** @var Frame */
@@ -42,16 +42,16 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     /** @var string */
     protected $subscribedQueue = null;
 
-    /** @var string  */
+    /** @var string */
     protected $format = QueueDriverInterface::FORMAT_JSON;
 
-    /** @var  string */
+    /** @var string */
     protected $host;
 
-    /** @var  string */
+    /** @var string */
     protected $username;
 
-    /** @var  string */
+    /** @var string */
     protected $pass;
 
     /** @var string */

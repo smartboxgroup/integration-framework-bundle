@@ -16,13 +16,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ConfigurableProducerTest extends BaseTestCase
 {
-    /** @var  ConfigurableProducer|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ConfigurableProducer|\PHPUnit_Framework_MockObject_MockObject */
     protected $configurableProducer;
 
-    /** @var  OptionsResolver */
+    /** @var OptionsResolver */
     protected $optionsResolver;
 
-    /** @var  ConfigurableWebserviceProtocol */
+    /** @var ConfigurableWebserviceProtocol */
     protected $protocol;
 
     protected $defaultOptions = [

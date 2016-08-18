@@ -87,7 +87,7 @@ abstract class AbstractInternalRouterMatchCommand extends ContainerAwareCommand
                 new InputArgument('path_info', InputArgument::REQUIRED, 'A path info'),
             ])
             ->setDescription('Helps debug '.$this->getInternalRouterName().' by simulating a path info match')
-            ->setHelp(<<<EOF
+            ->setHelp(<<<'EOF'
 The <info>%command.name%</info> shows which routes match a given URI and which don't and for what reason:
 
   <info>php %command.full_name% /foo</info>

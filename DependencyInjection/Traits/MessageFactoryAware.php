@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
  */
 trait MessageFactoryAware
 {
-    /** @var  MessageFactory */
+    /** @var MessageFactory */
     protected $messageFactory;
 
     /**

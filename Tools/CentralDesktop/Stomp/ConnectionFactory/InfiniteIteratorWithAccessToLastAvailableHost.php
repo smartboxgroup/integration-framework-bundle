@@ -6,8 +6,6 @@ class InfiniteIteratorWithAccessToLastAvailableHost extends \InfiniteIterator
 {
     protected $lastAvailableHost = null;
 
-    /**
-     */
     public function getLastAvailableHost()
     {
         return $this->lastAvailableHost;

@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  */
 class BaseKernelTestCase extends KernelTestCase
 {
-    /** @var  SmartesbHelper */
+    /** @var SmartesbHelper */
     protected $helper;
 
     public function setUp()

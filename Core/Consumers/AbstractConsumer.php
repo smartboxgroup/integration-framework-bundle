@@ -17,7 +17,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     /** @var bool */
     protected $stop = false;
 
-    /** @var int  */
+    /** @var int */
     protected $expirationCount = -1;
 
     /**

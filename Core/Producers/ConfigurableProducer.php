@@ -33,10 +33,10 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
     const STEP_REQUEST = 'request';
     const KEY_RESPONSE = 'response';
 
-    /** @var  array */
+    /** @var array */
     protected $methodsConfiguration;
 
-    /** @var array  */
+    /** @var array */
     protected $configuredOptions = [];
 
     /** @var string */
@@ -156,7 +156,7 @@ abstract class ConfigurableProducer extends Producer implements ConfigurableProd
          * RESPONSE
          */
         if ($options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT
-            &&  array_key_exists(self::KEY_RESPONSE, $methodConf)) {
+            && array_key_exists(self::KEY_RESPONSE, $methodConf)) {
             $resultConfig = $methodConf[self::KEY_RESPONSE];
             $result = $this->confHelper->resolve($resultConfig, $context);
 

@@ -25,10 +25,10 @@ class RestConfigurableProducerTest extends \PHPUnit_Framework_TestCase
     /** @var ClientInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $client;
 
-    /** @var  ExpressionEvaluator|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var ExpressionEvaluator|\PHPUnit_Framework_MockObject_MockObject */
     protected $evaluator;
 
-    /** @var  SerializerInterface|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var SerializerInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $serializer;
 
     /** @var RestConfigurableProducer */

@@ -33,7 +33,7 @@ class DbalConfigurableConsumer extends AbstractConfigurableConsumer
 
     const HYDRATION_ARRAY = 'array';
 
-    /** @var  OptionsResolver */
+    /** @var OptionsResolver */
     protected $configResolver;
 
     /**

@@ -28,7 +28,7 @@ abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer imp
     const VALIDATION_DISPLAY_MESSAGE = 'display_message';
     const VALIDATION_RECOVERABLE = 'recoverable';
 
-    /** @var  SoapClient */
+    /** @var SoapClient */
     protected $soapClient;
 
     /**

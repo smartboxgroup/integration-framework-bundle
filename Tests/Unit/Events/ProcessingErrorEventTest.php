@@ -24,7 +24,7 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject|\Exception */
     private $exception;
 
-    /** @var  string */
+    /** @var string */
     private $name;
 
     protected function setUp()

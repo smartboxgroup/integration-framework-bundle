@@ -6,7 +6,7 @@ use BeSimple\SoapClient\SoapClient;
 
 class SoapConfigurableProducer extends AbstractSoapConfigurableProducer
 {
-    /** @var  SoapClient */
+    /** @var SoapClient */
     protected $soapClient;
 
     /**

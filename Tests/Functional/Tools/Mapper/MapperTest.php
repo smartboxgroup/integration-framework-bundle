@@ -14,7 +14,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Mapper\MapperInterface;
  */
 class MapperTest extends BaseTestCase
 {
-    /** @var  Mapper|MapperInterface */
+    /** @var Mapper|MapperInterface */
     protected $mapper;
 
     public function setUp()

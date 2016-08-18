@@ -119,7 +119,7 @@ class QueueConsumerTest extends BaseKernelTestCase
 
         $consumer->setExpirationCount(3);   // This will mnake the consumer stop after reading 3 messages
 
-        declare (ticks = 1);
+        declare(ticks=1);
         pcntl_signal(SIGALRM, [$this, 'handleSignal']);
 
         pcntl_alarm(5);

@@ -24,7 +24,7 @@ class EventsLoggerListener
      */
     protected $logger;
 
-    /** @var  RequestStack */
+    /** @var RequestStack */
     protected $requestStack;
 
     protected static $availableEventsLogLevel = [

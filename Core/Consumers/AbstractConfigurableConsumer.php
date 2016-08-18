@@ -18,10 +18,10 @@ abstract class AbstractConfigurableConsumer extends AbstractConsumer implements 
     use UsesSerializer;
     use UsesConfigurableServiceHelper;
 
-    /** @var  array */
+    /** @var array */
     protected $methodsConfiguration;
 
-    /** @var array  */
+    /** @var array */
     protected $configuredOptions = [];
 
     /** @var string */

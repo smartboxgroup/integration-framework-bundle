@@ -17,7 +17,7 @@ class InvalidMessageException extends \Exception implements ExchangeAwareInterfa
     /** @var MessageInterface */
     protected $invalidMessage;
 
-    /** @var  \Smartbox\Integration\FrameworkBundle\Core\Exchange */
+    /** @var \Smartbox\Integration\FrameworkBundle\Core\Exchange */
     protected $exchange;
 
     protected $errors = [];
