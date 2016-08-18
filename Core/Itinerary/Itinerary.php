@@ -5,7 +5,6 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Itinerary;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 /**
  * Class Itinerary.
@@ -16,6 +15,7 @@ class Itinerary implements SerializableInterface
 
     /**
      * @JMS\Type("string")
+     * @JMS\SerializedName("name")
      * @JMS\Expose
      * @JMS\Groups({"logs"})
      *
@@ -23,8 +23,15 @@ class Itinerary implements SerializableInterface
      */
     protected $name;
 
-    /** @var  Processor[] */
-    protected $processors = [];
+    /**
+     * @JMS\Type("array<string>")
+     * @JMS\SerializedName("processors")
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     *
+     * @var string
+     */
+    protected $processorIds = [];
 
     /**
      * Itinerary constructor.
@@ -53,71 +60,58 @@ class Itinerary implements SerializableInterface
     }
 
     /**
-     * @JMS\VirtualProperty
-     * @JMS\SerializedName("processors")
-     * @JMS\Type("array<string>")
-     * @JMS\Expose
-     * @JMS\Groups({"metadata"})
-     *
-     * @return array
+     * @return string[]
      */
     public function getProcessorIds()
     {
-        $arr = array();
-        foreach ($this->processors as $processor) {
-            $arr[] = $processor->getId();
+        return $this->processorIds;
+    }
+
+    /**
+     * @param string[] $processorIds
+     */
+    public function setProcessorIds(array $processorIds)
+    {
+        $this->processorIds = $processorIds;
+    }
+
+    /**
+     * @param string $processorId
+     */
+    public function addProcessorId($processorId)
+    {
+        if (!is_string($processorId)) {
+            throw new \InvalidArgumentException('addProcessorId argument expected to be a string.');
         }
-
-        return $arr;
-    }
-
-    /**
-     * @return Processor[]
-     */
-    public function getProcessors()
-    {
-        return $this->processors;
-    }
-
-    /**
-     * @param Processor[] $processors
-     */
-    public function setProcessors(array $processors)
-    {
-        $this->processors = $processors;
-    }
-
-    /**
-     * @param Processor $processor
-     */
-    public function addProcessor(Processor $processor)
-    {
-        $this->processors[] = $processor;
+        $this->processorIds[] = $processorId;
     }
 
     public function prepend(Itinerary $itinerary)
     {
-        $this->processors = array_merge($itinerary->processors, $this->processors);
+        $this->processorIds = array_merge($itinerary->processorIds, $this->processorIds);
     }
 
     public function append(Itinerary $itinerary)
     {
-        $this->processors = array_merge($this->processors, $itinerary->processors);
+        $this->processorIds = array_merge($this->processorIds, $itinerary->processorIds);
     }
 
     /**
-     * @return Processor
+     * @return string
      */
-    public function shiftProcessor()
+    public function shiftProcessorId()
     {
-        return array_shift($this->processors);
+        return array_shift($this->processorIds);
     }
 
     /**
-     * @param Processor $processor
+     * @param string $processorId
      */
-    public function unShiftProcessor(Processor $processor)
+    public function unShiftProcessorId($processorId)
     {
-        array_unshift($this->processors, $processor);
+        if (!is_string($processorId)) {
+            throw new \InvalidArgumentException('unShiftProcessorId argument expected to be a string.');
+        }
+        array_unshift($this->processorIds, $processorId);
     }
 }
