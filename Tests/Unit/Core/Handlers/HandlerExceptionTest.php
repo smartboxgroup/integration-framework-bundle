@@ -5,13 +5,13 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Handlers;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
-class HandlerExceptionTests extends \PHPUnit_Framework_TestCase
+class HandlerExceptionTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstruct()
     {
         /** @var $messageInterface $messageInterface */
         $messageInterface = $this->createMock(MessageInterface::class);
-        $message          = 'Handler exception';
+        $message = 'Handler exception';
 
         $handlerException = new HandlerException($message, $messageInterface);
 
