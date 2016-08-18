@@ -183,7 +183,7 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
      *
      * @param array $processorIds
      */
-    public function testShiftProcessor(array $processorIds)
+    public function testShiftProcessorId(array $processorIds)
     {
         $this->itinerary->setProcessorIds($processorIds);
 
