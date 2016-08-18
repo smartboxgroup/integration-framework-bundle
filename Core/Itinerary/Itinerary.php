@@ -5,7 +5,6 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Itinerary;
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 /**
  * Class Itinerary.
@@ -81,8 +80,8 @@ class Itinerary implements SerializableInterface
      */
     public function addProcessor($processor)
     {
-        if(!is_string($processor)){
-            throw new \InvalidArgumentException("addProcessor first argument expected to be a string.");
+        if (!is_string($processor)) {
+            throw new \InvalidArgumentException('addProcessor argument expected to be a string.');
         }
         $this->processors[] = $processor;
     }
@@ -110,8 +109,8 @@ class Itinerary implements SerializableInterface
      */
     public function unShiftProcessor($processor)
     {
-        if(!is_string($processor)){
-            throw new \InvalidArgumentException("unShiftProcessor first argument expected to be a string.");
+        if (!is_string($processor)) {
+            throw new \InvalidArgumentException('unShiftProcessor argument expected to be a string.');
         }
         array_unshift($this->processors, $processor);
     }

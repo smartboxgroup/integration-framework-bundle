@@ -38,7 +38,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject */
     public $eventDispatcherMock;
 
-    /** @var  ContainerInterface */
+    /** @var ContainerInterface */
     public $fakeContainer;
 
     /**
@@ -46,7 +46,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public $factory;
 
-    public function setUp()
+    protected function setUp()
     {
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $this->handler = new MessageHandler();
@@ -85,7 +85,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $itineraryResolverMock
             ->expects($this->once())
             ->method('getItineraryParams')
-            ->with($from,'0')
+            ->with($from, '0')
             ->willReturn(array(
                 InternalRouter::KEY_ITINERARY => $itinerary,
             ));
@@ -97,11 +97,11 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $exchangeProcessedManually->setItinerary(new Itinerary());
         for ($i = 1; $i <= $numberOfProcessors; ++$i) {
             $processor = new FakeProcessor($i);
-            $processor->setId("processor_".$i);
+            $processor->setId("processor_$i");
             $processor->setEventDispatcher($this->eventDispatcherMock);
             $processor->process($exchangeProcessedManually);
 
-            $this->fakeContainer->set($processor->getId(),$processor);
+            $this->fakeContainer->set($processor->getId(), $processor);
             $itinerary->addProcessor($processor->getId());
         }
 
@@ -127,7 +127,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $itineraryResolverMock
             ->expects($this->once())
             ->method('getItineraryParams')
-            ->with($from,'0')
+            ->with($from, '0')
             ->willReturn(array(
                 InternalRouter::KEY_ITINERARY => $itinerary,
             ));
@@ -159,7 +159,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $itineraryResolverMock
             ->expects($this->once())
             ->method('getItineraryParams')
-            ->with($fromURI,'0')
+            ->with($fromURI, '0')
             ->willReturn(array(
                 InternalRouter::KEY_ITINERARY => $itinerary,
             ));
@@ -179,7 +179,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
         $optionsResolver = new OptionsResolver();
 
-        $queueProtocol = new QueueProtocol(true,3600);
+        $queueProtocol = new QueueProtocol(true, 3600);
         $queueProtocol->configureOptionsResolver($optionsResolver);
 
         $failedEndpointOptions = $optionsResolver->resolve([
@@ -207,7 +207,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $processor1 = new FakeProcessor(1);
         $processor1->setEventDispatcher($this->eventDispatcherMock);
         $processor1->setId('proc_1');
-        $this->fakeContainer->set($processor1->getId(),$processor1);
+        $this->fakeContainer->set($processor1->getId(), $processor1);
         $itinerary->addProcessor($processor1->getId());
 
         // --------------------
@@ -217,7 +217,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $processor2 = new FakeProcessor(2, $exception);
         $processor2->setEventDispatcher($this->eventDispatcherMock);
         $processor2->setId('proc_2');
-        $this->fakeContainer->set($processor2->getId(),$processor2);
+        $this->fakeContainer->set($processor2->getId(), $processor2);
         $itinerary->addProcessor($processor2->getId());
 
         $dispatchedErrors = [];
@@ -240,7 +240,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $processor3 = new FakeProcessor(3);
         $processor3->setEventDispatcher($this->eventDispatcherMock);
         $processor3->setId('proc_3');
-        $this->fakeContainer->set($processor3->getId(),$processor3);
+        $this->fakeContainer->set($processor3->getId(), $processor3);
         $itinerary->addProcessor($processor3->getId());
 
         $arr = [];
