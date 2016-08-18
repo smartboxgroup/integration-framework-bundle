@@ -20,6 +20,6 @@ class Stop extends Processor
      */
     protected function doProcess(Exchange $mainExchange, SerializableArray $processingContext)
     {
-        $mainExchange->getItinerary()->setProcessors([]);
+        $mainExchange->getItinerary()->setProcessorIds([]);
     }
 }

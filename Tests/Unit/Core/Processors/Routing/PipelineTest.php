@@ -43,9 +43,9 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
         $contentRouter = 'content_router_p';
 
         $itineraryA = new Itinerary('Itinerary A');
-        $itineraryA->addProcessor($endpointProcessor);
+        $itineraryA->addProcessorId($endpointProcessor);
         $itineraryB = new Itinerary('Itinerary B');
-        $itineraryB->addProcessor($contentRouter);
+        $itineraryB->addProcessorId($contentRouter);
 
         $exchange = new Exchange(null, $itineraryA);
 
@@ -58,6 +58,6 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
             $endpointProcessor,
         ];
 
-        $this->assertEquals($expectedResult, $exchange->getItinerary()->getProcessors());
+        $this->assertEquals($expectedResult, $exchange->getItinerary()->getProcessorIds());
     }
 }

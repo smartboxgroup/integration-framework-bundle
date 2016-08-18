@@ -41,9 +41,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     /** @var ContainerInterface */
     public $fakeContainer;
 
-    /**
-     * @var MessageFactoryInterface
-     */
+    /** @var MessageFactoryInterface */
     public $factory;
 
     protected function setUp()
@@ -102,7 +100,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             $processor->process($exchangeProcessedManually);
 
             $this->fakeContainer->set($processor->getId(), $processor);
-            $itinerary->addProcessor($processor->getId());
+            $itinerary->addProcessorId($processor->getId());
         }
 
         $arr = [];
@@ -208,7 +206,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $processor1->setEventDispatcher($this->eventDispatcherMock);
         $processor1->setId('proc_1');
         $this->fakeContainer->set($processor1->getId(), $processor1);
-        $itinerary->addProcessor($processor1->getId());
+        $itinerary->addProcessorId($processor1->getId());
 
         // --------------------
         // processor 2: error
@@ -218,7 +216,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $processor2->setEventDispatcher($this->eventDispatcherMock);
         $processor2->setId('proc_2');
         $this->fakeContainer->set($processor2->getId(), $processor2);
-        $itinerary->addProcessor($processor2->getId());
+        $itinerary->addProcessorId($processor2->getId());
 
         $dispatchedErrors = [];
         $this->eventDispatcherMock
@@ -241,7 +239,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $processor3->setEventDispatcher($this->eventDispatcherMock);
         $processor3->setId('proc_3');
         $this->fakeContainer->set($processor3->getId(), $processor3);
-        $itinerary->addProcessor($processor3->getId());
+        $itinerary->addProcessorId($processor3->getId());
 
         $arr = [];
         $endpoint = new Endpoint($fromURI, $arr, new Protocol());

@@ -125,7 +125,7 @@ class ValidateContainerCommand extends ContainerAwareCommand
         foreach ($itinerariesRepo->getItineraries() as $itineraryId) {
             /** @var Itinerary $itinerary */
             $itinerary = $this->getContainer()->get($itineraryId);
-            foreach ($itinerary->getProcessors() as $processorId) {
+            foreach ($itinerary->getProcessorIds() as $processorId) {
                 $processor = $this->getContainer()->get($processorId);
                 if ($processor instanceof EndpointProcessor) {
                     $uri = $processor->getURI();

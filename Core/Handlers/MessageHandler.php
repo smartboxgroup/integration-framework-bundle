@@ -353,14 +353,14 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     {
         $itinerary = $exchange->getItinerary();
 
-        if (!$itinerary || empty($itinerary->getProcessors())) {
+        if (!$itinerary || empty($itinerary->getProcessorIds())) {
             throw new HandlerException('Itinerary not found while handling message', $exchange->getIn());
         }
 
         $progress = 0;
         $exchangeBackup = clone $exchange;
 
-        while (null !== $processorId = $itinerary->shiftProcessor()) {
+        while (null !== $processorId = $itinerary->shiftProcessorId()) {
             // Get the processor from the container
             if (!$this->container->has($processorId)) {
                 throw new \RuntimeException("Processor with id $processorId not found.");

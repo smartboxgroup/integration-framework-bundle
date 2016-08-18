@@ -31,7 +31,7 @@ class Itinerary implements SerializableInterface
      *
      * @var string
      */
-    protected $processors = [];
+    protected $processorIds = [];
 
     /**
      * Itinerary constructor.
@@ -62,56 +62,56 @@ class Itinerary implements SerializableInterface
     /**
      * @return string[]
      */
-    public function getProcessors()
+    public function getProcessorIds()
     {
-        return $this->processors;
+        return $this->processorIds;
     }
 
     /**
-     * @param string[] $processors
+     * @param string[] $processorIds
      */
-    public function setProcessors(array $processors)
+    public function setProcessorIds(array $processorIds)
     {
-        $this->processors = $processors;
+        $this->processorIds = $processorIds;
     }
 
     /**
-     * @param string $processor
+     * @param string $processorId
      */
-    public function addProcessor($processor)
+    public function addProcessorId($processorId)
     {
-        if (!is_string($processor)) {
-            throw new \InvalidArgumentException('addProcessor argument expected to be a string.');
+        if (!is_string($processorId)) {
+            throw new \InvalidArgumentException('addProcessorId argument expected to be a string.');
         }
-        $this->processors[] = $processor;
+        $this->processorIds[] = $processorId;
     }
 
     public function prepend(Itinerary $itinerary)
     {
-        $this->processors = array_merge($itinerary->processors, $this->processors);
+        $this->processorIds = array_merge($itinerary->processorIds, $this->processorIds);
     }
 
     public function append(Itinerary $itinerary)
     {
-        $this->processors = array_merge($this->processors, $itinerary->processors);
+        $this->processorIds = array_merge($this->processorIds, $itinerary->processorIds);
     }
 
     /**
      * @return string
      */
-    public function shiftProcessor()
+    public function shiftProcessorId()
     {
-        return array_shift($this->processors);
+        return array_shift($this->processorIds);
     }
 
     /**
-     * @param string $processor
+     * @param string $processorId
      */
-    public function unShiftProcessor($processor)
+    public function unShiftProcessorId($processorId)
     {
-        if (!is_string($processor)) {
-            throw new \InvalidArgumentException('unShiftProcessor argument expected to be a string.');
+        if (!is_string($processorId)) {
+            throw new \InvalidArgumentException('unShiftProcessorId argument expected to be a string.');
         }
-        array_unshift($this->processors, $processor);
+        array_unshift($this->processorIds, $processorId);
     }
 }
