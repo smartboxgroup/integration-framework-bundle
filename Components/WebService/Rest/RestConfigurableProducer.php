@@ -15,7 +15,7 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebse
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\RecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\AbstractConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -24,7 +24,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class RestConfigurableProducer
  */
-class RestConfigurableProducer extends ConfigurableProducer
+class RestConfigurableProducer extends AbstractConfigurableProducer
 {
     use UsesGuzzleHttpClient;
 
@@ -98,7 +98,7 @@ class RestConfigurableProducer extends ConfigurableProducer
     {
         if (!is_array($stepActionParams)) {
             throw new InvalidConfigurationException(
-                "Step 'request' in ConfigurableProducer expected an array as configuration"
+                "Step 'request' in AbstractConfigurableProducer expected an array as configuration"
             );
         }
 

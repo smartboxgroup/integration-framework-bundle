@@ -50,7 +50,6 @@ services:
   smartesb.protocols.configurable.nosql:
       class: %smartesb.protocols.configurable.nosql.class%
       calls:
-       - [setDefaultProducer, [@smartesb.producers.nosql]]
        - [setDefaultHandler, [@smartesb.handlers.async]]
 
   smartesb.protocols.configurable.webservice:

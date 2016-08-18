@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -26,7 +27,7 @@ class ConsumeCommand extends ContainerAwareCommand
     {
         $uri = $this->getInput()->getArgument('uri');
 
-        return $this->getContainer()->get('smartesb.endpoint_factory')->createEndpoint($uri);
+        return $this->getContainer()->get('smartesb.endpoint_factory')->createEndpoint($uri, EndpointFactory::MODE_CONSUME);
     }
 
     /**

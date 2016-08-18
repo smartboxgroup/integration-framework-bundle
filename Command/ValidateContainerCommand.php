@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Command;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
@@ -149,7 +150,7 @@ class ValidateContainerCommand extends ContainerAwareCommand
         $uri = preg_replace('/{[^{}]+}/', 'xxx', $uri);
 
         try {
-            $endpoint = $endpointFactory->createEndpoint($uri);
+            $endpoint = $endpointFactory->createEndpoint($uri, EndpointFactory::MODE_CONSUME);
         } catch (\Exception $exception) {
             $output->writeln("<error>Problem detected for URI: '$uri'</error>");
             return false;

@@ -3,8 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface;
-use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query\QueryOptionsInterface;
 
 /**
  * Interface NoSQLDriverInterface.
@@ -12,7 +10,7 @@ use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query\QueryOption
 interface NoSQLDriverInterface
 {
     /**
-     * Delete all items matching a given $queryOptions.
+     * Delete all documents matching a given $queryOptions.
      *
      * @param string                $storageResourceName
      * @param QueryOptionsInterface $queryOptions
@@ -20,7 +18,7 @@ interface NoSQLDriverInterface
     public function delete($storageResourceName, QueryOptionsInterface $queryOptions);
 
     /**
-     * Find all items matching a given $queryOptions.
+     * Find all documents matching a given $queryOptions.
      *
      * @param string                $storageResourceName
      * @param QueryOptionsInterface $queryOptions
@@ -31,17 +29,28 @@ interface NoSQLDriverInterface
     public function find($storageResourceName, QueryOptionsInterface $queryOptions, array $fields = []);
 
     /**
-     * Insert an item.
+     * Insert an document.
      *
      * @param string                $storageResourceName
      * @param SerializableInterface $data
      *
      * @return string $id
      */
-    public function insert($storageResourceName, SerializableInterface $data);
+    public function insertOne($storageResourceName, SerializableInterface $data);
+
 
     /**
-     * Update one or many items matching the $queryOptions with the given $data.
+     * Insert an document.
+     *
+     * @param string                $storageResourceName
+     * @param SerializableInterface[] $data
+     *
+     * @return string $id
+     */
+    public function insertMany($storageResourceName, array $data);
+
+    /**
+     * Update one or many documents matching the $queryOptions with the given $data.
      *
      * @param string                $storageResourceName
      * @param QueryOptionsInterface $queryOptions

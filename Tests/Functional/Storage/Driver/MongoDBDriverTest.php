@@ -7,8 +7,8 @@ use MongoDB\BSON\ObjectID;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Exception\StorageException;
-use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query\QueryOptions;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptions;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Events\FakeEvent;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\Entity\SerializableSimpleEntity;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -82,7 +82,7 @@ class MongoDBDriverTest extends KernelTestCase
         $data->setDescription('some description');
         $data->setNote('some note');
 
-        $this->assertNotNull($storageDriver->insert(self::MONGO_COLLECTION, $data));
+        $this->assertNotNull($storageDriver->insertOne(self::MONGO_COLLECTION, $data));
 
         unset($storageDriver);
     }
@@ -110,7 +110,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testConfigureForIncorrectConfiguration(array $configuration)
     {
-        $this->setExpectedException(StorageException::class);
+        $this->setExpectedException(NoSQLDriverException::class);
 
         $storageDriver = new MongoDBDriver(self::$serializer);
         $storageDriver->configure($configuration);
@@ -157,7 +157,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testSaveAndFind(SerializableInterface $data)
     {
-        $id = self::$storageDriver->insert(self::MONGO_COLLECTION, $data);
+        $id = self::$storageDriver->insertOne(self::MONGO_COLLECTION, $data);
 
         $queryOptions = new QueryOptions();
         $queryOptions->setQueryParams([
@@ -205,7 +205,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testUpdate(SerializableInterface $data)
     {
-        $id = self::$storageDriver->insert(self::MONGO_COLLECTION, $data);
+        $id = self::$storageDriver->insertOne(self::MONGO_COLLECTION, $data);
 
         $queryOptions = new QueryOptions();
         $queryOptions->setQueryParams([

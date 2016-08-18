@@ -72,7 +72,7 @@ class ConfigurableServiceHelper
     {
         if (!is_array($definitions)) {
             throw new InvalidConfigurationException(
-                "Step 'define' in ConfigurableProducer expected an array as configuration"
+                "Step 'define' in AbstractConfigurableProducer expected an array as configuration"
             );
         }
 

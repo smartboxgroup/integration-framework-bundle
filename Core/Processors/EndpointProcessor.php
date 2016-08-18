@@ -55,7 +55,7 @@ class EndpointProcessor extends Processor implements LogsExchangeDetails
         $processingContext = $event->getProcessingContext();
 
         $resolvedUri = EndpointFactory::resolveURIParams($event->getExchange(), $this->uri);
-        $endpoint = $this->getEndpointFactory()->createEndpoint($resolvedUri);
+        $endpoint = $this->getEndpointFactory()->createEndpoint($resolvedUri, EndpointFactory::MODE_PRODUCE);
 
         $processingContext->set(self::CONTEXT_RESOLVED_URI, $resolvedUri);  // TO CHECK: REMOVE FROM CONTEXT, IS IN ENDPOINT
         $processingContext->set(self::CONTEXT_OPTIONS, $endpoint->getOptions()); // TO CHECK: REMOVE FROM CONTEXT, IS IN ENDPOINT

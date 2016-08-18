@@ -11,6 +11,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
     {
         return array(
             $this->createHasHeyFunction(),
+            $this->createGetFirstFunction()
         );
     }
 
@@ -29,6 +30,26 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                     throw new \RuntimeException('Second argument passed to "hasKey" should be an array.');
                 }
                 return array_key_exists($key, $array);
+            }
+        );
+    }
+
+
+    /**
+     * @return ExpressionFunction
+     */
+    protected function createGetFirstFunction()
+    {
+        return new ExpressionFunction(
+            'getFirst',
+            function ($array) {
+                return sprintf('reset(%s)', $array);
+            },
+            function ($arguments, $array) {
+                if (!is_array($array)) {
+                    throw new \RuntimeException('First argument passed to "getFirst" should be an array.');
+                }
+                return reset($array);
             }
         );
     }

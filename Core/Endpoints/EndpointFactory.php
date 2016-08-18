@@ -19,6 +19,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class EndpointFactory extends Service
 {
+    const MODE_CONSUME = 'consume';
+    const MODE_PRODUCE = 'produce';
+
     use UsesEndpointRouter;
 
     /** @var Protocol */
@@ -42,7 +45,7 @@ class EndpointFactory extends Service
      *
      * @throws \Exception
      */
-    public function createEndpoint($uri)
+    public function createEndpoint($uri, $mode = self::MODE_PRODUCE)
     {
         if (array_key_exists($uri, $this->endpointsCache)) {
             return $this->endpointsCache[$uri];
@@ -73,7 +76,7 @@ class EndpointFactory extends Service
         }
 
         // Resolve options
-        $optionsResolver = $this->getOptionsResolver($uri, $routeOptions, $protocol);
+        $optionsResolver = $this->getOptionsResolver($uri, $routeOptions, $protocol, $mode);
 
         try {
             $options = $optionsResolver->resolve($routeOptions);
@@ -129,13 +132,13 @@ class EndpointFactory extends Service
     }
 
     /**
-     * @param string            $uri
-     * @param array             $routeOptions
+     * @param $uri
+     * @param array $routeOptions
      * @param ProtocolInterface $protocol
-     *
+     * @param string $mode
      * @return OptionsResolver
      */
-    protected function getOptionsResolver($uri, array &$routeOptions, ProtocolInterface $protocol)
+    protected function getOptionsResolver($uri, array &$routeOptions, ProtocolInterface $protocol, $mode)
     {
         $optionsResolver = new OptionsResolver();
         $protocol->configureOptionsResolver($optionsResolver);
@@ -145,7 +148,7 @@ class EndpointFactory extends Service
         $handler = array_key_exists(Protocol::OPTION_HANDLER, $routeOptions) ? $routeOptions[Protocol::OPTION_HANDLER] : $protocol->getDefaultHandler();
 
         // Check Consumer
-        if ($consumer) {
+        if ($mode == self::MODE_CONSUME && $consumer) {
             if ($consumer instanceof ConsumerInterface) {
                 if ($consumer instanceof ConfigurableInterface) {
                     $consumer->configureOptionsResolver($optionsResolver);
@@ -160,7 +163,7 @@ class EndpointFactory extends Service
         }
 
         // Check Producer
-        if ($producer) {
+        if ($mode == self::MODE_PRODUCE && $producer) {
             if ($producer instanceof ProducerInterface) {
                 if ($producer instanceof ConfigurableInterface) {
                     $producer->configureOptionsResolver($optionsResolver);

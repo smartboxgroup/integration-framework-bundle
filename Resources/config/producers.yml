@@ -3,7 +3,6 @@ parameters:
   smartesb.producers.direct.class: Smartbox\Integration\FrameworkBundle\Core\Producers\DirectProducer
   smartesb.producers.json_file.class: Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader\JsonFileLoaderProducer
   smartesb.producers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer
-  smartesb.producers.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLProducer
   smartesb.producers.service.class: Smartbox\Integration\FrameworkBundle\Components\SymfonyService\SymfonyServiceProducer
 
 services:
@@ -27,13 +26,6 @@ services:
         - [setId, ['smartesb.producers.queue']]
         - [setSerializer, [@serializer]]
         - [setDriverRegistry, [@smartesb.drivers.queue._registry]]
-
-  # NoSQL
-  smartesb.producers.nosql:
-      class: %smartesb.producers.nosql.class%
-      calls:
-        - [setId, ['smartesb.producers.nosql']]
-        - [setDriverRegistry, [@smartesb.drivers.nosql._registry]]
 
   # NoSQL
   smartesb.producers.service:

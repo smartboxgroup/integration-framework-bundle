@@ -14,13 +14,6 @@ class NoSQLConfigurableProtocol extends Protocol implements DescriptableInterfac
     const OPTION_NOSQL_DRIVER       = 'nosql_driver';
     const OPTION_COLLECTION_PREFIX  = 'prefix';
     const OPTION_COLLECTION_NAME    = 'collection';
-    const OPTION_ACTION             = 'action';
-
-    const ACTION_INSERT  = 'insert';
-    const ACTION_UPDATE  = 'update';
-    const ACTION_DELETE  = 'delete';
-    const ACTION_FIND    = 'find';
-
     const OPTION_METHOD = 'method';
 
     /**
@@ -34,14 +27,7 @@ class NoSQLConfigurableProtocol extends Protocol implements DescriptableInterfac
             self::OPTION_NOSQL_DRIVER => ['The driver service to use to connect to the MongoDb instance', []],
             self::OPTION_COLLECTION_PREFIX => ['A string prefix used for collection names', []],
             self::OPTION_COLLECTION_NAME => ['The name of the collection in which the messages will be stored', []],
-            self::OPTION_ACTION => ['Action to execute in the database', [
-                self::ACTION_INSERT => 'Creates a record',
-                self::ACTION_UPDATE => 'Updates a record (not supported yet)',
-                self::ACTION_DELETE => 'Deletes a record (not supported yet)',
-                self::ACTION_FIND => 'Gets a record (not supported yet)',
-            ]],
             self::OPTION_METHOD => ['Method to be executed in the consumer/producer', []],
-
         ]);
     }
 
@@ -55,27 +41,17 @@ class NoSQLConfigurableProtocol extends Protocol implements DescriptableInterfac
     public function configureOptionsResolver(OptionsResolver $resolver)
     {
         parent::configureOptionsResolver($resolver);
-        $resolver->setDefaults([
-            self::OPTION_ACTION => self::ACTION_INSERT,
-        ]);
-
         $resolver->setRequired([
             self::OPTION_NOSQL_DRIVER,
             self::OPTION_COLLECTION_PREFIX,
             self::OPTION_COLLECTION_NAME,
-            self::OPTION_ACTION,
+            self::OPTION_METHOD
         ]);
 
         $resolver->setAllowedTypes(self::OPTION_COLLECTION_NAME, ['string']);
         $resolver->setAllowedTypes(self::OPTION_COLLECTION_PREFIX, ['string']);
         $resolver->setAllowedTypes(self::OPTION_NOSQL_DRIVER, ['string']);
-
-        $resolver->setAllowedValues(self::OPTION_ACTION, [
-            self::ACTION_INSERT,
-            self::ACTION_FIND,
-//            self::ACTION_DELETE,
-            self::ACTION_UPDATE
-        ]);
+        $resolver->setAllowedTypes(self::OPTION_METHOD, ['string']);
     }
 
     /**

@@ -14,9 +14,9 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializ
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class ConfigurableProducer.
+ * Class AbstractConfigurableProducer.
  */
-abstract class ConfigurableProducer extends Producer implements ConfigurableProducerInterface
+abstract class AbstractConfigurableProducer extends Producer implements ConfigurableProducerInterface
 {
     use UsesEvaluator;
     use UsesSerializer;

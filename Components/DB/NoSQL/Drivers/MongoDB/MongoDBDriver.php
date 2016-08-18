@@ -3,12 +3,13 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB;
 
 use JMS\Serializer\SerializerInterface;
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Exception\DataStorageException;
-use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Exception\StorageException;
-use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query\QueryOptionsInterface;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptionsInterface;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverDataException;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
@@ -51,7 +52,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
      *
      * @param array $configuration
      *
-     * @throws StorageException
+     * @throws \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException
      */
     public function configure(array $configuration)
     {
@@ -77,7 +78,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
         try {
             $this->configuration = $optionsResolver->resolve($configuration);
         } catch (\Exception $e) {
-            throw new StorageException('Wrong configuration: '.$e->getMessage(), $e->getCode(), $e);
+            throw new NoSQLDriverException('Wrong configuration: '.$e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -86,12 +87,12 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
      *
      * @return \MongoDB\Client
      *
-     * @throws StorageException
+     * @throws \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException
      */
     public function connect()
     {
         if (!isset($this->configuration['host']) || !isset($this->configuration['database'])) {
-            throw new StorageException('Can not connect to MongoDB because configuration for this driver was not provided.');
+            throw new NoSQLDriverException('Can not connect to MongoDB because configuration for this driver was not provided.');
         }
 
         try {
@@ -101,7 +102,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
                 $this->configuration['driver_options']
             );
         } catch (\Exception $e) {
-            throw new StorageException('Can not connect to storage because of: '.$e->getMessage(), $e->getCode(), $e);
+            throw new NoSQLDriverException('Can not connect to storage because of: '.$e->getMessage(), $e->getCode(), $e);
         }
 
         $this->db = $this->connection->selectDatabase($this->configuration['database']);
@@ -126,7 +127,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /**
      * {@inheritdoc}
      */
-    public function insert($collection, SerializableInterface $storageData)
+    public function insertOne($collection, SerializableInterface $storageData)
     {
         $this->ensureConnection();
 
@@ -136,8 +137,30 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
             /** @var \MongoDB\InsertOneResult $insertOneResult */
             $insertOneResult = $this->db->$collection->insertOne($data);
         } catch (\Exception $e) {
-            $exception = new DataStorageException('Can not save data to storage: '.$e->getMessage(), $e->getCode(), $e);
+            $exception = new NoSQLDriverDataException('Can not save data to storage: '.$e->getMessage(), $e->getCode(), $e);
             $exception->setStorageData($storageData);
+
+            throw $exception;
+        }
+
+        return (string) $insertOneResult->getInsertedId();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function insertMany($collection, array $data)
+    {
+        $this->ensureConnection();
+
+        try {
+            $data = $this->serializer->serialize($data, 'mongo_array');
+
+            /** @var \MongoDB\InsertOneResult $insertOneResult */
+            $insertOneResult = $this->db->$collection->insertMany($data);
+        } catch (\Exception $e) {
+            $exception = new NoSQLDriverDataException('Can not save data to storage: '.$e->getMessage(), $e->getCode(), $e);
+            $exception->setStorageData(new SerializableArray($data));
 
             throw $exception;
         }
@@ -157,7 +180,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
             /** @var \MongoDB\UpdateResult $updateResult */
             $updateResult = $this->db->$collection->updateMany($queryOptions->getQueryParams(), $data);
         } catch (\Exception $e) {
-            $exception = new StorageException('Can not update data with storage: '.$e->getMessage(), $e->getCode(), $e);
+            $exception = new NoSQLDriverException('Can not update data with storage: '.$e->getMessage(), $e->getCode(), $e);
             throw $exception;
         }
 
@@ -175,7 +198,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
             /** @var \MongoDB\DeleteResult $deleteResult */
             $deleteResult = $this->db->$collection->deleteMany($queryOptions->getQueryParams());
         } catch (\Exception $e) {
-            $exception = new StorageException('Can not update data to storage: '.$e->getMessage(), $e->getCode(), $e);
+            $exception = new NoSQLDriverException('Can not update data to storage: '.$e->getMessage(), $e->getCode(), $e);
             throw $exception;
         }
 
@@ -209,11 +232,11 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
 
     /**
      * @param $collection
-     * @param QueryOptionsInterface $queryOptions
+     * @param \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptionsInterface $queryOptions
      * @param array $fields
      *
      * @return \MongoDB\Driver\Cursor
-     * @throws StorageException
+     * @throws \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException
      */
     public function findWithCursor($collection, QueryOptionsInterface $queryOptions, array $fields = [])
     {
@@ -237,7 +260,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
 
             return $cursor;
         } catch (\Exception $e) {
-            throw new StorageException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
+            throw new NoSQLDriverException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -304,12 +327,12 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
 
     /**
      * @param $collection
-     * @param QueryOptionsInterface $queryOptions
+     * @param \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptionsInterface $queryOptions
      * @param array $fields
      * @param bool $hydrateObject
      *
      * @return SerializableInterface|\Smartbox\CoreBundle\Type\SerializableInterface[]|void
-     * @throws StorageException
+     * @throws \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException
      */
     public function findOne($collection, QueryOptionsInterface $queryOptions, array $fields = [], $hydrateObject = true)
     {
@@ -318,7 +341,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
         try {
             $result = $this->db->$collection->findOne($queryOptions->getQueryParams(), $fields);
         } catch (\Exception $e) {
-            throw new StorageException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
+            throw new NoSQLDriverException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
         }
 
         $result = (array) $result;
@@ -361,7 +384,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
      * @param QueryOptionsInterface $queryOptions
      *
      * @return int
-     * @throws StorageException
+     * @throws \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException
      */
     public function count($collection, QueryOptionsInterface $queryOptions)
     {
@@ -374,10 +397,9 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
             $collection = $this->db->$collection;
             $count = $collection->count($queryParams);
         } catch (\Exception $e) {
-            throw new StorageException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
+            throw new NoSQLDriverException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
         }
 
         return $count;
     }
-
 }

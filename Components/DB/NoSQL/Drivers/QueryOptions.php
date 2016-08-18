@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Query;
+namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers;
 
 /**
  * Class QueryOptions.
