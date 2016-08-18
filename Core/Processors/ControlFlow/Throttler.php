@@ -149,7 +149,7 @@ class Throttler extends Processor
         $this->checkReset();
 
         if (!$this->shouldPass($exchange)) {
-            if ($this->asyncDelayed) {
+            if ($this->isAsyncDelayed()) {
                 $exception = new RetryLaterException("This message can't be processed because the throttling limit is reached in processor with id: ".$this->getId());
                 $delaySeconds = (int) ($this->getPeriodMs() / 1000);
                 $exception->setDelay($delaySeconds);

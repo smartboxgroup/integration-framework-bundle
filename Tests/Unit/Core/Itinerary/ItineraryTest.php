@@ -3,8 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Itinerary;
 
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
-use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\FakeProcessor;
 
 /**
  * Class ItineraryTest.
@@ -29,108 +27,93 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
     /**
      * @return array
      */
-    public function dataProviderForProcessors()
+    public function dataProviderForProcessorIds()
     {
         return [
-            [[new FakeProcessor('id_1')]],
-            [[new FakeProcessor('id_1'), new FakeProcessor('id_2')]],
-            [[new FakeProcessor('id_1'), new FakeProcessor('id_2'), new FakeProcessor('id_3')]],
+            [['id_1']],
+            [['id_1', 'id_2']],
+            [['id_1', 'id_2', 'id_3']],
         ];
     }
 
     /**
-     * @covers ::addProcessor
-     * @covers ::getProcessors
-     * @dataProvider dataProviderForProcessors
+     * @covers ::addProcessorId
+     * @covers ::getProcessorIds
      *
-     * @param Processor[] $processors
+     * @dataProvider dataProviderForProcessorIds
+     *
+     * @param array $processorIds
      */
-    public function testAddProcessor(array $processors)
+    public function testAddProcessorId(array $processorIds)
     {
-        foreach ($processors as $processor) {
-            $this->itinerary->addProcessor($processor);
+        foreach ($processorIds as $processorId) {
+            $this->itinerary->addProcessorId($processorId);
         }
 
-        $this->assertEquals($processors, $this->itinerary->getProcessors());
+        $this->assertEquals($processorIds, $this->itinerary->getProcessorIds());
     }
 
-    /**
-     * @covers ::setProcessors
-     * @covers ::getProcessors
-     * @dataProvider dataProviderForProcessors
-     *
-     * @param Processor[] $processors
-     */
-    public function testAddProcessors(array $processors)
+    public function testAddProcessorIdWhenItIsNotString()
     {
-        $this->itinerary->addProcessor(new FakeProcessor('previous_added_processor'));
-        $this->itinerary->setProcessors($processors);
+        $this->expectException(\InvalidArgumentException::class);
 
-        $this->assertEquals($processors, $this->itinerary->getProcessors());
+        $this->itinerary->addProcessorId(new \StdClass());
     }
 
     /**
-     * @covers ::setProcessors
+     * @covers ::setProcessorIds
      * @covers ::getProcessorIds
+     *
+     * @dataProvider dataProviderForProcessorIds
+     *
+     * @param array $processorIds
      */
-    public function testGetProcessorIds()
+    public function testSetProcessorIds(array $processorIds)
     {
-        $processors = [
-            new FakeProcessor('id_1'),
-            new FakeProcessor('id_2'),
-            new FakeProcessor('id_3'),
-            new FakeProcessor('id_4'),
-        ];
-        $processorIds = [
-            'id_1',
-            'id_2',
-            'id_3',
-            'id_4',
-        ];
-
-        $this->itinerary->setProcessors($processors);
+        $this->itinerary->addProcessorId('previous_added_processor');
+        $this->itinerary->setProcessorIds($processorIds);
 
         $this->assertEquals($processorIds, $this->itinerary->getProcessorIds());
     }
 
     /**
-     * @covers ::setProcessors
-     * @covers ::getProcessors
+     * @covers ::setProcessorIds
+     * @covers ::getProcessorIds
      *
-     * @dataProvider dataProviderForProcessors
+     * @dataProvider dataProviderForProcessorIds
      *
-     * @param Processor[] $processors
+     * @param array $processorIds
      */
-    public function testGetProcessors(array $processors)
+    public function testGetProcessorIds(array $processorIds)
     {
-        $this->itinerary->setProcessors($processors);
+        $this->itinerary->setProcessorIds($processorIds);
 
-        $this->assertEquals($processors, $this->itinerary->getProcessors());
+        $this->assertEquals($processorIds, $this->itinerary->getProcessorIds());
     }
 
     /**
      * @covers ::append
-     * @covers ::setProcessors
-     * @covers ::getProcessors
+     * @covers ::setProcessorIds
+     * @covers ::getProcessorIds
      */
     public function testAppend()
     {
-        $processor1 = new FakeProcessor('processor_1');
-        $processor2 = new FakeProcessor('processor_2');
-        $processor3 = new FakeProcessor('processor_3');
-        $processor4 = new FakeProcessor('processor_4');
-        $processor5 = new FakeProcessor('processor_5');
+        $processor1 = 'processor_1';
+        $processor2 = 'processor_2';
+        $processor3 = 'processor_3';
+        $processor4 = 'processor_4';
+        $processor5 = 'processor_5';
 
         // initialize itinerary 1
         $itinerary1 = new Itinerary();
-        $itinerary1->setProcessors([
+        $itinerary1->setProcessorIds([
             $processor1,
             $processor2,
         ]);
 
         // initialize itinerary 2
         $itinerary2 = new Itinerary();
-        $itinerary2->setProcessors([
+        $itinerary2->setProcessorIds([
             $processor3,
             $processor4,
             $processor5,
@@ -146,33 +129,33 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
                 $processor4,
                 $processor5,
             ],
-            $itinerary1->getProcessors()
+            $itinerary1->getProcessorIds()
         );
     }
 
     /**
      * @covers ::prepend
-     * @covers ::setProcessors
-     * @covers ::getProcessors
+     * @covers ::setProcessorIds
+     * @covers ::getProcessorIds
      */
     public function testPrepend()
     {
-        $processor1 = new FakeProcessor('processor_1');
-        $processor2 = new FakeProcessor('processor_2');
-        $processor3 = new FakeProcessor('processor_3');
-        $processor4 = new FakeProcessor('processor_4');
-        $processor5 = new FakeProcessor('processor_5');
+        $processor1 = 'processor_1';
+        $processor2 = 'processor_2';
+        $processor3 = 'processor_3';
+        $processor4 = 'processor_4';
+        $processor5 = 'processor_5';
 
         // initialize itinerary 1
         $itinerary1 = new Itinerary();
-        $itinerary1->setProcessors([
+        $itinerary1->setProcessorIds([
             $processor1,
             $processor2,
         ]);
 
         // initialize itinerary 2
         $itinerary2 = new Itinerary();
-        $itinerary2->setProcessors([
+        $itinerary2->setProcessorIds([
             $processor3,
             $processor4,
             $processor5,
@@ -188,23 +171,46 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
                 $processor1,
                 $processor2,
             ],
-            $itinerary1->getProcessors()
+            $itinerary1->getProcessorIds()
         );
     }
 
     /**
-     * @covers ::setProcessors
-     * @covers ::shiftProcessor
+     * @covers ::setProcessorIds
+     * @covers ::shiftProcessorId
      *
-     * @dataProvider dataProviderForProcessors
+     * @dataProvider dataProviderForProcessorIds
      *
-     * @param Processor[] $processors
+     * @param array $processorIds
      */
-    public function testShiftProcessor(array $processors)
+    public function testShiftProcessorId(array $processorIds)
     {
-        $this->itinerary->setProcessors($processors);
+        $this->itinerary->setProcessorIds($processorIds);
 
-        $this->assertEquals($processors[0], $this->itinerary->shiftProcessor());
-        $this->assertSame(array_slice($processors, 1, count($processors) - 1), $this->itinerary->getProcessors());
+        $this->assertEquals($processorIds[0], $this->itinerary->shiftProcessorId());
+        $this->assertSame(array_slice($processorIds, 1, count($processorIds) - 1), $this->itinerary->getProcessorIds());
+    }
+
+    /**
+     * @covers ::setProcessorIds
+     * @covers ::unShiftProcessorId
+     *
+     * @dataProvider dataProviderForProcessorIds
+     *
+     * @param array $processorIds
+     */
+    public function testUnShiftProcessorId(array $processorIds)
+    {
+        $this->itinerary->setProcessorIds($processorIds);
+
+        $this->itinerary->unShiftProcessorId('new_processor');
+        $this->assertSame(array_merge(['new_processor'], $processorIds), $this->itinerary->getProcessorIds());
+    }
+
+    public function testUnShiftProcessorIdWhenItIsNotString()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->itinerary->unShiftProcessorId(new \StdClass());
     }
 }

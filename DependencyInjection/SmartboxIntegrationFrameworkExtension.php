@@ -281,6 +281,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $driverDef = new Definition(MessageHandler::class, []);
 
             $driverDef->addMethodCall('setId', [$handlerName]);
+            $driverDef->addMethodCall('setContainer', [new Reference('service_container')]);
             $driverDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $driverDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
             $driverDef->addMethodCall('setRetryDelay', [$handlerConfig['retry_delay']]);

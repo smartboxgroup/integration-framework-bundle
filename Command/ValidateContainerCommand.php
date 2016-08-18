@@ -7,7 +7,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\ProtocolInterface;
@@ -126,7 +125,8 @@ class ValidateContainerCommand extends ContainerAwareCommand
         foreach ($itinerariesRepo->getItineraries() as $itineraryId) {
             /** @var Itinerary $itinerary */
             $itinerary = $this->getContainer()->get($itineraryId);
-            foreach ($itinerary->getProcessors() as $processor) {
+            foreach ($itinerary->getProcessorIds() as $processorId) {
+                $processor = $this->getContainer()->get($processorId);
                 if ($processor instanceof EndpointProcessor) {
                     $uri = $processor->getURI();
                     if (!$this->checkEndpointURI($uri, $output)) {

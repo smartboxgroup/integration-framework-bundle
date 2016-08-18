@@ -4,8 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Processors\Routin
 
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ContentRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\Pipeline;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -41,13 +39,13 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcher */
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $endpointProcessor = new EndpointProcessor();
-        $contentRouter = new ContentRouter();
+        $endpointProcessor = 'endpoint_p';
+        $contentRouter = 'content_router_p';
 
         $itineraryA = new Itinerary('Itinerary A');
-        $itineraryA->addProcessor($endpointProcessor);
+        $itineraryA->addProcessorId($endpointProcessor);
         $itineraryB = new Itinerary('Itinerary B');
-        $itineraryB->addProcessor($contentRouter);
+        $itineraryB->addProcessorId($contentRouter);
 
         $exchange = new Exchange(null, $itineraryA);
 
@@ -60,6 +58,6 @@ class PipelineTest extends \PHPUnit_Framework_TestCase
             $endpointProcessor,
         ];
 
-        $this->assertEquals($expectedResult, $exchange->getItinerary()->getProcessors());
+        $this->assertEquals($expectedResult, $exchange->getItinerary()->getProcessorIds());
     }
 }

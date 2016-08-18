@@ -10,7 +10,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\DeferredExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\ErrorExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\ExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\FailedExchangeEnvelope;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\RetryExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\RetryLaterException;
@@ -25,32 +24,35 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterfac
 use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEndpointFactory;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Class MessageHandler.
  */
-class MessageHandler extends Service implements HandlerInterface
+class MessageHandler extends Service implements HandlerInterface, ContainerAwareInterface
 {
+    use ContainerAwareTrait;
     use UsesEventDispatcher;
     use UsesEndpointFactory;
     use UsesItineraryResolver;
 
-    /** @var  int */
+    /** @var int */
     protected $retriesMax;
 
-    /** @var  int */
+    /** @var int */
     protected $retryDelay;
 
-    /** @var  bool */
+    /** @var bool */
     protected $throwExceptions;
 
-    /** @var  bool */
+    /** @var bool */
     protected $deferNewExchanges;
 
-    /** @var  EndpointInterface */
+    /** @var EndpointInterface */
     protected $failedEndpoint;
 
-    /** @var  EndpointInterface */
+    /** @var EndpointInterface */
     protected $retryEndpoint;
 
     /**
@@ -351,14 +353,25 @@ class MessageHandler extends Service implements HandlerInterface
     {
         $itinerary = $exchange->getItinerary();
 
-        if (!$itinerary || empty($itinerary->getProcessors())) {
+        if (!$itinerary || empty($itinerary->getProcessorIds())) {
             throw new HandlerException('Itinerary not found while handling message', $exchange->getIn());
         }
 
         $progress = 0;
         $exchangeBackup = clone $exchange;
 
-        while (null !== $processor = $itinerary->shiftProcessor()) {
+        while (null !== $processorId = $itinerary->shiftProcessorId()) {
+            // Get the processor from the container
+            if (!$this->container->has($processorId)) {
+                throw new \RuntimeException("Processor with id $processorId not found.");
+            }
+
+            $processor = $this->container->get($processorId);
+            if (!$processor instanceof ProcessorInterface) {
+                throw new \RuntimeException("Processor with id $processorId does not implement ProcessorInterface.");
+            }
+
+            // Execute the processor
             try {
                 $this->prepareExchange($exchange);
 
