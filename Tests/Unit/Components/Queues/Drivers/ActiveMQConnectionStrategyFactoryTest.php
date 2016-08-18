@@ -8,8 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFa
 use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFactory\CachedFailoverConnectionStrategy;
 
 /**
- * Class ActiveMQConnectionStrategyFactoryTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Components\Queues\Drivers
+ * Class ActiveMQConnectionStrategyFactoryTest.
  */
 class ActiveMQConnectionStrategyFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -29,12 +28,12 @@ class ActiveMQConnectionStrategyFactoryTest extends \PHPUnit_Framework_TestCase
             'Create simple connection strategy' => [
                 'host' => 'tcp://localhost',
                 'expectedInstance' => SimpleConnectionStrategy::class,
-                'expectedHosts' => ['tcp://localhost']
+                'expectedHosts' => ['tcp://localhost'],
             ],
             'Create cached failover connection strategy' => [
                 'host' => 'failover:(tcp://primary_host:636363,tcp://secondary_host:636363)?randomize=false',
                 'expectedInstance' => CachedFailoverConnectionStrategy::class,
-                'expectedHosts' => ['tcp://primary_host:636363', 'tcp://secondary_host:636363']
+                'expectedHosts' => ['tcp://primary_host:636363', 'tcp://secondary_host:636363'],
             ],
         ];
     }

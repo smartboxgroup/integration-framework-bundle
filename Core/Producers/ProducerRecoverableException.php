@@ -12,7 +12,8 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterfac
 class ProducerRecoverableException extends \Exception implements RecoverableExceptionInterface, SerializableInterface
 {
     use HasInternalType;
-    public function __construct($message = "Recoverable error in producer", $code = 0, \Exception $previous = null){
-        parent::__construct($message,$code,$previous);
+    public function __construct($message = 'Recoverable error in producer', $code = 0, \Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
     }
 }

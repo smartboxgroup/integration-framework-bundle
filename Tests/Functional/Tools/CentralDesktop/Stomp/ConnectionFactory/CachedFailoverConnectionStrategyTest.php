@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFa
 use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFactory\InfiniteIteratorWithAccessToLastAvailableHost;
 
 /**
- * Class CachedFailoverConnectionStrategyTest
+ * Class CachedFailoverConnectionStrategyTest.
  */
 class CachedFailoverConnectionStrategyTest extends \PHPUnit_Framework_TestCase
 {
@@ -58,24 +58,23 @@ class CachedFailoverConnectionStrategyTest extends \PHPUnit_Framework_TestCase
         new CachedFailoverConnectionStrategy($this->fakeCacheService, $host);
     }
 
-
     public function dataProviderForValidHost()
     {
         return [
             'failover protocol with one host' => [
                 'failoverHost' => 'failover:(tcp://localhost:636363)',
                 'resolvedHosts' => ['tcp://localhost:636363'],
-                'randomize' => true
+                'randomize' => true,
             ],
             'failover protocol with serveral hosts and randomize=true (default)' => [
                 'failoverHost' => 'failover:(tcp://fake_host_1,tcp://localhost:636363,tcp://fake_host_2)',
                 'resolvedHosts' => ['tcp://fake_host_1', 'tcp://localhost:636363', 'tcp://fake_host_2'],
-                'randomize' => true
+                'randomize' => true,
             ],
             'failover protocol with serveral hosts and randomize=false' => [
                 'failoverHost' => 'failover:(tcp://fake_host_1,tcp://localhost:636363,tcp://fake_host_2)?randomize=false',
                 'resolvedHosts' => ['tcp://fake_host_1', 'tcp://localhost:636363', 'tcp://fake_host_2'],
-                'randomize' => false
+                'randomize' => false,
             ],
         ];
     }
@@ -141,7 +140,7 @@ class CachedFailoverConnectionStrategyTest extends \PHPUnit_Framework_TestCase
                 'method' => 'set',
                 'arguments' => [CachedFailoverConnectionStrategy::CACHE_KEY_FOR_LAST_ACTIVE_HOST, $connectedHost, null],
                 'result' => true,
-            ]
+            ],
         ];
         $this->assertEquals(
             $fakeCacheServiceSpyLog,

@@ -38,9 +38,9 @@ class RetryExchangeEnvelopeTest extends \PHPUnit_Framework_TestCase
 
     public function testConstruct()
     {
-        $context           = new Context;
-        $message           = new Message(null, [], $context);
-        $exchange          = new Exchange($message);
+        $context = new Context();
+        $message = new Message(null, [], $context);
+        $exchange = new Exchange($message);
         $processingContext = new SerializableArray(['a' => 'b']);
 
         $retryExchangeEnvelope = new RetryExchangeEnvelope($exchange, $processingContext, 5);
@@ -60,7 +60,7 @@ class RetryExchangeEnvelopeTest extends \PHPUnit_Framework_TestCase
     public function invalidRetryValuesProvider()
     {
         return [
-            'Retry is not an integer'     => ['retries' => '-1'],
+            'Retry is not an integer' => ['retries' => '-1'],
             'Retry is a negative integer' => ['retries' => -1],
         ];
     }

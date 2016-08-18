@@ -22,7 +22,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class RestConfigurableProducer
+ * Class RestConfigurableProducer.
  */
 class RestConfigurableProducer extends ConfigurableProducer
 {
@@ -52,7 +52,7 @@ class RestConfigurableProducer extends ConfigurableProducer
             RequestOptions::TIMEOUT => $endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT],
             RequestOptions::HEADERS => array_merge(
                 $endpointOptions[RestConfigurableProtocol::OPTION_HEADERS],
-                array_key_exists(RestConfigurableProtocol::OPTION_HEADERS, $options)? $options[RestConfigurableProtocol::OPTION_HEADERS] : []
+                array_key_exists(RestConfigurableProtocol::OPTION_HEADERS, $options) ? $options[RestConfigurableProtocol::OPTION_HEADERS] : []
             ),
         ];
 
@@ -91,6 +91,7 @@ class RestConfigurableProducer extends ConfigurableProducer
      * @param array                       $context
      *
      * @return \GuzzleHttp\Psr7\Response
+     *
      * @throws RecoverableRestException
      * @throws UnrecoverableRestException
      */
@@ -108,10 +109,10 @@ class RestConfigurableProducer extends ConfigurableProducer
             self::REQUEST_NAME,
             self::REQUEST_HTTP_VERB,
             self::REQUEST_BODY,
-            self::REQUEST_URI
+            self::REQUEST_URI,
         ]);
 
-        $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_TYPE,'array');
+        $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_TYPE, 'array');
         $stepParamsResolver->setDefined([
             RestConfigurableProtocol::OPTION_HEADERS,
             self::VALIDATION,
@@ -138,7 +139,7 @@ class RestConfigurableProducer extends ConfigurableProducer
                 self::VALIDATION_DISPLAY_MESSAGE,
             ]);
 
-            foreach($params[self::VALIDATION] as $validation) {
+            foreach ($params[self::VALIDATION] as $validation) {
                 $validationSteps[] = $validationParamsResolver->resolve($validation);
             }
         }
@@ -177,7 +178,7 @@ class RestConfigurableProducer extends ConfigurableProducer
                         $params[self::REQUEST_EXPECTED_RESPONSE_TYPE],
                         $encoding
                     );
-                } catch (RuntimeException $e){
+                } catch (RuntimeException $e) {
                     // if it cannot parse the response fallback to the textual content of the body
                     $responseBody = $responseContent;
                 }
@@ -219,7 +220,7 @@ class RestConfigurableProducer extends ConfigurableProducer
                 $response = $e->getResponse();
             }
 
-            if($response){
+            if ($response) {
                 $response->getBody()->rewind();
             }
 
@@ -228,8 +229,8 @@ class RestConfigurableProducer extends ConfigurableProducer
             } else {
                 $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, false, $statusCode, $e);
             }
-        }catch(\Exception $e){
-            if($response){
+        } catch (\Exception $e) {
+            if ($response) {
                 $response->getBody()->rewind();
             }
             $showMessage = ($e instanceof ExternalSystemExceptionInterface && $e->mustShowExternalSystemErrorMessage());
@@ -254,7 +255,7 @@ class RestConfigurableProducer extends ConfigurableProducer
         $showMessage = false,
         $code = 0,
         \Exception $previousException = null
-    ){
+    ) {
         $exception = new RecoverableRestException($message, $request, $response, $code, $previousException);
         $exception->setExternalSystemName($this->getName());
         $exception->setShowExternalSystemErrorMessage($showMessage);
@@ -278,7 +279,7 @@ class RestConfigurableProducer extends ConfigurableProducer
         $showMessage = false,
         $code = 0,
         \Exception $previousException = null
-    ){
+    ) {
         $exception = new UnrecoverableRestException($message, $request, $response, $code, $previousException);
         $exception->setExternalSystemName($this->getName());
         $exception->setShowExternalSystemErrorMessage($showMessage);

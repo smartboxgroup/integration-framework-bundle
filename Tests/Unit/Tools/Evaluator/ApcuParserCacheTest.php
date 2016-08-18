@@ -7,8 +7,7 @@ use Symfony\Component\ExpressionLanguage\Node\Node;
 use Symfony\Component\ExpressionLanguage\ParsedExpression;
 
 /**
- * Class ApcuParserCacheTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Tools\Evaluator
+ * Class ApcuParserCacheTest.
  */
 class ApcuParserCacheTest extends \PHPUnit_Framework_TestCase
 {

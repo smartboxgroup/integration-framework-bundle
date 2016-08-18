@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
  */
 trait UsesLogger
 {
-    /** @var  LoggerInterface */
+    /** @var LoggerInterface */
     protected $logger;
 
     /**

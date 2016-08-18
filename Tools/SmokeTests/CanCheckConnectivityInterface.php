@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\SmokeTests;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutputInterface;
 
 /**
- * Interface CanCheckConnectivityInterface
+ * Interface CanCheckConnectivityInterface.
  */
 interface CanCheckConnectivityInterface
 {
@@ -17,7 +17,7 @@ interface CanCheckConnectivityInterface
     public function checkConnectivityForSmokeTest(array $config = []);
 
     /**
-     * @return string   a comma separated list of labels
+     * @return string a comma separated list of labels
      */
     public static function getConnectivitySmokeTestLabels();
 }

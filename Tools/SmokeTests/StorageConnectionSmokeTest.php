@@ -7,7 +7,7 @@ use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Storage\StorageClientInterface;
 
 /**
- * Class StorageConnectionSmokeTest
+ * Class StorageConnectionSmokeTest.
  */
 class StorageConnectionSmokeTest implements SmokeTestInterface
 {

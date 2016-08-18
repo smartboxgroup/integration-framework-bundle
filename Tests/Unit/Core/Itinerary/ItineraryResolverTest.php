@@ -14,7 +14,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->itineraryResolver = new ItineraryResolver;
+        $this->itineraryResolver = new ItineraryResolver();
     }
 
     protected function tearDown()
@@ -24,7 +24,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testGetItinerary()
     {
-        $params = [InternalRouter::KEY_ITINERARY => new Itinerary];
+        $params = [InternalRouter::KEY_ITINERARY => new Itinerary()];
 
         /** @var InternalRouter|\PHPUnit_Framework_MockObject_MockObject $internalRouter */
         $internalRouter = $this->createMock(InternalRouter::class);
@@ -43,7 +43,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testGetItineraryUriWithVersion()
     {
-        $uri     = 'api://test';
+        $uri = 'api://test';
         $version = '0';
 
         $itineraryUri = $this->itineraryResolver->getItineraryURIWithVersion($uri, $version);
@@ -61,7 +61,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('match')
             ->with($this->equalTo('v0-api://test'))
-            ->will($this->throwException(new InternalRouterResourceNotFound));
+            ->will($this->throwException(new InternalRouterResourceNotFound()));
 
         $this->itineraryResolver->setItinerariesRouter($internalRouter);
         $this->itineraryResolver->getItineraryParams('api://test', '0');
@@ -105,7 +105,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
     {
         $this->expectException(\Exception::class);
 
-        $params = [InternalRouter::KEY_ITINERARY => new \stdClass];
+        $params = [InternalRouter::KEY_ITINERARY => new \stdClass()];
 
         /** @var InternalRouter|\PHPUnit_Framework_MockObject_MockObject $internalRouter */
         $internalRouter = $this->createMock(InternalRouter::class);
@@ -121,7 +121,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testGetItineraryParams()
     {
-        $params = [InternalRouter::KEY_ITINERARY => new Itinerary];
+        $params = [InternalRouter::KEY_ITINERARY => new Itinerary()];
 
         /** @var InternalRouter|\PHPUnit_Framework_MockObject_MockObject $internalRouter */
         $internalRouter = $this->createMock(InternalRouter::class);
@@ -141,7 +141,7 @@ class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
     {
         $params = [
             'header_a' => null,
-            'header_b' => new \stdClass,
+            'header_b' => new \stdClass(),
             'header_c' => 'string',
         ];
 

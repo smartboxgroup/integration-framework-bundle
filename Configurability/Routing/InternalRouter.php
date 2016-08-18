@@ -29,7 +29,7 @@ class InternalRouter extends Router
      * @param mixed              $resource  The main resource to load
      * @param array              $options   An array of options
      */
-    public function __construct(ContainerInterface $container, $resource, array $options = array())
+    public function __construct(ContainerInterface $container, $resource, array $options = [])
     {
         $this->container = $container;
         parent::__construct($container, $resource, $options, null);
@@ -38,7 +38,7 @@ class InternalRouter extends Router
     /**
      * {@inheritdoc}
      */
-    public function generate($name, $parameters = array(), $referenceType = self::ABSOLUTE_PATH)
+    public function generate($name, $parameters = [], $referenceType = self::ABSOLUTE_PATH)
     {
         $res = $this->getGenerator()->generate($name, $parameters, $referenceType);
         if ($res[0] == '/') {
@@ -73,7 +73,7 @@ class InternalRouter extends Router
         $path = parse_url($uri, PHP_URL_PATH);
 
         $internalPath = '';
-        $options = array();
+        $options = [];
 
         // Build internal path
         if ($scheme) {

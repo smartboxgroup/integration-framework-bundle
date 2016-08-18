@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
  */
 trait UsesItinerariesRouter
 {
-    /** @var  InternalRouter */
+    /** @var InternalRouter */
     protected $itinerariesRouter;
 
     /**
