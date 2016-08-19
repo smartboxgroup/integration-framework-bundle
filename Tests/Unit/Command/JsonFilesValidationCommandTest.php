@@ -19,10 +19,10 @@ class JsonFilesValidationCommandTest extends BaseKernelTestCase
 
         $command = $application->find('smartbox:validate:json');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
+        $commandTester->execute([
             'command' => $command->getName(),
             'path' => '@SmartboxIntegrationFrameworkBundle/Tests/Unit/Command/fixtures/success',
-        ));
+        ]);
 
         $this->assertRegExp('/Everything is OK./', $commandTester->getDisplay());
     }
@@ -36,10 +36,10 @@ class JsonFilesValidationCommandTest extends BaseKernelTestCase
 
         $command = $application->find('smartbox:validate:json');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
+        $commandTester->execute([
             'command' => $command->getName(),
             'path' => $path,
-        ));
+        ]);
 
         $this->assertRegExp(
             sprintf(

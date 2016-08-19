@@ -10,7 +10,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\DeferredExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\ErrorExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\ExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\FailedExchangeEnvelope;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\RetryExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\RetryLaterException;
@@ -38,22 +37,22 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     use UsesEndpointFactory;
     use UsesItineraryResolver;
 
-    /** @var  int */
+    /** @var int */
     protected $retriesMax;
 
-    /** @var  int */
+    /** @var int */
     protected $retryDelay;
 
-    /** @var  bool */
+    /** @var bool */
     protected $throwExceptions;
 
-    /** @var  bool */
+    /** @var bool */
     protected $deferNewExchanges;
 
-    /** @var  EndpointInterface */
+    /** @var EndpointInterface */
     protected $failedEndpoint;
 
-    /** @var  EndpointInterface */
+    /** @var EndpointInterface */
     protected $retryEndpoint;
 
     /**
@@ -221,7 +220,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
         // Dispatch event with error information
         $event = new ProcessingErrorEvent($processor, $exchangeBackup, $originalException);
-        $event->setId(uniqid("",true));
+        $event->setId(uniqid('', true));
         $event->setTimestampToCurrent();
         $event->setProcessingContext($exception->getProcessingContext());
 
@@ -230,7 +229,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
             $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), 0);
 
             $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, 0);
-            $retryExchangeEnvelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY,$originalException->getDelay());
+            $retryExchangeEnvelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY, $originalException->getDelay());
             $this->deferRetryExchangeMessage($retryExchangeEnvelope);
         }
 
@@ -298,7 +297,8 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $retryDelay = $message->getHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY) * 1000;
                 if ($delaySinceLastRetry < $retryDelay) {
                     $this->deferRetryExchangeMessage($message);
-                    return ;
+
+                    return;
                 }
             }
         }
@@ -325,7 +325,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     protected function createExchangeForMessageFromURI(MessageInterface $message, $from)
     {
         $version = $message->getContext()->get(Context::FLOWS_VERSION);
-        $params = $this->itineraryResolver->getItineraryParams($from,$version);
+        $params = $this->itineraryResolver->getItineraryParams($from, $version);
         $itinerary = $params[InternalRouter::KEY_ITINERARY];
 
         $exchange = new Exchange($message, clone $itinerary);
@@ -353,23 +353,22 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     {
         $itinerary = $exchange->getItinerary();
 
-        if (!$itinerary || empty($itinerary->getProcessors())) {
+        if (!$itinerary || empty($itinerary->getProcessorIds())) {
             throw new HandlerException('Itinerary not found while handling message', $exchange->getIn());
         }
 
         $progress = 0;
         $exchangeBackup = clone $exchange;
 
-        while (null !== $processorId = $itinerary->shiftProcessor()) {
-
+        while (null !== $processorId = $itinerary->shiftProcessorId()) {
             // Get the processor from the container
-            if(!$this->container->has($processorId)){
+            if (!$this->container->has($processorId)) {
                 throw new \RuntimeException("Processor with id $processorId not found.");
-            }else{
-                $processor = $this->container->get($processorId);
-                if(!$processor instanceof ProcessorInterface){
-                    throw new \RuntimeException("Processor with id $processorId does not implement ProcessorInterface.");
-                }
+            }
+
+            $processor = $this->container->get($processorId);
+            if (!$processor instanceof ProcessorInterface) {
+                throw new \RuntimeException("Processor with id $processorId does not implement ProcessorInterface.");
             }
 
             // Execute the processor

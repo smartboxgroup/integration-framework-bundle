@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tools\Mapper;
 
 /**
- * Interface MapperInterface
+ * Interface MapperInterface.
  */
 interface MapperInterface
 {

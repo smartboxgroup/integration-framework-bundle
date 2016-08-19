@@ -58,7 +58,7 @@ class ConsumeCommand extends ContainerAwareCommand
 
         $output->writeln('<info>Consuming from '.$this->endpoint->getURI().'.</info>');
 
-        declare (ticks = 10);
+        declare(ticks=10);
         pcntl_signal(SIGINT, [$this, 'handleSignal']);
         pcntl_signal(SIGTERM, [$this, 'handleSignal']);
         $this->endpoint->consume();

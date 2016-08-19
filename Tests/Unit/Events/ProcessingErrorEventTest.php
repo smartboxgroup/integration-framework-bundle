@@ -24,28 +24,28 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject|\Exception */
     private $exception;
 
-    /** @var  string */
+    /** @var string */
     private $name;
 
     protected function setUp()
     {
         $this->processor = $this->createMock(Processor::class);
-        $this->exchange  = $this->createMock(Exchange::class);
+        $this->exchange = $this->createMock(Exchange::class);
         $this->exception = $this->createMock(\Exception::class);
         $this->name = 'some_name';
 
         $this->event = new ProcessingErrorEvent($this->processor, $this->exchange, $this->exception, $this->name);
-        $this->event->setId(uniqid("",true));
+        $this->event->setId(uniqid('', true));
         $this->event->setTimestampToCurrent();
     }
 
     protected function tearDown()
     {
         $this->processor = null;
-        $this->exchange  = null;
+        $this->exchange = null;
         $this->exception = null;
-        $this->name      = null;
-        $this->event     = null;
+        $this->name = null;
+        $this->event = null;
     }
 
     public function testItShouldBeConstructedWithAnExchange()

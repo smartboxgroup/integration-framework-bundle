@@ -51,7 +51,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         $driverRegistry = new DriverRegistry();
         $driverRegistry->setDriver('array', $queueDriver);
 
-        $protocol = new QueueProtocol(true,3600);
+        $protocol = new QueueProtocol(true, 3600);
         $producer = new QueueProducer();
         $producer->setDriverRegistry($driverRegistry);
 
@@ -73,7 +73,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
             ->willReturn($endpoint);
 
         $container->set('smartesb.endpoint_factory', $endpointFactoryMock);
-        $container->setParameter('smartesb.enable_events_deferring',true);
+        $container->setParameter('smartesb.enable_events_deferring', true);
 
         $helper->setContainer($container);
 
@@ -109,7 +109,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         $container = new Container();
         $container->set('smartesb.registry.event_filters', $filtersRegistry);
         $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events', $queueDriver);
-        $container->setParameter('smartesb.enable_events_deferring',true);
+        $container->setParameter('smartesb.enable_events_deferring', true);
 
         $dispatcher = new EventDispatcher($container);
         $dispatcher->dispatch('test_event.deferred', $event);
@@ -135,7 +135,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         $container = new Container();
         $container->set('smartesb.registry.event_filters', $filtersRegistry);
         $container->set(SmartboxIntegrationFrameworkExtension::QUEUE_DRIVER_PREFIX.'events', $queueDriver);
-        $container->setParameter('smartesb.enable_events_deferring',true);
+        $container->setParameter('smartesb.enable_events_deferring', true);
 
         $dispatcher = new EventDispatcher($container);
         $dispatcher->dispatch('test_event.deferred', $event);
@@ -148,6 +148,6 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         parent::tearDown();
-        ArrayQueueDriver::$array = array();
+        ArrayQueueDriver::$array = [];
     }
 }

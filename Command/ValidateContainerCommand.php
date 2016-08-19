@@ -3,12 +3,10 @@
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
-use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\ProtocolInterface;
@@ -16,7 +14,6 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class ValidateContainerCommand extends ContainerAwareCommand
 {
@@ -29,8 +26,8 @@ class ValidateContainerCommand extends ContainerAwareCommand
         $routerEndpoints = $this->getContainer()->get('smartesb.router.endpoints');
         foreach ($routerEndpoints->getRouteCollection()->all() as $name => $route) {
             $cleanPath = $route->getPath();
-            if($cleanPath[0] == '/'){
-                $cleanPath = substr($cleanPath,1);
+            if ($cleanPath[0] == '/') {
+                $cleanPath = substr($cleanPath, 1);
             }
 
             $options = $route->getDefaults();
@@ -56,42 +53,42 @@ class ValidateContainerCommand extends ContainerAwareCommand
             $protocol->configureOptionsResolver($optionsResolver);
 
             // Check producer, consumer, handler
-            $producer = array_key_exists(Protocol::OPTION_PRODUCER,$options) ? $options[Protocol::OPTION_PRODUCER] : $protocol->getDefaultProducer();
-            $consumer = array_key_exists(Protocol::OPTION_CONSUMER,$options) ? $options[Protocol::OPTION_CONSUMER] : $protocol->getDefaultConsumer();
-            $handler = array_key_exists(Protocol::OPTION_HANDLER,$options) ? $options[Protocol::OPTION_HANDLER] : $protocol->getDefaultHandler();
+            $producer = array_key_exists(Protocol::OPTION_PRODUCER, $options) ? $options[Protocol::OPTION_PRODUCER] : $protocol->getDefaultProducer();
+            $consumer = array_key_exists(Protocol::OPTION_CONSUMER, $options) ? $options[Protocol::OPTION_CONSUMER] : $protocol->getDefaultConsumer();
+            $handler = array_key_exists(Protocol::OPTION_HANDLER, $options) ? $options[Protocol::OPTION_HANDLER] : $protocol->getDefaultHandler();
 
-            if(!empty($producer)){
+            if (!empty($producer)) {
                 if (!$producer instanceof ProducerInterface) {
-                    $output->writeln("<error>Producer of class ".get_class($producer)." found in route: '$name' does not implement ProducerInterface</error>");
+                    $output->writeln('<error>Producer of class '.get_class($producer)." found in route: '$name' does not implement ProducerInterface</error>");
                     $exitCode = 1;
                     continue;
                 }
 
-                if($producer instanceof ConfigurableInterface){
+                if ($producer instanceof ConfigurableInterface) {
                     $producer->configureOptionsResolver($optionsResolver);
                 }
             }
 
-            if(!empty($consumer)){
+            if (!empty($consumer)) {
                 if (!$consumer instanceof ConsumerInterface) {
-                    $output->writeln("<error>Consumer of class ".get_class($consumer)." found in route: '$name' does not implement ConsumerInterface</error>");
+                    $output->writeln('<error>Consumer of class '.get_class($consumer)." found in route: '$name' does not implement ConsumerInterface</error>");
                     $exitCode = 1;
                     continue;
                 }
 
-                if($consumer instanceof ConfigurableInterface){
+                if ($consumer instanceof ConfigurableInterface) {
                     $consumer->configureOptionsResolver($optionsResolver);
                 }
             }
 
-            if(!empty($handler)){
+            if (!empty($handler)) {
                 if (!$handler instanceof HandlerInterface) {
-                    $output->writeln("<error>Handler of class ".get_class($handler)." found in route: '$name' does not implement HandlerInterface</error>");
+                    $output->writeln('<error>Handler of class '.get_class($handler)." found in route: '$name' does not implement HandlerInterface</error>");
                     $exitCode = 1;
                     continue;
                 }
 
-                if($handler instanceof ConfigurableInterface){
+                if ($handler instanceof ConfigurableInterface) {
                     $handler->configureOptionsResolver($optionsResolver);
                 }
             }
@@ -103,21 +100,21 @@ class ValidateContainerCommand extends ContainerAwareCommand
             unset($options[Protocol::OPTION_HANDLER]);
 
             // Don't check options which should by defined in the route somewhere
-            $missingRequirements = array_diff(array_keys($route->getRequirements()),array_keys($options));
+            $missingRequirements = array_diff(array_keys($route->getRequirements()), array_keys($options));
             $requirements = $missingRequirements;
             $optionsResolver->remove($requirements);
 
             try {
                 $optionsResolver->resolve($options);
             } catch (\Exception $exception) {
-                $output->writeln("<error>The route '$name' has an problem in its options. ".$exception->getMessage()."</error>");
+                $output->writeln("<error>The route '$name' has an problem in its options. ".$exception->getMessage().'</error>');
 
                 $exitCode = 1;
                 continue;
             }
 
-            if($output->getVerbosity() >= OutputInterface::VERBOSITY_NORMAL){
-                $output->writeln("<info>Checked route $name: ".$cleanPath."</info>");
+            if ($output->getVerbosity() >= OutputInterface::VERBOSITY_NORMAL) {
+                $output->writeln("<info>Checked route $name: ".$cleanPath.'</info>');
             }
         }
 
@@ -128,7 +125,7 @@ class ValidateContainerCommand extends ContainerAwareCommand
         foreach ($itinerariesRepo->getItineraries() as $itineraryId) {
             /** @var Itinerary $itinerary */
             $itinerary = $this->getContainer()->get($itineraryId);
-            foreach ($itinerary->getProcessors() as $processorId) {
+            foreach ($itinerary->getProcessorIds() as $processorId) {
                 $processor = $this->getContainer()->get($processorId);
                 if ($processor instanceof EndpointProcessor) {
                     $uri = $processor->getURI();
@@ -153,10 +150,11 @@ class ValidateContainerCommand extends ContainerAwareCommand
             $endpoint = $endpointFactory->createEndpoint($uri);
         } catch (\Exception $exception) {
             $output->writeln("<error>Problem detected for URI: '$uri'</error>");
+
             return false;
         }
 
-        if($output->getVerbosity() >= OutputInterface::VERBOSITY_NORMAL){
+        if ($output->getVerbosity() >= OutputInterface::VERBOSITY_NORMAL) {
             $output->writeln("<info>Checked endpoint URI: $uri</info>");
         }
 
@@ -170,7 +168,7 @@ class ValidateContainerCommand extends ContainerAwareCommand
     {
         $this
             ->setName('smartesb:validate')
-            ->setDefinition(array())
+            ->setDefinition([])
             ->setDescription('Validates producer routes and endpoint URIs')
         ;
     }

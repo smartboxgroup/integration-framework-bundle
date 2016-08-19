@@ -9,7 +9,8 @@ use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
- * Class ExpressionEvaluatorTest
+ * Class ExpressionEvaluatorTest.
+ *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator
  */
 class ExpressionEvaluatorTest extends KernelTestCase
@@ -34,21 +35,21 @@ class ExpressionEvaluatorTest extends KernelTestCase
             'Simple expression' => [
                 'expected' => 2,
                 'expression' => '1 + 1',
-                'vars' => []
+                'vars' => [],
             ],
             'Checking hasKey expression for existing key' => [
                 'expected' => true,
                 'expression' => 'hasKey("existing_key", value)',
                 'vars' => [
-                    'value' => ['existing_key' => 'This key exists']
-                ]
+                    'value' => ['existing_key' => 'This key exists'],
+                ],
             ],
             'Checking hasKey expression for not existing key' => [
                 'expected' => false,
                 'expression' => 'hasKey("not_existing_key", value)',
                 'vars' => [
-                    'value' => ['existing_key' => 'This key exists']
-                ]
+                    'value' => ['existing_key' => 'This key exists'],
+                ],
             ],
         ];
     }
@@ -99,22 +100,22 @@ class ExpressionEvaluatorTest extends KernelTestCase
             'Simple expression to extract exchange' => [
                 'expected' => $exchange,
                 'expression' => 'exchange',
-                'exchange' => $exchange
+                'exchange' => $exchange,
             ],
             'Simple expression to extract message' => [
                 'expected' => $message,
                 'expression' => 'msg',
-                'exchange' => $exchange
+                'exchange' => $exchange,
             ],
             'Simple expression to extract headers' => [
                 'expected' => $messageHeaders,
                 'expression' => 'headers',
-                'exchange' => $exchange
+                'exchange' => $exchange,
             ],
             'Simple expression to extract body' => [
                 'expected' => $message->getBody(),
                 'expression' => 'body',
-                'exchange' => $exchange
+                'exchange' => $exchange,
             ],
         ];
     }

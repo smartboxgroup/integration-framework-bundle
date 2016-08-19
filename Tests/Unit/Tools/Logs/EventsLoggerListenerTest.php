@@ -26,19 +26,18 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
     /** @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject */
     private $logger;
 
-
     protected function setUp()
     {
         /** @var RequestStack|\PHPUnit_Framework_MockObject_MockObject $requestStack */
         $requestStack = $this->createMock(RequestStack::class);
 
-        $this->logger   = $this->createMock(LoggerInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
         $this->listener = new EventsLoggerListener($this->logger, $requestStack);
     }
 
     protected function tearDown()
     {
-        $this->logger   = null;
+        $this->logger = null;
         $this->listener = null;
     }
 
@@ -49,17 +48,16 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
             'Case when handler event occurs' => $this->getContextForHandlerEvent(),
             'Case when process event occurs' => $this->getContextForProcessEvent(),
             'Case when process event with endpoint uri occurs' => $this->getContextForProcessEventWithEndpointUri(),
-            'Case when process event with processor implementing log exchange details interface occurs' =>
-                $this->getContextForProcessEventWithProcessorImplementingLogExchangeDetailsInterface(),
-            'Case when processing error event occurs'=> $this->getContextForProcessingErrorEvent(),
+            'Case when process event with processor implementing log exchange details interface occurs' => $this->getContextForProcessEventWithProcessorImplementingLogExchangeDetailsInterface(),
+            'Case when processing error event occurs' => $this->getContextForProcessingErrorEvent(),
         ];
     }
 
     /**
      * @dataProvider EventContextProvider
      *
-     * @param Event $event
-     * @param array $expectedContext
+     * @param Event  $event
+     * @param array  $expectedContext
      * @param string $logLevel
      */
     public function testLogEvent(Event $event, array $expectedContext, $logLevel)
@@ -79,87 +77,87 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
     private function getContextForEvent()
     {
         return [
-            'event'            => $this->getMockForAbstractClass(Event::class),
+            'event' => $this->getMockForAbstractClass(Event::class),
             'expected_context' => [
-                'event_name'    => null,
+                'event_name' => null,
                 'event_details' => '',
             ],
-            "logLevel" => LogLevel::DEBUG
+            'logLevel' => LogLevel::DEBUG,
         ];
     }
 
     private function getContextForHandlerEvent()
     {
-        $exchange = new Exchange;
+        $exchange = new Exchange();
         $exchange->setHeaders([
-            'from'  => 'test://endpoint',
+            'from' => 'test://endpoint',
             'async' => false,
         ]);
 
-        $event = new FakeHandlerEvent;
+        $event = new FakeHandlerEvent();
         $event->setEventName(FakeHandlerEvent::BEFORE_HANDLE_EVENT_NAME);
         $event->setExchange($exchange);
 
         return [
-            'event'            => $event,
+            'event' => $event,
             'expected_context' => [
-                'event_name'    => FakeHandlerEvent::BEFORE_HANDLE_EVENT_NAME,
+                'event_name' => FakeHandlerEvent::BEFORE_HANDLE_EVENT_NAME,
                 'event_details' => null,
-                'exchange'      => [
-                    'id'     => $exchange->getId(),
-                    'uri'    => 'test://endpoint',
-                    'type'   => 'sync',
-                    'detail' => $exchange
-                ]
+                'exchange' => [
+                    'id' => $exchange->getId(),
+                    'uri' => 'test://endpoint',
+                    'type' => 'sync',
+                    'detail' => $exchange,
+                ],
             ],
-            "logLevel" => EventsLoggerListener::DEFAULT_EVENTS_LEVEL
+            'logLevel' => EventsLoggerListener::DEFAULT_EVENTS_LEVEL,
         ];
     }
 
     private function getContextForProcessEvent()
     {
-        $exchange = new Exchange;
+        $exchange = new Exchange();
         $exchange->setHeaders([
-            'from'  => 'test://endpoint',
+            'from' => 'test://endpoint',
             'async' => true,
         ]);
 
-        $processingContext = new SerializableArray;
+        $processingContext = new SerializableArray();
 
         $processor = new FakeProcessor('processor_1');
         $processor->setDescription('Processor 1 description');
 
-        $event = new FakeProcessEvent;
+        $event = new FakeProcessEvent();
         $event->setEventName(FakeProcessEvent::TYPE_BEFORE);
         $event->setExchange($exchange);
         $event->setProcessingContext($processingContext);
         $event->setProcessor($processor);
 
         return [
-            'event'            => $event,
+            'event' => $event,
             'expected_context' => [
-                'event_name'    => FakeProcessEvent::TYPE_BEFORE,
+                'event_name' => FakeProcessEvent::TYPE_BEFORE,
                 'event_details' => '',
-                'exchange'      => [
-                    'id'     => $exchange->getId(),
-                    'uri'    => 'test://endpoint',
-                    'type'   => 'async',
+                'exchange' => [
+                    'id' => $exchange->getId(),
+                    'uri' => 'test://endpoint',
+                    'type' => 'async',
                 ],
-                'processor'     => [
-                    'id'          => 'processor_1',
-                    'name'        => FakeProcessor::class,
+                'processor' => [
+                    'id' => 'processor_1',
+                    'name' => FakeProcessor::class,
                     'description' => 'Processor 1 description',
-                ]
+                ],
             ],
-            "logLevel" => EventsLoggerListener::DEFAULT_EVENTS_LEVEL
+            'logLevel' => EventsLoggerListener::DEFAULT_EVENTS_LEVEL,
         ];
     }
 
     private function getContextForProcessEventWithEndpointUri()
     {
-        $exchange = new Exchange;
+        $exchange = new Exchange();
         $exchange->setHeaders([
-            'from'  => 'test://endpoint',
+            'from' => 'test://endpoint',
             'async' => true,
         ]);
 
@@ -168,71 +166,71 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
         $processor = new FakeProcessor('processor_1');
         $processor->setDescription('Processor 1 description');
 
-        $event = new FakeProcessEvent;
+        $event = new FakeProcessEvent();
         $event->setEventName(FakeProcessEvent::TYPE_BEFORE);
         $event->setExchange($exchange);
         $event->setProcessingContext($processingContext);
         $event->setProcessor($processor);
 
         return [
-            'event'            => $event,
+            'event' => $event,
             'expected_context' => [
-                'event_name'    => FakeProcessEvent::TYPE_BEFORE,
+                'event_name' => FakeProcessEvent::TYPE_BEFORE,
                 'event_details' => '',
-                'endpoint_uri'  => 'test://endpoint_uri',
-                'exchange'      => [
-                    'id'     => $exchange->getId(),
-                    'uri'    => 'test://endpoint',
-                    'type'   => 'async',
+                'endpoint_uri' => 'test://endpoint_uri',
+                'exchange' => [
+                    'id' => $exchange->getId(),
+                    'uri' => 'test://endpoint',
+                    'type' => 'async',
                 ],
-                'processor'     => [
-                    'id'          => 'processor_1',
-                    'name'        => FakeProcessor::class,
+                'processor' => [
+                    'id' => 'processor_1',
+                    'name' => FakeProcessor::class,
                     'description' => 'Processor 1 description',
-                ]
+                ],
             ],
-            "logLevel" => EventsLoggerListener::DEFAULT_EVENTS_LEVEL
+            'logLevel' => EventsLoggerListener::DEFAULT_EVENTS_LEVEL,
         ];
     }
 
     private function getContextForProcessEventWithProcessorImplementingLogExchangeDetailsInterface()
     {
-        $exchange = new Exchange;
+        $exchange = new Exchange();
         $exchange->setHeaders([
-            'from'  => 'test://endpoint',
-            'async' => true
+            'from' => 'test://endpoint',
+            'async' => true,
         ]);
 
-        $processingContext = new SerializableArray;
+        $processingContext = new SerializableArray();
 
-        $processor = new Transformer;
+        $processor = new Transformer();
         $processor->setId('processor_1');
         $processor->setDescription('Processor 1 description');
 
-        $event = new FakeProcessEvent;
+        $event = new FakeProcessEvent();
         $event->setEventName(FakeProcessEvent::TYPE_BEFORE);
         $event->setExchange($exchange);
         $event->setProcessingContext($processingContext);
         $event->setProcessor($processor);
 
         return [
-            'event'            => $event,
+            'event' => $event,
             'expected_context' => [
-                'event_name'    => FakeProcessEvent::TYPE_BEFORE,
+                'event_name' => FakeProcessEvent::TYPE_BEFORE,
                 'event_details' => '',
-                'exchange'      => [
-                    'id'     => $exchange->getId(),
-                    'uri'    => 'test://endpoint',
-                    'type'   => 'async',
+                'exchange' => [
+                    'id' => $exchange->getId(),
+                    'uri' => 'test://endpoint',
+                    'type' => 'async',
                     'detail' => $exchange,
                 ],
-                'processor'     => [
-                    'id'          => 'processor_1',
-                    'name'        => Transformer::class,
+                'processor' => [
+                    'id' => 'processor_1',
+                    'name' => Transformer::class,
                     'description' => 'Processor 1 description',
-                ]
+                ],
             ],
-            "logLevel" => EventsLoggerListener::DEFAULT_EVENTS_LEVEL
+            'logLevel' => EventsLoggerListener::DEFAULT_EVENTS_LEVEL,
         ];
     }
 
@@ -241,38 +239,38 @@ class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
         $processor = new FakeProcessor('processor_1');
         $processor->setDescription('Processor 1 description');
 
-        $exchange = new Exchange;
+        $exchange = new Exchange();
         $exchange->setHeaders([
-            'from'  => 'test://endpoint',
+            'from' => 'test://endpoint',
             'async' => true,
         ]);
 
         $exception = new \Exception('exception message');
 
-        $processingContext = new SerializableArray;
+        $processingContext = new SerializableArray();
 
         $event = new FakeErrorEvent($processor, $exchange, $exception);
         $event->setEventName(FakeErrorEvent::TYPE_BEFORE);
         $event->setProcessingContext($processingContext);
 
         return [
-            'event'            => $event,
+            'event' => $event,
             'expected_context' => [
-                'event_name'    => FakeErrorEvent::TYPE_BEFORE,
+                'event_name' => FakeErrorEvent::TYPE_BEFORE,
                 'event_details' => '',
-                'exchange'      => [
-                    'id'     => $exchange->getId(),
-                    'uri'    => 'test://endpoint',
-                    'type'   => 'async',
+                'exchange' => [
+                    'id' => $exchange->getId(),
+                    'uri' => 'test://endpoint',
+                    'type' => 'async',
                 ],
-                'processor'     => [
-                    'id'          => 'processor_1',
-                    'name'        => FakeProcessor::class,
+                'processor' => [
+                    'id' => 'processor_1',
+                    'name' => FakeProcessor::class,
                     'description' => 'Processor 1 description',
                 ],
-                'exception'     => $exception,
+                'exception' => $exception,
             ],
-            "logLevel" => EventsLoggerListener::DEFAULT_ERRORS_LEVEL
+            'logLevel' => EventsLoggerListener::DEFAULT_ERRORS_LEVEL,
         ];
     }
 }

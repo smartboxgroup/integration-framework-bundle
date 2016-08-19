@@ -12,7 +12,7 @@ use Smartbox\Integration\FrameworkBundle\Service;
  */
 class ArrayQueueDriver extends Service implements QueueDriverInterface
 {
-    public static $array = array();
+    public static $array = [];
 
     protected $connected = false;
     protected $subscribedQueue = false;
@@ -82,7 +82,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
      * Creates a subscription to the given $queue, allowing to receive messages from it.
      *
      * @param string      $queue    Queue to subscribe
-     * @param string|null $selector If supported, it is an expression filters the messages on the queue.
+     * @param string|null $selector If supported, it is an expression filters the messages on the queue
      */
     public function subscribe($queue, $selector = null)
     {

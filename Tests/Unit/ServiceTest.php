@@ -5,8 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
- * Class ServiceTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit
+ * Class ServiceTest.
  */
 class ServiceTest extends \PHPUnit_Framework_TestCase
 {

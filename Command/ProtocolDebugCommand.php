@@ -170,7 +170,6 @@ class ProtocolDebugCommand extends ContainerAwareCommand
                         $protocols[$currentProtocolId]['handlers'][$handlerId]['routes'][] = $route->getPath();
                     }
                 }
-
             } else { // if not detailed
                 $protocols[$currentProtocolId] = [
                     'class' => get_class($currentProtocol),
@@ -369,12 +368,13 @@ class ProtocolDebugCommand extends ContainerAwareCommand
 
     /**
      * Tries to read the id of a specific service found inside a given protocol.
-     * If it's not possible to get the id (it was not set) it throws an exception
+     * If it's not possible to get the id (it was not set) it throws an exception.
      *
      * @param Service $service
      * @param string  $protocolId
      *
      * @return string
+     *
      * @throws InvalidConfigurationException when the id was not set in the service
      */
     protected function getIdFromService(Service $service, $protocolId)

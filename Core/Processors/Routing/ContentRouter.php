@@ -24,7 +24,7 @@ class ContentRouter extends Processor
     /**
      * @var ConditionalClause[]
      */
-    protected $clauses = array();
+    protected $clauses = [];
 
     /**
      * Itinerary to use if none of the conditions on $paths is matched.
@@ -86,8 +86,9 @@ class ContentRouter extends Processor
     /**
      * {@inheritdoc}
      */
-    protected function onPostProcessEvent(ProcessEvent $event){
+    protected function onPostProcessEvent(ProcessEvent $event)
+    {
         $condition = $event->getProcessingContext()->get(self::CONDITION_MATCHED);
-        $event->setEventDetails('Matched condition: ' . $condition);
+        $event->setEventDetails('Matched condition: '.$condition);
     }
 }

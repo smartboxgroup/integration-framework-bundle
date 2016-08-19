@@ -94,15 +94,15 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setId', [$producerId]);
             $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
             $definition->addMethodCall('setOptions', [$options]);
-            $definition->addMethodCall('setConfHelper',[new Reference('smartesb.configurable_service_helper')]);
+            $definition->addMethodCall('setConfHelper', [new Reference('smartesb.configurable_service_helper')]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
-            $definition->addMethodCall('setName',[$producerName]);
+            $definition->addMethodCall('setName', [$producerName]);
             $container->setDefinition($producerId, $definition);
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {
                 $attrs = [
-                    'labels' => call_user_func([$definition->getClass(), 'getConnectivitySmokeTestLabels'])
+                    'labels' => call_user_func([$definition->getClass(), 'getConnectivitySmokeTestLabels']),
                 ];
                 $definition->addTag(ConnectivityCheckSmokeTest::TAG_TEST_CONNECTIVITY, $attrs);
             }
@@ -141,7 +141,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                 }
             }
 
-            $consumerId = self::CONSUMER_PREFIX . $consumerName;
+            $consumerId = self::CONSUMER_PREFIX.$consumerName;
             $definition->addMethodCall('setId', [$consumerId]);
             $definition->addMethodCall('setMethodsConfiguration', [$methodsConf]);
             $definition->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
@@ -154,7 +154,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {
                 $attrs = [
-                    'labels' => call_user_func([$definition->getClass(), 'getConnectivitySmokeTestLabels'])
+                    'labels' => call_user_func([$definition->getClass(), 'getConnectivitySmokeTestLabels']),
                 ];
                 $definition->addTag(ConnectivityCheckSmokeTest::TAG_TEST_CONNECTIVITY, $attrs);
             }
@@ -182,8 +182,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $type = strtolower($driverConfig['type']);
             switch ($type) {
                 case 'activemq':
-                    $driverDef = new Definition(ActiveMQStompQueueDriver::class, array());
-                    $driverDef->addMethodCall('setId', array($driverId));
+                    $driverDef = new Definition(ActiveMQStompQueueDriver::class, []);
+                    $driverDef->addMethodCall('setId', [$driverId]);
 
                     $activeMQConnectionStrategyFactoryDef = new Definition(
                         ActiveMQConnectionStrategyFactory::class,
@@ -192,12 +192,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $container->setDefinition(self::ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY, $activeMQConnectionStrategyFactoryDef);
                     $driverDef->addMethodCall('setConnectionStrategyFactory', [new Reference(self::ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY)]);
 
-                    $driverDef->addMethodCall('configure', array(
+                    $driverDef->addMethodCall('configure', [
                         $driverConfig['host'],
                         $driverConfig['username'],
                         $driverConfig['password'],
                         $driverConfig['format'],
-                    ));
+                    ]);
 
                     $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
@@ -278,7 +278,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         // Create services for message handlers
         foreach ($this->config['message_handlers'] as $handlerName => $handlerConfig) {
             $handlerName = self::HANDLER_PREFIX.$handlerName;
-            $driverDef = new Definition(MessageHandler::class, array());
+            $driverDef = new Definition(MessageHandler::class, []);
 
             $driverDef->addMethodCall('setId', [$handlerName]);
             $driverDef->addMethodCall('setContainer', [new Reference('service_container')]);
@@ -299,50 +299,51 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $driverDef->addMethodCall('setThrowExceptions',  [$handlerConfig['throw_exceptions']]);
             $driverDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
 
-            $driverDef->addTag('kernel.event_listener', array(
+            $driverDef->addTag('kernel.event_listener', [
                 'event' => 'smartesb.exchange.new',
                 'method' => 'onNewExchangeEvent',
-            ));
+            ]);
 
             $container->setDefinition($handlerName, $driverDef);
         }
     }
 
-    public function enableLogging(ContainerBuilder $container){
-        $def = new Definition('%smartesb.event_listener.events_logger.class%',[
+    public function enableLogging(ContainerBuilder $container)
+    {
+        $def = new Definition('%smartesb.event_listener.events_logger.class%', [
             new Reference('monolog.logger.tracking'),
-            new Reference('request_stack')
+            new Reference('request_stack'),
         ]);
 
-        $def->addMethodCall('setEventsLogLevel',['%smartesb.event_listener.events_logger.events_log_level%']);
-        $def->addMethodCall('setErrorsLogLevel',['%smartesb.event_listener.events_logger.errors_log_level%']);
+        $def->addMethodCall('setEventsLogLevel', ['%smartesb.event_listener.events_logger.events_log_level%']);
+        $def->addMethodCall('setErrorsLogLevel', ['%smartesb.event_listener.events_logger.errors_log_level%']);
 
-        $def->addTag('kernel.event_listener',[
+        $def->addTag('kernel.event_listener', [
             'event' => 'smartesb.handler.before_handle',
-            'method' => 'onEvent'
+            'method' => 'onEvent',
         ]);
 
-        $def->addTag('kernel.event_listener',[
+        $def->addTag('kernel.event_listener', [
             'event' => 'smartesb.process.before_process',
-            'method' => 'onEvent'
+            'method' => 'onEvent',
         ]);
 
-        $def->addTag('kernel.event_listener',[
+        $def->addTag('kernel.event_listener', [
             'event' => 'smartesb.event.error',
-            'method' => 'onEvent'
+            'method' => 'onEvent',
         ]);
 
-        $def->addTag('kernel.event_listener',[
+        $def->addTag('kernel.event_listener', [
             'event' => 'smartesb.process.after_process',
-            'method' => 'onEvent'
+            'method' => 'onEvent',
         ]);
 
-        $def->addTag('kernel.event_listener',[
+        $def->addTag('kernel.event_listener', [
             'event' => 'smartesb.handler.after_handle',
-            'method' => 'onEvent'
+            'method' => 'onEvent',
         ]);
 
-        $container->setDefinition(self::EVENTS_LOGGER_ID,$def);
+        $container->setDefinition(self::EVENTS_LOGGER_ID, $def);
     }
 
     /**
@@ -383,14 +384,14 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $loader->load('smoke_tests.yml');
 
         // FEATURE FLAGS
-        $container->setParameter('smartesb.enable_events_deferring',$config['enable_events_deferring']);
+        $container->setParameter('smartesb.enable_events_deferring', $config['enable_events_deferring']);
 
-        if($config['enable_logging']){
+        if ($config['enable_logging']) {
             $this->enableLogging($container);
         }
 
         $queueProtocolDef = $container->getDefinition('smartesb.protocols.queue');
-        $queueProtocolDef->setArguments([$config['queues_default_persistence'],$config['queues_default_ttl']]);
+        $queueProtocolDef->setArguments([$config['queues_default_persistence'], $config['queues_default_ttl']]);
 
         $this->loadHandlers($container);
         $this->loadConfigurableConsumers($container);

@@ -8,8 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFa
 use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFactory\CachedFailoverConnectionStrategy;
 
 /**
- * Class ActiveMQConnectionStrategyFactory
- * @package Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers
+ * Class ActiveMQConnectionStrategyFactory.
  */
 class ActiveMQConnectionStrategyFactory
 {
@@ -28,6 +27,7 @@ class ActiveMQConnectionStrategyFactory
 
     /**
      * @param $host
+     *
      * @return FactoryI
      *
      * @throws \RuntimeException
@@ -36,7 +36,7 @@ class ActiveMQConnectionStrategyFactory
     {
         $transport = parse_url($host, PHP_URL_SCHEME);
 
-        switch($transport) {
+        switch ($transport) {
             case self::TRANSPORT_TCP:
                 // TCP transport reference
                 // http://activemq.apache.org/tcp-transport-reference.html

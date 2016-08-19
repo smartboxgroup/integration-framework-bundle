@@ -17,7 +17,7 @@ class WhenClauseTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->itinerary = new Itinerary;
+        $this->itinerary = new Itinerary();
     }
 
     protected function tearDown()

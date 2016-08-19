@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Route;
 use Symfony\Bundle\FrameworkBundle\Console\Helper\DescriptorHelper;
 
 /**
- * Class AbstractInternalRouterDebugCommand
+ * Class AbstractInternalRouterDebugCommand.
  */
 abstract class AbstractInternalRouterDebugCommand extends ContainerAwareCommand
 {
@@ -46,14 +46,14 @@ abstract class AbstractInternalRouterDebugCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this->setName('smartesb:debug:router:'.$this->getInternalRouterName())
-            ->setAliases(array(
+            ->setAliases([
                 'router:debug:'.$this->getInternalRouterName(),
-            ))
-            ->setDefinition(array(
+            ])
+            ->setDefinition([
                 new InputArgument('name', InputArgument::OPTIONAL, 'A '.$this->getInternalRouterName().' name'),
                 new InputOption('format', null, InputOption::VALUE_REQUIRED, 'The output format (txt, xml, json, or md)', 'txt'),
                 new InputOption('raw', null, InputOption::VALUE_NONE, 'To output raw route(s)'),
-            ))
+            ])
             ->setDescription('Displays current routes for an application')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> displays the configured routes:
@@ -82,11 +82,11 @@ EOF
                 throw new \InvalidArgumentException(sprintf('The route "%s" does not exist.', $name));
             }
             $this->convertItinerary($route);
-            $helper->describe($output, $route, array(
+            $helper->describe($output, $route, [
                 'format' => $input->getOption('format'),
                 'raw_text' => $input->getOption('raw'),
                 'name' => $name,
-            ));
+            ]);
         } else {
             $routes = $router->getRouteCollection();
 
@@ -94,11 +94,11 @@ EOF
                 $this->convertItinerary($route);
             }
 
-            $helper->describe($output, $routes, array(
+            $helper->describe($output, $routes, [
                 'format' => $input->getOption('format'),
                 'raw_text' => $input->getOption('raw'),
                 false,
-            ));
+            ]);
         }
     }
 

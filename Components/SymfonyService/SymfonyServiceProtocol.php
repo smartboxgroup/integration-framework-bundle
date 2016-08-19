@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class QueueProtocol
+ * Class QueueProtocol.
  */
 class SymfonyServiceProtocol extends Protocol implements DescriptableInterface
 {
@@ -57,7 +57,7 @@ class SymfonyServiceProtocol extends Protocol implements DescriptableInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDescription()
     {

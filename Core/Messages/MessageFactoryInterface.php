@@ -16,5 +16,5 @@ interface MessageFactoryInterface
      *
      * @return MessageInterface
      */
-    public function createMessage(SerializableInterface $body = null, $headers = array(), Context $context = null);
+    public function createMessage(SerializableInterface $body = null, $headers = [], Context $context = null);
 }
