@@ -10,7 +10,10 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
 {
     public function getFunctions()
     {
-        return [$this->createIsRecoverableFunction()];
+        return [
+            $this->createHasHeyFunction(),
+            $this->createIsRecoverableFunction(),
+        ];
     }
 
     /**
