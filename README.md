@@ -14,21 +14,6 @@ This library is **NOT stable** yet. We are currently working on creating a detai
 If you are interested in knowing more you can have a first look at the code and contact the [Integration team](mailto:si-integration@smartbox.com) at Smartbox.
 
 
-## Install
-
-TODO
-
-
-## Configuration
-
-TODO
-
-
-## Examples
-
-TODO
-
-
 ## Contributing
 
 Have a look at the [Contribution guide](/CONTRIBUTE.md).
