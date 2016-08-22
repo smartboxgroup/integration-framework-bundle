@@ -5,8 +5,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\DB\Dbal;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Statement;
 use Smartbox\Integration\FrameworkBundle\Components\DB\ConfigurableStepsProviderInterface;
-use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
-use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Component\OptionsResolver\OptionsResolver;

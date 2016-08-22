@@ -21,22 +21,22 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
     use IsConfigurableService;
 
     /** @var  ConfigurableStepsProviderInterface */
-    protected $dbConfigurableService;
+    protected $configurableStepsProvider;
 
     /**
      * @return ConfigurableStepsProviderInterface
      */
-    public function getDbConfigurableService()
+    public function getConfigurableStepsProvider()
     {
-        return $this->dbConfigurableService;
+        return $this->configurableStepsProvider;
     }
 
     /**
-     * @param ConfigurableStepsProviderInterface $dbConfigurableService
+     * @param ConfigurableStepsProviderInterface $configurableStepsProvider
      */
-    public function setDbConfigurableService($dbConfigurableService)
+    public function setConfigurableStepsProvider($configurableStepsProvider)
     {
-        $this->dbConfigurableService = $dbConfigurableService;
+        $this->configurableStepsProvider = $configurableStepsProvider;
     }
 
     /**
@@ -55,7 +55,7 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
         $context = $this->getConfHelper()->createContext($options);
 
         try{
-            $this->dbConfigurableService->executeSteps($steps, $options, $context);
+            $this->configurableStepsProvider->executeSteps($steps, $options, $context);
 
             $result = $this->getConfHelper()->resolve(
                 $config[ConfigurableConsumerInterface::CONFIG_QUERY_RESULT],
@@ -89,7 +89,7 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
 
         $context = $this->getConfHelper()->createContext($options,$message);
 
-        $this->dbConfigurableService->executeSteps($steps, $options, $context);
+        $this->configurableStepsProvider->executeSteps($steps, $options, $context);
     }
 
     public function consume(EndpointInterface $endpoint)
