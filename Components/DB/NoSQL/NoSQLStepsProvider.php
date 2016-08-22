@@ -138,7 +138,8 @@ class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInt
             return true;
         }
 
-        $collection = $options[NoSQLConfigurableProtocol::OPTION_COLLECTION_NAME];
+        $collection = $options[NoSQLConfigurableProtocol::OPTION_COLLECTION_PREFIX].$options[NoSQLConfigurableProtocol::OPTION_COLLECTION_NAME];
+
         $driver = $this->resolveDriver($options);
 
         switch ($stepAction) {
