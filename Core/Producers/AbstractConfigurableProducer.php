@@ -47,7 +47,6 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
          * CONTEXT PREPARATION
          */
         $methodConf = $this->methodsConfiguration[$method];
-        $this->getConfHelper()->createContext($options, $exchange);
         $context = $this->getConfHelper()->createContext($options,$exchange->getIn(),$exchange);
 
         $context[self::KEY_PRODUCER] = $this;
