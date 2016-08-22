@@ -7,6 +7,7 @@ parameters:
   smartesb.processor.throw_exception.class: Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrowException
   smartesb.processor.stop.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Miscellaneous\Stop
   smartesb.processor.process.class: Smartbox\Integration\FrameworkBundle\Core\Processors\Miscellaneous\Process
+  smartesb.processor.try_catch.class: Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\TryCatch
   smartesb.processor.throttle.class: Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\Throttler
 
   smartesb.handlers.message_routing.class: Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler
