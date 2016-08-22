@@ -23,11 +23,17 @@ class FakeRestClient extends Client
         $this->checkInitialisation();
         $this->actionName = $this->prepareActionName($request->getMethod(), $request->getUri());
 
-        try {
-            $response = $this->getResponseFromCache($this->actionName, self::CACHE_SUFFIX);
-        } catch (\InvalidArgumentException $e) {
-            $response = parent::send($request, $options);
+        if (getenv('MOCKS_ENABLED') === 'true') {
+            try {
+                return $this->getResponseFromCache($this->actionName, self::CACHE_SUFFIX);
+            } catch (\InvalidArgumentException $e) {
+                throw $e;
+            }
+        }
 
+        $response = parent::send($request, $options);
+
+        if (getenv('RECORD_RESPONSE') === 'true') {
             $this->setResponseInCache($this->actionName, $response, self::CACHE_SUFFIX);
         }
 
