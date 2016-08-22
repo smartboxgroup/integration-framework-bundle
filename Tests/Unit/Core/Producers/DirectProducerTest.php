@@ -14,7 +14,7 @@ class DirectProducerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->directProducer = new DirectProducer;
+        $this->directProducer = new DirectProducer();
     }
 
     protected function tearDown()
@@ -33,6 +33,6 @@ class DirectProducerTest extends \PHPUnit_Framework_TestCase
             ->method('getURI')
             ->will($this->returnValue(false));
 
-        $this->directProducer->send(new Exchange, $endpoint);
+        $this->directProducer->send(new Exchange(), $endpoint);
     }
 }

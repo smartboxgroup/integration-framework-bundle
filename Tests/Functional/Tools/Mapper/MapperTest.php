@@ -8,14 +8,13 @@ use Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper;
 use Smartbox\Integration\FrameworkBundle\Tools\Mapper\MapperInterface;
 
 /**
- * Class MapperTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Functional\Tools\Mapper
+ * Class MapperTest.
  *
  * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper
  */
 class MapperTest extends BaseTestCase
 {
-    /** @var  Mapper|MapperInterface */
+    /** @var Mapper|MapperInterface */
     protected $mapper;
 
     public function setUp()
@@ -33,15 +32,15 @@ class MapperTest extends BaseTestCase
     {
         return [
             'Test mapping with simple expression' => [
-                'mappings'       => [
+                'mappings' => [
                     'x_to_xyz' => [
                         'x' => "obj.get('x') + 1",
                         'y' => "obj.get('x') + 2",
                         'z' => "obj.get('x') + 3",
                     ],
                 ],
-                'mapping_name'   => 'x_to_xyz',
-                'mapped_values'  => new SerializableArray(['x' => 10]),
+                'mapping_name' => 'x_to_xyz',
+                'mapped_values' => new SerializableArray(['x' => 10]),
                 'expected_value' => [
                     'x' => 11,
                     'y' => 12,
@@ -49,30 +48,30 @@ class MapperTest extends BaseTestCase
                 ],
             ],
             'Test null values' => [
-                'mappings'       => [
+                'mappings' => [
                     'mapping_name' => [
                         'x' => "obj.get('x') + 1",
                         'y' => "obj.get('y')",
                     ],
                 ],
-                'mapping_name'   => 'mapping_name',
-                'mapped_values'  => new SerializableArray(['x' => 10]),
+                'mapping_name' => 'mapping_name',
+                'mapped_values' => new SerializableArray(['x' => 10]),
                 'expected_value' => [
                     'x' => 11,
                 ],
             ],
             'Test empty value' => [
-                'mappings'       => [
+                'mappings' => [
                     'mapping_name' => [
                         'x' => "obj.get('x')",
                     ],
                 ],
-                'mapping_name'   => 'mapping_name',
-                'mapped_values'  => [],
+                'mapping_name' => 'mapping_name',
+                'mapped_values' => [],
                 'expected_value' => [],
             ],
             'Test nested data' => [
-                'mappings'       => [
+                'mappings' => [
                     'xyz_to_x' => [
                         'x' => "obj.get('x') + obj.get('y') + obj.get('z')",
                         'origins' => "mapper.mapAll([obj.get('x'),obj.get('y'),obj.get('z')],'single_value')",
@@ -81,8 +80,8 @@ class MapperTest extends BaseTestCase
                         'value' => 'obj',
                     ],
                 ],
-                'mapping_name'   => 'xyz_to_x',
-                'mapped_values'  => new SerializableArray([
+                'mapping_name' => 'xyz_to_x',
+                'mapped_values' => new SerializableArray([
                     'x' => 10,
                     'y' => 5,
                     'z' => 1,
@@ -97,7 +96,7 @@ class MapperTest extends BaseTestCase
                 ],
             ],
             'Test DateTime objects' => [
-                'mappings'       => [
+                'mappings' => [
                     'mapping_name' => [
                         'date_0' => "mapper.formatDate('Y-m-d', obj.get('null_value'))",
                         'date_1' => "mapper.formatDate('Y-m-d H:i:s', obj.get('date'))",
@@ -105,8 +104,8 @@ class MapperTest extends BaseTestCase
                         'date_3' => "mapper.formatDate(ISO8601Micro, obj.get('date'))",
                     ],
                 ],
-                'mapping_name'   => 'mapping_name',
-                'mapped_values'  => new SerializableArray([
+                'mapping_name' => 'mapping_name',
+                'mapped_values' => new SerializableArray([
                     'date' => \DateTime::createFromFormat(\DateTime::ISO8601, '2015-01-01T20:00:00+01:00'),
                     'null_value' => null,
                 ]),
@@ -114,7 +113,7 @@ class MapperTest extends BaseTestCase
                     'date_1' => '2015-01-01 20:00:00',
                     'date_2' => '2015-01-01T20:00:00+0100',
                     'date_3' => '2015-01-01T20:00:00.000',
-                ]
+                ],
             ],
         ];
     }
@@ -124,6 +123,7 @@ class MapperTest extends BaseTestCase
      * @covers ::addMappings
      *
      * @dataProvider dataProviderForCorrectMappings
+     *
      * @param array $mappings
      * @param $mappingName
      * @param $mappedValue
@@ -163,7 +163,7 @@ class MapperTest extends BaseTestCase
         $this->mapper->addMappings([
             'example_mapping' => [
                 'x' => "obj.get('x')",
-            ]
+            ],
         ]);
 
         $this->mapper->map(
@@ -180,27 +180,27 @@ class MapperTest extends BaseTestCase
     {
         return [
             'Test mapping with no elements to map' => [
-                'mappings'       => [
+                'mappings' => [
                     'x_to_xyz' => [
                         'x' => "obj.get('x') + 1",
                         'y' => "obj.get('x') + 2",
                         'z' => "obj.get('x') + 3",
                     ],
                 ],
-                'mapping_name'   => 'x_to_xyz',
-                'elements'       => [],
+                'mapping_name' => 'x_to_xyz',
+                'elements' => [],
                 'expected_value' => [],
             ],
             'Test mapping with simple expression' => [
-                'mappings'       => [
+                'mappings' => [
                     'x_to_xyz' => [
                         'x' => "obj.get('x') + 1",
                         'y' => "obj.get('x') + 2",
                         'z' => "obj.get('x') + 3",
                     ],
                 ],
-                'mapping_name'   => 'x_to_xyz',
-                'elements'       => [
+                'mapping_name' => 'x_to_xyz',
+                'elements' => [
                     'x_10' => new SerializableArray(['x' => 10]),
                     'x_11' => new SerializableArray(['x' => 11]),
                     'x_12' => new SerializableArray(['x' => 12]),
@@ -222,7 +222,7 @@ class MapperTest extends BaseTestCase
                         'z' => 15,
                     ],
                 ],
-            ]
+            ],
         ];
     }
 
@@ -232,6 +232,7 @@ class MapperTest extends BaseTestCase
      * @covers ::addMappings
      *
      * @dataProvider dataProviderForMapAll
+     *
      * @param array $mappings
      * @param $mappingName
      * @param array $elements

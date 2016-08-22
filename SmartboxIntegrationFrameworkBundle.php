@@ -15,11 +15,11 @@ class SmartboxIntegrationFrameworkBundle extends Bundle
     {
         parent::build($container);
 
-        $container->addCompilerPass(new EventDeferringCompilerPass(),PassConfig::TYPE_AFTER_REMOVING);
+        $container->addCompilerPass(new EventDeferringCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
         $container->addCompilerPass(new SmokeTestConnectivityCompilerPass());
 
-        if($container->getParameter('kernel.environment') == 'test'){
-            $container->addCompilerPass(new MockWebserviceClientsCompilerPass(),PassConfig::TYPE_AFTER_REMOVING);
+        if ($container->getParameter('kernel.environment') == 'test') {
+            $container->addCompilerPass(new MockWebserviceClientsCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
         }
     }
 }

@@ -6,7 +6,7 @@ use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 
 /**
- * Class FilePermissionsSmokeTest
+ * Class FilePermissionsSmokeTest.
  */
 class FilePermissionsSmokeTest implements SmokeTestInterface
 {

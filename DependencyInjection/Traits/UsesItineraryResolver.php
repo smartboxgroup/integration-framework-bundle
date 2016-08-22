@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItineraryResolver;
  */
 trait UsesItineraryResolver
 {
-    /** @var  ItineraryResolver */
+    /** @var ItineraryResolver */
     protected $itineraryResolver;
 
     /**

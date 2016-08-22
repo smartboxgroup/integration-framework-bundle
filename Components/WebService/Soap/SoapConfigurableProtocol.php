@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Configurability\DescriptableInterface;
 class SoapConfigurableProtocol extends ConfigurableWebserviceProtocol implements DescriptableInterface
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDescription()
     {

@@ -27,7 +27,7 @@ class TransformerTest extends KernelTestCase
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcherMock */
         $eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
 
-        $this->transformer = new Transformer;
+        $this->transformer = new Transformer();
         $this->transformer->setEventDispatcher($eventDispatcherMock);
         $this->transformer->setEvaluator($container->get('smartesb.util.evaluator'));
     }
@@ -52,23 +52,23 @@ class TransformerTest extends KernelTestCase
         $entity->setNote('common note');
 
         // use case for transforming DESCRIPTION of message body
-        $inMessage1 = new Message(clone($entity));
-        $transformedEntity1 = clone($entity);
+        $inMessage1 = new Message(clone $entity);
+        $transformedEntity1 = clone $entity;
         $transformedEntity1->setDescription('abc');
         $outMessage1 = new Message($transformedEntity1);
         $data[] = [$inMessage1, $outMessage1, 'msg.getBody().setDescription("abc")'];
 
         // use case for transforming TITLE and DESCRIPTION of message body
-        $inMessage2 = new Message(clone($entity));
-        $transformedEntity2 = clone($entity);
+        $inMessage2 = new Message(clone $entity);
+        $transformedEntity2 = clone $entity;
         $transformedEntity2->setTitle('transformed title');
         $transformedEntity2->setDescription('transformed description');
         $outMessage2 = new Message($transformedEntity2);
         $data[] = [$inMessage2, $outMessage2, 'msg.getBody().setTitle("transformed title") + msg.getBody().setDescription("transformed description")'];
 
         // use case for transforming TITLE and DESCRIPTION of message body
-        $inMessage2 = new Message(clone($entity));
-        $transformedEntity2 = clone($entity);
+        $inMessage2 = new Message(clone $entity);
+        $transformedEntity2 = clone $entity;
         $transformedEntity2->setTitle('title for v1');
         $outMessage2 = new Message($transformedEntity2);
         $data[] = [$inMessage2, $outMessage2, 'msg.getBody().getAPIVersion() == "v1" ? msg.getBody().setTitle("title for v1") : msg.getBody().setTitle("title for non v1")'];
@@ -108,11 +108,11 @@ class TransformerTest extends KernelTestCase
         $entity->setNote('common note');
 
         // use case for invalid expression
-        $inMessage1 = new Message(clone($entity));
+        $inMessage1 = new Message(clone $entity);
         $data[] = [$inMessage1, 'this is invalid expression'];
 
         // use case for invocation of not existing method
-        $inMessage2 = new Message(clone($entity));
+        $inMessage2 = new Message(clone $entity);
         $data[] = [$inMessage2, 'msg.getBody().methodWhichNotExist("test")'];
 
         return $data;

@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
  */
 trait UsesEndpointFactory
 {
-    /** @var  EndpointFactory */
+    /** @var EndpointFactory */
     protected $endpointFactory;
 
     /**

@@ -57,6 +57,6 @@ class JsonFileLoaderProducer extends Producer
     {
         json_decode($string);
 
-        return (json_last_error() == JSON_ERROR_NONE);
+        return json_last_error() == JSON_ERROR_NONE;
     }
 }

@@ -37,7 +37,7 @@ class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
     public function testHandle()
     {
         /** @var Event|\PHPUnit_Framework_MockObject_MockObject $eventMock */
-        $eventMock = $this->getMockForAbstractClass(Event::class, array('test'));
+        $eventMock = $this->getMockForAbstractClass(Event::class, ['test']);
         $arr = [];
         $endpointMock = new Endpoint('xxx', $arr, new Protocol());
 

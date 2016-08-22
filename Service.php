@@ -8,8 +8,7 @@ use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\MessageFactoryAware;
 
 /**
- * Class Service
- * @package Smartbox\Integration\FrameworkBundle
+ * Class Service.
  */
 abstract class Service implements SerializableInterface
 {
@@ -28,7 +27,9 @@ abstract class Service implements SerializableInterface
     /**
      * Service constructor.
      */
-    public function __construct(){}
+    public function __construct()
+    {
+    }
 
     /**
      * @return string

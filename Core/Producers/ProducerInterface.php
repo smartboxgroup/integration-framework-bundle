@@ -21,7 +21,8 @@ interface ProducerInterface extends ServiceInterface
     public function send(Exchange $ex, EndpointInterface $endpoint);
 
     /**
-     * Get a descriptive name of the producer
+     * Get a descriptive name of the producer.
+     *
      * @return string
      */
     public function getName();

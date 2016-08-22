@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Tools\MockClients;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Promise;
 use GuzzleHttp\Psr7;
 use Psr\Http\Message\RequestInterface;
 

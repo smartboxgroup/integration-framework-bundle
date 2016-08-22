@@ -44,7 +44,7 @@ class Message implements MessageInterface
      * @param array                      $headers
      * @param Context                    $context
      */
-    public function __construct(SerializableInterface $body = null, $headers = array(), Context $context = null)
+    public function __construct(SerializableInterface $body = null, $headers = [], Context $context = null)
     {
         $this->addHeaders($headers);
         $this->setBody($body);

@@ -90,16 +90,16 @@ abstract class Processor extends Service implements ProcessorInterface
     /**
      * Method to create a process event.
      *
-     * @param Exchange $exchange
+     * @param Exchange          $exchange
      * @param SerializableArray $processingContext
-     * @param string $type Event type
+     * @param string            $type              Event type
      *
      * @return ProcessEvent
      */
     final protected function createProcessEvent(Exchange $exchange, SerializableArray $processingContext, $type)
     {
         $event = new ProcessEvent($type);
-        $event->setId(uniqid("",true));
+        $event->setId(uniqid('', true));
         $event->setTimestampToCurrent();
         $event->setProcessor($this);
         $event->setExchange($exchange);
@@ -157,7 +157,6 @@ abstract class Processor extends Service implements ProcessorInterface
         $processingContext = new SerializableArray();
 
         try {
-            #
             // Pre process event
             $this->preProcess($exchange, $processingContext);
 

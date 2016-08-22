@@ -84,7 +84,7 @@ trait HasHeaders
      */
     public function setHeaders(array $headers)
     {
-        $this->headers = array();
+        $this->headers = [];
 
         foreach ($headers as $key => $value) {
             $this->addHeader($key, $value);

@@ -74,7 +74,7 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
 
         $this->throwException->setExceptionClass(InvalidMessageException::class);
 
-        $ex = new Exchange(new Message(new TestEntity));
+        $ex = new Exchange(new Message(new TestEntity()));
 
         try {
             $this->throwException->process($ex);

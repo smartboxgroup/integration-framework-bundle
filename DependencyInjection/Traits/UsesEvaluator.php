@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
  */
 trait UsesEvaluator
 {
-    /** @var  ExpressionEvaluator */
+    /** @var ExpressionEvaluator */
     protected $evaluator;
 
     /**
