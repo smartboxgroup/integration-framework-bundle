@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\AbstractConfigurableProducer;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerRecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
@@ -34,7 +35,7 @@ class ConfigurableProducerTest extends BaseTestCase
     protected $simpleMethodsConfig = [
           'methodA' => [
               ConfigurableServiceHelper::KEY_DESCRIPTION => 'Description here',
-              ConfigurableServiceHelper::KEY_STEPS => [
+              ConfigurableProducerInterface::CONF_STEPS => [
                     [ConfigurableServiceHelper::STEP_DEFINE => [
                       'x' => 'eval: 1 + 2',
                       'val' => 'eval: msg.getBody().get("value")',
@@ -43,7 +44,7 @@ class ConfigurableProducerTest extends BaseTestCase
                       'result' => 'eval: x + val',
                     ]],
               ],
-              AbstractConfigurableProducer::KEY_VALIDATIONS => [
+              ConfigurableProducerInterface::CONF_VALIDATIONS => [
                   [
                       'rule' => 'eval: x == 3',
                       'message' => 'Define does not work!',
@@ -60,7 +61,7 @@ class ConfigurableProducerTest extends BaseTestCase
                       'recoverable' => false,
                   ],
               ],
-              AbstractConfigurableProducer::KEY_RESPONSE => [
+              ConfigurableProducerInterface::CONF_RESPONSE => [
                   'result' => 'eval: 1 + 2 + msg.getBody().get(\'value\') + 10',
               ],
           ],

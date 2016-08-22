@@ -1,23 +1,43 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL;
+namespace Smartbox\Integration\FrameworkBundle\Components\DB;
 
 
 use Smartbox\CoreBundle\Type\SerializableArray;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLConfigurableProtocol;
+use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
+use Smartbox\Integration\FrameworkBundle\Service;
 
-class NoSQLConfigurableConsumer extends NoSQLConfigurableService implements ConfigurableConsumerInterface
+class DBConfigurableConsumer extends Service implements ConfigurableConsumerInterface
 {
-    const CONTEXT_MSG = 'msg';
-    const CONTEXT_BODY = 'body';
-    const CONTEXT_HEADERS = 'headers';
-
     use IsStopableConsumer;
     use UsesSmartesbHelper;
+    use IsConfigurableService;
+
+    /** @var  ConfigurableStepsProviderInterface */
+    protected $dbConfigurableService;
+
+    /**
+     * @return ConfigurableStepsProviderInterface
+     */
+    public function getDbConfigurableService()
+    {
+        return $this->dbConfigurableService;
+    }
+
+    /**
+     * @param ConfigurableStepsProviderInterface $dbConfigurableService
+     */
+    public function setDbConfigurableService($dbConfigurableService)
+    {
+        $this->dbConfigurableService = $dbConfigurableService;
+    }
 
     /**
      * Reads a message from the NoSQL database executing the configured steps
@@ -32,15 +52,18 @@ class NoSQLConfigurableConsumer extends NoSQLConfigurableService implements Conf
         $config = $this->methodsConfiguration[$method];
         $steps = $config[ConfigurableConsumerInterface::CONFIG_QUERY_STEPS];
 
-        $context = [
-        ];
+        $context = $this->getConfHelper()->createContext($options);
 
-        $this->executeSteps($steps, $options, $context);
+        try{
+            $this->dbConfigurableService->executeSteps($steps, $options, $context);
 
-        $result = $this->getConfHelper()->resolve(
-            $config[ConfigurableConsumerInterface::CONFIG_QUERY_RESULT],
-            $context
-        );
+            $result = $this->getConfHelper()->resolve(
+                $config[ConfigurableConsumerInterface::CONFIG_QUERY_RESULT],
+                $context
+            );
+        }catch(NoResultsException $exception){
+            $result = null;
+        }
 
         if($result == null){
             return null;
@@ -64,34 +87,24 @@ class NoSQLConfigurableConsumer extends NoSQLConfigurableService implements Conf
         $config = $this->methodsConfiguration[$method];
         $steps = $config[ConfigurableConsumerInterface::CONFIG_ON_CONSUME];
 
-        $context = [
-            self::CONTEXT_MSG => $message,
-            self::CONTEXT_HEADERS => $message->getHeaders(),
-            self::CONTEXT_BODY => $message->getBody()
-        ];
+        $context = $this->getConfHelper()->createContext($options,$message);
 
-        $this->executeSteps($steps, $options, $context);
+        $this->dbConfigurableService->executeSteps($steps, $options, $context);
     }
 
     public function consume(EndpointInterface $endpoint)
     {
         while (!$this->shouldStop()) {
-            try {
-                // Receive
-                $message = $this->readMessage($endpoint);
+            // Receive
+            $message = $this->readMessage($endpoint);
 
-                // Process
-                if ($message) {
-                    --$this->expirationCount;
+            // Process
+            if ($message) {
+                --$this->expirationCount;
 
-                    $endpoint->handle($message);
+                $endpoint->handle($message);
 
-                    $this->onConsume($endpoint, $message);
-                }
-            } catch (\Exception $ex) {
-                if (!$this->stop) {
-                    throw $ex;
-                }
+                $this->onConsume($endpoint, $message);
             }
         }
     }

@@ -2,26 +2,23 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL;
 
-
+use Smartbox\Integration\FrameworkBundle\Components\DB\ConfigurableStepsProviderInterface;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptions;
-use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
-use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
-use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesDriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class NoSQLConfigurableService extends Service implements ConfigurableInterface
+class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInterface
 {
-    use IsConfigurableService;
     use UsesDriverRegistry;
+    use UsesConfigurableServiceHelper;
 
     // Context vars
     const CONTEXT_RESULTS = 'results';
     const CONTEXT_VARS = 'vars';
 
-    const CONF_STEPS = 'steps';
     const CONF_RESULT = 'result';
 
     // Conf for queries
@@ -56,7 +53,8 @@ class NoSQLConfigurableService extends Service implements ConfigurableInterface
 
     protected function configureQueryOptions(OptionsResolver $resolver)
     {
-        $resolver->setRequired([self::CONF_LIMIT, self::CONF_OFFSET, self::CONF_QUERY, self::CONF_SORT]);
+        $resolver->setDefined([self::CONF_LIMIT, self::CONF_OFFSET, self::CONF_SORT]);
+        $resolver->setRequired(self::CONF_QUERY);
 
         $resolver->setAllowedTypes(self::CONF_LIMIT, ['integer']);
         $resolver->setAllowedTypes(self::CONF_OFFSET, ['integer']);
@@ -114,7 +112,7 @@ class NoSQLConfigurableService extends Service implements ConfigurableInterface
         }
     }
 
-    public function executeSteps($stepsConfig, array &$options, array &$context)
+    public function executeSteps(array $stepsConfig, array &$options, array &$context)
     {
 
         if (!array_key_exists(self::CONTEXT_RESULTS, $context)) {
@@ -132,27 +130,18 @@ class NoSQLConfigurableService extends Service implements ConfigurableInterface
         }
     }
 
-    /**
-     * Returns true if the step was executed, false if the step was not recognized.
-     *
-     * @param       $stepAction
-     * @param       $stepActionParams
-     * @param       $options
-     * @param array $context
-     *
-     * @return bool
-     */
-    public function executeStep($stepAction, &$stepActionParams, &$options, array &$context)
+    public function executeStep($stepAction, array &$stepActionParams, array &$options, array &$context)
     {
+        $handled = $this->getConfHelper()->executeStep($stepAction,$stepActionParams,$options,$context);
+
+        if($handled){
+            return true;
+        }
+
         $collection = $options[NoSQLConfigurableProtocol::OPTION_COLLECTION_NAME];
         $driver = $this->resolveDriver($options);
 
         switch ($stepAction) {
-            case ConfigurableServiceHelper::STEP_DEFINE:
-                $this->confHelper->define($stepActionParams, $context);
-
-                return true;
-
             case self::STEP_FIND:
                 $this->performFind($driver, $collection, $stepActionParams, $context);
 
@@ -205,7 +194,7 @@ class NoSQLConfigurableService extends Service implements ConfigurableInterface
         $queryOptions = $this->prepareQueryOptions($params, $context);
         $transformation = $this->getConfHelper()->resolve($params[self::CONF_TRANSFORMATION], $context);
 
-        $driver->update($driver, $collection, $queryOptions, $transformation);
+        $driver->update($collection, $queryOptions, $transformation);
     }
 
     public function performDelete(NoSQLDriverInterface $driver, $collection, $configuration, $context)

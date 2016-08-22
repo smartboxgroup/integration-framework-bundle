@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Producers;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
+use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
@@ -18,81 +19,16 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 abstract class AbstractConfigurableProducer extends Producer implements ConfigurableProducerInterface
 {
-    use UsesEvaluator;
-    use UsesSerializer;
-    use UsesConfigurableServiceHelper;
+    use IsConfigurableService;
 
     const KEY_PRODUCER = 'producer';
     const KEY_PRODUCER_SHORT = 'c';
     const KEY_RESPONSES = 'responses';
-    const KEY_VALIDATIONS = 'validations';
     const KEY_DESCRIPTION = 'description';
     const KEY_RULE = 'rule';
     const KEY_MESSAGE = 'message';
     const KEY_RECOVERABLE = 'recoverable';
     const STEP_REQUEST = 'request';
-    const KEY_RESPONSE = 'response';
-
-    /** @var  array */
-    protected $methodsConfiguration;
-
-    /** @var array  */
-    protected $configuredOptions = [];
-
-    /** @var string */
-    protected $name;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        if (!$this->name) {
-            return parent::getName();
-        }
-
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setOptions(array $options)
-    {
-        $this->configuredOptions = array_merge($this->configuredOptions, $options);
-    }
-
-    /**
-     * @return array
-     */
-    public function getOptions()
-    {
-        return $this->configuredOptions;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setMethodsConfiguration(array $methodsConfiguration)
-    {
-        $this->methodsConfiguration = $methodsConfiguration;
-    }
 
     /**
      * {@inheritdoc}
@@ -111,53 +47,29 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
          * CONTEXT PREPARATION
          */
         $methodConf = $this->methodsConfiguration[$method];
-        $context = [
-            'exchange' => $exchange,
-            'msg' => $exchange->getIn(),
-            'headers' => $exchange->getIn()->getHeaders(),
-            'body' => $exchange->getIn()->getBody(),
-            'serializer' => $this->getSerializer(),
-            ConfigurableServiceHelper::KEY_VARS => [],
-            self::KEY_PRODUCER => $this,
-            self::KEY_PRODUCER_SHORT => $this,
-            self::KEY_RESPONSES => [],
-        ];
+        $this->getConfHelper()->createContext($options, $exchange);
+        $context = $this->getConfHelper()->createContext($options,$exchange->getIn(),$exchange);
+
+        $context[self::KEY_PRODUCER] = $this;
+        $context[self::KEY_PRODUCER_SHORT] = $this;
 
         /*
          * PROCESSING
          */
-        foreach ($methodConf[ConfigurableServiceHelper::KEY_STEPS] as $step) {
+        foreach ($methodConf[ConfigurableProducerInterface::CONF_STEPS] as $step) {
             foreach ($step as $stepAction => $stepActionParams) {
                 $this->executeStep($stepAction, $stepActionParams, $options, $context);
             }
         }
 
-        /*
-         * VALIDATION
-         */
-        if (array_key_exists(self::KEY_VALIDATIONS, $methodConf)) {
-            foreach ($methodConf[self::KEY_VALIDATIONS] as $validationRule) {
-                $rule = $validationRule[self::KEY_RULE];
-                $message = $validationRule[self::KEY_MESSAGE];
-                $recoverable = $validationRule[self::KEY_RECOVERABLE];
-
-                $evaluation = $this->confHelper->resolve($rule, $context);
-                if ($evaluation !== true) {
-                    if ($recoverable) {
-                        throw new ProducerRecoverableException($message);
-                    } else {
-                        throw new ProducerUnrecoverableException($message);
-                    }
-                }
-            }
-        }
+        $this->getConfHelper()->runValidations($methodConf[ConfigurableProducerInterface::CONF_VALIDATIONS],$context);
 
         /*
          * RESPONSE
          */
         if ($options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT
-            &&  array_key_exists(self::KEY_RESPONSE, $methodConf)) {
-            $resultConfig = $methodConf[self::KEY_RESPONSE];
+            &&  array_key_exists(ConfigurableProducerInterface::CONF_RESPONSE, $methodConf)) {
+            $resultConfig = $methodConf[ConfigurableProducerInterface::CONF_RESPONSE];
             $result = $this->confHelper->resolve($resultConfig, $context);
 
             if (is_array($result)) {
@@ -179,47 +91,7 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
      */
     public function executeStep($stepAction, &$stepActionParams, &$options, array &$context)
     {
-        switch ($stepAction) {
-            case ConfigurableServiceHelper::STEP_DEFINE:
-                $this->confHelper->define($stepActionParams, $context);
-
-                return true;
-            default:
-                return false;
-        }
+        return $this->getConfHelper()->executeStep($stepAction,$stepActionParams,$options,$context);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getOptionsDescriptions()
-    {
-        $methodDescriptions = [];
-        foreach ($this->methodsConfiguration as $method => $methodConfig) {
-            $methodDescriptions[$method] = $methodConfig['description'];
-        }
-
-        $options = [
-            ConfigurableServiceHelper::OPTION_METHOD => ["Method of the producer to be executed", $methodDescriptions]
-        ];
-
-        foreach ($this->configuredOptions as $option => $value) {
-            $options[$option] = ['Custom option added in configurable producer',[]];
-        }
-
-        return $options;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function configureOptionsResolver(OptionsResolver $resolver)
-    {
-        $resolver->setRequired([ConfigurableServiceHelper::OPTION_METHOD]);
-        $resolver->setAllowedValues(ConfigurableServiceHelper::OPTION_METHOD, array_keys($this->methodsConfiguration));
-
-        foreach ($this->configuredOptions as $option => $value) {
-            $resolver->setDefault($option, $value);
-        }
-    }
 }

@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 use Psr\Log\LogLevel;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -215,17 +216,17 @@ class Configuration implements ConfigurationInterface
                 ->isRequired()
                 ->end()
 
-                ->arrayNode('steps')
+                ->arrayNode(ConfigurableProducerInterface::CONF_STEPS)
                     ->info('This are the steps to execute as part of this method')
                     ->prototype('variable')->end()
                     ->isRequired()
                 ->end()
 
-                ->variableNode('response')
+                ->variableNode(ConfigurableProducerInterface::CONF_RESPONSE)
                     ->info('This defines how to generate the response')
                 ->end()
 
-                ->arrayNode('validations')
+                ->arrayNode(ConfigurableProducerInterface::CONF_VALIDATIONS)
                     ->info('Here you can specify validation rules with their related error message')
                     ->prototype('array')
                         ->children()
