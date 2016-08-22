@@ -10,9 +10,10 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\ProcessorInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class TryCatch extends Processor
+class TryCatch extends Processor implements ContainerAwareInterface
 {
     use UsesEvaluator;
     use ContainerAwareTrait;
@@ -34,7 +35,7 @@ class TryCatch extends Processor
     /**
      * @param \Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause[] $catches
      */
-    public function setCatches($catches)
+    public function setCatches(array $catches)
     {
         $this->catches = $catches;
     }
@@ -59,7 +60,7 @@ class TryCatch extends Processor
     /**
      * @param Itinerary $finallyItinerary
      */
-    public function setFinallyItinerary($finallyItinerary)
+    public function setFinallyItinerary(Itinerary $finallyItinerary)
     {
         $this->finallyItinerary = $finallyItinerary;
     }
@@ -74,7 +75,7 @@ class TryCatch extends Processor
     {
         $itinerary = $exchange->getItinerary();
 
-        if ($itinerary->getCount() > 0) {
+        if ($itinerary->getProcessorIdsCount() > 0) {
             $exchangeBackup = clone $exchange;
 
             // Take the next processor
