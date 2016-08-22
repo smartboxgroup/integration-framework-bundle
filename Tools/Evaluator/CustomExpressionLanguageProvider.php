@@ -51,7 +51,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                     throw new \RuntimeException('First argument should be an exception');
                 }
 
-                return ($object instanceof RecoverableExceptionInterface);
+                return $object instanceof RecoverableExceptionInterface;
             }
         );
     }

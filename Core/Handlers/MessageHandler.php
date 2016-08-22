@@ -383,7 +383,6 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
                 // Make sure that we use the updated itinerary
                 $itinerary = $exchange->getItinerary();
-
             } catch (ProcessingException $exception) {
                 $this->onHandleException($exception, $processor, $exchangeBackup, $progress, $retries);
 
