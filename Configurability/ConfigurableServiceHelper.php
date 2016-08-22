@@ -58,6 +58,13 @@ class ConfigurableServiceHelper
     }
 
 
+    /**
+     * @param array $options
+     * @param MessageInterface $message
+     * @param Exchange $exchange
+     * @param \Exception $exception
+     * @return array
+     */
     public function createContext(array $options, MessageInterface $message = null, Exchange $exchange = null, \Exception $exception = null){
         $context = [
             self::CONTEXT_OPTIONS => $options,
