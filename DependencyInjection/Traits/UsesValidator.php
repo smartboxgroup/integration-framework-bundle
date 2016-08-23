@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 trait UsesValidator
 {
-    /** @var  ValidatorInterface */
+    /** @var ValidatorInterface */
     protected $validator;
 
     /**

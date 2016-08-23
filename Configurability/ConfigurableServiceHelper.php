@@ -1,4 +1,5 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Configurability;
 
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
@@ -161,6 +162,7 @@ class ConfigurableServiceHelper
     /**
      * @param $definitions
      * @param array $context
+     *
      * @throws InvalidConfigurationException
      */
     public function define(array $definitions, array &$context)

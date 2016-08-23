@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
  */
 trait ExchangeAwareTrait
 {
-    /** @var  Exchange */
+    /** @var Exchange */
     protected $exchange;
 
     /**

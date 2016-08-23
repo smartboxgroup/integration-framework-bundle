@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
 
 /**
- * Interface EventFilterInterface
+ * Interface EventFilterInterface.
  */
 interface EventFilterInterface
 {

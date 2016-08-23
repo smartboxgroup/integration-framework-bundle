@@ -24,7 +24,7 @@ class DirectProducer extends Producer
 
         $uri = $endpoint->getURI();
         $version = $ex->getIn()->getContext()->get(Context::FLOWS_VERSION);
-        $itineraryParams = $this->itineraryResolver->getItineraryParams($uri,$version);
+        $itineraryParams = $this->itineraryResolver->getItineraryParams($uri, $version);
         $itinerary = $itineraryParams[InternalRouter::KEY_ITINERARY];
         $headersToPropagate = $this->itineraryResolver->filterItineraryParamsToPropagate($itineraryParams);
 

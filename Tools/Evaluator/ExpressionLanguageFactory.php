@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\Evaluator;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
- * Class ExpressionLanguageFactory
+ * Class ExpressionLanguageFactory.
  */
 class ExpressionLanguageFactory
 {

@@ -19,9 +19,9 @@ class QueueProducer extends Producer
     use UsesSerializer;
     use UsesDriverRegistry;
 
-    protected $headersToPropagate = array(
+    protected $headersToPropagate = [
         Message::HEADER_EXPIRES,
-    );
+    ];
 
     /**
      * {@inheritdoc}

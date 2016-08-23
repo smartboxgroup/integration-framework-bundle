@@ -12,8 +12,8 @@ class QueryOptions implements QueryOptionsInterface
 
     protected $limit;
     protected $offset;
-    protected $queryParams = array();
-    protected $sortParams = array();
+    protected $queryParams = [];
+    protected $sortParams = [];
 
     /**
      * StorageFilter constructor.

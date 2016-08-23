@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesb
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
- * Class AbstractConsumer
+ * Class AbstractConsumer.
  */
 abstract class AbstractConsumer extends Service implements ConsumerInterface
 {
@@ -16,7 +16,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     use IsStopableConsumer;
 
     /**
-     * Initializes the consumer for a given endpoint
+     * Initializes the consumer for a given endpoint.
      *
      * @param EndpointInterface $endpoint
      */
@@ -69,7 +69,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     abstract protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message);
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * @throws \Exception
      */

@@ -27,7 +27,7 @@ class ExchangeEnvelope extends Message
      */
     public function __construct(Exchange $exchange)
     {
-        parent::__construct($exchange, array(), $exchange->getIn()->getContext());
+        parent::__construct($exchange, [], $exchange->getIn()->getContext());
     }
 
     /**

@@ -22,9 +22,9 @@ class ContentRouter extends Processor
     const CONDITION_MATCHED = 'condition_matched';
 
     /**
-     * @var WhenClause[]
+     * @var ConditionalClause[]
      */
-    protected $clauses = array();
+    protected $clauses = [];
 
     /**
      * Itinerary to use if none of the conditions on $paths is matched.
@@ -39,7 +39,7 @@ class ContentRouter extends Processor
      */
     public function addWhen($condition = null, Itinerary $itinerary = null)
     {
-        $this->clauses[] = new WhenClause($condition, $itinerary);
+        $this->clauses[] = new ConditionalClause($condition, $itinerary);
     }
 
     public function setOtherwise(Itinerary $fallback)
@@ -86,8 +86,9 @@ class ContentRouter extends Processor
     /**
      * {@inheritdoc}
      */
-    protected function onPostProcessEvent(ProcessEvent $event){
+    protected function onPostProcessEvent(ProcessEvent $event)
+    {
         $condition = $event->getProcessingContext()->get(self::CONDITION_MATCHED);
-        $event->setEventDetails('Matched condition: ' . $condition);
+        $event->setEventDetails('Matched condition: '.$condition);
     }
 }

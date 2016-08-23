@@ -7,7 +7,7 @@ use Smartbox\Integration\FrameworkBundle\ServiceInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 
 /**
- * Interface ConsumerInterface
+ * Interface ConsumerInterface.
  */
 interface ConsumerInterface extends ServiceInterface
 {
@@ -38,7 +38,8 @@ interface ConsumerInterface extends ServiceInterface
     public function setSmartesbHelper(SmartesbHelper $helper = null);
 
     /**
-     * Get a descriptive name of the producer
+     * Get a descriptive name of the producer.
+     *
      * @return string
      */
     public function getName();

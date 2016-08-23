@@ -3,19 +3,21 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Exception;
 
 /**
- * Interface ExternalSystemExceptionInterface
+ * Interface ExternalSystemExceptionInterface.
  */
 interface ExternalSystemExceptionInterface
 {
     /**
-     * Get the name of the external system
+     * Get the name of the external system.
+     *
      * @return string
      */
     public function getExternalSystemName();
 
     /**
-     * If returns true, the message of the exception will be displayed to the user
-     * @return boolean
+     * If returns true, the message of the exception will be displayed to the user.
+     *
+     * @return bool
      */
     public function mustShowExternalSystemErrorMessage();
 }

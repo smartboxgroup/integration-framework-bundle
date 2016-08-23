@@ -21,20 +21,21 @@ class EventDispatcher extends ContainerAwareEventDispatcher
     protected $deferringEnabled = true;
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isDeferringEnabled()
     {
         return $this->deferringEnabled;
     }
 
-    public function __construct(ContainerInterface $container){
+    public function __construct(ContainerInterface $container)
+    {
         parent::__construct($container);
         $this->deferringEnabled = $container->getParameter('smartesb.enable_events_deferring');
     }
 
     /**
-     * @param boolean $deferringEnabled
+     * @param bool $deferringEnabled
      */
     public function setDeferringEnabled($deferringEnabled)
     {
@@ -43,7 +44,7 @@ class EventDispatcher extends ContainerAwareEventDispatcher
 
     protected function shouldDefer(\Symfony\Component\EventDispatcher\Event $event)
     {
-        if(!$this->deferringEnabled){
+        if (!$this->deferringEnabled) {
             return false;
         }
 
@@ -82,7 +83,7 @@ class EventDispatcher extends ContainerAwareEventDispatcher
     {
         $event = parent::dispatch($eventName, $event);
 
-        $isDeferred = strpos($eventName, '.deferred') !==  false;
+        $isDeferred = strpos($eventName, '.deferred') !== false;
 
         if (!$isDeferred && $this->shouldDefer($event)) {
             $this->deferEvent($event);

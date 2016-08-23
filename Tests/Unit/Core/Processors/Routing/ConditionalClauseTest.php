@@ -3,21 +3,21 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Processors\Routing;
 
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause;
 
 /**
- * Class WhenClauseTest.
+ * Class ConditionalClauseTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\WhenClause
+ * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause
  */
-class WhenClauseTest extends \PHPUnit_Framework_TestCase
+class ConditionalClauseTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Itinerary */
     private $itinerary;
 
     protected function setUp()
     {
-        $this->itinerary = new Itinerary;
+        $this->itinerary = new Itinerary();
     }
 
     protected function tearDown()
@@ -28,7 +28,7 @@ class WhenClauseTest extends \PHPUnit_Framework_TestCase
     /**
      * @return array
      */
-    public function dataProviderForCreationOfWhenClause()
+    public function dataProviderForCreationOfConditionalClause()
     {
         return [
             [null, null],
@@ -44,17 +44,17 @@ class WhenClauseTest extends \PHPUnit_Framework_TestCase
      * @covers ::getCondition
      * @covers ::getItinerary
      *
-     * @dataProvider dataProviderForCreationOfWhenClause
+     * @dataProvider dataProviderForCreationOfConditionalClause
      *
      * @param $condition
      * @param $itinerary
      */
     public function testCreationOfClass($condition, $itinerary)
     {
-        $whenClause = new WhenClause($condition, $itinerary);
+        $conditionalClause = new ConditionalClause($condition, $itinerary);
 
-        $this->assertEquals($condition, $whenClause->getCondition());
-        $this->assertSame($itinerary, $whenClause->getItinerary());
+        $this->assertEquals($condition, $conditionalClause->getCondition());
+        $this->assertSame($itinerary, $conditionalClause->getItinerary());
     }
 
     /**
@@ -78,10 +78,10 @@ class WhenClauseTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetAndGetCondition($condition)
     {
-        $whenClause = new WhenClause();
-        $whenClause->setCondition($condition);
+        $conditionalClause = new ConditionalClause();
+        $conditionalClause->setCondition($condition);
 
-        $this->assertEquals($condition, $whenClause->getCondition());
+        $this->assertEquals($condition, $conditionalClause->getCondition());
     }
 
     /**
@@ -105,9 +105,9 @@ class WhenClauseTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetAndGetItinerary(Itinerary $itinerary)
     {
-        $whenClause = new WhenClause();
-        $whenClause->setItinerary($itinerary);
+        $conditionalClause = new ConditionalClause();
+        $conditionalClause->setItinerary($itinerary);
 
-        $this->assertSame($itinerary, $whenClause->getItinerary());
+        $this->assertSame($itinerary, $conditionalClause->getItinerary());
     }
 }

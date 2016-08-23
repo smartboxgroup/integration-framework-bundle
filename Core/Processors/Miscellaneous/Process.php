@@ -6,7 +6,6 @@ use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\ProcessorInterface;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Tools\Logs\LogsExchangeDetails;
 
@@ -40,7 +39,7 @@ class Process extends Processor implements LogsExchangeDetails
             return $this->processor->process($exchange);
         } catch (\Exception $e) {
             throw new \InvalidArgumentException(
-                'Processor could not process exchange: ' . $e->getMessage(),
+                'Processor could not process exchange: '.$e->getMessage(),
                 $e->getCode(),
                 $e
             );

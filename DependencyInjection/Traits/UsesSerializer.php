@@ -9,7 +9,7 @@ use JMS\Serializer\SerializerInterface;
  */
 trait UsesSerializer
 {
-    /** @var  SerializerInterface */
+    /** @var SerializerInterface */
     protected $serializer;
 
     /**

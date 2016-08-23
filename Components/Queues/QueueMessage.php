@@ -16,7 +16,7 @@ class QueueMessage extends Message implements QueueMessageInterface
     const HEADER_PRIORITY = 'priority';
     const HEADER_REASON_FOR_FAILURE = 'dlqDeliveryFailureCause';
 
-    public function __construct(SerializableInterface $body = null, $headers = array(), Context $context = null)
+    public function __construct(SerializableInterface $body = null, $headers = [], Context $context = null)
     {
         parent::__construct($body, $headers, $context);
         $this->setPersistent(true);
