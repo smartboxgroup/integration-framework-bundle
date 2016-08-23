@@ -46,7 +46,7 @@ trait FakeClientTrait
 
     protected function getResponseFromCache($resource, $suffix = null)
     {
-        $file = $this->cacheDir.DIRECTORY_SEPARATOR.$resource.(($suffix) ? '.'.$suffix : null);
+        $file = $this->getFileName($resource, $suffix);
         $fixturePath = $this->fileLocator->locate($file);
 
         return file_get_contents($fixturePath);
@@ -58,10 +58,13 @@ trait FakeClientTrait
             if (!is_dir($this->cacheDir)) {
                 mkdir($this->cacheDir, 0777, true);
             }
-            file_put_contents(
-                $this->cacheDir.DIRECTORY_SEPARATOR.$resource.(($suffix) ? '.'.$suffix : null),
-                $content
-            );
+
+            file_put_contents($this->getFileName($resource, $suffix), $content);
         }
+    }
+
+    protected function getFileName($resource, $suffix = null)
+    {
+        return $this->cacheDir.DIRECTORY_SEPARATOR.$resource.(($suffix) ? '.'.$suffix : null);
     }
 }
