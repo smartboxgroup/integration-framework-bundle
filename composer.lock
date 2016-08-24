@@ -1986,7 +1986,7 @@
             "source": {
                 "type": "git",
                 "url": "git@gitlab.production.smartbox.com:smartesb/core-bundle.git",
-                "reference": "ccdef0e26fddf35af97efca1737440d9a4ef33de"
+                "reference": "33c63a2644a020fecf5661172c2813067950f025"
             },
             "require": {
                 "doctrine/annotations": ">=1.2.0",
@@ -1999,9 +1999,9 @@
             },
             "require-dev": {
                 "digitalnature/php-ref": "dev-master",
-                "phpunit/php-code-coverage": "dev-master",
-                "phpunit/phpunit": "dev-master",
-                "phpunit/phpunit-mock-objects": "dev-master",
+                "phpunit/php-code-coverage": "~4.0",
+                "phpunit/phpunit": "~5.4",
+                "phpunit/phpunit-mock-objects": "~3.2",
                 "predis/predis": "^1.0",
                 "sensio/generator-bundle": "~2.3",
                 "snc/redis-bundle": "^1.1"
@@ -2016,7 +2016,7 @@
                 "MIT"
             ],
             "description": "Smartbox Core Bundle",
-            "time": "2016-07-18 15:01:48"
+            "time": "2016-08-22 15:41:53"
         },
         {
             "name": "symfony/assetic-bundle",
