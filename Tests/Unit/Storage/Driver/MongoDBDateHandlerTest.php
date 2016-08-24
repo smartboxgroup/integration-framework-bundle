@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Storage\Driver;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\VisitorInterface;
-use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBDateHandler;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDateHandler;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 
 /**

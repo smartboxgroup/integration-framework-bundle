@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring;
 
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
@@ -70,7 +71,7 @@ class EventDispatcher extends ContainerAwareEventDispatcher
         $deferToURI = $this->getContainer()->getParameter(SmartboxIntegrationFrameworkExtension::PARAM_DEFERRED_EVENTS_URI);
 
         if (!empty($deferToURI)) {
-            $endpoint = $this->getContainer()->get('smartesb.endpoint_factory')->createEndpoint($deferToURI);
+            $endpoint = $this->getContainer()->get('smartesb.endpoint_factory')->createEndpoint($deferToURI, EndpointFactory::MODE_PRODUCE);
             $flowsVersion = $this->getContainer()->getParameter('smartesb.flows_version');
             $exchange = new Exchange(new EventMessage($event, [], new Context([Context::FLOWS_VERSION => $flowsVersion])));
             $endpoint->produce($exchange);

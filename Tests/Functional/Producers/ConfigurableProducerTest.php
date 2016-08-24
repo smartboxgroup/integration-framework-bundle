@@ -8,15 +8,17 @@ use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelp
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\AbstractConfigurableProducer;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerRecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerUnrecoverableException;
+use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableException;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ConfigurableProducerTest extends BaseTestCase
 {
-    /** @var ConfigurableProducer|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var  AbstractConfigurableProducer|\PHPUnit_Framework_MockObject_MockObject */
     protected $configurableProducer;
 
     /** @var OptionsResolver */
@@ -34,7 +36,7 @@ class ConfigurableProducerTest extends BaseTestCase
     protected $simpleMethodsConfig = [
           'methodA' => [
               ConfigurableServiceHelper::KEY_DESCRIPTION => 'Description here',
-              ConfigurableServiceHelper::KEY_STEPS => [
+              ConfigurableProducerInterface::CONF_STEPS => [
                     [ConfigurableServiceHelper::STEP_DEFINE => [
                       'x' => 'eval: 1 + 2',
                       'val' => 'eval: msg.getBody().get("value")',
@@ -43,7 +45,7 @@ class ConfigurableProducerTest extends BaseTestCase
                       'result' => 'eval: x + val',
                     ]],
               ],
-              ConfigurableProducer::KEY_VALIDATIONS => [
+              ConfigurableProducerInterface::CONF_VALIDATIONS => [
                   [
                       'rule' => 'eval: x == 3',
                       'message' => 'Define does not work!',
@@ -60,7 +62,7 @@ class ConfigurableProducerTest extends BaseTestCase
                       'recoverable' => false,
                   ],
               ],
-              ConfigurableProducer::KEY_RESPONSE => [
+              ConfigurableProducerInterface::CONF_RESPONSE => [
                   'result' => 'eval: 1 + 2 + msg.getBody().get(\'value\') + 10',
               ],
           ],
@@ -70,7 +72,7 @@ class ConfigurableProducerTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->configurableProducer = $this->getMockBuilder(ConfigurableProducer::class)->setMethods(null)->getMock();
+        $this->configurableProducer = $this->getMockBuilder(AbstractConfigurableProducer::class)->setMethods(null)->getMock();
 
         $confHelper = new ConfigurableServiceHelper();
         $confHelper->setSerializer($this->getContainer()->get('serializer'));
@@ -185,7 +187,7 @@ class ConfigurableProducerTest extends BaseTestCase
             new Message(new SerializableArray(['value' => 1313666]))
         );
 
-        $this->setExpectedException(ProducerUnrecoverableException::class, 'Too ugly number!!');
+        $this->setExpectedException(\RuntimeException::class, 'Too ugly number!!');
 
         $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
@@ -203,7 +205,7 @@ class ConfigurableProducerTest extends BaseTestCase
             new Message(new SerializableArray(['value' => 666]))
         );
 
-        $this->setExpectedException(ProducerRecoverableException::class, 'Ugly number!!');
+        $this->setExpectedException(RecoverableException::class, 'Ugly number!!');
 
         $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',

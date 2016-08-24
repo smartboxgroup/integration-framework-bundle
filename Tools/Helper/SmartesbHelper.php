@@ -16,7 +16,7 @@ class SmartesbHelper implements ContainerAwareInterface
     use ContainerAwareTrait;
 
     /**
-     * @return \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface
+     * @return \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\NoSQLDriverInterface
      */
     public function getNoSQLDriver($storageName)
     {

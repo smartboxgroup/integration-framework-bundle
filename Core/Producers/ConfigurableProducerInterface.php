@@ -11,6 +11,10 @@ use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
  */
 interface ConfigurableProducerInterface extends ProducerInterface, ConfigurableInterface
 {
+    const CONF_STEPS = 'steps';
+    const CONF_RESPONSE = 'response';
+    const CONF_VALIDATIONS = 'validations';
+
     /**
      * @param array $configuration
      */

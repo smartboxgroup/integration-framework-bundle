@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
@@ -72,7 +73,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     {
         // If we used a wrapper to queue the message, that the handler doesn't understand, unwrap it
         if ($message instanceof QueueMessageInterface && !($queueEndpoint->getHandler() instanceof QueueMessageHandlerInterface)) {
-            $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI());
+            $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI(), EndpointFactory::MODE_CONSUME);
             $queueEndpoint->getHandler()->handle($message->getBody(), $endpoint);
         } else {
             parent::process($queueEndpoint, $message);

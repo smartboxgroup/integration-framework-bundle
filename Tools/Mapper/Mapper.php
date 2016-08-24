@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tools\Mapper;
 
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 
 /**
  * Class Mapper.
@@ -113,6 +114,16 @@ class Mapper implements MapperInterface
     public function stringToDate($date)
     {
         return new \DateTime($date);
+    }
+
+    public function timestampToDate($timestamp){
+        $date = new \DateTime();
+        $date->setTimestamp($timestamp);
+        return $date;
+    }
+
+    public function timestampWithMsToDate($timestamp){
+        return DateTimeHelper::createDateTimeFromTimestampWithMilliseconds($timestamp);
     }
 
     /**

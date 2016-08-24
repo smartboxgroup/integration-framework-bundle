@@ -12,6 +12,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
     {
         return [
             $this->createHasHeyFunction(),
+            $this->createGetFirstFunction(),
             $this->createIsRecoverableFunction(),
         ];
     }
@@ -32,6 +33,26 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                 }
 
                 return array_key_exists($key, $array);
+            }
+        );
+    }
+
+
+    /**
+     * @return ExpressionFunction
+     */
+    protected function createGetFirstFunction()
+    {
+        return new ExpressionFunction(
+            'getFirst',
+            function ($array) {
+                return sprintf('reset(%s)', $array);
+            },
+            function ($arguments, $array) {
+                if (!is_array($array)) {
+                    throw new \RuntimeException('First argument passed to "getFirst" should be an array.');
+                }
+                return reset($array);
             }
         );
     }

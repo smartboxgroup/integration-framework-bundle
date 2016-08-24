@@ -1,0 +1,111 @@
+<?php
+
+namespace Smartbox\Integration\FrameworkBundle\Components\DB;
+
+
+use Smartbox\CoreBundle\Type\SerializableArray;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLConfigurableProtocol;
+use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
+use Smartbox\Integration\FrameworkBundle\Service;
+
+class DBConfigurableConsumer extends Service implements ConfigurableConsumerInterface
+{
+    use IsStopableConsumer;
+    use UsesSmartesbHelper;
+    use IsConfigurableService;
+
+    /** @var  ConfigurableStepsProviderInterface */
+    protected $configurableStepsProvider;
+
+    /**
+     * @return ConfigurableStepsProviderInterface
+     */
+    public function getConfigurableStepsProvider()
+    {
+        return $this->configurableStepsProvider;
+    }
+
+    /**
+     * @param ConfigurableStepsProviderInterface $configurableStepsProvider
+     */
+    public function setConfigurableStepsProvider($configurableStepsProvider)
+    {
+        $this->configurableStepsProvider = $configurableStepsProvider;
+    }
+
+    /**
+     * Reads a message from the NoSQL database executing the configured steps
+     *
+     * @param EndpointInterface $endpoint
+     * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\Message
+     */
+    protected function readMessage(EndpointInterface $endpoint)
+    {
+        $options = $endpoint->getOptions();
+        $method = $options[NoSQLConfigurableProtocol::OPTION_METHOD];
+        $config = $this->methodsConfiguration[$method];
+        $steps = $config[ConfigurableConsumerInterface::CONFIG_QUERY_STEPS];
+
+        $context = $this->getConfHelper()->createContext($options);
+
+        try{
+            $this->configurableStepsProvider->executeSteps($steps, $options, $context);
+
+            $result = $this->getConfHelper()->resolve(
+                $config[ConfigurableConsumerInterface::CONFIG_QUERY_RESULT],
+                $context
+            );
+        }catch(NoResultsException $exception){
+            $result = null;
+        }
+
+        if($result == null){
+            return null;
+        }elseif(is_array($result)){
+            $result = new SerializableArray($result);
+        }
+
+        return $this->smartesbHelper->getMessageFactory()->createMessage($result);
+    }
+
+    /**
+     * Executes the necessary actions after the message has been consumed
+     *
+     * @param EndpointInterface $endpoint
+     * @param MessageInterface $message
+     */
+    protected function onConsume(EndpointInterface $endpoint, MessageInterface $message)
+    {
+        $options = $endpoint->getOptions();
+        $method = $options[NoSQLConfigurableProtocol::OPTION_METHOD];
+        $config = $this->methodsConfiguration[$method];
+        $steps = $config[ConfigurableConsumerInterface::CONFIG_ON_CONSUME];
+
+        $context = $this->getConfHelper()->createContext($options,$message);
+
+        $this->configurableStepsProvider->executeSteps($steps, $options, $context);
+    }
+
+    public function consume(EndpointInterface $endpoint)
+    {
+        while (!$this->shouldStop()) {
+            // Receive
+            $message = $this->readMessage($endpoint);
+
+            // Process
+            if ($message) {
+                --$this->expirationCount;
+
+                $endpoint->handle($message);
+
+                $this->onConsume($endpoint, $message);
+            }
+        }
+    }
+}

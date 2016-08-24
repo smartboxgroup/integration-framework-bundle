@@ -1,19 +1,13 @@
 <?php
+namespace Smartbox\Integration\FrameworkBundle\Configurability;
 
-namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
-use Smartbox\CoreBundle\Type\Traits\HasInternalType;
-use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-abstract class AbstractConfigurableConsumer extends AbstractConsumer implements ConfigurableConsumerInterface
-{
-    use HasInternalType;
-    use UsesSmartesbHelper;
+trait IsConfigurableService {
     use UsesEvaluator;
     use UsesSerializer;
     use UsesConfigurableServiceHelper;
@@ -32,10 +26,6 @@ abstract class AbstractConfigurableConsumer extends AbstractConsumer implements 
      */
     public function getName()
     {
-        if (!$this->name) {
-            return parent::getName();
-        }
-
         return $this->name;
     }
 
@@ -72,28 +62,6 @@ abstract class AbstractConfigurableConsumer extends AbstractConsumer implements 
     }
 
     /**
-     * Returns true if the step was executed, false if the step was not recognized.
-     *
-     * @param       $stepAction
-     * @param       $stepActionParams
-     * @param       $options
-     * @param array $context
-     *
-     * @return bool
-     */
-    public function executeStep($stepAction, &$stepActionParams, &$options, array &$context)
-    {
-        switch ($stepAction) {
-            case ConfigurableServiceHelper::STEP_DEFINE:
-                $this->confHelper->define($stepActionParams, $context);
-
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function getOptionsDescriptions()
@@ -104,11 +72,11 @@ abstract class AbstractConfigurableConsumer extends AbstractConsumer implements 
         }
 
         $options = [
-            ConfigurableServiceHelper::OPTION_METHOD => ['Method of the consumer to be executed', $methodDescriptions],
+            ConfigurableServiceHelper::OPTION_METHOD => ["Method to be executed", $methodDescriptions]
         ];
 
         foreach ($this->configuredOptions as $option => $value) {
-            $options[$option] = ['Custom option added in configurable consumer', []];
+            $options[$option] = ['Custom option added in configurable service',[]];
         }
 
         return $options;

@@ -2,7 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers;
 
-use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface;
+use Smartbox\CoreBundle\Type\SerializableInterface;
 
 /**
  * Interface NoSQLDriverInterface.
@@ -10,41 +10,53 @@ use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterfa
 interface NoSQLDriverInterface
 {
     /**
-     * @param NoSQLMessageInterface $message
+     * Delete all documents matching a given $queryOptions.
      *
-     * @return string Id of the created record
+     * @param string                $storageResourceName
+     * @param QueryOptionsInterface $queryOptions
      */
-    public function create(NoSQLMessageInterface $message);
+    public function delete($storageResourceName, QueryOptionsInterface $queryOptions);
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface $message
+     * Find all documents matching a given $queryOptions.
      *
-     * @return bool
+     * @param string                $storageResourceName
+     * @param QueryOptionsInterface $queryOptions
+     * @param array                 $fields
+     *
+     * @return SerializableInterface[]|SerializableInterface|null
      */
-    public function update(NoSQLMessageInterface $message);
+    public function find($storageResourceName, QueryOptionsInterface $queryOptions, array $fields = []);
 
     /**
-     * @param NoSQLMessageInterface $message
+     * Insert an document.
      *
-     * @return bool
+     * @param string                $storageResourceName
+     * @param SerializableInterface $data
+     *
+     * @return string $id
      */
-    public function delete(NoSQLMessageInterface $message);
+    public function insertOne($storageResourceName, SerializableInterface $data);
+
 
     /**
-     * Returns One Serializable object from the queue.
+     * Insert an document.
      *
-     * It requires to subscribe previously to a specific queue
+     * @param string                $storageResourceName
+     * @param SerializableInterface[] $data
      *
-     * @param string $collection
-     * @param array  $query
-     * @param array  $options
-     *
-     * @return null|\Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface
+     * @return string $id
      */
-    public function read($collection, array $query = [], $options = []);
+    public function insertMany($storageResourceName, array $data);
 
     /**
-     * @return \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface
+     * Update one or many documents matching the $queryOptions with the given $data.
+     *
+     * @param string                $storageResourceName
+     * @param QueryOptionsInterface $queryOptions
+     * @param array $data
+     *
+     * @return mixed $updateResult
      */
-    public function createMessage();
+    public function update($storageResourceName, QueryOptionsInterface $queryOptions, array $data);
 }

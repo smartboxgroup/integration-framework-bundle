@@ -1,14 +1,14 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Components\DB\Storage\Exception;
+namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions;
 
 use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 
 /**
- * Class DataStorageException.
+ * Class NoSQLDriverDataException.
  */
-class DataStorageException extends StorageException
+class NoSQLDriverDataException extends NoSQLDriverException
 {
     /**
      * @JMS\Type("Smartbox\CoreBundle\Type\SerializableInterface")

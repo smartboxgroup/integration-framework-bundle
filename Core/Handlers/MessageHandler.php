@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Handlers;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
@@ -127,7 +128,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
         if (empty($retryURI)) {
             $this->retryEndpoint = null;
         } else {
-            $this->retryEndpoint = $this->getEndpointFactory()->createEndpoint($retryURI);
+            $this->retryEndpoint = $this->getEndpointFactory()->createEndpoint($retryURI, EndpointFactory::MODE_PRODUCE);
         }
     }
 
@@ -136,7 +137,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
      */
     public function setFailedURI($failedURI)
     {
-        $this->failedEndpoint = $this->getEndpointFactory()->createEndpoint($failedURI);
+        $this->failedEndpoint = $this->getEndpointFactory()->createEndpoint($failedURI, EndpointFactory::MODE_PRODUCE);
     }
 
     /**
@@ -189,7 +190,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
             if ($this->shouldDeferNewExchanges()) {
                 $newExchangeEnvelope = new Exchange(new DeferredExchangeEnvelope($newExchange));
                 $uri = $newExchange->getHeader(Exchange::HEADER_FROM);
-                $targetEndpoint = $this->getEndpointFactory()->createEndpoint($uri);
+                $targetEndpoint = $this->getEndpointFactory()->createEndpoint($uri, EndpointFactory::MODE_PRODUCE);
                 $targetEndpoint->produce($newExchangeEnvelope);
             }
             // Otherwise we process it immediately
@@ -405,7 +406,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
         $retryEndpoint = $this->retryEndpoint;
         if (!$retryEndpoint) {
             $retryURI = $oldExchange->getHeader(Exchange::HEADER_FROM);
-            $retryEndpoint = $this->getEndpointFactory()->createEndpoint($retryURI);
+            $retryEndpoint = $this->getEndpointFactory()->createEndpoint($retryURI, EndpointFactory::MODE_PRODUCE);
         }
 
         $retryEndpoint->produce($exchange);

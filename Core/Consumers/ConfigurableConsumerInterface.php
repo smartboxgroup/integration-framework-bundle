@@ -8,6 +8,10 @@ use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 
 interface ConfigurableConsumerInterface extends ConsumerInterface, ConfigurableInterface
 {
+    const CONFIG_ON_CONSUME = 'on_consume';
+    const CONFIG_QUERY_STEPS = 'query_steps';
+    const CONFIG_QUERY_RESULT = 'query_result';
+
     /**
      * @param array $configuration
      */

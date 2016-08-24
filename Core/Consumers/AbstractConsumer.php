@@ -13,38 +13,7 @@ use Smartbox\Integration\FrameworkBundle\Service;
 abstract class AbstractConsumer extends Service implements ConsumerInterface
 {
     use UsesSmartesbHelper;
-
-    /** @var bool */
-    protected $stop = false;
-
-    /** @var int */
-    protected $expirationCount = -1;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function stop()
-    {
-        $this->stop = true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setExpirationCount($count)
-    {
-        $this->expirationCount = $count;
-    }
-
-    /**
-     * Checks if it should stop at the current iteration.
-     *
-     * @return bool
-     */
-    protected function shouldStop()
-    {
-        return $this->stop || $this->expirationCount == 0;
-    }
+    use IsStopableConsumer;
 
     /**
      * Initializes the consumer for a given endpoint.

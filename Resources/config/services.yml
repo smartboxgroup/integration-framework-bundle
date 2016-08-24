@@ -15,17 +15,38 @@ parameters:
   smartesb.util.expression_language_factory.class: Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionLanguageFactory
   smartesb.util.evaluator.class: Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator
   smartesb.util.mapper.class: Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper
-  smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBDateHandler
+  smartesb.serialization.handler.mongodate.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDateHandler
   smartesb.helper.class: Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper
   smartesb.itinerary.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
   smartesb.event_listener.events_logger.class: Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener
   smartesb.itineray_resolver.class: Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItineraryResolver
+
+  smartesb.steps_provider.dbal.class: Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\DbalStepsProvider
+  smartesb.steps_provider.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLStepsProvider
 
 services:
   smartesb.serialization.handler.mongodate:
       class: %smartesb.serialization.handler.mongodate.class%
       tags:
         - { name: jms_serializer.subscribing_handler }
+
+  # DB Configurable services
+  smartesb.steps_provider.dbal:
+      class: %smartesb.steps_provider.dbal.class%
+      calls:
+        - [ setId, [ 'smartesb.configurable.nosql'] ]
+        - [ setDoctrine, [ @doctrine ] ]
+        - [ setMessageFactory, [ @smartesb.message_factory ] ]
+        - [setConfHelper, [@smartesb.configurable_service_helper]]
+
+  # DB Configurable services
+  smartesb.steps_provider.nosql:
+      class: %smartesb.steps_provider.nosql.class%
+      calls:
+        - [ setId, [ 'smartesb.configurable.nosql'] ]
+        - [ setDriverRegistry, [ @smartesb.drivers.nosql._registry ] ]
+        - [ setMessageFactory, [ @smartesb.message_factory ] ]
+        - [setConfHelper, [@smartesb.configurable_service_helper]]
 
   # UTILS
   smartesb.util.expression_language:
