@@ -49,6 +49,10 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      */
     public function executeStep($stepAction, array &$stepActionParams, array &$options, array &$context)
     {
+        if ($this->doctrine === null) {
+            throw new \InvalidArgumentException('Doctrine should be installed to use DbalStepsProvider');
+        }
+
         $handled = $this->getConfHelper()->executeStep($stepAction, $stepActionParams, $options, $context);
 
         if ($handled) {
