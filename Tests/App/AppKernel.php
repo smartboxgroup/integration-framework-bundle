@@ -15,7 +15,6 @@ class AppKernel extends Kernel
             new \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new \JMS\SerializerBundle\JMSSerializerBundle(),
             new \BeSimple\SoapBundle\BeSimpleSoapBundle(),
-            new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
 
             new \Smartbox\CoreBundle\SmartboxCoreBundle(),
             new \Smartbox\Integration\FrameworkBundle\SmartboxIntegrationFrameworkBundle(),

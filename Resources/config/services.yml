@@ -35,7 +35,7 @@ services:
       class: %smartesb.steps_provider.dbal.class%
       calls:
         - [ setId, [ 'smartesb.configurable.nosql'] ]
-        - [ setDoctrine, [ @doctrine ] ]
+        - [ setDoctrine, [ ?@doctrine ] ]
         - [ setMessageFactory, [ @smartesb.message_factory ] ]
         - [setConfHelper, [@smartesb.configurable_service_helper]]
 
