@@ -3,10 +3,12 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB;
 
 use JMS\Serializer\SerializerInterface;
+use MongoDB\BSON\ObjectID;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\NoSQLDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptions;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptionsInterface;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverDataException;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException;
