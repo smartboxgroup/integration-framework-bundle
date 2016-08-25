@@ -39,11 +39,11 @@
     "repositories": [
         {
           "type": "vcs",
-          "url":  "git@gitlab.production.smartbox.com:smartesb/BeSimpleSoap.git"
+          "url":  "git@github.com:smartboxgroup/besimplesoap-bundle.git"
         },
         {
           "type": "vcs",
-          "url":  "git@gitlab.production.smartbox.com:smartesb/core-bundle.git"
+          "url":  "git@github.com:smartboxgroup/commons-bundle.git"
         }
     ],
     "minimum-stability": "dev",
