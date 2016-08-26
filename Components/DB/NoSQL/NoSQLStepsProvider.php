@@ -71,7 +71,6 @@ class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInt
     protected function prepareQueryOptions(array $params, array &$context)
     {
         $query = $this->confHelper->resolve($params[self::CONF_QUERY], $context);
-        $sort = $this->confHelper->resolve($params[self::CONF_SORT], $context);
 
         if ($query === null) {
             throw new \RuntimeException(
@@ -81,12 +80,20 @@ class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInt
 
         $queryOptions = new QueryOptions();
         $queryOptions->setQueryParams($query);
-        $queryOptions->setLimit($params[self::CONF_LIMIT]);
-        $queryOptions->setOffset($params[self::CONF_OFFSET]);
 
-        foreach ($sort as $field => $order) {
-            $queryOptions->addSorting($field, $order);
-        };
+        if(array_key_exists(self::CONF_SORT,$params)){
+            $sort = $this->confHelper->resolve($params[self::CONF_SORT], $context);
+            foreach ($sort as $field => $order) {
+                $queryOptions->addSorting($field, $order);
+            };
+        }
+        if(array_key_exists(self::CONF_LIMIT,$params)){
+            $queryOptions->setLimit($params[self::CONF_LIMIT]);
+        }
+
+        if(array_key_exists(self::CONF_OFFSET,$params)){
+            $queryOptions->setOffset($params[self::CONF_OFFSET]);
+        }
 
         return $queryOptions;
     }
