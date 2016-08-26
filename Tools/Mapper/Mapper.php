@@ -152,4 +152,16 @@ class Mapper implements MapperInterface
     {
         return implode($glue, $data);
     }
+
+    public function toString($data){
+        return (string) $data;
+    }
+
+    public function toMongoID($id){
+        if(class_exists('\MongoDB\BSON\ObjectID')){
+            return new \MongoDB\BSON\ObjectID((string) $id);
+        }else{
+            throw new \RuntimeException("To instantiate a Mongo ObjectID object you need to install the php mongo extension.");
+        }
+    }
 }
