@@ -11,7 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\ProtocolInterface;
 
 /**
- * Interface EndpointInterface
+ * Interface EndpointInterface.
  */
 interface EndpointInterface extends SerializableInterface
 {

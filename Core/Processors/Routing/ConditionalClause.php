@@ -5,14 +5,14 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Processors\Routing;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 
 /**
- * Class WhenClause.
+ * Class ConditionalClause.
  */
-class WhenClause
+class ConditionalClause
 {
     /** @var string */
     protected $condition;
 
-    /** @var  Itinerary */
+    /** @var Itinerary */
     protected $itinerary;
 
     /**

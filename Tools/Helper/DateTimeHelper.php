@@ -6,6 +6,7 @@ class DateTimeHelper
 {
     /**
      * @param mixed $timestamp
+     *
      * @return \DateTime
      */
     public static function createDateTimeFromTimestampWithMilliseconds($timestamp)
@@ -15,10 +16,10 @@ class DateTimeHelper
             $datetime = new \DateTime();
             $datetime = $datetime->setTimestamp($timestamp);
         } else {
-            $datetime = \DateTime::createFromFormat("U.u", $timestamp, new \DateTimeZone('UTC'));
+            $datetime = \DateTime::createFromFormat('U.u', $timestamp, new \DateTimeZone('UTC'));
 
             if ($datetime == false) {
-                $datetime = \DateTime::createFromFormat("U", $timestamp, new \DateTimeZone('UTC'));
+                $datetime = \DateTime::createFromFormat('U', $timestamp, new \DateTimeZone('UTC'));
             }
         }
 
@@ -30,7 +31,7 @@ class DateTimeHelper
                 )
             );
         }
-        
+
         return $datetime;
     }
 

@@ -55,7 +55,7 @@ class NoSQLConfigurableProtocol extends Protocol implements DescriptableInterfac
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getDescription()
     {

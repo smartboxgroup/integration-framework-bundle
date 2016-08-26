@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
-use Psr\Log\LogLevel;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
@@ -312,7 +311,7 @@ class Configuration implements ConfigurationInterface
         ->isRequired()
         ->validate()->ifTrue(
             function ($handlers) {
-                return (!array_key_exists('sync', $handlers) || !array_key_exists('async', $handlers));
+                return !array_key_exists('sync', $handlers) || !array_key_exists('async', $handlers);
             })
             ->thenInvalid('You must define at least two handlers, called "sync" and "async" in the smartesb configuration.')
         ->end()

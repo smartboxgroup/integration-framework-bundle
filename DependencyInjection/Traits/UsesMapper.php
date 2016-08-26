@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Mapper\MapperInterface;
  */
 trait UsesMapper
 {
-    /** @var  MapperInterface */
+    /** @var MapperInterface */
     protected $mapper;
 
     /**

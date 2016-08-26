@@ -10,7 +10,8 @@ class ItineraryResolver
 {
     use UsesItinerariesRouter;
 
-    public function getItinerary($from, $version){
+    public function getItinerary($from, $version)
+    {
         $params = $this->getItineraryParams($from, $version);
 
         return $params[InternalRouter::KEY_ITINERARY];
@@ -19,21 +20,25 @@ class ItineraryResolver
     /**
      * @param $uri
      * @param $version
+     *
      * @return string
      */
-    public static function getItineraryURIWithVersion($uri, $version){
-        return 'v' . $version . '-' . $uri;
+    public static function getItineraryURIWithVersion($uri, $version)
+    {
+        return 'v'.$version.'-'.$uri;
     }
 
     /**
      * @param $from
      * @param $version
+     *
      * @return array
+     *
      * @throws \Exception
      */
-    public function getItineraryParams($from, $version){
-
-        $from = self::getItineraryURIWithVersion($from,$version);
+    public function getItineraryParams($from, $version)
+    {
+        $from = self::getItineraryURIWithVersion($from, $version);
 
         // Find itinerary
         try {
@@ -46,7 +51,7 @@ class ItineraryResolver
         }
 
         $itinerary = $params[InternalRouter::KEY_ITINERARY];
-        if (!$itinerary instanceof Itinerary){
+        if (!$itinerary instanceof Itinerary) {
             throw new \Exception("Error trying to get itinerary for '$from', the itinerary must be an instance of Itinerary.");
         }
 

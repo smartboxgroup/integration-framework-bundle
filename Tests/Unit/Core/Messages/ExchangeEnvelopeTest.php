@@ -37,8 +37,8 @@ class ExchangeEnvelopeTest extends \PHPUnit_Framework_TestCase
 
     public function testConstruct()
     {
-        $context  = new Context(['a' => 'b']);
-        $message  = new Message(null, [], $context);
+        $context = new Context(['a' => 'b']);
+        $message = new Message(null, [], $context);
         $exchange = new Exchange($message);
 
         $exchangeEnvelope = new ExchangeEnvelope($exchange);
@@ -50,8 +50,8 @@ class ExchangeEnvelopeTest extends \PHPUnit_Framework_TestCase
 
     public function testGetExchange()
     {
-        $context  = new Context(['a' => 'b']);
-        $message  = new Message(null, [], $context);
+        $context = new Context(['a' => 'b']);
+        $message = new Message(null, [], $context);
         $exchange = new Exchange($message);
 
         $exchangeEnvelope = new ExchangeEnvelope($exchange);
@@ -61,7 +61,7 @@ class ExchangeEnvelopeTest extends \PHPUnit_Framework_TestCase
 
     public function testSetAndGetBody()
     {
-        $message  = new Message(null, ['header' => 'ok']);
+        $message = new Message(null, ['header' => 'ok']);
         $exchange = new Exchange($message);
 
         $this->exchangeEnvelope->setBody($exchange);

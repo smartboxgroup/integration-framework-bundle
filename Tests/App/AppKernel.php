@@ -7,7 +7,7 @@ class AppKernel extends Kernel
 {
     public function registerBundles()
     {
-        return array(
+        return [
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
             new \Symfony\Bundle\SecurityBundle\SecurityBundle(),
             new \Symfony\Bundle\TwigBundle\TwigBundle(),
@@ -15,11 +15,10 @@ class AppKernel extends Kernel
             new \Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new \JMS\SerializerBundle\JMSSerializerBundle(),
             new \BeSimple\SoapBundle\BeSimpleSoapBundle(),
-            new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
 
             new \Smartbox\CoreBundle\SmartboxCoreBundle(),
             new \Smartbox\Integration\FrameworkBundle\SmartboxIntegrationFrameworkBundle(),
-        );
+        ];
     }
 
     public function registerContainerConfiguration(LoaderInterface $loader)

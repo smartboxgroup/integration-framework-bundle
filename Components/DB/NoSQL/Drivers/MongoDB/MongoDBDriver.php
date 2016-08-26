@@ -2,6 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB;
 
+use JMS\Serializer\SerializerInterface;
+use MongoDB\BSON\ObjectID;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;

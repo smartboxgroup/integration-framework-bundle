@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\WebService;
 use JMS\Serializer\Annotation as JMS;
 
 /**
- * Trait HasExternalSystem
+ * Trait HasExternalSystem.
  */
 trait HasExternalSystemName
 {

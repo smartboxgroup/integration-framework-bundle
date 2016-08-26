@@ -1,0 +1,3 @@
+auto_generated_routes:
+  resource: @smartesb.map.itineraries
+  type: itineraries
