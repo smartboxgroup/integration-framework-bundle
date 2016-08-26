@@ -3,12 +3,22 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException;
 
 /**
  * Interface NoSQLDriverInterface.
  */
 interface NoSQLDriverInterface
 {
+
+    /**
+     * Configures the driver
+     *
+     * @param array $configuration
+     * @return mixed
+     */
+    public function configure(array $configuration);
+
     /**
      * Delete all documents matching a given $queryOptions.
      *
@@ -29,14 +39,21 @@ interface NoSQLDriverInterface
     public function find($storageResourceName, QueryOptionsInterface $queryOptions, array $fields = []);
 
     /**
+     * @param $collection
+     * @param QueryOptionsInterface $queryOptions
+     * @param array $fields
+     * @return mixed
+     */
+    public function findOne($collection, QueryOptionsInterface $queryOptions, array $fields = []);
+
+    /**
      * Insert an document.
      *
      * @param string                $storageResourceName
-     * @param SerializableInterface $data
      *
      * @return string $id
      */
-    public function insertOne($storageResourceName, SerializableInterface $data);
+    public function insertOne($storageResourceName, $data);
 
 
     /**
@@ -59,4 +76,30 @@ interface NoSQLDriverInterface
      * @return mixed $updateResult
      */
     public function update($storageResourceName, QueryOptionsInterface $queryOptions, array $data);
+
+
+    /**
+     * @param $collection
+     * @param QueryOptionsInterface $queryOptions
+     * @return int
+     * @throws NoSQLDriverException
+     */
+    public function count($collection, QueryOptionsInterface $queryOptions);
+
+
+    /**
+     * @param $collection
+     * @param $id
+     * @param array $fields
+     * @return mixed
+     */
+    public function findOneById($collection, $id, array $fields = []);
+
+    /**
+     * @param $collection
+     * @param $id
+     * @return mixed
+     */
+    public function deleteById($collection, $id);
 }
+

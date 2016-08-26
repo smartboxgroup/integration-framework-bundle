@@ -40,8 +40,7 @@ class MongoDBDriverTest extends KernelTestCase
 
         self::$container = $kernel->getContainer();
 
-        self::$serializer = self::$container->get('serializer');
-        self::$storageDriver = new MongoDBDriver(self::$serializer);
+        self::$storageDriver = new MongoDBDriver();
         self::$storageDriver->configure(['host' => 'mongodb://localhost:27017', 'database' => self::MONGO_DATABASE]);
 
         parent::setUpBeforeClass();
@@ -74,7 +73,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testConfigureForCorrectConfiguration(array $configuration)
     {
-        $storageDriver = new MongoDBDriver(self::$serializer);
+        $storageDriver = new MongoDBDriver();
         $storageDriver->configure($configuration);
 
         $data = new SerializableSimpleEntity();
@@ -112,7 +111,7 @@ class MongoDBDriverTest extends KernelTestCase
     {
         $this->setExpectedException(NoSQLDriverException::class);
 
-        $storageDriver = new MongoDBDriver(self::$serializer);
+        $storageDriver = new MongoDBDriver();
         $storageDriver->configure($configuration);
 
         unset($storageDriver);
