@@ -92,8 +92,14 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
                 );
             }
 
+            if(array_key_exists('type',$info)){
+                $type = $info['type'];
+            }else{
+                $type = 'string';
+            }
+
             $parameters[$param] = $value;
-            $parameterTypes[$param] = $info['type'];
+            $parameterTypes[$param] = $type;
         }
 
         $sql = $this->confHelper->resolve($configuration[self::CONF_SQL], $context);

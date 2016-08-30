@@ -14,7 +14,8 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createHasHeyFunction(),
             $this->createGetFirstFunction(),
             $this->createIsRecoverableFunction(),
-            $this->createContainsFunction()
+            $this->createContainsFunction(),
+            $this->createUniqIdFunction()
         ];
     }
 
@@ -94,6 +95,22 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                 }
 
                 return $object instanceof RecoverableExceptionInterface;
+            }
+        );
+    }
+
+    /**
+     * @return ExpressionFunction
+     */
+    protected function createUniqIdFunction()
+    {
+        return new ExpressionFunction(
+            'uniqid',
+            function () {
+                return '( uniqid() )';
+            },
+            function ($arguments) {
+                return uniqid();
             }
         );
     }
