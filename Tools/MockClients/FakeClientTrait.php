@@ -67,9 +67,4 @@ trait FakeClientTrait
     {
         return $this->cacheDir.DIRECTORY_SEPARATOR.$resource.(($suffix) ? '.'.$suffix : null);
     }
-
-    protected function getCacheDir()
-    {
-        return $this->cacheDir;
-    }
 }
