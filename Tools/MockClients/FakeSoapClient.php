@@ -14,44 +14,6 @@ class FakeSoapClient extends BasicAuthSoapClient
     /**
      * {@inheritdoc}
      */
-    public function __construct($wsdl, array $options)
-    {
-        // Init method has to be executed in the constructor so that wsdl files can be cached.
-        $this->init($options['file_locator'], $options['cache_dir'], $options['cache_exclusions']);
-        unset($options['file_locator'], $options['cache_dir'], $options['cache_exclusions']);
-
-        parent::__construct($wsdl, $options);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function loadWsdl($wsdl, array $options)
-    {
-        $this->checkInitialisation();
-        // The resource name is generated in the same way as in BeSimple\SoapClient\WsdlDownloader
-        $resourceName = 'wsdl_'.md5($wsdl).'.cache';
-
-        if (getenv('MOCKS_ENABLED') === 'true') {
-            try {
-                $fileName = $this->getFileName($resourceName);
-
-                return $this->fileLocator->locate($fileName);
-            } catch (\InvalidArgumentException $e) {
-                throw $e;
-            }
-        }
-
-        if (getenv('RECORD_RESPONSE') === 'true') {
-            Cache::setDirectory($this->getCacheDir());
-        }
-
-        return parent::loadWsdl($wsdl, $options);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function __call($functionName, $arguments)
     {
         $this->checkInitialisation();
