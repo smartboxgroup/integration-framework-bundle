@@ -46,9 +46,7 @@ class FakeSoapClient extends BasicAuthSoapClient
             Cache::setDirectory($this->getCacheDir());
         }
 
-        $cacheFileName = parent::loadWsdl($wsdl, $options);
-
-        return $cacheFileName;
+        return parent::loadWsdl($wsdl, $options);
     }
 
     /**
