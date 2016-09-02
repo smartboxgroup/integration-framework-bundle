@@ -51,6 +51,7 @@ interface NoSQLDriverInterface
      * Insert an document.
      *
      * @param string $storageResourceName
+     * @param $data
      *
      * @return string $id
      */
@@ -59,8 +60,8 @@ interface NoSQLDriverInterface
     /**
      * Insert an document.
      *
-     * @param string                  $storageResourceName
-     * @param SerializableInterface[] $data
+     * @param string $storageResourceName
+     * @param array  $data
      *
      * @return string $id
      */
