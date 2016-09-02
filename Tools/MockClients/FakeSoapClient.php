@@ -3,54 +3,13 @@
 namespace Smartbox\Integration\FrameworkBundle\Tools\MockClients;
 
 use BeSimple\SoapClient\BasicAuthSoapClient;
+use BeSimple\SoapCommon\Cache;
 
 class FakeSoapClient extends BasicAuthSoapClient
 {
     use FakeClientTrait;
 
     const CACHE_SUFFIX = 'xml';
-
-    const WSDL_SUFFIX = 'wsdl';
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct($wsdl, array $options)
-    {
-        // Init method has to be executed in the constructor so that wsdl files can be cached.
-        $this->init($options['file_locator'], $options['cache_dir'], $options['cache_exclusions']);
-        unset($options['file_locator'], $options['cache_dir'], $options['cache_exclusions']);
-
-        parent::__construct($wsdl, $options);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function loadWsdl($wsdl, array $options)
-    {
-        $this->checkInitialisation();
-        $resourceName = md5($wsdl).'_'.self::WSDL_SUFFIX;
-
-        if (getenv('MOCKS_ENABLED') === 'true') {
-            try {
-                $fileName = $this->getFileName($resourceName, self::CACHE_SUFFIX);
-
-                return $this->fileLocator->locate($fileName);
-            } catch (\InvalidArgumentException $e) {
-                throw $e;
-            }
-        }
-
-        $cacheFileName = parent::loadWsdl($wsdl, $options);
-
-        if (getenv('RECORD_RESPONSE') === 'true') {
-            $wsdlFile = file_get_contents($cacheFileName);
-            $this->setResponseInCache($resourceName, $wsdlFile, self::CACHE_SUFFIX);
-        }
-
-        return $cacheFileName;
-    }
 
     /**
      * {@inheritdoc}
