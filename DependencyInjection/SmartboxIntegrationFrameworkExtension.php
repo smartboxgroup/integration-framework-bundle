@@ -244,8 +244,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         'options' => $connectionOptions,
                     ];
 
-                    if(isset($mongoDriverOptions)){
-                        $configuration["driver_options"] = $mongoDriverOptions;
+                    if (isset($mongoDriverOptions)) {
+                        $configuration['driver_options'] = $mongoDriverOptions;
                     }
                     $driverDef->addMethodCall('configure', [$configuration]);
 

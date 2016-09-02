@@ -134,7 +134,6 @@ class MongoDBDriverTest extends KernelTestCase
         return $dataSets;
     }
 
-
     public function dataProviderForNotExistingData()
     {
         return [
@@ -160,14 +159,13 @@ class MongoDBDriverTest extends KernelTestCase
 
         $queryOptions = new QueryOptions();
         $queryOptions->setQueryParams([
-            '_id' => new ObjectID((string) $id)
+            '_id' => new ObjectID((string) $id),
         ]);
 
-        $restoredData = self::$storageDriver->find(self::MONGO_COLLECTION, $queryOptions );
+        $restoredData = self::$storageDriver->find(self::MONGO_COLLECTION, $queryOptions);
 
         $this->assertEquals($data, $restoredData[$id]);
     }
-
 
     /**
      * @param string $id
@@ -194,7 +192,6 @@ class MongoDBDriverTest extends KernelTestCase
         $this->assertEquals(0, count($restoredData));
     }
 
-
     /**
      * @param SerializableInterface $data
      *
@@ -208,10 +205,10 @@ class MongoDBDriverTest extends KernelTestCase
 
         $queryOptions = new QueryOptions();
         $queryOptions->setQueryParams([
-            '_id' => new ObjectID((string) $id)
+            '_id' => new ObjectID((string) $id),
         ]);
-        $updateName = "UpdatedName";
-        $transformation = array( '$set' => array("name" => $updateName) );
+        $updateName = 'UpdatedName';
+        $transformation = array('$set' => array('name' => $updateName));
 
         self::$storageDriver->update(self::MONGO_COLLECTION, $queryOptions, $transformation);
 

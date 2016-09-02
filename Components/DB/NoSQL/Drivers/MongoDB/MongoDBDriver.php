@@ -2,8 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB;
 
-use JMS\Serializer\SerializerInterface;
-use MongoDB\BSON\ObjectID;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
@@ -33,14 +31,13 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /** @var \MongoDB\Database */
     protected $db;
 
-
     public function __destruct()
     {
         $this->disconnect();
     }
 
     /**
-     * Define and apply the expected configuration for the driver
+     * Define and apply the expected configuration for the driver.
      *
      * @param array $configuration
      *
@@ -75,7 +72,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     }
 
     /**
-     * Connect to the mongoDatabase
+     * Connect to the mongoDatabase.
      *
      * @return \MongoDB\Client
      *
@@ -200,8 +197,8 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
         $cursor = $this->findWithCursor($collection, $queryOptions, $fields);
 
         $res = [];
-        foreach($cursor as $key => $elem){
-            $res[$key] = (array)$elem;
+        foreach ($cursor as $key => $elem) {
+            $res[$key] = (array) $elem;
         }
 
         return $res;
@@ -210,9 +207,10 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /**
      * @param $collection
      * @param \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptionsInterface $queryOptions
-     * @param array $fields
+     * @param array                                                                                   $fields
      *
      * @return \MongoDB\Driver\Cursor
+     *
      * @throws \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException
      */
     public function findWithCursor($collection, QueryOptionsInterface $queryOptions, array $fields = [])
@@ -241,7 +239,6 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
         }
     }
 
-
     public function doDestroy()
     {
         $this->disconnect();
@@ -268,7 +265,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     }
 
     /**
-     * Remove an entry of the mongo database
+     * Remove an entry of the mongo database.
      *
      * @param $collection
      * @param $id
@@ -293,9 +290,10 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /**
      * @param $collection
      * @param \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptionsInterface $queryOptions
-     * @param array $fields
+     * @param array                                                                                   $fields
      *
      * @return SerializableInterface|\Smartbox\CoreBundle\Type\SerializableInterface[]|void
+     *
      * @throws \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException
      */
     public function findOne($collection, QueryOptionsInterface $queryOptions, array $fields = [])
@@ -339,7 +337,9 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /**
      * @param $collection
      * @param QueryOptionsInterface $queryOptions
+     *
      * @return int
+     *
      * @throws NoSQLDriverException
      */
     public function count($collection, QueryOptionsInterface $queryOptions)
@@ -358,5 +358,4 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
 
         return $count;
     }
-
 }

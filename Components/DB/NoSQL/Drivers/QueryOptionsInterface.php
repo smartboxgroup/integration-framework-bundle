@@ -47,5 +47,4 @@ interface QueryOptionsInterface
      * @return $this
      */
     public function setQueryParams($queryParams);
-
 }

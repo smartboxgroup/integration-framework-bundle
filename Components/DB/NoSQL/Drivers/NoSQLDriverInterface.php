@@ -10,11 +10,11 @@ use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDri
  */
 interface NoSQLDriverInterface
 {
-
     /**
-     * Configures the driver
+     * Configures the driver.
      *
      * @param array $configuration
+     *
      * @return mixed
      */
     public function configure(array $configuration);
@@ -41,7 +41,8 @@ interface NoSQLDriverInterface
     /**
      * @param $collection
      * @param QueryOptionsInterface $queryOptions
-     * @param array $fields
+     * @param array                 $fields
+     *
      * @return mixed
      */
     public function findOne($collection, QueryOptionsInterface $queryOptions, array $fields = []);
@@ -49,17 +50,16 @@ interface NoSQLDriverInterface
     /**
      * Insert an document.
      *
-     * @param string                $storageResourceName
+     * @param string $storageResourceName
      *
      * @return string $id
      */
     public function insertOne($storageResourceName, $data);
 
-
     /**
      * Insert an document.
      *
-     * @param string                $storageResourceName
+     * @param string                  $storageResourceName
      * @param SerializableInterface[] $data
      *
      * @return string $id
@@ -71,26 +71,27 @@ interface NoSQLDriverInterface
      *
      * @param string                $storageResourceName
      * @param QueryOptionsInterface $queryOptions
-     * @param array $data
+     * @param array                 $data
      *
      * @return mixed $updateResult
      */
     public function update($storageResourceName, QueryOptionsInterface $queryOptions, array $data);
 
-
     /**
      * @param $collection
      * @param QueryOptionsInterface $queryOptions
+     *
      * @return int
+     *
      * @throws NoSQLDriverException
      */
     public function count($collection, QueryOptionsInterface $queryOptions);
-
 
     /**
      * @param $collection
      * @param $id
      * @param array $fields
+     *
      * @return mixed
      */
     public function findOneById($collection, $id, array $fields = []);
@@ -98,8 +99,8 @@ interface NoSQLDriverInterface
     /**
      * @param $collection
      * @param $id
+     *
      * @return mixed
      */
     public function deleteById($collection, $id);
 }
-

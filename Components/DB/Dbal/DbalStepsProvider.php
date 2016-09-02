@@ -25,7 +25,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     const CONF_SQL = 'sql';
     const CONF_QUERY_NAME = 'name';
 
-    /** @var  OptionsResolver */
+    /** @var OptionsResolver */
     protected $configResolver;
 
     /**
@@ -76,7 +76,9 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     /**
      * @param array $configuration
      * @param $context
+     *
      * @return Statement
+     *
      * @internal param array $endpointOptions
      */
     protected function performQuery(array $configuration, &$context)
@@ -92,10 +94,9 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
                 );
             }
 
-            if(array_key_exists('type',$info)){
+            $type = 'string';
+            if (array_key_exists('type', $info)) {
                 $type = $info['type'];
-            }else{
-                $type = 'string';
             }
 
             $parameters[$param] = $value;
@@ -132,10 +133,8 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         }
     }
 
-
     public function executeSteps(array $stepsConfig, array &$options, array &$context)
     {
-
         if (!array_key_exists(self::CONTEXT_RESULTS, $context)) {
             $context[self::CONTEXT_RESULTS] = [];
         }
