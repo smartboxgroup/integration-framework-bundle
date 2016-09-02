@@ -109,7 +109,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testConfigureForIncorrectConfiguration(array $configuration)
     {
-        $this->setExpectedException(NoSQLDriverException::class);
+        $this->expectException(NoSQLDriverException::class);
 
         $storageDriver = new MongoDBDriver();
         $storageDriver->configure($configuration);

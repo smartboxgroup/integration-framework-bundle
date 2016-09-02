@@ -183,11 +183,11 @@ class ConfigurableProducerTest extends BaseTestCase
 
     public function testValidationWorksWithUnrecoverableException()
     {
+        $this->expectException(\RuntimeException::class);
+
         $exchange = new Exchange(
             new Message(new SerializableArray(['value' => 1313666]))
         );
-
-        $this->setExpectedException(\RuntimeException::class, 'Too ugly number!!');
 
         $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
@@ -201,11 +201,11 @@ class ConfigurableProducerTest extends BaseTestCase
 
     public function testValidationWorksWithRecoverableException()
     {
+        $this->expectException(RecoverableException::class);
+
         $exchange = new Exchange(
             new Message(new SerializableArray(['value' => 666]))
         );
-
-        $this->setExpectedException(RecoverableException::class, 'Ugly number!!');
 
         $opts = $this->optionsResolver->resolve([
             ConfigurableWebserviceProtocol::OPTION_METHOD => 'methodA',
