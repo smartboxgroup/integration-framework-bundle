@@ -51,11 +51,11 @@ interface NoSQLDriverInterface
      * Insert an document.
      *
      * @param string $storageResourceName
-     * @param array  $data
+     * @param mixed  $data
      *
      * @return string $id
      */
-    public function insertOne($storageResourceName, array $data);
+    public function insertOne($storageResourceName, $data);
 
     /**
      * Insert an document.

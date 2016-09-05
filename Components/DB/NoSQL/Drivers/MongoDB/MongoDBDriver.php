@@ -116,7 +116,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /**
      * {@inheritdoc}
      */
-    public function insertOne($collection, array $data)
+    public function insertOne($collection, $data)
     {
         $this->ensureConnection();
 
