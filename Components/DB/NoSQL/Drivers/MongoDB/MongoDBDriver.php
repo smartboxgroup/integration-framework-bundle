@@ -116,7 +116,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /**
      * {@inheritdoc}
      */
-    public function insertOne($collection, $data)
+    public function insertOne($collection, array $data)
     {
         $this->ensureConnection();
 
@@ -124,10 +124,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
             /** @var \MongoDB\InsertOneResult $insertOneResult */
             $insertOneResult = $this->db->$collection->insertOne($data);
         } catch (\Exception $e) {
-            $exception = new NoSQLDriverDataException('Can not save data to storage: '.$e->getMessage(), $e->getCode(), $e);
-            $exception->setStorageData($data);
-
-            throw $exception;
+            throw new NoSQLDriverDataException('Can not save data to storage: '.$e->getMessage(), $e->getCode(), $e);
         }
 
         return (string) $insertOneResult->getInsertedId();
@@ -150,7 +147,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
             throw $exception;
         }
 
-        return (string) $insertManyResult->getInsertedIds();
+        return $insertManyResult->getInsertedIds();
     }
 
     /**
@@ -306,9 +303,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
             throw new NoSQLDriverException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
         }
 
-        $result = (array) $result;
-
-        return $result;
+        return (array) $result;
     }
 
     /**

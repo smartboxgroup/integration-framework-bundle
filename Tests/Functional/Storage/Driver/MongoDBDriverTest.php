@@ -82,6 +82,7 @@ class MongoDBDriverTest extends KernelTestCase
         $data->setDescription('some description');
         $data->setNote('some note');
 
+        $data = self::$serializer->serialize($data, 'array');
         $this->assertNotNull($storageDriver->insertOne(self::MONGO_COLLECTION, $data));
 
         unset($storageDriver);
