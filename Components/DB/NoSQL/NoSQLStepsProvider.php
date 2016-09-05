@@ -32,16 +32,16 @@ class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInt
     const CONF_DATA = 'data';
     const CONF_TRANSFORMATION = 'transformation';
 
-    /** @var  OptionsResolver */
+    /** @var OptionsResolver */
     protected $findOptionsResolver;
 
-    /** @var  OptionsResolver */
+    /** @var OptionsResolver */
     protected $insertOptionsResolver;
 
-    /** @var  OptionsResolver */
+    /** @var OptionsResolver */
     protected $deleteOptionsResolver;
 
-    /** @var  OptionsResolver */
+    /** @var OptionsResolver */
     protected $updateOptionsResolver;
 
     // Available steps
@@ -65,13 +65,14 @@ class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInt
     /**
      * @param array $params
      * @param array $context
+     *
      * @return QueryOptions
+     *
      * @throws \Exception
      */
     protected function prepareQueryOptions(array $params, array &$context)
     {
         $query = $this->confHelper->resolve($params[self::CONF_QUERY], $context);
-        $sort = $this->confHelper->resolve($params[self::CONF_SORT], $context);
 
         if ($query === null) {
             throw new \RuntimeException(
@@ -81,12 +82,20 @@ class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInt
 
         $queryOptions = new QueryOptions();
         $queryOptions->setQueryParams($query);
-        $queryOptions->setLimit($params[self::CONF_LIMIT]);
-        $queryOptions->setOffset($params[self::CONF_OFFSET]);
 
-        foreach ($sort as $field => $order) {
-            $queryOptions->addSorting($field, $order);
-        };
+        if (array_key_exists(self::CONF_SORT, $params)) {
+            $sort = $this->confHelper->resolve($params[self::CONF_SORT], $context);
+            foreach ($sort as $field => $order) {
+                $queryOptions->addSorting($field, $order);
+            }
+        }
+        if (array_key_exists(self::CONF_LIMIT, $params)) {
+            $queryOptions->setLimit($params[self::CONF_LIMIT]);
+        }
+
+        if (array_key_exists(self::CONF_OFFSET, $params)) {
+            $queryOptions->setOffset($params[self::CONF_OFFSET]);
+        }
 
         return $queryOptions;
     }
@@ -114,7 +123,6 @@ class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInt
 
     public function executeSteps(array $stepsConfig, array &$options, array &$context)
     {
-
         if (!array_key_exists(self::CONTEXT_RESULTS, $context)) {
             $context[self::CONTEXT_RESULTS] = [];
         }
@@ -132,9 +140,9 @@ class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInt
 
     public function executeStep($stepAction, array &$stepActionParams, array &$options, array &$context)
     {
-        $handled = $this->getConfHelper()->executeStep($stepAction,$stepActionParams,$options,$context);
+        $handled = $this->getConfHelper()->executeStep($stepAction, $stepActionParams, $options, $context);
 
-        if($handled){
+        if ($handled) {
             return true;
         }
 
@@ -225,6 +233,7 @@ class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInt
 
     /**
      * @param $options
+     *
      * @return NoSQLDriverInterface
      */
     protected function resolveDriver($options)
@@ -233,5 +242,4 @@ class NoSQLStepsProvider extends Service implements ConfigurableStepsProviderInt
 
         return $this->getDriverRegistry()->getDriver($driverName);
     }
-
 }

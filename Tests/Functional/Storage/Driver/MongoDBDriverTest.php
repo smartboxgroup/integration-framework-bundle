@@ -39,9 +39,9 @@ class MongoDBDriverTest extends KernelTestCase
         $kernel->boot();
 
         self::$container = $kernel->getContainer();
+        self::$serializer = $kernel->getContainer()->get('serializer');
 
-        self::$serializer = self::$container->get('serializer');
-        self::$storageDriver = new MongoDBDriver(self::$serializer);
+        self::$storageDriver = new MongoDBDriver();
         self::$storageDriver->configure(['host' => 'mongodb://localhost:27017', 'database' => self::MONGO_DATABASE]);
 
         parent::setUpBeforeClass();
@@ -74,7 +74,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testConfigureForCorrectConfiguration(array $configuration)
     {
-        $storageDriver = new MongoDBDriver(self::$serializer);
+        $storageDriver = new MongoDBDriver();
         $storageDriver->configure($configuration);
 
         $data = new SerializableSimpleEntity();
@@ -82,6 +82,7 @@ class MongoDBDriverTest extends KernelTestCase
         $data->setDescription('some description');
         $data->setNote('some note');
 
+        $data = self::$serializer->serialize($data, 'array');
         $this->assertNotNull($storageDriver->insertOne(self::MONGO_COLLECTION, $data));
 
         unset($storageDriver);
@@ -110,9 +111,9 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testConfigureForIncorrectConfiguration(array $configuration)
     {
-        $this->setExpectedException(NoSQLDriverException::class);
+        $this->expectException(NoSQLDriverException::class);
 
-        $storageDriver = new MongoDBDriver(self::$serializer);
+        $storageDriver = new MongoDBDriver();
         $storageDriver->configure($configuration);
 
         unset($storageDriver);
@@ -135,7 +136,6 @@ class MongoDBDriverTest extends KernelTestCase
         return $dataSets;
     }
 
-
     public function dataProviderForNotExistingData()
     {
         return [
@@ -157,18 +157,20 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testSaveAndFind(SerializableInterface $data)
     {
+        $data = self::$serializer->serialize($data,'array');
         $id = self::$storageDriver->insertOne(self::MONGO_COLLECTION, $data);
 
         $queryOptions = new QueryOptions();
         $queryOptions->setQueryParams([
-            '_id' => new ObjectID((string) $id)
+            '_id' => new ObjectID((string) $id),
         ]);
 
-        $restoredData = self::$storageDriver->find(self::MONGO_COLLECTION, $queryOptions );
+        $restoredData = self::$storageDriver->find(self::MONGO_COLLECTION, $queryOptions);
 
-        $this->assertEquals($data, $restoredData[$id]);
+        $restoredData = reset($restoredData);
+        unset($restoredData['_id']);
+        $this->assertEquals($data, $restoredData);
     }
-
 
     /**
      * @param string $id
@@ -195,7 +197,6 @@ class MongoDBDriverTest extends KernelTestCase
         $this->assertEquals(0, count($restoredData));
     }
 
-
     /**
      * @param SerializableInterface $data
      *
@@ -205,21 +206,24 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testUpdate(SerializableInterface $data)
     {
+        $data = self::$serializer->serialize($data,'array');
         $id = self::$storageDriver->insertOne(self::MONGO_COLLECTION, $data);
 
         $queryOptions = new QueryOptions();
         $queryOptions->setQueryParams([
-            '_id' => new ObjectID((string) $id)
+            '_id' => new ObjectID((string) $id),
         ]);
-        $updateName = "UpdatedName";
-        $transformation = array( '$set' => array("name" => $updateName) );
+        $updateName = 'UpdatedName';
+        $transformation = array('$set' => array('name' => $updateName));
 
         self::$storageDriver->update(self::MONGO_COLLECTION, $queryOptions, $transformation);
 
         $restoredData = self::$storageDriver->find(self::MONGO_COLLECTION, $queryOptions);
 
-        $data->setName($updateName);
+        $data['name'] = $updateName;
 
-        $this->assertEquals($data, $restoredData[$id]);
+        $restoredData = reset($restoredData);
+        unset($restoredData['_id']);
+        $this->assertEquals($data, $restoredData);
     }
 }

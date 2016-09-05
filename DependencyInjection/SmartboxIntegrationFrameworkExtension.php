@@ -231,7 +231,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             switch ($type) {
                 case 'mongodb':
 
-                    $driverDef = new Definition(MongoDBDriver::class, [new Reference('serializer')]);
+                    $driverDef = new Definition(MongoDBDriver::class);
 
                     $connectionOptions = $driverConfig['connection_options'];
                     if (isset($connectionOptions['driver_options'])) {
@@ -244,8 +244,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         'options' => $connectionOptions,
                     ];
 
-                    if(isset($mongoDriverOptions)){
-                        $configuration["driver_options"] = $mongoDriverOptions;
+                    if (isset($mongoDriverOptions)) {
+                        $configuration['driver_options'] = $mongoDriverOptions;
                     }
                     $driverDef->addMethodCall('configure', [$configuration]);
 

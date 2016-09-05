@@ -14,7 +14,29 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createHasHeyFunction(),
             $this->createGetFirstFunction(),
             $this->createIsRecoverableFunction(),
+            $this->createContainsFunction(),
+            $this->createUniqIdFunction(),
         ];
+    }
+
+    /**
+     * @return ExpressionFunction
+     */
+    protected function createContainsFunction()
+    {
+        return new ExpressionFunction(
+            'contains',
+            function ($string, $search) {
+                return sprintf('( strpos(%s,%s) !== false )', $string, $search);
+            },
+            function ($arguments, $string, $search) {
+                if (!is_string($string) || !is_string($search)) {
+                    throw new \RuntimeException('Both arguments passed to "contains" should be strings.');
+                }
+
+                return strpos($string, $search) !== false;
+            }
+        );
     }
 
     /**
@@ -37,7 +59,6 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
         );
     }
 
-
     /**
      * @return ExpressionFunction
      */
@@ -52,6 +73,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                 if (!is_array($array)) {
                     throw new \RuntimeException('First argument passed to "getFirst" should be an array.');
                 }
+
                 return reset($array);
             }
         );
@@ -73,6 +95,22 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                 }
 
                 return $object instanceof RecoverableExceptionInterface;
+            }
+        );
+    }
+
+    /**
+     * @return ExpressionFunction
+     */
+    protected function createUniqIdFunction()
+    {
+        return new ExpressionFunction(
+            'uniqid',
+            function () {
+                return '( uniqid() )';
+            },
+            function ($arguments) {
+                return uniqid();
             }
         );
     }

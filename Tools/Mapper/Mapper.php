@@ -116,13 +116,16 @@ class Mapper implements MapperInterface
         return new \DateTime($date);
     }
 
-    public function timestampToDate($timestamp){
+    public function timestampToDate($timestamp)
+    {
         $date = new \DateTime();
         $date->setTimestamp($timestamp);
+
         return $date;
     }
 
-    public function timestampWithMsToDate($timestamp){
+    public function timestampWithMsToDate($timestamp)
+    {
         return DateTimeHelper::createDateTimeFromTimestampWithMilliseconds($timestamp);
     }
 
@@ -151,5 +154,19 @@ class Mapper implements MapperInterface
     public function arrayToString($glue, array $data)
     {
         return implode($glue, $data);
+    }
+
+    public function toString($data)
+    {
+        return (string) $data;
+    }
+
+    public function toMongoID($id)
+    {
+        if (class_exists('\MongoDB\BSON\ObjectID')) {
+            return new \MongoDB\BSON\ObjectID((string) $id);
+        }
+
+        throw new \RuntimeException('To instantiate a Mongo ObjectID object you need to install the php mongo extension.');
     }
 }

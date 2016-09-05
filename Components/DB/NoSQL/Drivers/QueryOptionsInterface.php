@@ -26,4 +26,25 @@ interface QueryOptionsInterface
      * @return int
      */
     public function getOffset();
+
+    /**
+     * @param int $limit
+     *
+     * @return $this
+     */
+    public function setLimit($limit);
+
+    /**
+     * @param int $offset
+     *
+     * @return $this
+     */
+    public function setOffset($offset);
+
+    /**
+     * @param array $queryParams
+     *
+     * @return $this
+     */
+    public function setQueryParams($queryParams);
 }

@@ -2,8 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB;
 
-use JMS\Serializer\SerializerInterface;
-use MongoDB\BSON\ObjectID;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
@@ -24,9 +22,6 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
 {
     use HasInternalType;
 
-    /** @var SerializerInterface */
-    protected $serializer;
-
     /** @var array */
     protected $configuration;
 
@@ -36,21 +31,13 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /** @var \MongoDB\Database */
     protected $db;
 
-    /**
-     * @param SerializerInterface $serializer
-     */
-    public function __construct(SerializerInterface $serializer)
-    {
-        $this->serializer = $serializer;
-    }
-
     public function __destruct()
     {
         $this->disconnect();
     }
 
     /**
-     * Define and apply the expected configuration for the driver
+     * Define and apply the expected configuration for the driver.
      *
      * @param array $configuration
      *
@@ -85,7 +72,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     }
 
     /**
-     * Connect to the mongoDatabase
+     * Connect to the mongoDatabase.
      *
      * @return \MongoDB\Client
      *
@@ -129,20 +116,15 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /**
      * {@inheritdoc}
      */
-    public function insertOne($collection, SerializableInterface $storageData)
+    public function insertOne($collection, array $data)
     {
         $this->ensureConnection();
 
         try {
-            $data = $this->serializer->serialize($storageData, 'mongo_array');
-
             /** @var \MongoDB\InsertOneResult $insertOneResult */
             $insertOneResult = $this->db->$collection->insertOne($data);
         } catch (\Exception $e) {
-            $exception = new NoSQLDriverDataException('Can not save data to storage: '.$e->getMessage(), $e->getCode(), $e);
-            $exception->setStorageData($storageData);
-
-            throw $exception;
+            throw new NoSQLDriverDataException('Can not save data to storage: '.$e->getMessage(), $e->getCode(), $e);
         }
 
         return (string) $insertOneResult->getInsertedId();
@@ -156,10 +138,8 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
         $this->ensureConnection();
 
         try {
-            $data = $this->serializer->serialize($data, 'mongo_array');
-
-            /** @var \MongoDB\InsertOneResult $insertOneResult */
-            $insertOneResult = $this->db->$collection->insertMany($data);
+            /** @var \MongoDB\InsertManyResult $insertManyResult */
+            $insertManyResult = $this->db->$collection->insertMany($data);
         } catch (\Exception $e) {
             $exception = new NoSQLDriverDataException('Can not save data to storage: '.$e->getMessage(), $e->getCode(), $e);
             $exception->setStorageData(new SerializableArray($data));
@@ -167,18 +147,17 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
             throw $exception;
         }
 
-        return (string) $insertOneResult->getInsertedId();
+        return $insertManyResult->getInsertedIds();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function update($collection, QueryOptionsInterface $queryOptions, array $storageData)
+    public function update($collection, QueryOptionsInterface $queryOptions, array $data)
     {
         $this->ensureConnection();
 
         try {
-            $data = $this->serializer->serialize($storageData, 'mongo_array');
             /** @var \MongoDB\UpdateResult $updateResult */
             $updateResult = $this->db->$collection->updateMany($queryOptions->getQueryParams(), $data);
         } catch (\Exception $e) {
@@ -210,34 +189,25 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /**
      * {@inheritdoc}
      */
-    public function find($collection, QueryOptionsInterface $queryOptions, array $fields = [], $hydrateObject = true)
+    public function find($collection, QueryOptionsInterface $queryOptions, array $fields = [])
     {
         $cursor = $this->findWithCursor($collection, $queryOptions, $fields);
 
-        $result = [];
-
-        foreach ($cursor as $item) {
-            $item = (array) $item;
-            $id = $item['_id'];
-
-            unset($item['_id']);
-
-            $result[(string) $id] = $item;
-
-            if ($hydrateObject && isset($item['_type'])) {
-                $result[(string) $id] = $this->hydrateResult($item);
-            }
+        $res = [];
+        foreach ($cursor as $key => $elem) {
+            $res[$key] = (array) $elem;
         }
 
-        return $result;
+        return $res;
     }
 
     /**
      * @param $collection
      * @param \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptionsInterface $queryOptions
-     * @param array $fields
+     * @param array                                                                                   $fields
      *
      * @return \MongoDB\Driver\Cursor
+     *
      * @throws \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException
      */
     public function findWithCursor($collection, QueryOptionsInterface $queryOptions, array $fields = [])
@@ -266,19 +236,6 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
         }
     }
 
-
-    /**
-     * Hydrates a resulting array object from a query.
-     *
-     * @param array $result
-     *
-     * @return SerializableInterface[]|SerializableInterface
-     */
-    public function hydrateResult(array $result)
-    {
-         return $this->serializer->deserialize($result, SerializableInterface::class, 'mongo_array');
-    }
-
     public function doDestroy()
     {
         $this->disconnect();
@@ -305,7 +262,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     }
 
     /**
-     * Remove an entry of the mongo database
+     * Remove an entry of the mongo database.
      *
      * @param $collection
      * @param $id
@@ -313,7 +270,7 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     public function deleteById($collection, $id)
     {
         try {
-            $id = new ObjectID((string) $id);
+            $id = new \MongoDB\BSON\ObjectID((string) $id);
         } catch (\Exception $e) {
             return;
         }
@@ -330,13 +287,13 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
     /**
      * @param $collection
      * @param \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\QueryOptionsInterface $queryOptions
-     * @param array $fields
-     * @param bool $hydrateObject
+     * @param array                                                                                   $fields
      *
      * @return SerializableInterface|\Smartbox\CoreBundle\Type\SerializableInterface[]|void
+     *
      * @throws \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException
      */
-    public function findOne($collection, QueryOptionsInterface $queryOptions, array $fields = [], $hydrateObject = true)
+    public function findOne($collection, QueryOptionsInterface $queryOptions, array $fields = [])
     {
         $this->ensureConnection();
 
@@ -346,28 +303,20 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
             throw new NoSQLDriverException('Can not retrieve data from storage: '.$e->getMessage(), $e->getCode(), $e);
         }
 
-        $result = (array) $result;
-        if (!empty($result) && $hydrateObject) {
-            unset($result['_id']);
-
-            return $this->hydrateResult($result);
-        }
-
-        return;
+        return (array) $result;
     }
 
     /**
      * @param $collection
      * @param $id
      * @param array $fields
-     * @param bool $hydrateObject
      *
      * @return SerializableInterface|\Smartbox\CoreBundle\Type\SerializableInterface[]|void
      */
-    public function findOneById($collection, $id, array $fields = [], $hydrateObject = true)
+    public function findOneById($collection, $id, array $fields = [])
     {
         try {
-            $id = new ObjectID((string) $id);
+            $id = new \MongoDB\BSON\ObjectID((string) $id);
         } catch (\Exception $e) {
             return;
         }
@@ -377,16 +326,16 @@ class MongoDBDriver extends Service implements NoSQLDriverInterface, Serializabl
             '_id' => $id,
         ]);
 
-        return $this->findOne($collection, $queryOptions, $fields, $hydrateObject);
+        return $this->findOne($collection, $queryOptions, $fields);
     }
 
-
     /**
-     * @param string $collection
+     * @param $collection
      * @param QueryOptionsInterface $queryOptions
      *
      * @return int
-     * @throws \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException
+     *
+     * @throws NoSQLDriverException
      */
     public function count($collection, QueryOptionsInterface $queryOptions)
     {
