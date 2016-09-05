@@ -39,6 +39,7 @@ class MongoDBDriverTest extends KernelTestCase
         $kernel->boot();
 
         self::$container = $kernel->getContainer();
+        self::$serializer = $kernel->getContainer()->get('serializer');
 
         self::$storageDriver = new MongoDBDriver();
         self::$storageDriver->configure(['host' => 'mongodb://localhost:27017', 'database' => self::MONGO_DATABASE]);
@@ -155,6 +156,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testSaveAndFind(SerializableInterface $data)
     {
+        $data = self::$serializer->serialize($data,'array');
         $id = self::$storageDriver->insertOne(self::MONGO_COLLECTION, $data);
 
         $queryOptions = new QueryOptions();
@@ -164,7 +166,9 @@ class MongoDBDriverTest extends KernelTestCase
 
         $restoredData = self::$storageDriver->find(self::MONGO_COLLECTION, $queryOptions);
 
-        $this->assertEquals($data, $restoredData[$id]);
+        $restoredData = reset($restoredData);
+        unset($restoredData['_id']);
+        $this->assertEquals($data, $restoredData);
     }
 
     /**
@@ -201,6 +205,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testUpdate(SerializableInterface $data)
     {
+        $data = self::$serializer->serialize($data,'array');
         $id = self::$storageDriver->insertOne(self::MONGO_COLLECTION, $data);
 
         $queryOptions = new QueryOptions();
@@ -214,8 +219,10 @@ class MongoDBDriverTest extends KernelTestCase
 
         $restoredData = self::$storageDriver->find(self::MONGO_COLLECTION, $queryOptions);
 
-        $data->setName($updateName);
+        $data['name'] = $updateName;
 
-        $this->assertEquals($data, $restoredData[$id]);
+        $restoredData = reset($restoredData);
+        unset($restoredData['_id']);
+        $this->assertEquals($data, $restoredData);
     }
 }
