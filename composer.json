@@ -30,7 +30,7 @@
     "require-dev": {
         "phpunit/php-code-coverage": "dev-master",
         "phpunit/phpunit-mock-objects": "dev-master",
-        "phpunit/phpunit": "dev-master",
+        "phpunit/phpunit": "~5.4",
         "sensio/generator-bundle": "~2.3"
     },
     "config": {
