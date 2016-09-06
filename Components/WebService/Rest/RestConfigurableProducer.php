@@ -151,6 +151,8 @@ class RestConfigurableProducer extends AbstractConfigurableProducer
         $resolvedURI = $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
         $resolvedURI .= $this->confHelper->resolve($params[self::REQUEST_URI], $context);
 
+        $endpointOptions = $this->confHelper->resolve($endpointOptions, $context);
+
         $restOptions = $this->getBasicHTTPOptions($params, $endpointOptions);
 
         $encoding = $endpointOptions[RestConfigurableProtocol::OPTION_ENCODING];
