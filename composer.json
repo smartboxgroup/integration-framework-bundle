@@ -28,9 +28,9 @@
         "ocramius/proxy-manager": "~1.0"
     },
     "require-dev": {
-        "phpunit/php-code-coverage": "dev-master",
-        "phpunit/phpunit-mock-objects": "dev-master",
-        "phpunit/phpunit": "dev-master",
+        "phpunit/php-code-coverage": "~4.0",
+        "phpunit/phpunit-mock-objects": "~3.2",
+        "phpunit/phpunit": "~5.4",
         "sensio/generator-bundle": "~2.3"
     },
     "config": {
