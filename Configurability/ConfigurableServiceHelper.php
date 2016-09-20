@@ -5,8 +5,6 @@ namespace Smartbox\Integration\FrameworkBundle\Configurability;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\ExchangeAwareInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableException;
@@ -39,54 +37,55 @@ class ConfigurableServiceHelper
     const KEY_DESCRIPTION = 'description';
     const KEY_RESPONSE = 'response';
 
-    /** @var  OptionsResolver */
+    /** @var OptionsResolver */
     protected $validateResolver;
 
-
-    public function __construct(){
+    public function __construct()
+    {
         $this->validateResolver = new OptionsResolver();
         $this->validateResolver->setRequired([self::CONF_RULE]);
         $this->validateResolver->setDefaults([
             self::CONF_NO_RESULTS => false,
             self::CONF_RECOVERABLE => false,
-            self::CONF_MESSAGE => "Validation not passed",
+            self::CONF_MESSAGE => 'Validation not passed',
         ]);
 
-        $this->validateResolver->setAllowedTypes(self::CONF_RECOVERABLE,'boolean');
-        $this->validateResolver->setAllowedTypes(self::CONF_NO_RESULTS,'boolean');
-        $this->validateResolver->setAllowedTypes(self::CONF_MESSAGE,'string');
-        $this->validateResolver->setAllowedTypes(self::CONF_RULE,'string');
+        $this->validateResolver->setAllowedTypes(self::CONF_RECOVERABLE, 'boolean');
+        $this->validateResolver->setAllowedTypes(self::CONF_NO_RESULTS, 'boolean');
+        $this->validateResolver->setAllowedTypes(self::CONF_MESSAGE, 'string');
+        $this->validateResolver->setAllowedTypes(self::CONF_RULE, 'string');
     }
 
-
     /**
-     * @param array $options
+     * @param array            $options
      * @param MessageInterface $message
-     * @param Exchange $exchange
-     * @param \Exception $exception
+     * @param Exchange         $exchange
+     * @param \Exception       $exception
+     *
      * @return array
      */
-    public function createContext(array $options, MessageInterface $message = null, Exchange $exchange = null, \Exception $exception = null){
+    public function createContext(array $options, MessageInterface $message = null, Exchange $exchange = null, \Exception $exception = null)
+    {
         $context = [
             self::CONTEXT_OPTIONS => $options,
             self::CONTEXT_VARS => [],
             self::CONTEXT_RESULTS => [],
         ];
 
-        if($exchange){
+        if ($exchange) {
             $context[self::CONTEXT_EXCHANGE] = $exchange;
-            if(!$message){
+            if (!$message) {
                 $message = $exchange->getIn();
             }
         }
 
-        if($message){
+        if ($message) {
             $context[self::CONTEXT_MSG] = $message;
             $context[self::CONTEXT_HEADERS] = $message->getHeaders();
             $context[self::CONTEXT_BODY] = $message->getBody();
         }
 
-        if($exception){
+        if ($exception) {
             $context[self::CONTEXT_EXCEPTION] = $exception;
         }
 
@@ -134,13 +133,17 @@ class ConfigurableServiceHelper
             return $string;
         }
 
-        $expression = $matches['expr'];
+        $vars = $availableVars;
+        if (array_key_exists(self::CONTEXT_VARS, $availableVars)) {
+            $vars = array_merge($availableVars, $availableVars[self::CONTEXT_VARS]);
+        }
 
-        return $this->evaluator->evaluateWithVars($expression, $availableVars);
+        return $this->evaluator->evaluateWithVars($matches['expr'], $vars);
     }
 
-    public function executeStep($stepAction, &$stepActionParams, &$options, array &$context){
-        switch($stepAction) {
+    public function executeStep($stepAction, &$stepActionParams, &$options, array &$context)
+    {
+        switch ($stepAction) {
             case self::STEP_DEFINE:
                 $this->define($stepActionParams, $context);
 
@@ -157,7 +160,6 @@ class ConfigurableServiceHelper
                 break;
         }
     }
-
 
     /**
      * @param $definitions
@@ -182,7 +184,8 @@ class ConfigurableServiceHelper
         }
     }
 
-    public function validate(array $stepConfig, array &$context){
+    public function validate(array $stepConfig, array &$context)
+    {
         $config = $this->validateResolver->resolve($stepConfig);
 
         $rule = $config[self::CONF_RULE];
@@ -192,11 +195,10 @@ class ConfigurableServiceHelper
 
         $evaluation = $this->resolve($rule, $context);
         if ($evaluation !== true) {
-            $message = $this->resolve($message,$context);
-            if($no_results){
+            $message = $this->resolve($message, $context);
+            if ($no_results) {
                 throw new NoResultsException($message);
-            }
-            elseif ($recoverable) {
+            } elseif ($recoverable) {
                 throw new RecoverableException($message);
             } else {
                 throw new \RuntimeException($message);
@@ -204,10 +206,11 @@ class ConfigurableServiceHelper
         }
     }
 
-    public function runValidations(array $validations, array &$context){
+    public function runValidations(array $validations, array &$context)
+    {
         if (!empty($validations)) {
             foreach ($validations as $validationRule) {
-                $this->validate($validationRule,$context);
+                $this->validate($validationRule, $context);
             }
         }
     }
