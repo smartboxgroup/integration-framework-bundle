@@ -136,7 +136,13 @@ class ConfigurableServiceHelper
 
         $expression = $matches['expr'];
 
-        return $this->evaluator->evaluateWithVars($expression, $availableVars);
+        if(array_key_exists(self::CONTEXT_VARS,$availableVars)){
+            $vars = array_merge($availableVars,$availableVars[self::CONTEXT_VARS]);
+        }else{
+            $vars = $availableVars;
+        }
+
+        return $this->evaluator->evaluateWithVars($expression, $vars);
     }
 
     public function executeStep($stepAction, &$stepActionParams, &$options, array &$context){
