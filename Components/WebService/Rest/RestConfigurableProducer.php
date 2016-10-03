@@ -248,9 +248,7 @@ class RestConfigurableProducer extends AbstractConfigurableProducer
      */
     protected function encodeRequestBody($encoding, $rawBody)
     {
-        $body = $this->getSerializer()->serialize($rawBody, $encoding);
-
-        return $body;
+        return $this->getSerializer()->serialize($rawBody, $encoding);
     }
 
     /**
