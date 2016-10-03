@@ -156,7 +156,7 @@ class RestConfigurableProducer extends AbstractConfigurableProducer
         $restOptions = $this->getBasicHTTPOptions($params, $endpointOptions);
 
         $encoding = $endpointOptions[RestConfigurableProtocol::OPTION_ENCODING];
-        $restOptions['body'] = $this->getSerializer()->serialize($body, $encoding);
+        $restOptions['body'] = $this->encodeRequestBody($encoding, $body);
 
         $httpMethod = strtoupper($httpMethod);
         $requestHeaders = isset($params[RestConfigurableProtocol::OPTION_HEADERS]) ?
@@ -238,6 +238,19 @@ class RestConfigurableProducer extends AbstractConfigurableProducer
             $showMessage = ($e instanceof ExternalSystemExceptionInterface && $e->mustShowExternalSystemErrorMessage());
             $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, $showMessage, $response ? $response->getStatusCode() : null, $e);
         }
+    }
+
+    /**
+     * @param $encoding
+     * @param $rawBody
+     *
+     * @return mixed
+     */
+    protected function encodeRequestBody($encoding, $rawBody)
+    {
+        $body = $this->getSerializer()->serialize($rawBody, $encoding);
+
+        return $body;
     }
 
     /**
