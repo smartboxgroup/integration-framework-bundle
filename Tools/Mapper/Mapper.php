@@ -180,9 +180,9 @@ class Mapper implements MapperInterface
      *
      * @return string
      */
-    public function serializeWithGroup($data, $format = "json", $group)
+    public function serializeWithGroup($data, $format, $group)
     {
         $serializer = $this->evaluator->getSerializer();
-        return $serializer->serialize($data, $format, SerializationContext::create()->setGroups(array($group)));
+        return $serializer->serialize($data, $format, SerializationContext::create()->setGroups([$group]));
     }
 }
