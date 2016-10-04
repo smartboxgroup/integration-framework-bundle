@@ -2,8 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
-use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDBClient;
-use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDbDriver;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQConnectionStrategyFactory;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
@@ -221,8 +220,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
     protected function loadNoSQLDrivers(ContainerBuilder $container)
     {
-        $nosqlDriverRegistry = new Definition(DriverRegistry::class);
-        $container->setDefinition(self::NOSQL_DRIVER_PREFIX.'_registry', $nosqlDriverRegistry);
+        $noSqlDriverRegistry = new Definition(DriverRegistry::class);
+        $container->setDefinition(self::NOSQL_DRIVER_PREFIX.'_registry', $noSqlDriverRegistry);
 
         // Create services for NoSQL drivers
         foreach ($this->config['nosql_drivers'] as $driverName => $driverConfig) {
@@ -232,32 +231,30 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             switch ($type) {
                 case 'mongodb':
 
-                    $storageServiceName = $driverId.'.storage';
-                    $storageDef = new Definition(MongoDBClient::class, [new Reference('serializer')]);
+                    $driverDef = new Definition(MongoDBDriver::class);
 
-                    $mongoDriverOptions = [];
                     $connectionOptions = $driverConfig['connection_options'];
                     if (isset($connectionOptions['driver_options'])) {
                         $mongoDriverOptions = $connectionOptions['driver_options'];
                         unset($connectionOptions['driver_options']);
                     }
-
-                    $storageDef->addMethodCall('configure', [[
+                    $configuration = [
                         'host' => $driverConfig['host'],
                         'database' => $driverConfig['database'],
                         'options' => $connectionOptions,
-                        'driver_options' => $mongoDriverOptions,
-                    ]]);
-                    $storageDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
-                    $storageDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
+                    ];
 
-                    $container->setDefinition($storageServiceName, $storageDef);
+                    if (isset($mongoDriverOptions)) {
+                        $configuration['driver_options'] = $mongoDriverOptions;
+                    }
+                    $driverDef->addMethodCall('configure', [$configuration]);
 
-                    $driverDef = new Definition(MongoDbDriver::class, [new Reference($storageServiceName)]);
-                    $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+                    $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
+                    $driverDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
+
                     $container->setDefinition($driverId, $driverDef);
 
-                    $nosqlDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
+                    $noSqlDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 
                     break;
 

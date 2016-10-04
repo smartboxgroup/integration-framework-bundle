@@ -2,7 +2,9 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\Mapper;
 
+use JMS\Serializer\SerializationContext;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 
 /**
  * Class Mapper.
@@ -115,6 +117,19 @@ class Mapper implements MapperInterface
         return new \DateTime($date);
     }
 
+    public function timestampToDate($timestamp)
+    {
+        $date = new \DateTime();
+        $date->setTimestamp($timestamp);
+
+        return $date;
+    }
+
+    public function timestampWithMsToDate($timestamp)
+    {
+        return DateTimeHelper::createDateTimeFromTimestampWithMilliseconds($timestamp);
+    }
+
     /**
      * Create a Soap var object.
      *
@@ -140,5 +155,34 @@ class Mapper implements MapperInterface
     public function arrayToString($glue, array $data)
     {
         return implode($glue, $data);
+    }
+
+    public function toString($data)
+    {
+        return (string) $data;
+    }
+
+    public function toMongoID($id)
+    {
+        if (class_exists('\MongoDB\BSON\ObjectID')) {
+            return new \MongoDB\BSON\ObjectID((string) $id);
+        }
+
+        throw new \RuntimeException('To instantiate a Mongo ObjectID object you need to install the php mongo extension.');
+    }
+
+    /**
+     * Serialize the given datas into the expected format with a group
+     *
+     * @param $data
+     * @param $format
+     * @param $group
+     *
+     * @return string
+     */
+    public function serializeWithGroup($data, $format, $group)
+    {
+        $serializer = $this->evaluator->getSerializer();
+        return $serializer->serialize($data, $format, SerializationContext::create()->setGroups([$group]));
     }
 }

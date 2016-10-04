@@ -8,14 +8,14 @@ use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\RecoverableSoapException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\UnrecoverableSoapException;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducer;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\AbstractConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class AbstractSoapConfigurableProducer.
  */
-abstract class AbstractSoapConfigurableProducer extends ConfigurableProducer implements CanCheckConnectivityInterface
+abstract class AbstractSoapConfigurableProducer extends AbstractConfigurableProducer implements CanCheckConnectivityInterface
 {
     const REQUEST_PARAMETERS = 'parameters';
     const REQUEST_NAME = 'name';

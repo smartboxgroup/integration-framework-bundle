@@ -7,15 +7,6 @@ queues.generic:
     queue: "[a-zA-Z0-9/]+"
     queue_driver: "[a-zA-Z0-9]+"
 
-nosql.generic:
-  pattern: "nosql://{nosql_driver}/{collection}"
-  defaults:
-    _protocol: @smartesb.protocols.nosql
-    prefix: db_
-  requirements:
-    collection: "[_\-a-zA-Z0-9/]+"
-    nosql_driver: "[a-zA-Z0-9]+"
-
 direct:
   pattern: "direct://{path}"
   defaults:

@@ -3,6 +3,8 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -123,13 +125,19 @@ class Configuration implements ConfigurationInterface
                                 ->isRequired()
                             ->end()
 
-                            ->arrayNode('query_options')
-                                ->info('This are the configuration options for the query that will retrieve the results to be consumed')
+                            ->arrayNode(ConfigurableConsumerInterface::CONFIG_QUERY_STEPS)
+                                ->info('This are the steps that should be executed to fetch the data')
                                 ->prototype('variable')->end()
                                 ->isRequired()
                             ->end()
 
-                            ->arrayNode('on_consume')
+                            ->arrayNode(ConfigurableConsumerInterface::CONFIG_QUERY_RESULT)
+                                ->info('This will be evaluated to obtain the body of the message that is being consumed')
+                                ->prototype('variable')->end()
+                                ->isRequired()
+                            ->end()
+
+                            ->arrayNode(ConfigurableConsumerInterface::CONFIG_ON_CONSUME)
                                 ->info('This are the steps to execute after every message is consumed. For example here you can mark them as consumed')
                                 ->prototype('variable')->end()
                                 ->isRequired()
@@ -207,17 +215,17 @@ class Configuration implements ConfigurationInterface
                 ->isRequired()
                 ->end()
 
-                ->arrayNode('steps')
+                ->arrayNode(ConfigurableProducerInterface::CONF_STEPS)
                     ->info('This are the steps to execute as part of this method')
                     ->prototype('variable')->end()
                     ->isRequired()
                 ->end()
 
-                ->variableNode('response')
+                ->variableNode(ConfigurableProducerInterface::CONF_RESPONSE)
                     ->info('This defines how to generate the response')
                 ->end()
 
-                ->arrayNode('validations')
+                ->arrayNode(ConfigurableProducerInterface::CONF_VALIDATIONS)
                     ->info('Here you can specify validation rules with their related error message')
                     ->prototype('array')
                         ->children()

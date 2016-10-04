@@ -2,7 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers;
 
-use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface;
+use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Exceptions\NoSQLDriverException;
 
 /**
  * Interface NoSQLDriverInterface.
@@ -10,41 +11,97 @@ use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterfa
 interface NoSQLDriverInterface
 {
     /**
-     * @param NoSQLMessageInterface $message
+     * Configures the driver.
      *
-     * @return string Id of the created record
+     * @param array $configuration
+     *
+     * @return mixed
      */
-    public function create(NoSQLMessageInterface $message);
+    public function configure(array $configuration);
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface $message
+     * Delete all documents matching a given $queryOptions.
      *
-     * @return bool
+     * @param string                $storageResourceName
+     * @param QueryOptionsInterface $queryOptions
      */
-    public function update(NoSQLMessageInterface $message);
+    public function delete($storageResourceName, QueryOptionsInterface $queryOptions);
 
     /**
-     * @param NoSQLMessageInterface $message
+     * Find all documents matching a given $queryOptions.
      *
-     * @return bool
+     * @param string                $storageResourceName
+     * @param QueryOptionsInterface $queryOptions
+     * @param array                 $fields
+     *
+     * @return SerializableInterface[]|SerializableInterface|null
      */
-    public function delete(NoSQLMessageInterface $message);
+    public function find($storageResourceName, QueryOptionsInterface $queryOptions, array $fields = []);
 
     /**
-     * Returns One Serializable object from the queue.
+     * @param $collection
+     * @param QueryOptionsInterface $queryOptions
+     * @param array                 $fields
      *
-     * It requires to subscribe previously to a specific queue
-     *
-     * @param string $collection
-     * @param array  $query
-     * @param array  $options
-     *
-     * @return null|\Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface
+     * @return mixed
      */
-    public function read($collection, array $query = [], $options = []);
+    public function findOne($collection, QueryOptionsInterface $queryOptions, array $fields = []);
 
     /**
-     * @return \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLMessageInterface
+     * Insert an document.
+     *
+     * @param string $storageResourceName
+     * @param mixed  $data
+     *
+     * @return string $id
      */
-    public function createMessage();
+    public function insertOne($storageResourceName, $data);
+
+    /**
+     * Insert an document.
+     *
+     * @param string $storageResourceName
+     * @param array  $data
+     *
+     * @return string $id
+     */
+    public function insertMany($storageResourceName, array $data);
+
+    /**
+     * Update one or many documents matching the $queryOptions with the given $data.
+     *
+     * @param string                $storageResourceName
+     * @param QueryOptionsInterface $queryOptions
+     * @param array                 $data
+     *
+     * @return mixed $updateResult
+     */
+    public function update($storageResourceName, QueryOptionsInterface $queryOptions, array $data);
+
+    /**
+     * @param $collection
+     * @param QueryOptionsInterface $queryOptions
+     *
+     * @return int
+     *
+     * @throws NoSQLDriverException
+     */
+    public function count($collection, QueryOptionsInterface $queryOptions);
+
+    /**
+     * @param $collection
+     * @param $id
+     * @param array $fields
+     *
+     * @return mixed
+     */
+    public function findOneById($collection, $id, array $fields = []);
+
+    /**
+     * @param $collection
+     * @param $id
+     *
+     * @return mixed
+     */
+    public function deleteById($collection, $id);
 }
