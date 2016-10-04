@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\Mapper;
 
+use JMS\Serializer\SerializationContext;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 
@@ -168,5 +169,20 @@ class Mapper implements MapperInterface
         }
 
         throw new \RuntimeException('To instantiate a Mongo ObjectID object you need to install the php mongo extension.');
+    }
+
+    /**
+     * Serialize the given datas into the expected format with a group
+     *
+     * @param $data
+     * @param $format
+     * @param $group
+     *
+     * @return string
+     */
+    public function serializeWithGroup($data, $format = "json", $group)
+    {
+        $serializer = $this->evaluator->getSerializer();
+        return $serializer->serialize($data, $format, SerializationContext::create()->setGroups(array($group)));
     }
 }
