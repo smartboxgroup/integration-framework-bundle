@@ -288,9 +288,10 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     {
         $retries = 0;
 
-        // If this is an exchange envelope
+        // If this is an exchange envelope, we extract the old exchange and prepare the new one
         if ($message && $message instanceof ExchangeEnvelope) {
-            $exchange = $message->getBody();
+            $oldExchange = $message->getBody();
+            $exchange = new Exchange($oldExchange->getIn(),$oldExchange->getItinerary(), $oldExchange->getHeaders());
 
             if ($message instanceof RetryExchangeEnvelope) {
                 $retries = $message->getRetries();
