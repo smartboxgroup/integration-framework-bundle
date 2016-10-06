@@ -61,11 +61,12 @@ class Exchange implements SerializableInterface
      * @param MessageInterface|null $message
      * @param Itinerary|null        $itinerary
      */
-    public function __construct(MessageInterface $message = null, Itinerary $itinerary = null)
+    public function __construct(MessageInterface $message = null, Itinerary $itinerary = null, array $headers = [])
     {
-        $this->setIn($message);
         $this->id = uniqid();
+        $this->setIn($message);
         $this->itinerary = $itinerary;
+        $this->headers = $headers;
     }
 
     /**
