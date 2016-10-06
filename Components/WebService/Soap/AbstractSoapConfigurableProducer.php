@@ -149,7 +149,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractConfigurableProd
         }
 
         $requestName = $params[self::REQUEST_NAME];
-        $soapMethodName = $params[self::SOAP_METHOD_NAME];
+        $soapMethodName = $this->confHelper->resolve($params[self::SOAP_METHOD_NAME], $context);
         $soapMethodParams = $this->confHelper->resolve($params[self::REQUEST_PARAMETERS], $context);
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
