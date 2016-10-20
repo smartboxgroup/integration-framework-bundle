@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader;
 
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -41,7 +42,15 @@ class JsonFileLoaderProducer extends Producer
         }
 
         $serializer = $this->getSerializer();
-        $content = $serializer->deserialize($json, SerializableInterface::class, 'json');
+
+        $data = trim(file_get_contents($path));
+        if (substr($data, 0, 1) === '[') { // Tests if the current content is an array
+            $deserializationType = 'array<'.SerializableInterface::class.'>';
+            $array = $serializer->deserialize($data, $deserializationType, 'json');
+            $content = new SerializableArray($array);
+        } else {
+            $content = $serializer->deserialize($data, SerializableInterface::class, 'json');
+        }
 
         $ex->getIn()->setBody($content);
     }
