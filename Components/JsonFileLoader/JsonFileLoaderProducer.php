@@ -41,17 +41,7 @@ class JsonFileLoaderProducer extends Producer
             throw new InvalidFormatException("The file $path does not have a valid JSON format");
         }
 
-        $serializer = $this->getSerializer();
-
-        $data = trim(file_get_contents($path));
-        if (substr($data, 0, 1) === '[') { // Tests if the current content is an array
-            $deserializationType = 'array<'.SerializableInterface::class.'>';
-            $array = $serializer->deserialize($data, $deserializationType, 'json');
-            $content = new SerializableArray($array);
-        } else {
-            $content = $serializer->deserialize($data, SerializableInterface::class, 'json');
-        }
-
+        $content = $this->getDeserializedContent($json);
         $ex->getIn()->setBody($content);
     }
 
@@ -67,5 +57,28 @@ class JsonFileLoaderProducer extends Producer
         json_decode($string);
 
         return json_last_error() == JSON_ERROR_NONE;
+    }
+
+    /**
+     * Method to get the deserialized content from Json (array with objects or a simple object)
+     *
+     * @param string $jsonContent JsonContent to deserialize
+     *
+     * @return SerializableInterface
+     */
+    private function getDeserializedContent($jsonContent)
+    {
+        $serializer = $this->getSerializer();
+
+        $data = trim($jsonContent);
+        if (substr($data, 0, 1) === '[') { // Check if the current content is an array
+            $deserializationType = 'array<'.SerializableInterface::class.'>';
+            $array = $serializer->deserialize($data, $deserializationType, 'json');
+            $content = new SerializableArray($array);
+        } else {
+            $content = $serializer->deserialize($data, SerializableInterface::class, 'json');
+        }
+
+        return $content;
     }
 }
