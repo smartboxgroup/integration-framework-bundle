@@ -231,6 +231,8 @@ class RestConfigurableProducer extends AbstractConfigurableProducer
             } else {
                 $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, false, $statusCode, $e);
             }
+        } catch (UnrecoverableRestException $e) {
+            throw $e;
         } catch (\Exception $e) {
             if ($response) {
                 $response->getBody()->rewind();
