@@ -2,6 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\MockClients;
 
+use BeSimple\SoapCommon\Cache;
+use BeSimple\SoapClient\Curl;
 use Symfony\Component\Config\FileLocatorInterface;
 
 trait FakeClientTrait
@@ -61,6 +63,32 @@ trait FakeClientTrait
 
             file_put_contents($this->getFileName($resource, $suffix), $content);
         }
+    }
+
+    protected function saveWsdlToCache($wsdl, $options)
+    {
+        $originalWsdlCacheDir = Cache::getDirectory();
+        Cache::setDirectory($this->cacheDir);
+
+        $wsdlDownloader = new WsdlDownloader(new Curl($options));
+        $cachedFile = $wsdlDownloader->download($wsdl);
+
+        Cache::setDirectory($originalWsdlCacheDir);
+
+        return $cachedFile;
+    }
+
+    protected function getWsdlPathFromCache($wsdl, $options)
+    {
+        $originalWsdlCacheDir = Cache::getDirectory();
+        Cache::setDirectory($this->cacheDir);
+
+        $wsdlDownloader = new WsdlDownloader(new Curl($options));
+        $cachedFile = $wsdlDownloader->cacheFileFromWsdl($wsdl);
+
+        Cache::setDirectory($originalWsdlCacheDir);
+
+        return $cachedFile;
     }
 
     protected function getFileName($resource, $suffix = null)

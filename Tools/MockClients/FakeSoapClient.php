@@ -3,13 +3,30 @@
 namespace Smartbox\Integration\FrameworkBundle\Tools\MockClients;
 
 use BeSimple\SoapClient\BasicAuthSoapClient;
-use BeSimple\SoapCommon\Cache;
 
 class FakeSoapClient extends BasicAuthSoapClient
 {
     use FakeClientTrait;
 
     const CACHE_SUFFIX = 'xml';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($wsdl, array $options = array())
+    {
+        if (isset($options['MockCacheDir'])) {
+            $this->cacheDir = $options['MockCacheDir'];
+        }
+        if (getenv('RECORD_RESPONSE') === 'true') {
+            $this->saveWsdlToCache($wsdl, $options);
+        }
+        if (getenv('MOCKS_ENABLED') === 'true') {
+            $wsdl = $this->getWsdlPathFromCache($wsdl, $options);
+        }
+
+        return parent::__construct($wsdl, $options);
+    }
 
     /**
      * {@inheritdoc}
