@@ -23,6 +23,7 @@ class FakeSoapClient extends BasicAuthSoapClient
         }
         if (getenv('MOCKS_ENABLED') === 'true') {
             $wsdl = $this->getWsdlPathFromCache($wsdl, $options);
+            $options['resolve_wsdl_remote_includes'] = false;
         }
 
         return parent::__construct($wsdl, $options);
