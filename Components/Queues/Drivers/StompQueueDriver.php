@@ -16,9 +16,9 @@ use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 
 /**
- * Class ActiveMQStompQueueDriver.
+ * Class StompQueueDriver.
  */
-class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
+class StompQueueDriver extends Service implements QueueDriverInterface
 {
     use UsesSerializer;
 
@@ -57,10 +57,28 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     /** @var string */
     protected $stompVersion;
 
+    protected $urlEncodeDestination = false;
+
     /**
      * @var ActiveMQConnectionStrategyFactory
      */
     protected $connectionStrategyFactory;
+
+    /**
+     * @return boolean
+     */
+    public function isUrlEncodeDestination()
+    {
+        return $this->urlEncodeDestination;
+    }
+
+    /**
+     * @param boolean $urlEncodeDestination
+     */
+    public function setUrlEncodeDestination($urlEncodeDestination)
+    {
+        $this->urlEncodeDestination = $urlEncodeDestination;
+    }
 
     public function setConnectionStrategyFactory(ActiveMQConnectionStrategyFactory $connectionStrategyFactory)
     {
@@ -290,12 +308,18 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     /** {@inheritdoc} */
     public function subscribe($queue, $selector = null, $prefetchSize = 1)
     {
+        if($this->urlEncodeDestination){
+            $destination = urlencode($queue);
+        }else{
+            $destination = $queue;
+        }
+
         if (!is_numeric($prefetchSize) || $prefetchSize < 0) {
             throw new \InvalidArgumentException('Invalid prefetchSize, a non negative integer is expected');
         }
 
         if ($this->subscriptionId) {
-            throw new \RuntimeException('ActiveMQStompQueueDriver: A subscription already exists in the current connection');
+            throw new \RuntimeException('StompQueueDriver: A subscription already exists in the current connection');
         }
 
         $this->connectRead();
@@ -312,7 +336,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
         }
 
         $this->readConnection->prefetchSize = $prefetchSize;
-        $this->readConnection->subscribe($queue, $properties);
+        $this->readConnection->subscribe($destination, $properties);
     }
 
     /**
@@ -321,11 +345,17 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     public function unSubscribe()
     {
         if ($this->isSubscribed()) {
+            $destination = $this->subscribedQueue;
+
+            if($this->urlEncodeDestination){
+                $destination = urlencode($this->subscribedQueue);
+            }
+
             $properties = [
                 'id' => $this->subscriptionId,
             ];
             $this->readConnection->readFrame();
-            $this->readConnection->unsubscribe($this->subscribedQueue, $properties);
+            $this->readConnection->unsubscribe($destination, $properties);
             $this->subscriptionId = null;
             $this->currentFrame = null;
             $this->subscribedQueue = null;
@@ -333,13 +363,18 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function send(QueueMessageInterface $message)
+    public function send(QueueMessageInterface $message, $destination = null)
     {
+        $destination = $destination ? $destination : $message->getQueue();
+        if($this->urlEncodeDestination){
+            $destination = urlencode($destination);
+        }
+
         $this->checkConnection();
 
         $serializedMsg = $this->getSerializer()->serialize($message, $this->format);
 
-        return $this->writeConnection->send($message->getQueue(), new Bytes($serializedMsg, $message->getHeaders()), null, true);
+        return $this->writeConnection->send($destination, new Bytes($serializedMsg, $message->getHeaders()), null, true);
     }
 
     /** {@inheritdoc} */
@@ -349,7 +384,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
 
         if ($this->currentFrame) {
             throw new \RuntimeException(
-                'ActiveMQStompQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages.'
+                'StompQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages.'
             );
         }
 
@@ -417,7 +452,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
     protected function checkConnection()
     {
         if (!$this->isConnected()) {
-            throw new \RuntimeException('ActiveMQStompQueueDriver: A connection must be opened before sending data');
+            throw new \RuntimeException('StompQueueDriver: A connection must be opened before sending data');
         }
     }
 
@@ -426,7 +461,7 @@ class ActiveMQStompQueueDriver extends Service implements QueueDriverInterface
         $this->checkConnection();
 
         if (!$this->isSubscribed()) {
-            throw new \RuntimeException('ActiveMQStompQueueDriver: A subscription must be established before performing this operation');
+            throw new \RuntimeException('StompQueueDriver: A subscription must be established before performing this operation');
         }
     }
 

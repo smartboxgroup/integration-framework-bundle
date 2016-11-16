@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQConnectionStrategyFactory;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
@@ -180,8 +180,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
             $type = strtolower($driverConfig['type']);
             switch ($type) {
+                case 'rabbitmq':
                 case 'activemq':
-                    $driverDef = new Definition(ActiveMQStompQueueDriver::class, []);
+                    $urlEncodeDestination = ($type == 'rabbitmq');
+
+                    $driverDef = new Definition(StompQueueDriver::class, []);
                     $driverDef->addMethodCall('setId', [$driverId]);
 
                     $activeMQConnectionStrategyFactoryDef = new Definition(
@@ -199,6 +202,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     ]);
 
                     $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
+                    $driverDef->addMethodCall('setUrlEncodeDestination', [$urlEncodeDestination]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
                     $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
@@ -210,6 +214,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                 default:
                     throw new InvalidDefinitionException(sprintf('Invalid queue driver type "%s"', $type));
+                    break;
             }
         }
 

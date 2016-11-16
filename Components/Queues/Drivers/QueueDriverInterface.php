@@ -77,11 +77,12 @@ interface QueueDriverInterface extends SerializableInterface
     public function nack();
 
     /**
-     * @param \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface $message
+     * @param QueueMessageInterface $message
+     * @param null $destination
      *
      * @return bool
      */
-    public function send(QueueMessageInterface $message);
+    public function send(QueueMessageInterface $message, $destination = null);
 
     /**
      * Returns One Serializable object from the queue.

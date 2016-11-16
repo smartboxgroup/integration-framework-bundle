@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\SmokeTests;
 
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStompQueueDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 
 /**
  * Class QueueDriverConnectionSmokeTest.
@@ -12,11 +12,11 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQStomp
 class QueueDriverConnectionSmokeTest implements SmokeTestInterface
 {
     /**
-     * @var ActiveMQStompQueueDriver
+     * @var StompQueueDriver
      */
     protected $queueDriver;
 
-    public function __construct(ActiveMQStompQueueDriver $queueDriver)
+    public function __construct(StompQueueDriver $queueDriver)
     {
         $this->queueDriver = $queueDriver;
     }
