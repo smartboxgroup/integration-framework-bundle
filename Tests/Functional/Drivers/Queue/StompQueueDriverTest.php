@@ -16,7 +16,7 @@ use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 /**
  * Class StompProducerTest.
  */
-class ActiveMQStompQueueDriverTest extends BaseTestCase
+class StompQueueDriverTest extends BaseTestCase
 {
     const QUEUE_PREFIX = '/test/';
 
