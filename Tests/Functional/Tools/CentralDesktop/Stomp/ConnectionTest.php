@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Tools\CentralDesktop\Stomp;
 
 use Smartbox\CoreBundle\Tests\Utils\Cache\FakeCacheService;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQConnectionStrategyFactory;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ConnectionStrategyFactory;
 use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\Connection;
 use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFactory\FactoryI;
 use Zend\Code\Reflection\PropertyReflection;
@@ -14,13 +14,13 @@ use Zend\Code\Reflection\PropertyReflection;
 class ConnectionTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var ActiveMQConnectionStrategyFactory
+     * @var ConnectionStrategyFactory
      */
     private $connectionFactory;
 
     public function setUp()
     {
-        $this->connectionFactory = new ActiveMQConnectionStrategyFactory(new FakeCacheService());
+        $this->connectionFactory = new ConnectionStrategyFactory(new FakeCacheService());
     }
 
     public function dataProviderForHostsAndAttempts()

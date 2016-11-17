@@ -10,11 +10,19 @@ class QueueMessage extends Message implements QueueMessageInterface
 {
     const HEADER_QUEUE = 'destination';
     const HEADER_PERSISTENT = 'persistent';
+    const HEADER_DELIVERY_MODE = 'delivery-mode';
+
     const HEADER_TTL = 'ttl';
+
     const HEADER_EXPIRES = 'expires';
+    const HEADER_EXPIRATION = 'expiration';
+
     const HEADER_TYPE = 'type';
     const HEADER_PRIORITY = 'priority';
     const HEADER_REASON_FOR_FAILURE = 'dlqDeliveryFailureCause';
+
+    const DELIVERY_MODE_PERSISTENT = 2;
+    const DELIVERY_MODE_NON_PERSISTENT = 1;
 
     public function __construct(SerializableInterface $body = null, $headers = [], Context $context = null)
     {
@@ -35,6 +43,8 @@ class QueueMessage extends Message implements QueueMessageInterface
     public function setTTL($ttl)
     {
         $this->setHeader(self::HEADER_TTL, $ttl);
+        $this->setHeader(self::HEADER_EXPIRATION, $ttl * 1000);
+
         if($ttl != 0){
             $this->setExpires((time() + $ttl) * 1000);
         }
@@ -54,8 +64,9 @@ class QueueMessage extends Message implements QueueMessageInterface
     {
         if ($persistent) {
             $this->setHeader(self::HEADER_PERSISTENT, 'true');
+            $this->setHeader(self::HEADER_DELIVERY_MODE, self::DELIVERY_MODE_PERSISTENT);
         } else {
-            $this->setHeader(self::HEADER_PERSISTENT, 'false');
+            $this->setHeader(self::HEADER_DELIVERY_MODE, self::DELIVERY_MODE_NON_PERSISTENT);
         }
     }
 

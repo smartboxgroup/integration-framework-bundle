@@ -8,9 +8,9 @@ use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFa
 use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFactory\CachedFailoverConnectionStrategy;
 
 /**
- * Class ActiveMQConnectionStrategyFactory.
+ * Class ConnectionStrategyFactory.
  */
-class ActiveMQConnectionStrategyFactory
+class ConnectionStrategyFactory
 {
     const TRANSPORT_TCP = 'tcp';
     const TRANSPORT_FAILOVER = 'failover';

@@ -118,13 +118,15 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function send(QueueMessageInterface $message)
+    public function send(QueueMessageInterface $message, $destination = null)
     {
-        if (!array_key_exists($message->getQueue(), self::$array)) {
-            self::$array[$message->getQueue()] = [];
+        $destination = $destination ? $destination : $message->getQueue();
+
+        if (!array_key_exists($destination, self::$array)) {
+            self::$array[$destination] = [];
         }
 
-        self::$array[$message->getQueue()][] = $message;
+        self::$array[$destination][] = $message;
 
         return true;
     }
