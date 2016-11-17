@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Components\Queues\Drivers;
 
 use Smartbox\CoreBundle\Tests\Utils\Cache\FakeCacheService;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQConnectionStrategyFactory;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ConnectionStrategyFactory;
 use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFactory\SimpleConnectionStrategy;
 use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFactory\CachedFailoverConnectionStrategy;
 
@@ -13,13 +13,13 @@ use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\ConnectionFa
 class ActiveMQConnectionStrategyFactoryTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var ActiveMQConnectionStrategyFactory
+     * @var ConnectionStrategyFactory
      */
     protected $factory;
 
     public function setUp()
     {
-        $this->factory = new ActiveMQConnectionStrategyFactory(new FakeCacheService());
+        $this->factory = new ConnectionStrategyFactory(new FakeCacheService());
     }
 
     public function dataProviderForConnectionStrategy()

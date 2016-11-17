@@ -76,9 +76,10 @@ interface QueueDriverInterface extends SerializableInterface
      */
     public function nack();
 
+
     /**
      * @param QueueMessageInterface $message
-     * @param null $destination
+     * @param string|null $destination
      *
      * @return bool
      */

@@ -3,7 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ActiveMQConnectionStrategyFactory;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ConnectionStrategyFactory;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -188,7 +188,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setId', [$driverId]);
 
                     $activeMQConnectionStrategyFactoryDef = new Definition(
-                        ActiveMQConnectionStrategyFactory::class,
+                        ConnectionStrategyFactory::class,
                         [new Reference('smartcore.cache_service')]
                     );
                     $container->setDefinition(self::ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY, $activeMQConnectionStrategyFactoryDef);

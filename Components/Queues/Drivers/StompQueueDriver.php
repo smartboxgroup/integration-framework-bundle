@@ -57,11 +57,10 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /** @var string */
     protected $stompVersion;
 
+    /** @var bool */
     protected $urlEncodeDestination = false;
 
-    /**
-     * @var ActiveMQConnectionStrategyFactory
-     */
+    /** @var ConnectionStrategyFactory */
     protected $connectionStrategyFactory;
 
     /**
@@ -80,7 +79,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $this->urlEncodeDestination = $urlEncodeDestination;
     }
 
-    public function setConnectionStrategyFactory(ActiveMQConnectionStrategyFactory $connectionStrategyFactory)
+    public function setConnectionStrategyFactory(ConnectionStrategyFactory $connectionStrategyFactory)
     {
         $this->connectionStrategyFactory = $connectionStrategyFactory;
     }

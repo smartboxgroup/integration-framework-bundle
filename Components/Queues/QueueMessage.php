@@ -21,10 +21,8 @@ class QueueMessage extends Message implements QueueMessageInterface
     const HEADER_PRIORITY = 'priority';
     const HEADER_REASON_FOR_FAILURE = 'dlqDeliveryFailureCause';
 
-
     const DELIVERY_MODE_PERSISTENT = 2;
     const DELIVERY_MODE_NON_PERSISTENT = 1;
-
 
     public function __construct(SerializableInterface $body = null, $headers = [], Context $context = null)
     {
@@ -68,7 +66,7 @@ class QueueMessage extends Message implements QueueMessageInterface
             $this->setHeader(self::HEADER_PERSISTENT, 'true');
             $this->setHeader(self::HEADER_DELIVERY_MODE, self::DELIVERY_MODE_PERSISTENT);
         } else {
-            $this->setHeader(self::HEADER_DELIVERY_MODE,self::DELIVERY_MODE_NON_PERSISTENT);
+            $this->setHeader(self::HEADER_DELIVERY_MODE, self::DELIVERY_MODE_NON_PERSISTENT);
         }
     }
 
