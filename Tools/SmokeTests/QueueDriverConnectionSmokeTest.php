@@ -23,7 +23,7 @@ class QueueDriverConnectionSmokeTest implements SmokeTestInterface
 
     public function getDescription()
     {
-        return 'SmokeTest to check connection of activeMQ driver.';
+        return 'SmokeTest to check connection of queue driver.';
     }
 
     public function run()
