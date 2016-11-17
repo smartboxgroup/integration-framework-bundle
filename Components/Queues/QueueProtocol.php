@@ -26,7 +26,6 @@ class QueueProtocol extends Protocol implements DescriptableInterface
     const OPTION_PRIORITY = 'priority';
     const OPTION_QUEUE_NAME = 'queue';
     const OPTION_QUEUE_DRIVER = 'queue_driver';
-    const LOGICAL_PATH = 'path';
 
     protected $defaultPersistence;
     protected $defaultTTL;
@@ -81,7 +80,6 @@ class QueueProtocol extends Protocol implements DescriptableInterface
             self::OPTION_PRIORITY => ['Priority for the messages in this queue', []],
             self::OPTION_TTL => ['Time to live in seconds, after which the messages will expire', []],
             self::OPTION_PERSISTENT => ['Whether messages coming to this queue should be persisted in disk', []],
-            self::LOGICAL_PATH => ['Logical path of the queue inside the messaging layer',[]],
         ]);
 
         unset($options[self::OPTION_USERNAME]);
@@ -108,7 +106,6 @@ class QueueProtocol extends Protocol implements DescriptableInterface
             self::OPTION_EXCHANGE_PATTERN => self::EXCHANGE_PATTERN_IN_ONLY,
             self::OPTION_TRACK => true,
             self::OPTION_PREFIX => '',
-            self::LOGICAL_PATH => ''
         ]);
 
         $resolver->setRequired([
