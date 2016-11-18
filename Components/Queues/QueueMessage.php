@@ -43,9 +43,9 @@ class QueueMessage extends Message implements QueueMessageInterface
     public function setTTL($ttl)
     {
         $this->setHeader(self::HEADER_TTL, $ttl);
-        $this->setHeader(self::HEADER_EXPIRATION, $ttl * 1000);
 
-        if($ttl != 0){
+        if ($ttl != 0) {
+            $this->setHeader(self::HEADER_EXPIRATION, $ttl * 1000);
             $this->setExpires((time() + $ttl) * 1000);
         }
     }
