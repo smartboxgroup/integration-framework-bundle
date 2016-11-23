@@ -70,4 +70,18 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('a;b', $this->mapper->arrayToString(';', $list));
     }
+
+    public function testFlattenArrayByKey()
+    {
+        $array = [
+            ['fruits' => 'banana'],
+            ['fruits' => 'apple']
+        ];
+
+        $res = $this->mapper->flattenArrayByKey($array, 'fruits');
+        $this->assertSame(['banana', 'apple'], $res);
+
+        $res = $this->mapper->flattenArrayByKey(['car'], 'fruits');
+        $this->assertEmpty($res);
+    }
 }

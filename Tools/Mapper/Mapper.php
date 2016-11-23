@@ -157,6 +157,26 @@ class Mapper implements MapperInterface
         return implode($glue, $data);
     }
 
+    /**
+     * Flatten an array by key
+     *
+     * @param array $data The array to flatten
+     * @param string $key The common key
+     *
+     * @return array
+     */
+    public function flattenArrayByKey(array $data, $key)
+    {
+        $array = [];
+        foreach ($data as $value) {
+            if (is_array($value) && isset($value[$key])) {
+                $array[] = $value[$key];
+            }
+        }
+
+        return $array;
+    }
+
     public function toString($data)
     {
         return (string) $data;

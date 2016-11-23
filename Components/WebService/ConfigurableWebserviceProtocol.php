@@ -34,8 +34,8 @@ class ConfigurableWebserviceProtocol extends Protocol
     {
         parent::configureOptionsResolver($resolver);
         $resolver->setDefaults([
-            self::OPTION_TIMEOUT => 10,
-            self::OPTION_CONNECT_TIMEOUT => 10,
+            self::OPTION_TIMEOUT => 30,
+            self::OPTION_CONNECT_TIMEOUT => 30,
             self::OPTION_TRACK => true,
         ]);
 
