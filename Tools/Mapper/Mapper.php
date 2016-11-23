@@ -64,9 +64,7 @@ class Mapper implements MapperInterface
 
         $res = [];
         foreach ($mapping as $key => $expression) {
-
             $value = $this->evaluator->evaluateWithVars($expression, $dictionary);
-
             if ($value !== null) {
                 $res[$key] = $value;
             }
@@ -170,11 +168,12 @@ class Mapper implements MapperInterface
     public function flattenArrayByKey(array $data, $key)
     {
         $array = [];
-        foreach ($data as $value){
-            if(is_array($value) && isset($value[$key])){
+        foreach ($data as $value) {
+            if (is_array($value) && isset($value[$key])) {
                 $array[] = $value[$key];
             }
         }
+
         return $array;
     }
 
