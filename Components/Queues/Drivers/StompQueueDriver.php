@@ -328,7 +328,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
 
         $properties = [
             'id' => $this->subscriptionId,
-            'prefetch-count' => 1
+            'prefetch-count' => $prefetchSize
         ];
 
         if ($selector) {
