@@ -194,7 +194,7 @@ class MapperTest extends BaseTestCase
         ]);
 
         $this->mapper->map(
-            new SerializableArray(['k' => 5,]),
+            new SerializableArray(['k' => 5]),
             'example_mapping'
         );
     }
