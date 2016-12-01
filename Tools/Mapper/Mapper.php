@@ -13,12 +13,19 @@ class Mapper implements MapperInterface
 {
     use UsesEvaluator;
 
+    protected $debug = false;
+
     protected $mappings = [];
 
     protected $dictionary = [
         'ISO8601' => \DateTime::ISO8601,
         'ISO8601Micro' => 'Y-m-d\TH:i:s.000',
     ];
+
+    public function setDebug($debug = false)
+    {
+        $this->debug = $debug;
+    }
 
     public function addMappings(array $mappings)
     {
@@ -64,7 +71,16 @@ class Mapper implements MapperInterface
 
         $res = [];
         foreach ($mapping as $key => $expression) {
-            $value = $this->evaluator->evaluateWithVars($expression, $dictionary);
+            try {
+                $value = $this->evaluator->evaluateWithVars($expression, $dictionary);
+            } catch (\RuntimeException $e) {
+                if ($this->debug) {
+                    throw $e;
+                }
+
+                $value = null;
+            }
+
             if ($value !== null) {
                 $res[$key] = $value;
             }
