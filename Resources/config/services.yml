@@ -63,6 +63,7 @@ services:
   smartesb.util.mapper:
       class: %smartesb.util.mapper.class%
       calls:
+        - [setDebug, ["%kernel.debug%"]]
         - [setEvaluator, [@smartesb.util.evaluator]]
 
   # INTERNAL HELPERS

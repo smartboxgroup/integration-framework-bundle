@@ -222,6 +222,10 @@ class RestConfigurableProducer extends AbstractConfigurableProducer
                 $response = $e->getResponse();
             }
 
+            if ($request) {
+                $request->getBody()->rewind();
+            }
+
             if ($response) {
                 $response->getBody()->rewind();
             }
