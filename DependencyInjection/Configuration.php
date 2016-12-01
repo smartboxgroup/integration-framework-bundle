@@ -287,10 +287,10 @@ class Configuration implements ConfigurationInterface
             ->isRequired()
             ->end()
 
-            ->scalarNode('retry_strategy')
-            ->info('Retry strategy to use when retrying the same message')
-            ->defaultValue(MessageHandler::RETRY_STRATEGY_FIXED)
-            ->values(MessageHandler::getAvailableRetryStrategies())
+            ->enumNode('retry_strategy')
+                ->info('Retry strategy to use when retrying the same message')
+                ->defaultValue(MessageHandler::RETRY_STRATEGY_FIXED)
+                ->values(MessageHandler::getAvailableRetryStrategies())
             ->end()
 
             ->scalarNode('retry_delay_factor')
