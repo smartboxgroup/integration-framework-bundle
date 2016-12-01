@@ -19,7 +19,7 @@ class MapperTest extends BaseTestCase
 
     public function setUp()
     {
-        parent::setUp();
+        $this->bootKernel(['debug' => false]);
         $this->mapper = $this->getContainer()->get('smartesb.util.mapper');
     }
 
@@ -52,6 +52,7 @@ class MapperTest extends BaseTestCase
                     'mapping_name' => [
                         'x' => "obj.get('x') + 1",
                         'y' => "obj.get('y')",
+                        'z' => "obj.get('y').get('z')"
                     ],
                 ],
                 'mapping_name' => 'mapping_name',
@@ -173,6 +174,28 @@ class MapperTest extends BaseTestCase
                 'z' => 1,
             ]),
             'this_mapping_does_not_exist'
+        );
+    }
+
+    /**
+     * @covers ::map
+     */
+    public function testMapNonExistingNestedObjectWithDebugEnable()
+    {
+        $this->expectException(\RuntimeException::class);
+
+        $this->bootKernel(['debug' => true]);
+        $this->mapper = $this->getContainer()->get('smartesb.util.mapper');
+
+        $this->mapper->addMappings([
+            'example_mapping' => [
+                'x' => "obj.get('x').get('k')",
+            ],
+        ]);
+
+        $this->mapper->map(
+            new SerializableArray(['k' => 5,]),
+            'example_mapping'
         );
     }
 
