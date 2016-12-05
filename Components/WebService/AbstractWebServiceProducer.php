@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService;
 
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalBadResponseException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemException;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\AbstractConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGroupVersionHydrator;
@@ -57,7 +58,10 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
             foreach ($errors as $error){
                 $message .= $error->getPropertyPath().' - '.$error->getMessage().' | ';
             }
-            throw new ExternalSystemException($message);
+            $exception = new ExternalSystemException($message);
+            $exception->setExternalSystemName($this->getName());
+            $exception->setShowExternalSystemErrorMessage(true);
+            throw $exception;
         }
     }
 
