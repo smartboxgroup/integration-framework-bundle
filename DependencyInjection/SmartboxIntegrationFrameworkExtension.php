@@ -291,6 +291,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $driverDef->addMethodCall('setItineraryResolver', [new Reference('smartesb.itineray_resolver')]);
             $driverDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
             $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+            $driverDef->addMethodCall('setRetryStrategy', [$handlerConfig['retry_strategy']]);
+            $driverDef->addMethodCall('setRetryDelayFactor', [$handlerConfig['retry_delay_factor']]);
 
             if ($handlerConfig['retry_uri'] != 'original') {
                 $driverDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);

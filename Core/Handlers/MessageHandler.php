@@ -38,11 +38,18 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     use UsesEndpointFactory;
     use UsesItineraryResolver;
 
+    /** Retry delay strategy constants**/
+    const RETRY_STRATEGY_FIXED = 'fixed';
+    const RETRY_STRATEGY_PROGRESSIVE = 'progressive';
+
     /** @var int */
     protected $retriesMax;
 
     /** @var int */
     protected $retryDelay;
+
+    /** @var int */
+    protected $retryDelayFactor = 1;
 
     /** @var bool */
     protected $throwExceptions;
@@ -55,6 +62,9 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
     /** @var EndpointInterface */
     protected $retryEndpoint;
+
+    /** @var string */
+    protected $retryStrategy;
 
     /**
      * @return bool
@@ -102,6 +112,51 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     public function setRetryDelay($retryDelay)
     {
         $this->retryDelay = $retryDelay;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRetryDelayFactor()
+    {
+        return $this->retryDelayFactor;
+    }
+
+    /**
+     * @param int $retryDelayFactor
+     */
+    public function setRetryDelayFactor($retryDelayFactor)
+    {
+        $this->retryDelayFactor = $retryDelayFactor;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRetryStrategy()
+    {
+        return $this->retryStrategy;
+    }
+
+    /**
+     * @param string $retryStrategy
+     */
+    public function setRetryStrategy($retryStrategy)
+    {
+        $this->retryStrategy = $retryStrategy;
+    }
+
+    /**
+     * Return the valid retry strategies
+     *
+     * @return array
+     */
+    public static function getAvailableRetryStrategies()
+    {
+        return [
+            self::RETRY_STRATEGY_FIXED,
+            self::RETRY_STRATEGY_PROGRESSIVE,
+        ];
     }
 
     /**
@@ -269,9 +324,21 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
         $errorDescription = $originalException ? $originalException->getMessage() : $exception->getMessage();
 
         if ($envelope instanceof RetryExchangeEnvelope) {
+            $strategy = $this->getRetryStrategy();
+            switch ($strategy) {
+                case self::RETRY_STRATEGY_FIXED:
+                    $delay = $this->getRetryDelay();
+                    break;
+                case self::RETRY_STRATEGY_PROGRESSIVE:
+                    $delay = $this->getRetryDelay() * pow($this->getRetryDelayFactor(), $retries);
+                    break;
+                default:
+                    throw new \RuntimeException("Unknown strategy $strategy.");
+            }
+
             $envelope->setHeader(RetryExchangeEnvelope::HEADER_LAST_ERROR, $errorDescription);
             $envelope->setHeader(RetryExchangeEnvelope::HEADER_LAST_RETRY_AT, round(microtime(true) * 1000));
-            $envelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY, $this->getRetryDelay());
+            $envelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY, $delay);
         }
 
         $envelope->setHeader(ErrorExchangeEnvelope::HEADER_CREATED_AT, round(microtime(true) * 1000));
