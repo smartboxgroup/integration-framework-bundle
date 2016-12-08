@@ -147,7 +147,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
-     * Return the valid retry strategy
+     * Return the valid retry strategies
      *
      * @return array
      */
