@@ -39,8 +39,8 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     use UsesItineraryResolver;
 
     /** Retry delay strategy constants**/
-    const RETRY_STRATEGY_FIXED          = "fixed";
-    const RETRY_STRATEGY_PROGRESSIVE    = "progressive";
+    const RETRY_STRATEGY_FIXED = 'fixed';
+    const RETRY_STRATEGY_PROGRESSIVE = 'progressive';
 
     /** @var int */
     protected $retriesMax;
@@ -155,7 +155,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     {
         return [
             self::RETRY_STRATEGY_FIXED,
-            self::RETRY_STRATEGY_PROGRESSIVE
+            self::RETRY_STRATEGY_PROGRESSIVE,
         ];
     }
 
@@ -325,9 +325,9 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
         if ($envelope instanceof RetryExchangeEnvelope) {
             $strategy = $this->getRetryStrategy();
-            switch ($strategy){
-                case self::RETRY_STRATEGY_FIXED :
-                    $delay =  $this->getRetryDelay();
+            switch ($strategy) {
+                case self::RETRY_STRATEGY_FIXED:
+                    $delay = $this->getRetryDelay();
                     break;
                 case self::RETRY_STRATEGY_PROGRESSIVE:
                     $delay = $this->getRetryDelay() * pow($this->getRetryDelayFactor(), $retries);

@@ -295,7 +295,7 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('retry_delay_factor')
             ->info('Retry delay factor to be applied to the retry delay if the chosen strategy is progressive')
-            ->defaultValue('0')
+            ->defaultValue(0)
             ->end()
 
             ->scalarNode('failed_uri')
