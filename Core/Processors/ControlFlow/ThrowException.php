@@ -23,6 +23,15 @@ class ThrowException extends Processor
     protected $exceptionClass;
 
     /**
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("string")
+     *
+     * @var string
+     */
+    protected $exceptionMessage;
+
+    /**
      * @return string
      */
     public function getExceptionClass()
@@ -46,6 +55,22 @@ class ThrowException extends Processor
     }
 
     /**
+     * @return string
+     */
+    public function getExceptionMessage()
+    {
+        return $this->exceptionMessage;
+    }
+
+    /**
+     * @param string $exceptionMessage
+     */
+    public function setExceptionMessage($exceptionMessage)
+    {
+        $this->exceptionMessage = $exceptionMessage;
+    }
+
+    /**
      * The ThrowException will create an exception of the type specified in Ref.
      *
      * @param Exchange $exchange
@@ -61,7 +86,7 @@ class ThrowException extends Processor
         }
 
         /** @var ExchangeAwareInterface $exception */
-        $exception = new $this->exceptionClass();
+        $exception = new $this->exceptionClass($this->exceptionMessage);
 
         throw $exception;
     }

@@ -17,8 +17,8 @@ class BadRequestException extends BadRequestHttpException
      *
      * @param null|string $message
      */
-    public function __construct($message)
+    public function __construct($message = self::ERROR_MESSAGE)
     {
-        parent::__construct(self::ERROR_MESSAGE, null, self::ERROR_CODE);
+        parent::__construct($message, null, self::ERROR_CODE);
     }
 }
