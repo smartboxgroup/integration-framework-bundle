@@ -46,7 +46,9 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /** @var  StatefulStomp */
     protected $statefulStomp;
 
-    protected $timeout;
+    protected $timeout = 3;
+
+    protected $vhost;
 
     /**
      * @return boolean
@@ -62,11 +64,6 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     public function setUrlEncodeDestination($urlEncodeDestination)
     {
         $this->urlEncodeDestination = $urlEncodeDestination;
-    }
-
-    public function setConnectionStrategyFactory(ConnectionStrategyFactory $connectionStrategyFactory)
-    {
-        $this->connectionStrategyFactory = $connectionStrategyFactory;
     }
 
     /**
@@ -150,20 +147,22 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $version = 1.1)
+    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $version = 1.1, $vhost = null)
     {
         $this->format = $format;
         $this->host = $host;
         $this->username = $username;
         $this->pass = $password;
         $this->stompVersion = $version;
+        $this->vhost = $vhost;
 
         $client = new Client($this->host);
         $client->setLogin($this->getUsername(),$this->getPass());
         $client->setReceiptWait($this->timeout);
         $client->setSync(true);
         $client->getConnection()->setReadTimeout($this->timeout);
-        $client->setVersions([$this->getStompVersion()]);
+        $client->setVersions([$version]);
+        $client->setVhostname($vhost);
         $this->statefulStomp = new StatefulStomp($client);
     }
 
@@ -178,6 +177,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     public function setReadTimeout($seconds)
     {
         $this->timeout = $seconds;
+        $this->statefulStomp->getClient()->getConnection()->setReadTimeout($this->timeout);
     }
 
     public function connect()
