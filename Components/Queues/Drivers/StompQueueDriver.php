@@ -2,9 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use Smartbox\Integration\FrameworkBundle\Tools\CentralDesktop\Stomp\Connection;
-use CentralDesktop\Stomp\Frame;
-use CentralDesktop\Stomp\Message\Bytes;
 use JMS\Serializer\DeserializationContext;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
@@ -12,6 +9,9 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
+use Stomp\Client;
+use Stomp\StatefulStomp;
+use Stomp\Transport\Message;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 
@@ -22,25 +22,8 @@ class StompQueueDriver extends Service implements QueueDriverInterface
 {
     use UsesSerializer;
 
-    const READ_TIMEOUT = 2;
-    const BUFFER_SIZE = 1048576;
-
-    const HEADER_SELECTOR = 'selector';
-
-    /** @var Connection */
-    protected $writeConnection;
-
-    /** @var Connection */
-    protected $readConnection;
-
-    /** @var Frame */
+    /** @var \Stomp\Transport\Frame */
     protected $currentFrame = null;
-
-    /** @var int */
-    protected $subscriptionId = null;
-
-    /** @var string */
-    protected $subscribedQueue = null;
 
     /** @var string */
     protected $format = QueueDriverInterface::FORMAT_JSON;
@@ -55,13 +38,15 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     protected $pass;
 
     /** @var string */
-    protected $stompVersion;
+    protected $stompVersion = '1.1';
 
     /** @var bool */
     protected $urlEncodeDestination = false;
 
-    /** @var ConnectionStrategyFactory */
-    protected $connectionStrategyFactory;
+    /** @var  StatefulStomp */
+    protected $statefulStomp;
+
+    protected $timeout;
 
     /**
      * @return boolean
@@ -172,84 +157,32 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $this->username = $username;
         $this->pass = $password;
         $this->stompVersion = $version;
+
+        $client = new Client($this->host);
+        $client->setLogin($this->getUsername(),$this->getPass());
+        $client->setReceiptWait($this->timeout);
+        $client->setSync(true);
+        $client->getConnection()->setReadTimeout($this->timeout);
+        $client->setVersions([$this->getStompVersion()]);
+        $this->statefulStomp = new StatefulStomp($client);
     }
 
     public function __destruct()
     {
-        $this->disconnectRead();
-        $this->disconnectWrite();
+        $this->disconnect();
     }
 
     /**
      * @param int $seconds
-     * @param int $milliseconds
      */
-    public function setReadTimeout($seconds, $milliseconds = 0)
+    public function setReadTimeout($seconds)
     {
-        if (!$this->readConnection) {
-            throw new \RuntimeException('You must connect and subscribe before setting the timeout.');
-        }
-
-        $this->readConnection->setReadTimeout($seconds, $milliseconds);
+        $this->timeout = $seconds;
     }
 
-    /**
-     * Connect read socket.
-     *
-     * @throws \CentralDesktop\Stomp\Exception
-     */
-    protected function connectRead()
-    {
-        if (!$this->readConnection) {
-            $strategy = $this->connectionStrategyFactory->createConnectionStrategy($this->host);
-            $this->readConnection = new Connection($strategy);
-            $this->readConnection->setReadTimeout(self::READ_TIMEOUT);
-            $this->readConnection->setBufferSize(self::BUFFER_SIZE);
-            $connectionOK = $this->readConnection->connect($this->username, $this->pass, $this->stompVersion);
-
-            if (!$connectionOK) {
-                throw new \RuntimeException(
-                    sprintf(
-                        'Could not connect to ActiveMQ in host "%s".',
-                        $this->host
-                    )
-                );
-            }
-        }
-    }
-
-    /**
-     * Connect write socket.
-     *
-     * @throws \CentralDesktop\Stomp\Exception
-     */
-    protected function connectWrite()
-    {
-        if (!$this->writeConnection) {
-            $strategy = $this->connectionStrategyFactory->createConnectionStrategy($this->host);
-            $this->writeConnection = new Connection($strategy);
-            $this->writeConnection->setBufferSize(self::BUFFER_SIZE);
-            $connectionOK = $this->writeConnection->connect($this->username, $this->pass, $this->stompVersion);
-
-            if (!$connectionOK) {
-                throw new \RuntimeException(
-                    sprintf(
-                        'Could not connect to ActiveMQ in host "%s".',
-                        $this->host
-                    )
-                );
-            }
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function connect()
     {
-        // write connection is eager because it must be fast,
-        // read connection will be opened automatically on demand when subscribing
-        $this->connectWrite();
+
     }
 
     /**
@@ -257,36 +190,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
      */
     public function isConnected()
     {
-        return $this->isWriteConnected();
-    }
-
-    protected function isWriteConnected()
-    {
-        return $this->writeConnection && $this->writeConnection->isConnected();
-    }
-
-    protected function isReadConnected()
-    {
-        return $this->readConnection && $this->readConnection->isConnected();
-    }
-
-    protected function disconnectRead()
-    {
-        if ($this->isReadConnected()) {
-            $this->readConnection->disconnect();
-        }
-        $this->readConnection = null;
-    }
-
-    protected function disconnectWrite()
-    {
-        if ($this->isWriteConnected()) {
-            $this->writeConnection->disconnect();
-        }
-        $this->subscriptionId = null;
-        $this->subscribedQueue = null;
-        $this->currentFrame = null;
-        $this->writeConnection = null;
+        return $this->statefulStomp && $this->statefulStomp->getClient()->isConnected();
     }
 
     /**
@@ -294,49 +198,26 @@ class StompQueueDriver extends Service implements QueueDriverInterface
      */
     public function disconnect()
     {
-        if ($this->isWriteConnected()) {
-            $this->disconnectWrite();
+        if($this->statefulStomp){
+            $this->statefulStomp->getClient()->disconnect(true);
         }
     }
 
     public function isSubscribed()
     {
-        return $this->isReadConnected() && $this->subscriptionId;
+        return $this->statefulStomp && $this->statefulStomp->getSubscriptions()->count() > 0;
     }
 
     /** {@inheritdoc} */
-    public function subscribe($queue, $selector = null, $prefetchSize = 1)
+    public function subscribe($destination, $selector = null, $prefetchSize = 1)
     {
         if($this->urlEncodeDestination){
-            $destination = urlencode($queue);
+            $destinationUri = urlencode($destination);
         }else{
-            $destination = $queue;
+            $destinationUri = $destination;
         }
 
-        if (!is_numeric($prefetchSize) || $prefetchSize < 0) {
-            throw new \InvalidArgumentException('Invalid prefetchSize, a non negative integer is expected');
-        }
-
-        if ($this->subscriptionId) {
-            throw new \RuntimeException('StompQueueDriver: A subscription already exists in the current connection');
-        }
-
-        $this->connectRead();
-
-        $this->subscriptionId = uniqid();
-        $this->subscribedQueue = $queue;
-
-        $properties = [
-            'id' => $this->subscriptionId,
-            'prefetch-count' => $prefetchSize
-        ];
-
-        if ($selector) {
-            $properties[self::HEADER_SELECTOR] = $selector;
-        }
-
-        $this->readConnection->prefetchSize = $prefetchSize;
-        $this->readConnection->subscribe($destination, $properties);
+        $this->statefulStomp->subscribe($destinationUri,$selector,'client-individual');
     }
 
     /**
@@ -344,22 +225,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
      */
     public function unSubscribe()
     {
-        if ($this->isSubscribed()) {
-            $destination = $this->subscribedQueue;
-
-            if($this->urlEncodeDestination){
-                $destination = urlencode($this->subscribedQueue);
-            }
-
-            $properties = [
-                'id' => $this->subscriptionId,
-            ];
-            $this->readConnection->readFrame();
-            $this->readConnection->unsubscribe($destination, $properties);
-            $this->subscriptionId = null;
-            $this->currentFrame = null;
-            $this->subscribedQueue = null;
-        }
+        $this->statefulStomp->unsubscribe();
     }
 
     /** {@inheritdoc} */
@@ -367,34 +233,25 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     {
         $destination = $destination ? $destination : $message->getQueue();
         if($this->urlEncodeDestination){
-            $destination = urlencode($destination);
+            $destinationUri = urlencode($destination);
+        }else{
+            $destinationUri = $destination;
         }
 
-        $this->checkConnection();
-
         $serializedMsg = $this->getSerializer()->serialize($message, $this->format);
-
-        return $this->writeConnection->send($destination, new Bytes($serializedMsg, $message->getHeaders()), null, true);
+        return $this->statefulStomp->send($destinationUri, new Message($serializedMsg, $message->getHeaders()));
     }
 
     /** {@inheritdoc} */
     public function receive()
     {
-        $this->checkSubscription();
-
         if ($this->currentFrame) {
             throw new \RuntimeException(
                 'StompQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages.'
             );
         }
 
-        $this->currentFrame = $this->readConnection->readFrame();
-
-        // If we got frames of an old subscription, ignore them
-        while ($this->currentFrame && $this->currentFrame->headers['subscription'] != $this->subscriptionId) {
-            $this->currentFrame = $this->readConnection->readFrame();
-        }
-
+        $this->currentFrame = $this->statefulStomp->read();
         $msg = null;
 
         if ($this->currentFrame) {
@@ -408,9 +265,9 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             }
 
             /** @var QueueMessageInterface $msg */
-            $msg = $this->getSerializer()->deserialize($this->currentFrame->body, SerializableInterface::class, $this->format, $deserializationContext);
+            $msg = $this->getSerializer()->deserialize($this->currentFrame->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
 
-            foreach ($this->currentFrame->headers as $header => $value) {
+            foreach ($this->currentFrame->getHeaders() as $header => $value) {
                 $msg->setHeader($header, $this->unescape($value));
             }
         }
@@ -426,57 +283,29 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /** {@inheritdoc} */
     public function ack()
     {
-        $this->checkSubscription();
-
         if (!$this->currentFrame) {
-            throw new \RuntimeException('You must first receive a message, before acknowledging it');
+            throw new \RuntimeException('You must first receive a message, before acking it');
         }
 
-        $this->readConnection->ack($this->currentFrame);
+        $this->statefulStomp->ack($this->currentFrame);
         $this->currentFrame = null;
     }
 
     /** {@inheritdoc} */
     public function nack()
     {
-        $this->checkSubscription();
-
         if (!$this->currentFrame) {
             throw new \RuntimeException('You must first receive a message, before nacking it');
         }
 
-        $this->readConnection->nack($this->currentFrame);
+        $this->statefulStomp->nack($this->currentFrame);
         $this->currentFrame = null;
-    }
-
-    protected function checkConnection()
-    {
-        if (!$this->isConnected()) {
-            throw new \RuntimeException('StompQueueDriver: A connection must be opened before sending data');
-        }
-    }
-
-    protected function checkSubscription()
-    {
-        $this->checkConnection();
-
-        if (!$this->isSubscribed()) {
-            throw new \RuntimeException('StompQueueDriver: A subscription must be established before performing this operation');
-        }
     }
 
     public function createQueueMessage()
     {
         $msg = new QueueMessage();
         $msg->setContext(new Context());
-
-        /*
-         * By default, messages created with this driver would be sent to the subscribed queue
-         */
-        if ($this->subscribedQueue) {
-            $msg->setQueue($this->subscribedQueue);
-        }
-
         return $msg;
     }
 
@@ -486,7 +315,6 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     public function doDestroy()
     {
         $this->disconnect();
-        $this->unSubscribe();
     }
 
     /**
@@ -496,7 +324,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
      */
     public function onKernelTerminate(PostResponseEvent $event)
     {
-        $this->doDestroy();
+        $this->disconnect();
     }
 
     /**
@@ -506,6 +334,6 @@ class StompQueueDriver extends Service implements QueueDriverInterface
      */
     public function onConsoleTerminate(ConsoleTerminateEvent $event)
     {
-        $this->doDestroy();
+        $this->disconnect();
     }
 }
