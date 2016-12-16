@@ -357,6 +357,11 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                 ->end()
 
+                ->scalarNode('vhost')
+                    ->info('This is the virtual host to use. By default is determined based on the host')
+                    ->defaultValue(null)
+                ->end()
+
                 ->scalarNode('username')
                     ->isRequired()
                 ->end()

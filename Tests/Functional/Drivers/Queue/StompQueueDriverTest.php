@@ -3,9 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
-use Smartbox\CoreBundle\Tests\Utils\Cache\FakeCacheService;
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ConnectionStrategyFactory;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
@@ -50,7 +48,6 @@ class StompQueueDriverTest extends BaseTestCase
 
         /* @var StompQueueDriver $processor */
         $driver = new StompQueueDriver();
-        $driver->setConnectionStrategyFactory(new ConnectionStrategyFactory(new FakeCacheService()));
         $driver->setMessageFactory($this->getContainer()->get('smartesb.message_factory'));
         $driver->setSerializer($this->getContainer()->get('serializer'));
         $driver->configure('tcp://'.$host, '', '');
