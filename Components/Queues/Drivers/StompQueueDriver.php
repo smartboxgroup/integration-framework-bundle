@@ -21,9 +21,9 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
  */
 class StompQueueDriver extends Service implements QueueDriverInterface
 {
-    const STOMP_VERSION = '1.1';
-
     use UsesSerializer;
+
+    const STOMP_VERSION = '1.1';
 
     /** @var \Stomp\Transport\Frame */
     protected $currentFrame = null;
