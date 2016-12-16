@@ -22,6 +22,8 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
  */
 class StompQueueDriver extends Service implements QueueDriverInterface
 {
+    const STOMP_VERSION = "1.1";
+
     use UsesSerializer;
 
     /** @var \Stomp\Transport\Frame */
@@ -40,7 +42,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     protected $pass;
 
     /** @var string */
-    protected $stompVersion = '1.1';
+    protected $stompVersion = self::STOMP_VERSION;
 
     /** @var bool */
     protected $urlEncodeDestination = false;
@@ -151,7 +153,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $version = 1.1, $vhost = null)
+    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $version = self::STOMP_VERSION, $vhost = null)
     {
         $this->format = $format;
         $this->host = $host;
@@ -210,16 +212,15 @@ class StompQueueDriver extends Service implements QueueDriverInterface
 
     public function isSubscribed()
     {
-        return $this->subscriptionId != false;
+        return $this->subscriptionId !== false;
     }
 
     /** {@inheritdoc} */
-    public function subscribe($destination, $selector = null, $prefetchSize = 1)
+    public function subscribe($destination, $selector = null)
     {
-        if($this->urlEncodeDestination){
+        $destinationUri = $destination;
+        if ($this->urlEncodeDestination) {
             $destinationUri = urlencode($destination);
-        }else{
-            $destinationUri = $destination;
         }
 
         $this->subscriptionId = $this->statefulStomp->subscribe($destinationUri,$selector,'client-individual');
@@ -241,10 +242,9 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     public function send(QueueMessageInterface $message, $destination = null)
     {
         $destination = $destination ? $destination : $message->getQueue();
-        if($this->urlEncodeDestination){
+        $destinationUri = $destination;
+        if ($this->urlEncodeDestination) {
             $destinationUri = urlencode($destination);
-        }else{
-            $destinationUri = $destination;
         }
 
         $serializedMsg = $this->getSerializer()->serialize($message, $this->format);

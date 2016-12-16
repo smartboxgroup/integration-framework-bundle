@@ -190,7 +190,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         $driverConfig['username'],
                         $driverConfig['password'],
                         $driverConfig['format'],
-                        "1.1",
+                        StompQueueDriver::STOMP_VERSION,
                         $driverConfig['vhost'],
                     ]);
 
