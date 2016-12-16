@@ -10,7 +10,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Stomp\Client;
-use Stomp\Exception\ErrorFrameException;
 use Stomp\StatefulStomp;
 use Stomp\Transport\Frame;
 use Stomp\Transport\Message;
@@ -22,7 +21,7 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
  */
 class StompQueueDriver extends Service implements QueueDriverInterface
 {
-    const STOMP_VERSION = "1.1";
+    const STOMP_VERSION = '1.1';
 
     use UsesSerializer;
 
@@ -47,7 +46,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /** @var bool */
     protected $urlEncodeDestination = false;
 
-    /** @var  StatefulStomp */
+    /** @var StatefulStomp */
     protected $statefulStomp;
 
     protected $timeout = 3;
@@ -57,7 +56,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     protected $subscriptionId = false;
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isUrlEncodeDestination()
     {
@@ -65,7 +64,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /**
-     * @param boolean $urlEncodeDestination
+     * @param bool $urlEncodeDestination
      */
     public function setUrlEncodeDestination($urlEncodeDestination)
     {
@@ -163,7 +162,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $this->vhost = $vhost;
 
         $client = new Client($this->host);
-        $client->setLogin($this->getUsername(),$this->getPass());
+        $client->setLogin($this->getUsername(), $this->getPass());
         $client->setReceiptWait($this->timeout);
         $client->setSync(true);
         $client->getConnection()->setReadTimeout($this->timeout);
@@ -188,7 +187,6 @@ class StompQueueDriver extends Service implements QueueDriverInterface
 
     public function connect()
     {
-
     }
 
     /**
@@ -205,7 +203,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     public function disconnect()
     {
         $this->subscriptionId = false;
-        if($this->statefulStomp){
+        if ($this->statefulStomp) {
             $this->statefulStomp->getClient()->disconnect(true);
         }
     }
@@ -223,7 +221,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             $destinationUri = urlencode($destination);
         }
 
-        $this->subscriptionId = $this->statefulStomp->subscribe($destinationUri,$selector,'client-individual');
+        $this->subscriptionId = $this->statefulStomp->subscribe($destinationUri, $selector, 'client-individual');
     }
 
     /**
@@ -231,7 +229,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
      */
     public function unSubscribe()
     {
-        if($this->isSubscribed()){
+        if ($this->isSubscribed()) {
             $this->statefulStomp->unsubscribe($this->subscriptionId);
             $this->subscriptionId = false;
             $this->currentFrame = null;
@@ -248,12 +246,15 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         }
 
         $serializedMsg = $this->getSerializer()->serialize($message, $this->format);
+
         return $this->statefulStomp->send($destinationUri, new Message($serializedMsg, $message->getHeaders()));
     }
 
-    protected function isFrameFromSubscription(Frame $frame){
+    protected function isFrameFromSubscription(Frame $frame)
+    {
         $headers = $frame->getHeaders();
-        return array_key_exists('subscription',$headers) && $headers['subscription'] == $this->subscriptionId;
+
+        return array_key_exists('subscription', $headers) && $headers['subscription'] == $this->subscriptionId;
     }
 
     /** {@inheritdoc} */
@@ -267,7 +268,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
 
         $this->currentFrame = $this->statefulStomp->read();
 
-        while($this->currentFrame && !$this->isFrameFromSubscription($this->currentFrame)){
+        while ($this->currentFrame && !$this->isFrameFromSubscription($this->currentFrame)) {
             $this->currentFrame = $this->statefulStomp->read();
         }
 
@@ -325,6 +326,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     {
         $msg = new QueueMessage();
         $msg->setContext(new Context());
+
         return $msg;
     }
 
