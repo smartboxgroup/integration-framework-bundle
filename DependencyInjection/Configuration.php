@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\Logs\EventsLoggerListener;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -286,6 +287,17 @@ class Configuration implements ConfigurationInterface
             ->isRequired()
             ->end()
 
+            ->enumNode('retry_strategy')
+                ->info('Retry strategy to use when retrying the same message')
+                ->defaultValue(MessageHandler::RETRY_STRATEGY_FIXED)
+                ->values(MessageHandler::getAvailableRetryStrategies())
+            ->end()
+
+            ->scalarNode('retry_delay_factor')
+            ->info('Retry delay factor to be applied to the retry delay if the chosen strategy is progressive')
+            ->defaultValue(0)
+            ->end()
+
             ->scalarNode('failed_uri')
             ->info('The URI where the failed messages will be delivered.')
             ->isRequired()
@@ -343,6 +355,11 @@ class Configuration implements ConfigurationInterface
 
                 ->scalarNode('host')
                     ->isRequired()
+                ->end()
+
+                ->scalarNode('vhost')
+                    ->info('This is the virtual host to use. By default is determined based on the host')
+                    ->defaultValue(null)
                 ->end()
 
                 ->scalarNode('username')

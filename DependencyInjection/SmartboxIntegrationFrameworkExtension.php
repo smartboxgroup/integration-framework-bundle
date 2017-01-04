@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ConnectionStrategyFactory;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -31,8 +30,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class SmartboxIntegrationFrameworkExtension extends Extension
 {
     const EVENTS_LOGGER_ID = 'smartesb.event_listener.events_logger';
-    const ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY = 'smartesb.activemq_connection_strategy_factory';
-
     const QUEUE_DRIVER_PREFIX = 'smartesb.drivers.queue.';
     const NOSQL_DRIVER_PREFIX = 'smartesb.drivers.nosql.';
     const HANDLER_PREFIX = 'smartesb.handlers.';
@@ -187,18 +184,14 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef = new Definition(StompQueueDriver::class, []);
                     $driverDef->addMethodCall('setId', [$driverId]);
 
-                    $activeMQConnectionStrategyFactoryDef = new Definition(
-                        ConnectionStrategyFactory::class,
-                        [new Reference('smartcore.cache_service')]
-                    );
-                    $container->setDefinition(self::ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY, $activeMQConnectionStrategyFactoryDef);
-                    $driverDef->addMethodCall('setConnectionStrategyFactory', [new Reference(self::ACTIVE_MQ_CONNECTION_STRATEGY_FACTORY)]);
 
                     $driverDef->addMethodCall('configure', [
                         $driverConfig['host'],
                         $driverConfig['username'],
                         $driverConfig['password'],
                         $driverConfig['format'],
+                        StompQueueDriver::STOMP_VERSION,
+                        $driverConfig['vhost'],
                     ]);
 
                     $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
@@ -291,6 +284,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $driverDef->addMethodCall('setItineraryResolver', [new Reference('smartesb.itineray_resolver')]);
             $driverDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
             $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+            $driverDef->addMethodCall('setRetryStrategy', [$handlerConfig['retry_strategy']]);
+            $driverDef->addMethodCall('setRetryDelayFactor', [$handlerConfig['retry_delay_factor']]);
 
             if ($handlerConfig['retry_uri'] != 'original') {
                 $driverDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
