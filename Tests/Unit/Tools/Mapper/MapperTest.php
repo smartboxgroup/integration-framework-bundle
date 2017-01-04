@@ -88,11 +88,11 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     public function testKeyExists()
     {
         $array = [
-            "fruits" => "banana"
+            'fruits' => 'banana'
         ];
 
-        $this->assertTrue($this->mapper->keyExists($array, "fruits"));
-        $this->assertFalse($this->mapper->keyExists($array, "vegetables"));
+        $this->assertTrue($this->mapper->keyExists($array, 'fruits'));
+        $this->assertFalse($this->mapper->keyExists($array, 'vegetables'));
 
     }
 

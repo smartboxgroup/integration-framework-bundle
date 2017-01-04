@@ -103,7 +103,7 @@ class Mapper implements MapperInterface
      */
     public function keyExists(array $obj, $key)
     {
-        return isset($obj[$key]);
+        return array_key_exists($key, $obj);
     }
 
     /**
