@@ -110,6 +110,19 @@ class Mapper implements MapperInterface
     }
 
     /**
+     * Return true if the key exists in the given array
+     *
+     * @param array $obj
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function keyExists(array $obj, $key)
+    {
+        return array_key_exists($key, $obj);
+    }
+
+    /**
      * Get the first element of an array.
      *
      * @param array $array
