@@ -234,6 +234,8 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             $this->subscriptionId = false;
             $this->currentFrame = null;
         }
+        //Top purge the queue independently of the Queuing system, the safest way is to disconnect
+        $this->disconnect();
     }
 
     /** {@inheritdoc} */
