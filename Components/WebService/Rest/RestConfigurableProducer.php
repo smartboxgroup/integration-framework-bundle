@@ -153,16 +153,18 @@ class RestConfigurableProducer extends AbstractConfigurableProducer
 
         $endpointOptions = $this->confHelper->resolve($endpointOptions, $context);
 
+        $httpMethod = strtoupper($httpMethod);
+        $requestHeaders = isset($params[RestConfigurableProtocol::OPTION_HEADERS]) ?
+            $this->confHelper->resolve($params[RestConfigurableProtocol::OPTION_HEADERS], $context):
+            []
+        ;
+
+        $params[RestConfigurableProtocol::OPTION_HEADERS] = $requestHeaders;
+
         $restOptions = $this->getBasicHTTPOptions($params, $endpointOptions);
 
         $encoding = $endpointOptions[RestConfigurableProtocol::OPTION_ENCODING];
         $restOptions['body'] = $this->encodeRequestBody($encoding, $body);
-
-        $httpMethod = strtoupper($httpMethod);
-        $requestHeaders = isset($params[RestConfigurableProtocol::OPTION_HEADERS]) ?
-            $params[RestConfigurableProtocol::OPTION_HEADERS] :
-            []
-        ;
 
         /* @var Response $response */
         $request = new Request($httpMethod, $resolvedURI, $requestHeaders);
