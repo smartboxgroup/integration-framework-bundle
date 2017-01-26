@@ -52,10 +52,11 @@ class Mapper implements MapperInterface
     /**
      * @param mixed  $obj
      * @param string $mappingName
+     * @param mixed  $context
      *
      * @return array|mixed
      */
-    public function map($obj, $mappingName)
+    public function map($obj, $mappingName, $context = [])
     {
         if (!$mappingName || !array_key_exists($mappingName, $this->mappings)) {
             throw new \InvalidArgumentException(sprintf('Invalid mapping name "%s"', $mappingName));
@@ -67,7 +68,7 @@ class Mapper implements MapperInterface
 
         $mapping = @$this->mappings[$mappingName];
 
-        $dictionary = array_merge($this->dictionary, ['obj' => $obj]);
+        $dictionary = array_merge($this->dictionary, ['obj' => $obj, 'context' => $context]);
 
         $res = [];
         foreach ($mapping as $key => $expression) {
@@ -92,10 +93,11 @@ class Mapper implements MapperInterface
     /**
      * @param array  $elements
      * @param string $mappingName
+     * @param mixed  $context
      *
      * @return array
      */
-    public function mapAll(array $elements, $mappingName)
+    public function mapAll(array $elements, $mappingName, $context = [])
     {
         if (empty($elements)) {
             return $elements;
@@ -103,7 +105,7 @@ class Mapper implements MapperInterface
 
         $res = [];
         foreach ($elements as $key => $element) {
-            $res[$key] = $this->map($element, $mappingName);
+            $res[$key] = $this->map($element, $mappingName, $context);
         }
 
         return $res;
