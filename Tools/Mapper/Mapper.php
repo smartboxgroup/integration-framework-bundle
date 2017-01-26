@@ -81,7 +81,7 @@ class Mapper implements MapperInterface
                 $value = null;
             }
 
-            if ($value !== null) {
+            if ($value !== null && $value !== []) {
                 $res[$key] = $value;
             }
         }
