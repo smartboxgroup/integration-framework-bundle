@@ -212,6 +212,7 @@ class MapperTest extends BaseTestCase
                 ],
                 'mapping_name' => 'x_to_xyz',
                 'elements' => [],
+                'context' => [],
                 'expected_value' => [],
             ],
             'Test mapping with simple expression' => [
@@ -228,6 +229,7 @@ class MapperTest extends BaseTestCase
                     'x_11' => new SerializableArray(['x' => 11]),
                     'x_12' => new SerializableArray(['x' => 12]),
                 ],
+                'context' => [],
                 'expected_value' => [
                     'x_10' => [
                         'x' => 11,
@@ -241,6 +243,39 @@ class MapperTest extends BaseTestCase
                     ],
                     'x_12' => [
                         'x' => 13,
+                        'y' => 14,
+                        'z' => 15,
+                    ],
+                ],
+            ],
+            'Test mapping getting information from the context' => [
+                'mappings' => [
+                    'xy_to_xyz' => [
+                        'x' => "context.get('y') + 1",
+                        'y' => "obj.get('x') + 2",
+                        'z' => "obj.get('x') + 3",
+                    ],
+                ],
+                'mapping_name' => 'xy_to_xyz',
+                'elements' => [
+                    'x_10' => new SerializableArray(['x' => 10]),
+                    'x_11' => new SerializableArray(['x' => 11]),
+                    'x_12' => new SerializableArray(['x' => 12]),
+                ],
+                'context' => [new SerializableArray(['y' => 10])],
+                'expected_value' => [
+                    'x_10' => [
+                        'x' => 11,
+                        'y' => 12,
+                        'z' => 13,
+                    ],
+                    'x_11' => [
+                        'x' => 11,
+                        'y' => 13,
+                        'z' => 14,
+                    ],
+                    'x_12' => [
+                        'x' => 11,
                         'y' => 14,
                         'z' => 15,
                     ],
@@ -261,11 +296,11 @@ class MapperTest extends BaseTestCase
      * @param array $elements
      * @param array $expectedValue
      */
-    public function testMapAll(array $mappings, $mappingName, array $elements, array $expectedValue)
+    public function testMapAll(array $mappings, $mappingName, array $elements, $context, array $expectedValue)
     {
         $this->mapper->addMappings($mappings);
 
-        $res = $this->mapper->mapAll($elements, $mappingName);
+        $res = $this->mapper->mapAll($elements, $mappingName, $context);
 
         $this->assertEquals($expectedValue, $res);
     }
