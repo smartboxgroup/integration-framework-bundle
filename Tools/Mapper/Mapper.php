@@ -81,7 +81,7 @@ class Mapper implements MapperInterface
                 $value = null;
             }
 
-            if ($value !== null) {
+            if ($value !== null && $value !== []) {
                 $res[$key] = $value;
             }
         }
@@ -120,6 +120,11 @@ class Mapper implements MapperInterface
     public function keyExists(array $obj, $key)
     {
         return array_key_exists($key, $obj);
+    }
+
+    public function propertyExists($class, $property)
+    {
+        return property_exists($class, $property);
     }
 
     /**
