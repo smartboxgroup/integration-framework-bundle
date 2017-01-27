@@ -41,6 +41,7 @@ class MapperTest extends BaseTestCase
                 ],
                 'mapping_name' => 'x_to_xyz',
                 'mapped_values' => new SerializableArray(['x' => 10]),
+                'context' => [],
                 'expected_value' => [
                     'x' => 11,
                     'y' => 12,
@@ -57,6 +58,7 @@ class MapperTest extends BaseTestCase
                 ],
                 'mapping_name' => 'mapping_name',
                 'mapped_values' => new SerializableArray(['x' => 10]),
+                'context' => [],
                 'expected_value' => [
                     'x' => 11,
                 ],
@@ -69,6 +71,7 @@ class MapperTest extends BaseTestCase
                 ],
                 'mapping_name' => 'mapping_name',
                 'mapped_values' => [],
+                'context' => [],
                 'expected_value' => [],
             ],
             'Test nested data' => [
@@ -87,6 +90,7 @@ class MapperTest extends BaseTestCase
                     'y' => 5,
                     'z' => 1,
                 ]),
+                'context' => [],
                 'expected_value' => [
                     'x' => 16,
                     'origins' => [
@@ -110,10 +114,28 @@ class MapperTest extends BaseTestCase
                     'date' => \DateTime::createFromFormat(\DateTime::ISO8601, '2015-01-01T20:00:00+01:00'),
                     'null_value' => null,
                 ]),
+                'context' => [],
                 'expected_value' => [
                     'date_1' => '2015-01-01 20:00:00',
                     'date_2' => '2015-01-01T20:00:00+0100',
                     'date_3' => '2015-01-01T20:00:00.000',
+                ],
+            ],
+            'Test mapping getting information from the context' => [
+                'mappings' => [
+                    'x_to_xyz' => [
+                        'x' => "context.get('x') + 1",
+                        'y' => "obj.get('x') + 2",
+                        'z' => "obj.get('x') + 3",
+                    ],
+                ],
+                'mapping_name' => 'x_to_xyz',
+                'mapped_values' => new SerializableArray(['x' => 10]),
+                'context' => new SerializableArray(['x' => 1]),
+                'expected_value' => [
+                    'x' => 2,
+                    'y' => 12,
+                    'z' => 13,
                 ],
             ],
         ];
@@ -128,13 +150,14 @@ class MapperTest extends BaseTestCase
      * @param array $mappings
      * @param $mappingName
      * @param $mappedValue
+     * @param $context
      * @param array $expectedValue
      */
-    public function testMap(array $mappings, $mappingName, $mappedValue, array $expectedValue)
+    public function testMap(array $mappings, $mappingName, $mappedValue, $context, array $expectedValue)
     {
         $this->mapper->addMappings($mappings);
 
-        $res = $this->mapper->map($mappedValue, $mappingName);
+        $res = $this->mapper->map($mappedValue, $mappingName, $context);
 
         $this->assertEquals($expectedValue, $res);
     }
@@ -262,7 +285,7 @@ class MapperTest extends BaseTestCase
                     'x_11' => new SerializableArray(['x' => 11]),
                     'x_12' => new SerializableArray(['x' => 12]),
                 ],
-                'context' => [new SerializableArray(['y' => 10])],
+                'context' => new SerializableArray(['y' => 10]),
                 'expected_value' => [
                     'x_10' => [
                         'x' => 11,
