@@ -122,6 +122,11 @@ class Mapper implements MapperInterface
         return array_key_exists($key, $obj);
     }
 
+    public function propertyExists($class, $property)
+    {
+        return property_exists($class, $property);
+    }
+
     /**
      * Get the first element of an array.
      *
