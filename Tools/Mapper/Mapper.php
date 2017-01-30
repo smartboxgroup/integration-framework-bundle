@@ -68,27 +68,46 @@ class Mapper implements MapperInterface
 
         $mapping = @$this->mappings[$mappingName];
 
-        $dictionary = array_merge($this->dictionary, ['obj' => $obj, 'context' => $context]);
+        return $this->resolve($mapping,$obj, $context);
+    }
 
-        $res = [];
-        foreach ($mapping as $key => $expression) {
+    /***
+     * @param array|string $mapping
+     * @param mixed $obj
+     * @return array|string
+     */
+    public function resolve(&$mapping, &$obj, &$context)
+    {
+        if (empty($mapping)) {
+            return $mapping;
+        } elseif (is_array($mapping)) {
+            $res = [];
+            foreach ($mapping as $key => $value) {
+                $resolved = $this->resolve($value, $obj, $context);
+
+                if ($resolved !== null && $resolved !== []) {
+                    $res[$key] = $resolved;
+                }
+            }
+
+            return $res;
+        } elseif (is_string($mapping)) {
+            $dictionary = array_merge($this->dictionary, ['obj' => $obj, 'context' => $context]);
+            $res = null;
+
             try {
-                $value = $this->evaluator->evaluateWithVars($expression, $dictionary);
-            } catch (\RuntimeException $e) {
+                $res = @$this->evaluator->evaluateWithVars($mapping, $dictionary);
+            } catch(\RuntimeException $e) {
                 if ($this->debug) {
                     throw $e;
                 }
-
-                $value = null;
             }
-
-            if ($value !== null) {
-                $res[$key] = $value;
-            }
+            return $res;
         }
 
-        return $res;
+        throw new \RuntimeException("Mapper expected the mapping to be a string or an array");
     }
+
 
     /**
      * @param array  $elements
@@ -122,6 +141,11 @@ class Mapper implements MapperInterface
     public function keyExists(array $obj, $key)
     {
         return array_key_exists($key, $obj);
+    }
+
+    public function propertyExists($class, $property)
+    {
+        return property_exists($class, $property);
     }
 
     /**
