@@ -35,7 +35,7 @@ smartbox_integration_framework:
         main:
             type: ActiveMQ
             description: Default queue driver
-            host: "tcp://real.smartesb.local"
+            host: "tcp://%hostname%"
             username: ''
             password: ''
             format: json

@@ -84,4 +84,16 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $res = $this->mapper->flattenArrayByKey(['car'], 'fruits');
         $this->assertEmpty($res);
     }
+
+    public function testKeyExists()
+    {
+        $array = [
+            'fruits' => 'banana'
+        ];
+
+        $this->assertTrue($this->mapper->keyExists($array, 'fruits'));
+        $this->assertFalse($this->mapper->keyExists($array, 'vegetables'));
+
+    }
+
 }
