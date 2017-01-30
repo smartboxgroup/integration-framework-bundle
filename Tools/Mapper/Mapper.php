@@ -92,9 +92,16 @@ class Mapper implements MapperInterface
             return $res;
         } elseif (is_string($mapping)) {
             $dictionary = array_merge($this->dictionary, ['obj' => $obj]);
+            $res = null;
 
-            $ret = $this->evaluator->evaluateWithVars($mapping, $dictionary);
-            return $ret;
+            try {
+                $res = @$this->evaluator->evaluateWithVars($mapping, $dictionary);
+            } catch(\RuntimeException $e) {
+                if ($this->debug) {
+                    throw $e;
+                }
+            }
+            return $res;
         }
 
         throw new \RuntimeException("Mapper expected the mapping to be a string or an array");
