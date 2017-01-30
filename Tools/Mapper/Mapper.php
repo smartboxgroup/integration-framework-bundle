@@ -67,27 +67,46 @@ class Mapper implements MapperInterface
 
         $mapping = @$this->mappings[$mappingName];
 
-        $dictionary = array_merge($this->dictionary, ['obj' => $obj]);
+        return $this->resolve($mapping,$obj);
+    }
 
-        $res = [];
-        foreach ($mapping as $key => $expression) {
+    /***
+     * @param array|string $mapping
+     * @param mixed $obj
+     * @return array|string
+     */
+    public function resolve(&$mapping, &$obj)
+    {
+        if (empty($mapping)) {
+            return $mapping;
+        } elseif (is_array($mapping)) {
+            $res = [];
+            foreach ($mapping as $key => $value) {
+                $resolved = $this->resolve($value, $obj);
+
+                if ($resolved !== null && $resolved !== []) {
+                    $res[$key] = $resolved;
+                }
+            }
+
+            return $res;
+        } elseif (is_string($mapping)) {
+            $dictionary = array_merge($this->dictionary, ['obj' => $obj]);
+            $res = null;
+
             try {
-                $value = $this->evaluator->evaluateWithVars($expression, $dictionary);
-            } catch (\RuntimeException $e) {
+                $res = @$this->evaluator->evaluateWithVars($mapping, $dictionary);
+            } catch(\RuntimeException $e) {
                 if ($this->debug) {
                     throw $e;
                 }
-
-                $value = null;
             }
-
-            if ($value !== null && $value !== []) {
-                $res[$key] = $value;
-            }
+            return $res;
         }
 
-        return $res;
+        throw new \RuntimeException("Mapper expected the mapping to be a string or an array");
     }
+
 
     /**
      * @param array  $elements
