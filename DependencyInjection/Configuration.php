@@ -165,7 +165,7 @@ class Configuration implements ConfigurationInterface
             ->info('Mappings to translate messages')
             ->useAttributeAsKey('__mapping_name')
                 ->prototype('array')
-                    ->prototype('scalar')->end()
+                    ->prototype('variable')->end()
                 ->end()
             ->end();
 
@@ -295,7 +295,7 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('retry_delay_factor')
             ->info('Retry delay factor to be applied to the retry delay if the chosen strategy is progressive')
-            ->defaultValue('0')
+            ->defaultValue(0)
             ->end()
 
             ->scalarNode('failed_uri')
@@ -355,6 +355,11 @@ class Configuration implements ConfigurationInterface
 
                 ->scalarNode('host')
                     ->isRequired()
+                ->end()
+
+                ->scalarNode('vhost')
+                    ->info('This is the virtual host to use. By default is determined based on the host')
+                    ->defaultValue(null)
                 ->end()
 
                 ->scalarNode('username')

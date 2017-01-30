@@ -122,7 +122,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         declare(ticks=1);
         pcntl_signal(SIGALRM, [$this, 'handleSignal']);
 
-        pcntl_alarm(5);
+        pcntl_alarm(30);
         $consumer->consume($endpoint);
         pcntl_alarm(0);
     }
