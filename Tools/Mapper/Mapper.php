@@ -56,7 +56,7 @@ class Mapper implements MapperInterface
      *
      * @return array|mixed
      */
-    public function map($obj, $mappingName, $context = [])
+    public function map($obj, $mappingName, &$context = [])
     {
         if (!$mappingName || !array_key_exists($mappingName, $this->mappings)) {
             throw new \InvalidArgumentException(sprintf('Invalid mapping name "%s"', $mappingName));
@@ -116,7 +116,7 @@ class Mapper implements MapperInterface
      *
      * @return array
      */
-    public function mapAll(array $elements, $mappingName, $context = [])
+    public function mapAll(array $elements, $mappingName, &$context = [])
     {
         if (empty($elements)) {
             return $elements;
