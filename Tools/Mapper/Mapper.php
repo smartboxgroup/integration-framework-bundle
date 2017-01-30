@@ -82,8 +82,11 @@ class Mapper implements MapperInterface
         } elseif (is_array($mapping)) {
             $res = [];
             foreach ($mapping as $key => $value) {
-                $res[$key] = $this->resolve($value, $obj);
+                $resolved = $this->resolve($value, $obj);
 
+                if ($resolved !== null && $resolved !== []) {
+                    $res[$key] = $resolved;
+                }
             }
 
             return $res;
@@ -129,6 +132,11 @@ class Mapper implements MapperInterface
     public function keyExists(array $obj, $key)
     {
         return array_key_exists($key, $obj);
+    }
+
+    public function propertyExists($class, $property)
+    {
+        return property_exists($class, $property);
     }
 
     /**
