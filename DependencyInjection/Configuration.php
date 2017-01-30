@@ -165,7 +165,7 @@ class Configuration implements ConfigurationInterface
             ->info('Mappings to translate messages')
             ->useAttributeAsKey('__mapping_name')
                 ->prototype('array')
-                    ->prototype('scalar')->end()
+                    ->prototype('variable')->end()
                 ->end()
             ->end();
 
