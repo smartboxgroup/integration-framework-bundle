@@ -18,7 +18,7 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
     const STEP_VALIDATE_OBJECT_OUTPUT = 'validate_output';
     const OUTPUT_OBJECT = 'object';
     const OUTPUT_GROUP = 'group';
-    const OUTPUT_VERSION = 'version';
+    const OUTPUT_DISPLAY_ERROR = 'display_error';
 
 
     /**
@@ -41,14 +41,16 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
         $stepParamsResolver->setRequired([
             self::OUTPUT_OBJECT,
             self::OUTPUT_GROUP,
-            self::OUTPUT_VERSION,
+            self::OUTPUT_DISPLAY_ERROR,
         ]);
 
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $object = $this->confHelper->resolve($params[self::OUTPUT_OBJECT], $context);
         $group = $this->confHelper->resolve($params[self::OUTPUT_GROUP], $context);
-        $version = $this->confHelper->resolve($params[self::OUTPUT_VERSION], $context);
+        $showError = $this->confHelper->resolve($params[self::OUTPUT_DISPLAY_ERROR], $context);
+
+        $version = $context['exchange']->getHeaders()['apiVersion'];
 
         $this->getHydrator()->hydrate($object, $group, $version);
         $validator = $this->getValidator();
@@ -60,7 +62,7 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
             }
             $exception = new ExternalSystemException($message);
             $exception->setExternalSystemName($this->getName());
-            $exception->setShowExternalSystemErrorMessage(true);
+            $exception->setShowExternalSystemErrorMessage($showError);
             throw $exception;
         }
     }
@@ -74,7 +76,6 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
             switch ($stepAction) {
                 case self::STEP_VALIDATE_OBJECT_OUTPUT:
                     $this->validateOutput($stepActionParams, $options, $context);
-
                     return true;
             }
         }
