@@ -31,6 +31,4 @@ trait UsesGroupVersionHydrator
 
         return $this;
     }
-
-
 }

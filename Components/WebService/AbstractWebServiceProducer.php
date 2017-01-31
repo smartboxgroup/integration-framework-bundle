@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService;
 
-use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalBadResponseException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemException;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\AbstractConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGroupVersionHydrator;
@@ -19,7 +18,6 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
     const OUTPUT_OBJECT = 'object';
     const OUTPUT_GROUP = 'group';
     const OUTPUT_DISPLAY_ERROR = 'display_error';
-
 
     /**
      * @param $stepActionParams
@@ -57,7 +55,7 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
         $errors = $validator->validate($object);
         if (count($errors) > 0) {
             $message = '';
-            foreach ($errors as $error){
+            foreach ($errors as $error) {
                 $message .= $error->getPropertyPath().' - '.$error->getMessage().' | ';
             }
             $exception = new ExternalSystemException($message);
@@ -76,6 +74,7 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
             switch ($stepAction) {
                 case self::STEP_VALIDATE_OBJECT_OUTPUT:
                     $this->validateOutput($stepActionParams, $options, $context);
+
                     return true;
             }
         }
