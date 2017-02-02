@@ -51,6 +51,17 @@ class ExpressionEvaluatorTest extends KernelTestCase
                     'value' => ['existing_key' => 'This key exists'],
                 ],
             ],
+            'Check substr returns a substring' => [
+                'expected' => 'abc',
+                'expression' => 'substr("abcdef", 0, 3)',
+                'vars' => []
+            ],
+            'Check substr returns a blank string' => [
+                'expected' => '',
+                'expression' => 'substr("abcdef", 10, 3)',
+                'vars' => []
+            ],
+
         ];
     }
 
