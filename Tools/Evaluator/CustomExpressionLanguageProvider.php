@@ -16,6 +16,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createIsRecoverableFunction(),
             $this->createContainsFunction(),
             $this->createUniqIdFunction(),
+            $this->createSubStrFunction(),
         ];
     }
 
@@ -111,6 +112,32 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             },
             function ($arguments) {
                 return uniqid();
+            }
+        );
+    }
+
+    /**
+     * @return ExpressionFunction
+     */
+    protected function createSubStrFunction()
+    {
+        return new ExpressionFunction(
+            'substr',
+            function ($string, $start, $length) {
+                return sprintf('( is_string(%1$1) && substr(%1$s, %2$s, %3$s) : %1$s ) === false ? "" : substr(%1$s, %2$s, %3$s) : %1$s ) )', $string, $start, $length);
+            },
+            function ($arguments, $string, $start, $length) {
+
+                if( !is_string($string)  ){
+                    return "";
+                }
+
+                $sub_string =  substr($string, $start, $length);
+                if( $sub_string === false){
+                    return "";
+                }
+
+                return $sub_string;
             }
         );
     }
