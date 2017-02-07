@@ -13,8 +13,6 @@ use Symfony\Component\DependencyInjection\Reference;
 class SmokeTestConnectivityCompilerPass implements CompilerPassInterface
 {
     /**
-     * You can modify the container here before it is dumped to PHP code.
-     *
      * @param ContainerBuilder $container
      *
      * @api
@@ -32,7 +30,15 @@ class SmokeTestConnectivityCompilerPass implements CompilerPassInterface
                     [$testServiceName => new Reference($serviceName)],
                 ])
             ;
-            $smokeTestCommand->addMethodCall('addTest', [$testServiceName, new Reference($testServiceName)]);
+
+            $labels = [];
+
+            foreach ($tags as $tag => $attr) {
+                if (array_key_exists('labels', $attr)) {
+                    $labels = explode(',', $attr['labels']);
+                }
+            }
+            $smokeTestCommand->addMethodCall('addTest', [$testServiceName, new Reference($testServiceName), 'run', 'getDescription', $labels]);
         }
     }
 }
