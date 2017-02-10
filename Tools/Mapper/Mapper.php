@@ -85,7 +85,7 @@ class Mapper implements MapperInterface
             foreach ($mapping as $key => $value) {
                 $resolved = $this->resolve($value, $obj, $context);
 
-                if ($resolved !== null && $resolved !== []) {
+                if ($resolved !== null) {
                     $res[$key] = $resolved;
                 }
             }
