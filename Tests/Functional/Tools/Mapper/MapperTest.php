@@ -37,15 +37,17 @@ class MapperTest extends BaseTestCase
                         'x' => "obj.get('x') + 1",
                         'y' => "obj.get('x') + 2",
                         'z' => "obj.get('x') + 3",
+                        'array' => "obj.get('a')"
                     ],
                 ],
                 'mapping_name' => 'x_to_xyz',
-                'mapped_values' => new SerializableArray(['x' => 10]),
+                'mapped_values' => new SerializableArray(['x' => 10, 'a' => new SerializableArray()]),
                 'context' => [],
                 'expected_value' => [
                     'x' => 11,
                     'y' => 12,
                     'z' => 13,
+                    'array' => []
                 ],
             ],
             'Test null values' => [
