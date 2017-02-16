@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\SmokeTests;
 
 use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
+use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutputMessage;
 
 /**
  * Class ConnectivityCheckSmokeTest.
@@ -82,15 +83,24 @@ class ConnectivityCheckSmokeTest implements SmokeTestInterface
 
                 $messages = $smokeTestOutputForItem->getMessages();
                 foreach ($messages as $message) {
-                    $message = sprintf(
+                    $messageText = sprintf(
                         '[%s]: %s',
                         $name,
                         $message->getValue()
                     );
-                    if ($smokeTestOutputForItem->isOK()) {
-                        $smokeTestOutput->addSuccessMessage($message);
-                    } else {
-                        $smokeTestOutput->addFailureMessage($message);
+                    switch($message->getType()) {
+                        case SmokeTestOutputMessage::OUTPUT_MESSAGE_TYPE_INFO:
+                            $smokeTestOutput->addInfoMessage($messageText);
+                            break;
+                        case SmokeTestOutputMessage::OUTPUT_MESSAGE_TYPE_FAILURE:
+                            $smokeTestOutput->addFailureMessage($messageText);
+                            break;
+                        case SmokeTestOutputMessage::OUTPUT_MESSAGE_TYPE_SUCCESS:
+                            $smokeTestOutput->addSuccessMessage($messageText);
+                            break;
+                        default:
+                            $smokeTestOutput->addFailureMessage($messageText);
+                            break;
                     }
                 }
             } catch (\Exception $e) {
