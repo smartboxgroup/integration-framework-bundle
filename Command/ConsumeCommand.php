@@ -7,6 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -14,6 +15,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ConsumeCommand extends ContainerAwareCommand
 {
+    const OPTION_MAX_MESSAGES = 'killAfter';
+    const OPTION_MAX_MESSAGES_DEFAULT_VALUE = 1000;
+
     /** @var EndpointInterface */
     protected $endpoint;
 
@@ -45,6 +49,14 @@ class ConsumeCommand extends ContainerAwareCommand
             InputArgument::REQUIRED,
             'Source URI ( e.g.: queue://api/*/*/*/* )'
         );
+        $this->addOption(
+            'killAfter',
+            'k',
+            InputOption::VALUE_REQUIRED,
+            'How many messages should be processed before the worker is killed? -1 for never, '.self::OPTION_MAX_MESSAGES_DEFAULT_VALUE.' by default.',
+            self::OPTION_MAX_MESSAGES_DEFAULT_VALUE
+        );
+
     }
 
     /**
@@ -56,12 +68,16 @@ class ConsumeCommand extends ContainerAwareCommand
         $producer = null;
 
         $this->endpoint = $this->getSourceEndpoint();
-
-        $output->writeln('<info>Consuming from '.$this->endpoint->getURI().'.</info>');
+        $message = '<info>Consuming from '.$this->endpoint->getURI();
+        if ($input->getOption(self::OPTION_MAX_MESSAGES) > 0) {
+            $message .= ' limited to '.$input->getOption(self::OPTION_MAX_MESSAGES).' messages';
+        }
+        $message .= '.</info>';
+        $output->writeln($message);
 
         pcntl_signal(SIGINT, [$this, 'handleSignal']);
         pcntl_signal(SIGTERM, [$this, 'handleSignal']);
-        $this->endpoint->consume();
+        $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES));
 
         $output->writeln('<info>Consumer was gracefully stopped for: '.$this->endpoint->getURI().'</info>');
     }
