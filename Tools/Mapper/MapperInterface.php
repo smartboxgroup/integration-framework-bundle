@@ -16,12 +16,12 @@ interface MapperInterface
     public function map($obj, $mappingName);
 
     /**
-     * @param $elements array
+     * @param mixed array
      * @param $mappingName string
      *
      * @return mixed
      */
-    public function mapAll(array $elements, $mappingName);
+    public function mapAll($elements, $mappingName);
 
     /**
      * @param array $mappings
