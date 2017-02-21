@@ -34,6 +34,10 @@ class QueueDriverConnectionSmokeTest implements SmokeTestInterface
         try {
             $this->queueDriver->connect();
 
+            //we need to subscribe to a queue to connect
+            $this->queueDriver->subscribe('prod');
+            $this->queueDriver->unSubscribe();  // tidy up
+
             $smokeTestOutput->addSuccessMessage('Connection for default queue driver checked.');
         } catch (\Exception $e) {
             $exitCode = SmokeTestOutput::OUTPUT_CODE_FAILURE;

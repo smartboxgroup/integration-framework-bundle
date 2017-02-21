@@ -110,14 +110,18 @@ class Mapper implements MapperInterface
 
 
     /**
-     * @param array  $elements
+     * @param mixed  $elements
      * @param string $mappingName
      * @param mixed  $context
      *
      * @return array
      */
-    public function mapAll(array $elements, $mappingName, &$context = [])
+    public function mapAll($elements, $mappingName, &$context = [])
     {
+        if(!is_array($elements)){
+            throw new \RuntimeException("MapAll expected an array");
+        }
+
         if (empty($elements)) {
             return $elements;
         }
