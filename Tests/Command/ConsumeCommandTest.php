@@ -11,7 +11,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 class ConsumeCommandTest extends KernelTestCase
 {
     const NB_MESSAGES = 1;
-    //const URI = 'queue://main/test_command';
     const URI = 'queue://main/api';
 
     protected $mockConsumer;
