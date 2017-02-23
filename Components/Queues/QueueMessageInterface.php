@@ -35,7 +35,7 @@ interface QueueMessageInterface extends MessageInterface
     public function setPriority($priority);
 
     /**
-     * @param bool $persistent
+     * @param mixed $persistent
      */
     public function setPersistent($persistent);
 
