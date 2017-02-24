@@ -62,6 +62,8 @@ class QueueMessage extends Message implements QueueMessageInterface
 
     public function setPersistent($persistent)
     {
+        $persistent = filter_var($persistent, FILTER_VALIDATE_BOOLEAN);
+
         if ($persistent) {
             $this->setHeader(self::HEADER_PERSISTENT, 'true');
             $this->setHeader(self::HEADER_DELIVERY_MODE, self::DELIVERY_MODE_PERSISTENT);
