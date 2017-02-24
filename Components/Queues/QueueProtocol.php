@@ -114,7 +114,8 @@ class QueueProtocol extends Protocol implements DescriptableInterface
         ]);
 
         $resolver->setAllowedTypes(self::OPTION_TTL, ['numeric']);
-        $resolver->setAllowedTypes(self::OPTION_PERSISTENT, ['boolean']);
+        $resolver->setAllowedValues(self::OPTION_PERSISTENT, [true, false, 'true', 'false', 0, 1, '0', '1']);
+        $resolver->setAllowedTypes(self::OPTION_PERSISTENT, ['numeric', 'string', 'boolean']);
         $resolver->setAllowedTypes(self::OPTION_PRIORITY, ['numeric']);
         $resolver->setAllowedTypes(self::OPTION_PREFIX, ['string']);
         $resolver->setAllowedTypes(self::OPTION_QUEUE_DRIVER, ['string']);
