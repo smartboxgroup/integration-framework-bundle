@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ConsumeCommand extends ContainerAwareCommand
 {
     const OPTION_MAX_MESSAGES = 'killAfter';
-    const OPTION_MAX_MESSAGES_DEFAULT_VALUE = -1; # -1 = No limit
+    const OPTION_MAX_MESSAGES_DEFAULT_VALUE = -1; // -1 = No limit
 
     /** @var EndpointInterface */
     protected $endpoint;
@@ -50,7 +50,7 @@ class ConsumeCommand extends ContainerAwareCommand
             'Source URI ( e.g.: queue://api/*/*/*/* )'
         );
         $this->addOption(
-            'killAfter',
+            self::OPTION_MAX_MESSAGES,
             'k',
             InputOption::VALUE_REQUIRED,
             'How many messages should be processed before the worker is killed? -1 for never, default value is '.self::OPTION_MAX_MESSAGES_DEFAULT_VALUE.'.',
