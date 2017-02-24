@@ -192,6 +192,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         $driverConfig['format'],
                         StompQueueDriver::STOMP_VERSION,
                         $driverConfig['vhost'],
+                        $driverConfig['timeout'],
                     ]);
 
                     $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
