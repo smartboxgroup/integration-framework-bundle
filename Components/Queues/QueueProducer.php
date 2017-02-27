@@ -6,7 +6,6 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverIn
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesDriverRegistry;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
@@ -86,9 +85,9 @@ class QueueProducer extends Producer
      *
      * @param QueueMessage $queueMessage
      * @param array $options The options set for this endpoint
-     *
      */
-    protected function beforeSend(QueueMessage $queueMessage, $options){
+    protected function beforeSend(QueueMessage $queueMessage, $options)
+    {
 
     }
 }
