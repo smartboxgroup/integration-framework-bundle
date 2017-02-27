@@ -49,7 +49,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /** @var StatefulStomp */
     protected $statefulStomp;
 
-    protected $timeout = 3;
+    protected $timeout;
 
     protected $vhost;
 
@@ -152,7 +152,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $version = self::STOMP_VERSION, $vhost = null)
+    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $version = self::STOMP_VERSION, $vhost = null, $timeout = 3)
     {
         $this->format = $format;
         $this->host = $host;
@@ -160,6 +160,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $this->pass = $password;
         $this->stompVersion = $version;
         $this->vhost = $vhost;
+        $this->timeout = $timeout;
 
         $client = new Client($this->host);
         $client->setLogin($this->getUsername(), $this->getPass());

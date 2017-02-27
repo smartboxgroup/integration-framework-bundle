@@ -374,6 +374,10 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                 ->end()
 
+                ->scalarNode('timeout')
+                    ->defaultValue(null)
+                ->end()
+
             ->end()
 
             ->end()
