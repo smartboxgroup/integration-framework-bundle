@@ -49,7 +49,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /** @var StatefulStomp */
     protected $statefulStomp;
 
-    protected $timeout = 3;
+    protected $timeout;
 
     protected $vhost;
 
