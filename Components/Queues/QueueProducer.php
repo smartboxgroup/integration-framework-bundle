@@ -67,7 +67,7 @@ class QueueProducer extends Producer
         }
 
         // Call the preSend hook
-        $this->beforeSend($queueMessage);
+        $this->beforeSend($queueMessage, $options);
 
         // Send
         if (!$queueDriver->isConnected()) {
@@ -84,10 +84,11 @@ class QueueProducer extends Producer
     /**
      * A hook to allow for modifying the queue message before we send it
      *
-     * @param  QueueMessage $queueMessage
+     * @param QueueMessage $queueMessage
+     * @param array $options The options set for this endpoint
      *
      */
-    protected function beforeSend(QueueMessage $queueMessage){
+    protected function beforeSend(QueueMessage $queueMessage, $options){
 
     }
 }
