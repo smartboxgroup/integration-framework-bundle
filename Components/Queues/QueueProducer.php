@@ -29,7 +29,7 @@ class QueueProducer extends Producer
     public function send(Exchange $ex, EndpointInterface $endpoint)
     {
         $options = $endpoint->getOptions();
-        $msg = $ex->getIn();
+        $inMessage = $ex->getIn();
         $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
         $queueName = ($options[QueueProtocol::OPTION_PREFIX]).$options[QueueProtocol::OPTION_QUEUE_NAME];
 
@@ -47,7 +47,7 @@ class QueueProducer extends Producer
         }
 
         $queueMessage = $queueDriver->createQueueMessage();
-        $queueMessage->setBody($msg);
+        $queueMessage->setBody($inMessage);
         $queueMessage->setTTL($options[QueueProtocol::OPTION_TTL]);
         $queueMessage->setQueue($queueName);
         $queueMessage->setPersistent($options[QueueProtocol::OPTION_PERSISTENT]);
@@ -60,10 +60,13 @@ class QueueProducer extends Producer
 
         // Take other headers from msg
         foreach ($this->headersToPropagate as $header) {
-            if ($msg->getHeader($header)) {
-                $queueMessage->setHeader($header, $msg->getHeader($header));
+            if ($inMessage->getHeader($header)) {
+                $queueMessage->setHeader($header, $inMessage->getHeader($header));
             }
         }
+
+        // Call the preSend hook
+        $this->beforeSend($queueMessage, $options);
 
         // Send
         if (!$queueDriver->isConnected()) {
@@ -75,5 +78,16 @@ class QueueProducer extends Producer
         if (!$success) {
             throw new \RuntimeException("The message could not be delivered to the queue '$queueName' while using queue driver '$queueDriverName'");
         }
+    }
+
+    /**
+     * A hook to allow for modifying the queue message before we send it
+     *
+     * @param QueueMessage $queueMessage
+     * @param array $options The options set for this endpoint
+     */
+    protected function beforeSend(QueueMessage $queueMessage, $options)
+    {
+
     }
 }
