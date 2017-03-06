@@ -10,6 +10,7 @@ parameters:
   smartesb.protocols.configurable.soap.class: Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\SoapConfigurableProtocol
   smartesb.protocols.configurable.dbal.class: Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\ConfigurableDbalProtocol
   smartesb.protocols.service.class: Smartbox\Integration\FrameworkBundle\Components\SymfonyService\SymfonyServiceProtocol
+  smartesb.protocols.csv_file.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableProtocol
 
 services:
   ########## PROTOCOLS  ##########
@@ -65,3 +66,7 @@ services:
       class: %smartesb.protocols.configurable.dbal.class%
       calls:
         - [setDefaultHandler, [@smartesb.handlers.async]]
+
+  # Csv File
+  smartesb.protocols.configurable.csv_file:
+      class: "%smartesb.protocols.csv_file.class%"

@@ -23,25 +23,12 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->configurableProducer = self::getContainer()->get('smartesb.producers.csv_file');
-
-        $confHelper = new ConfigurableServiceHelper();
-        $confHelper->setSerializer($this->getContainer()->get('serializer'));
-        $confHelper->setEvaluator($this->getContainer()->get('smartesb.util.evaluator'));
-        $this->configurableProducer->setConfHelper($confHelper);
-
         $this->optionsResolver = new OptionsResolver();
 
         $this->protocol = new ConfigurableWebserviceProtocol();
         $this->protocol->configureOptionsResolver($this->optionsResolver);
 
-        $this->stepsProvider = $this->configurableProducer->getConfigurableStepsProvider();
-    }
-
-
-    public function testCsvProducerExists()
-    {
-        $this->assertInstanceOf('Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableProducer', $this->configurableProducer);
+        $this->stepsProvider = self::getContainer()->get('smartesb.steps_provider.csv_file');
     }
 
     public function testProviderExists()
@@ -262,7 +249,8 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
                 [ "a5", "b5", "c5" ],
                 [ "a6", "b6", "c6" ],
                 [ "a7", "b7", "c7" ],
-            ]
+            ],
+            'file_path' => $file_name,
         ];
         $options = [
             'root_path' => '/tmp',
@@ -272,7 +260,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
             'escape_char' =>'\\',
         ];
         $context = [
-            'file_handle' => $handle
+            'vars'=>[]
         ];
 
         $ans = $this->stepsProvider->executeStep($stepAction, $stepActionParams, $options, $context);
@@ -331,6 +319,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $stepActionParams = [
             'max_lines' => 2,
             'result_name' => 'resultness',
+            'file_path' => $file_name,
         ];
         $options = [
             'root_path' => '/tmp',
@@ -341,19 +330,17 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
             'max_length' => 1000,
         ];
         $context = [
-            'file_handle' => $handle,
         ];
 
         $ans = $this->stepsProvider->executeStep($stepAction, $stepActionParams, $options, $context);
         $this->assertTrue( $ans );
 
         //Check we have rows in the context
-        $this->assertSame( 'a1', $context['resultness'][0][0] ); 
-        $this->assertCount( 2, $context['resultness'] ); 
+        $this->assertSame( 'a1', $context['results']['resultness'][0][0] );
+        $this->assertCount( 2, $context['results']['resultness'] );
 
         //Tidy up
         @unlink('/tmp/' . $file_name);
-        fclose($handle);
     }
 
 }

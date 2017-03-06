@@ -5,7 +5,6 @@ parameters:
   smartesb.producers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer
   smartesb.producers.service.class: Smartbox\Integration\FrameworkBundle\Components\SymfonyService\SymfonyServiceProducer
   smartesb.producers.csv_file.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableProducer
-  smartesb.steps_provider.csv.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableStepsProvider
 
 services:
   ########## PRODUCERS  ##########
@@ -36,14 +35,3 @@ services:
         - [setId, ['smartesb.producers.service']]
         - [setContainer, [@service_container]]
 
-  # CSV
-  smartesb.steps_provider.csv_file:
-      class: %smartesb.steps_provider.csv.class%
-      calls:
-        - [setId, ['smartesb.steps_provider.csv_file']]
-
-  smartesb.producers.csv_file:
-      class: %smartesb.producers.csv_file.class%
-      calls:
-        - [setId, ['smartesb.producers.csv_file']]
-        - [setConfigurableStepsProvider,[@smartesb.steps_provider.csv_file]]
