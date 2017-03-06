@@ -10,10 +10,11 @@ interface MapperInterface
     /**
      * @param $obj mixed
      * @param $mappingName string
+     * @param $context array
      *
      * @return mixed
      */
-    public function map($obj, $mappingName);
+    public function map($obj, $mappingName, $context);
 
     /**
      * @param mixed array
