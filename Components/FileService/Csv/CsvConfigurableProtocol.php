@@ -15,6 +15,7 @@ class CsvConfigurableProtocol extends Protocol implements DescriptableInterface
     const OPTION_ESCAPE_CHAR = 'escape_char';
     const OPTION_MAX_LENGTH = 'max_length';
     const OPTION_METHOD = 'method';
+    const OPTION_STOP_ON_EOF = 'stop_on_eof';
 
     /**
      * {@inheritdoc}
@@ -37,6 +38,7 @@ class CsvConfigurableProtocol extends Protocol implements DescriptableInterface
             self::OPTION_ESCAPE_CHAR => ['The optional escape_char parameter sets the escape character (one character only). fputcsv()', []],
             self::OPTION_MAX_LENGTH => ['The optional length parameter when using fgetcsv()', []],
             self::OPTION_METHOD => ['Method to be executed in the consumer/producer', []],
+            self::OPTION_STOP_ON_EOF => ['Consumer should stop on when reached the end of a file.', []],
         ]);
     }
 
@@ -55,6 +57,7 @@ class CsvConfigurableProtocol extends Protocol implements DescriptableInterface
             self::OPTION_ENCLOSURE => '"',
             self::OPTION_ESCAPE_CHAR => '\\',
             self::OPTION_MAX_LENGTH => 1000,
+            self::OPTION_STOP_ON_EOF => false,
         ]);
 
         $resolver->setRequired([
@@ -72,6 +75,7 @@ class CsvConfigurableProtocol extends Protocol implements DescriptableInterface
         $resolver->setAllowedTypes(self::OPTION_ENCLOSURE, ['string']);
         $resolver->setAllowedTypes(self::OPTION_ESCAPE_CHAR, ['string']);
         $resolver->setAllowedTypes(self::OPTION_METHOD, ['string']);
+        $resolver->setAllowedTypes(self::OPTION_STOP_ON_EOF, ['bool']);
 
     }
 
