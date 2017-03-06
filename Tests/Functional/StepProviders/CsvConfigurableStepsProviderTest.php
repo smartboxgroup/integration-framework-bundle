@@ -233,13 +233,13 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @unlink('/tmp/' . $file_name);
     }
 
-    public function testWriteLinesToFile()
+    public function testAppendLinesToFile()
     {
         $file_name = md5(microtime()) . '.hello.world';
 
         $handle = fopen('/tmp/' . $file_name, 'w');
 
-        $stepAction = 'write_lines';
+        $stepAction = 'append_lines';
         $stepActionParams = [
             'rows' => [
                 [ "a1", "b1", "c1" ],
