@@ -75,6 +75,9 @@ class CsvConfigurableConsumer extends AbstractConsumer implements ConfigurableCo
             );
         } catch(NoResultsException $exception) { // TODO: Replace with a actual end of file exception
             $result = null;
+            if ( $options[CsvConfigurableProtocol::OPTION_STOP_ON_EOF] ){
+                $this->stop(true);
+            }
         }
 
         if($result == null ){
@@ -102,5 +105,23 @@ class CsvConfigurableConsumer extends AbstractConsumer implements ConfigurableCo
     protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message)
     {
         return $message;
+    }
+
+    /**
+     * Executes the necessary actions after the message has been consumed
+     *
+     * @param EndpointInterface $endpoint
+     * @param MessageInterface $message
+     */
+    protected function onConsume(EndpointInterface $endpoint, MessageInterface $message)
+    {
+        $options = $endpoint->getOptions();
+//        $method = $options[NoSQLConfigurableProtocol::OPTION_METHOD];
+//        $config = $this->methodsConfiguration[$method];
+//        $steps = $config[ConfigurableConsumerInterface::CONFIG_ON_CONSUME];
+//
+//        $context = $this->getConfHelper()->createContext($options,$message);
+//
+//        $this->configurableStepsProvider->executeSteps($steps, $options, $context);
     }
 }
