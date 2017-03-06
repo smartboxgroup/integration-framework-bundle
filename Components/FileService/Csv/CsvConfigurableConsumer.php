@@ -106,22 +106,4 @@ class CsvConfigurableConsumer extends AbstractConsumer implements ConfigurableCo
     {
         return $message;
     }
-
-    /**
-     * Executes the necessary actions after the message has been consumed
-     *
-     * @param EndpointInterface $endpoint
-     * @param MessageInterface $message
-     */
-    protected function onConsume(EndpointInterface $endpoint, MessageInterface $message)
-    {
-        $options = $endpoint->getOptions();
-//        $method = $options[NoSQLConfigurableProtocol::OPTION_METHOD];
-//        $config = $this->methodsConfiguration[$method];
-//        $steps = $config[ConfigurableConsumerInterface::CONFIG_ON_CONSUME];
-//
-//        $context = $this->getConfHelper()->createContext($options,$message);
-//
-//        $this->configurableStepsProvider->executeSteps($steps, $options, $context);
-    }
 }
