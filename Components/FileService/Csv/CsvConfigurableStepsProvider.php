@@ -15,7 +15,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
 
     // Steps
     const STEP_WRITE_TO_FILE = 'write';
-    const STEP_WRITE_LINES_TO_FILE = 'write_lines';
+    const STEP_APPEND_LINES_TO_FILE = 'append_lines';
     const STEP_READ_FROM_FILE = 'read';
     const STEP_READ_LINES_FROM_FILE = 'read_lines';
     const STEP_REMOVE_FILE = 'remove';
@@ -111,7 +111,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
                 $this->writeToFile($stepActionParams, $options, $context);
                 return true;
 
-            case self::STEP_WRITE_LINES_TO_FILE:
+            case self::STEP_APPEND_LINES_TO_FILE:
                 $this->appendLines($stepActionParams, $options, $context);
                 return true;
 
