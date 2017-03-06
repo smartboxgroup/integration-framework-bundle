@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\FileService\Csv;
 
 use Smartbox\Integration\FrameworkBundle\Components\DB\ConfigurableStepsProviderInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -24,6 +25,8 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     const STEP_MV_FILE = 'mv';
     const STEP_CREATE_FILE = 'create';
     const STEP_COPY_FILE = 'copy';
+    const STEP_CLEAN_FILE_HANDLES = 'clean_file_handlers';
+    const KEY_RESULTS = 'results';
 
     // Method Params
     const PARAM_FILE_PATH = 'file_path';
@@ -39,6 +42,9 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     /** @var OptionsResolver */
     protected $configResolver;
 
+    /** @var  array */
+    protected $openFileHandles = [];
+
     public function __construct()
     {
         parent::__construct();
@@ -47,6 +53,37 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
             $protocol = new CsvConfigurableProtocol();
             $this->configResolver = new OptionsResolver();
             $protocol->configureOptionsResolver($this->configResolver);
+        }
+    }
+
+    protected function getFileHandle($fullPath, $mode){
+        $key = md5($fullPath.$mode);
+        if (array_key_exists($key, $this->openFileHandles) ){
+            $handle = $this->openFileHandles[$key];
+        }else{
+            $handle = fopen($fullPath, $mode);
+            $this->openFileHandles[$key] = $handle;
+        }
+
+        if( get_resource_type($handle) !== 'stream' ){
+            throw new \Exception( 'The file handle is not a file stream!' );
+        }
+
+        if(strpos($mode,'w') !== false){
+            if( !is_writeable($fullPath) === 'stream' ){
+                throw new \Exception( 'The file handle in the context is not writeable!' );
+            }
+        }
+
+        return $handle;
+    }
+
+    protected function closeFileHandle($fullPath, $mode){
+        $key = md5($fullPath.$mode);
+
+        if(array_key_exists($key,$this->openFileHandles)){
+            fclose($this->openFileHandles[$key]);
+            unset($this->openFileHandles[$key]);
         }
     }
 
@@ -65,12 +102,17 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     public function executeStep($stepAction, array &$stepActionParams, array &$options, array &$context)
     {
         switch ($stepAction) {
+            case self::STEP_CLEAN_FILE_HANDLES:
+                // TODO: IMPROVE
+                $this->closeFileHandle($this->getFullPath($options,$stepActionParams),'r');
+                $this->closeFileHandle($this->getFullPath($options,$stepActionParams),'wa');
+                return true;
             case self::STEP_WRITE_TO_FILE:
                 $this->writeToFile($stepActionParams, $options, $context);
                 return true;
 
             case self::STEP_WRITE_LINES_TO_FILE:
-                $this->writeLines($stepActionParams, $options, $context);
+                $this->appendLines($stepActionParams, $options, $context);
                 return true;
 
             case self::STEP_READ_FROM_FILE:
@@ -119,8 +161,6 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     protected function writeToFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        $root_path = $this->getRootPath( $endpointOptions, $stepActionParams);
-
         $stepParamsResolver = new OptionsResolver();
         $stepParamsResolver->setRequired( [
             self::PARAM_FILE_PATH,
@@ -154,31 +194,23 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      * @param array                       $endpointOptions
      * @param array                       $context
      */
-    protected function writeLines(array &$stepActionParams, array &$endpointOptions, array &$context)
+    protected function appendLines(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        if( !isset($context[ self::CONTEXT_FILE_HANDLE ]) ){
-            throw new \Exception( 'The file handle does not exist in the context' );
-        }
-
-        $file_handle = $context[ self::CONTEXT_FILE_HANDLE ];
-
-        if( get_resource_type($file_handle) !== 'stream' ){
-            throw new \Exception( 'The file handle in the context is not a file stream!' );
-        }
-
-        $meta = stream_get_meta_data($file_handle);
-        $file_path = $meta['uri'];
-        if( !is_writeable($file_path) === 'stream' ){
-            throw new \Exception( 'The file handle in the context is not writeable!' );
-        }
-
         $stepParamsResolver = new OptionsResolver();
         $stepParamsResolver->setRequired( [
             self::PARAM_CSV_ROWS,
         ]);
+        $stepParamsResolver->setDefault( self::PARAM_FILE_PATH, $endpointOptions[CsvConfigurableProtocol::OPTION_DEFAULT_PATH] );
         $params = $stepParamsResolver->resolve($stepActionParams);
 
+        $file_path = $params[self::PARAM_FILE_PATH];
+        $full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $file_path;
+        $file_handle = $this->getFileHandle($full_path,'w+');
+
+
         $rows = $params[self::PARAM_CSV_ROWS];
+        //we might need to evaluate the rows
+        $rows = $this->confHelper->resolve($rows, $context);
 
         foreach ($rows as $row) {
             fputcsv($file_handle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR] );
@@ -199,8 +231,6 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     protected function readFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        $root_path = $this->getRootPath( $endpointOptions, $stepActionParams);
-
         $stepParamsResolver = new OptionsResolver();
         $stepParamsResolver->setRequired( [
             self::PARAM_FILE_PATH,
@@ -243,22 +273,18 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     protected function readLines(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        if( !isset($context[ self::CONTEXT_FILE_HANDLE ]) ){
-            throw new \Exception( 'The file handle does not exist in the context' );
-        }
-
-        $file_handle = $context[ self::CONTEXT_FILE_HANDLE ];
-        if( get_resource_type($file_handle) !== 'stream' ){
-            throw new \Exception( 'The file handle in the context is not a file stream!' );
-        }
-
         $stepParamsResolver = new OptionsResolver();
         $stepParamsResolver->setRequired( [
             self::PARAM_CONTEXT_RESULT_NAME,
         ]);
         $stepParamsResolver->setDefault( self::PARAM_MAX_LINES, 1 );
-
+        $stepParamsResolver->setDefault( self::PARAM_FILE_PATH, $endpointOptions[CsvConfigurableProtocol::OPTION_DEFAULT_PATH] );
         $params = $stepParamsResolver->resolve($stepActionParams);
+
+        $file_path = $params[self::PARAM_FILE_PATH];
+        $full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $file_path;
+        $file_handle = $this->getFileHandle($full_path,'r');
+
         $context_result_name = $params[self::PARAM_CONTEXT_RESULT_NAME];
         $max_lines = $params[self::PARAM_MAX_LINES];
         $max_line_length = $endpointOptions[CsvConfigurableProtocol::OPTION_MAX_LENGTH];
@@ -266,12 +292,21 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $rows = [];
 
         $i = 0;
-        while (( $row = fgetcsv($file_handle, $max_line_length, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER])) !== FALSE && $i < $max_lines) {
+        while ( $i < $max_lines ) {
+
+            $row = fgetcsv($file_handle, $max_line_length, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER]);
+
+            if($row === false) break;
+
             $rows[] = $row;
             $i++;
         }
 
-        $context[$context_result_name] = $rows;
+        if( count($rows) === 0 ){
+            throw new NoResultsException("No more results from $$full_path");
+        }
+
+        $context[self::KEY_RESULTS][$context_result_name] = $rows;
     }
 
     /**
@@ -394,10 +429,11 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     protected function getFilePath( array $endpointOptions, $stepActionParams )
     {
-        $stepParamsResolver = new OptionsResolver();
-        $stepParamsResolver->setDefault( self::PARAM_FILE_PATH, $endpointOptions[CsvConfigurableProtocol::OPTION_DEFAULT_PATH] );
-        $params = $stepParamsResolver->resolve($stepActionParams);
-        return $params[self::PARAM_FILE_PATH];
+        if(array_key_exists(self::PARAM_FILE_PATH,$stepActionParams)){
+            return $stepActionParams[self::PARAM_FILE_PATH];
+        }else{
+            return $endpointOptions[CsvConfigurableProtocol::OPTION_DEFAULT_PATH];
+        }
     }
 
     /**
