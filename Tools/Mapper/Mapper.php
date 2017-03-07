@@ -43,7 +43,7 @@ class Mapper implements MapperInterface
     public function formatDate($format, \DateTime $date = null)
     {
         if ($date === null) {
-            return;
+            return null;
         }
 
         return $date->format($format);
@@ -56,7 +56,7 @@ class Mapper implements MapperInterface
      *
      * @return array|mixed
      */
-    public function map($obj, $mappingName, &$context = [])
+    public function map($obj, $mappingName, $context = [])
     {
         if (!$mappingName || !array_key_exists($mappingName, $this->mappings)) {
             throw new \InvalidArgumentException(sprintf('Invalid mapping name "%s"', $mappingName));
@@ -71,10 +71,12 @@ class Mapper implements MapperInterface
         return $this->resolve($mapping,$obj, $context);
     }
 
-    /***
-     * @param array|string $mapping
-     * @param mixed $obj
-     * @return array|string
+    /**
+     * @param $mapping
+     * @param $obj
+     * @param $context
+     *
+     * @return array|null|string
      */
     public function resolve(&$mapping, &$obj, &$context)
     {
@@ -116,7 +118,7 @@ class Mapper implements MapperInterface
      *
      * @return array
      */
-    public function mapAll($elements, $mappingName, &$context = [])
+    public function mapAll($elements, $mappingName, $context = [])
     {
         if(!is_array($elements)){
             throw new \RuntimeException("MapAll expected an array");
@@ -173,7 +175,9 @@ class Mapper implements MapperInterface
      */
     public function stringToDate($date)
     {
-        return new \DateTime($date);
+        if (!empty($date)) {
+            return new \DateTime($date);
+        }
     }
 
     public function timestampToDate($timestamp)
