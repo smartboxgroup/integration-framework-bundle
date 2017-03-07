@@ -92,6 +92,14 @@ class ConfigurableServiceHelper
         return $context;
     }
 
+    public function resolveArray($input, &$context){
+        $output = [];
+        foreach($input as $key => $value){
+            $output[$key] = $this->resolve($value,$context);
+        }
+        return $output;
+    }
+
     /**
      * @param mixed $obj
      * @param array $context
