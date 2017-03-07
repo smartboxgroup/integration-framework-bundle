@@ -51,6 +51,13 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(\DateTime::class, $this->mapper->stringToDate($date));
     }
 
+    public function testConvertStringToDateWhenDateIsNull()
+    {
+        $formattedDate = $this->mapper->stringToDate(null);
+
+        $this->assertNull($formattedDate);
+    }
+
     public function testToSoapVarObj()
     {
         $soapVar = $this->mapper->toSoapVarObj(['a' => 'b'], SOAP_ENC_OBJECT, 'Account');
