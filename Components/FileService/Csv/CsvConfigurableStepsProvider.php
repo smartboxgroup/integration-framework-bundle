@@ -106,7 +106,8 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     {
         foreach ($stepsConfig as $step) {
             foreach ($step as $stepAction => $stepActionParams) {
-                $this->executeStep($stepAction, $stepActionParams, $options, $context);
+                $resolvedParams = $this->getConfHelper()->resolveArray($stepActionParams, $context);
+                $this->executeStep($stepAction, $resolvedParams, $options, $context);
             }
         }
     }
@@ -220,10 +221,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $file_path;
         $file_handle = $this->getFileHandle($full_path,'w+');
 
-
         $rows = $params[self::PARAM_CSV_ROWS];
-        //we might need to evaluate the rows
-        $rows = $this->confHelper->resolve($rows, $context);
 
         foreach ($rows as $row) {
             fputcsv($file_handle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR] );
@@ -290,6 +288,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $stepParamsResolver->setRequired( [
             self::PARAM_CONTEXT_RESULT_NAME,
         ]);
+
         $stepParamsResolver->setDefault( self::PARAM_MAX_LINES, 1 );
         $stepParamsResolver->setDefault( self::PARAM_FILE_PATH, $endpointOptions[CsvConfigurableProtocol::OPTION_DEFAULT_PATH] );
         $params = $stepParamsResolver->resolve($stepActionParams);
