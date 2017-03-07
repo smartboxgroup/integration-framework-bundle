@@ -76,7 +76,5 @@ class CsvConfigurableProtocol extends Protocol implements DescriptableInterface
         $resolver->setAllowedTypes(self::OPTION_ESCAPE_CHAR, ['string']);
         $resolver->setAllowedTypes(self::OPTION_METHOD, ['string']);
         $resolver->setAllowedTypes(self::OPTION_STOP_ON_EOF, ['bool']);
-
     }
-
 }

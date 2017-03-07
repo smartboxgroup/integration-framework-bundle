@@ -7,7 +7,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsExce
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableProtocol;
 
 class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsProviderInterface
 {
@@ -56,7 +55,18 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         }
     }
 
-    protected function getFileHandle($fullPath, $mode){
+    /**
+     * Open a file handle and store the hash so we can reuse it.
+     *
+     * @param $fullPath
+     * @param $mode
+     *
+     * @return resource
+     *
+     * @throws \Exception
+     */
+    protected function getFileHandle($fullPath, $mode)
+    {
         $key = md5($fullPath.$mode);
         if (array_key_exists($key, $this->openFileHandles) ){
             $handle = $this->openFileHandles[$key];
@@ -78,15 +88,20 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         return $handle;
     }
 
-    protected function closeFileHandle($fullPath, $mode){
-        $key = md5($fullPath.$mode);
-
-        if(array_key_exists($key,$this->openFileHandles)){
-            fclose($this->openFileHandles[$key]);
-            unset($this->openFileHandles[$key]);
+    /**
+     * Close all open file handles
+     */
+    protected function closeAllFileHandles()
+    {
+        foreach ($this->openFileHandles as $handle ) {
+            fclose($handle);
         }
+        $this->openFileHandles = [];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function executeSteps(array $stepsConfig, array &$options, array &$context)
     {
         foreach ($stepsConfig as $step) {
@@ -103,9 +118,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     {
         switch ($stepAction) {
             case self::STEP_CLEAN_FILE_HANDLES:
-                // TODO: IMPROVE
-                $this->closeFileHandle($this->getFullPath($options,$stepActionParams),'r');
-                $this->closeFileHandle($this->getFullPath($options,$stepActionParams),'wa');
+                $this->closeAllFileHandles();
                 return true;
             case self::STEP_WRITE_TO_FILE:
                 $this->writeToFile($stepActionParams, $options, $context);
