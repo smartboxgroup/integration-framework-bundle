@@ -21,3 +21,29 @@ service:
   requirements:
     service: "[a-zA-Z0-9/_.-]+"
     method: "[a-zA-Z0-9_]+"
+
+csv.generic:
+  pattern: "csv://generic/comma/{default_path}"
+  defaults:
+    _protocol: "@smartesb.protocols.configurable.csv_file"
+    _consumer: "@smartesb.consumers.generic_csv"
+    root_path: "/"
+    delimitier: ","
+    enclosure: '"'
+    escape_char: '\'
+    method: read_lines
+  requirements:
+    default_path: ".*"
+
+csv_piped.generic:
+  pattern: "csv://generic/piped/{default_path}"
+  defaults:
+    _protocol: "@smartesb.protocols.configurable.csv_file"
+    _consumer: "@smartesb.consumers.generic_csv"
+    root_path: "/"
+    delimitier: "|"
+    enclosure: '"'
+    escape_char: '\'
+    method: read_lines
+  requirements:
+    default_path: ".*"
