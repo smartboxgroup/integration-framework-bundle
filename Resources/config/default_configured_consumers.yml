@@ -21,10 +21,10 @@ smartbox_integration_framework:
 
                     query_steps:
                         - read_lines:
-                            result_name: xxx
+                            result_name: processed_lines
                             max_lines: eval: options['batch_size']
 
                     query_result:
-                        lines: eval: results['xxx']
+                        lines: eval: results['processed_lines']
 
                     on_consume: ~
