@@ -31,8 +31,6 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $date = $this->mapper->formatDate('Y-m-d', $dateTime);
 
         $this->assertSame('2012-07-08', $date);
-
-        $this->assertNull($this->mapper->formatDate('Y-m-d', null));
     }
 
     public function testGetFirstElementArray()
@@ -51,8 +49,11 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $date = '2012-07-08 12:03:04';
 
         $this->assertInstanceOf(\DateTime::class, $this->mapper->stringToDate($date));
+    }
 
-        $formattedDate = $this->mapper->stringToDate(NULL);
+    public function testConvertStringToDateWhenDateIsNull()
+    {
+        $formattedDate = $this->mapper->stringToDate(null);
 
         $this->assertNull($formattedDate);
     }

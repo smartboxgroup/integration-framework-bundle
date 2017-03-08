@@ -3,8 +3,11 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\DB\Dbal;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\DBAL\Driver\PDOStatement;
 use Doctrine\DBAL\Statement;
+use Doctrine\ORM\NoResultException;
 use Smartbox\Integration\FrameworkBundle\Components\DB\ConfigurableStepsProviderInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -105,11 +108,21 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
 
         $sql = $this->confHelper->resolve($configuration[self::CONF_SQL], $context);
 
-        $result = $this->doctrine->getConnection()->executeQuery($sql, $parameters, $parameterTypes);
+        /** @var PDOStatement $stmt */
+        $stmt = $this->doctrine->getConnection()->executeQuery($sql, $parameters, $parameterTypes);
+
+        if ($stmt->columnCount() > 0){ // SQL query is for example a SELECT
+            $result = $stmt->fetchAll();
+        } else { // SQL query is for example an UPDATE
+            $result = ['count' => $stmt->rowCount()];
+        }
 
         if (array_key_exists(self::CONF_QUERY_NAME, $configuration)) {
             $name = $configuration[self::CONF_QUERY_NAME];
             $context[self::CONTEXT_RESULTS][$name] = $result;
+            if (count($result) == 0) {
+                throw new NoResultsException("No results found for query named: ".$name);
+            }
         }
 
         return $result;
