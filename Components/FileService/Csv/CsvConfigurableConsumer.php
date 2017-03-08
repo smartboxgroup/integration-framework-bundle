@@ -2,22 +2,16 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\FileService\Csv;
 
-
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\DB\ConfigurableStepsProviderInterface;
-use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLConfigurableProtocol;
-use Smartbox\Integration\FrameworkBundle\Components\SymfonyService\SymfonyServiceProtocol;
 use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
-use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
-
 
 class CsvConfigurableConsumer extends AbstractConsumer implements ConfigurableConsumerInterface
 {
@@ -76,7 +70,7 @@ class CsvConfigurableConsumer extends AbstractConsumer implements ConfigurableCo
         } catch(NoResultsException $exception) { // TODO: Replace with a actual end of file exception
             $result = null;
             if ( $options[CsvConfigurableProtocol::OPTION_STOP_ON_EOF] ){
-                $this->stop(true);
+                $this->stop();
             }
         }
 
@@ -96,7 +90,7 @@ class CsvConfigurableConsumer extends AbstractConsumer implements ConfigurableCo
     {
         $empty = [];
         $options = $endpoint->getOptions();
-        $this->getConfigurableStepsProvider()->executeStep('clean_file_handlers', $empty, $options, $empty);
+        $this->getConfigurableStepsProvider()->executeStep(CsvConfigurableStepsProvider::STEP_CLEAN_FILE_HANDLES, $empty, $options, $empty);
     }
 
     /**

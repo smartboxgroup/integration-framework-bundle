@@ -2,13 +2,11 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\FileService\Csv;
 
-
 use Smartbox\Integration\FrameworkBundle\Components\DB\ConfigurableStepsProviderInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\AbstractConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
-use Smartbox\Integration\FrameworkBundle\Components\SymfonyService\SymfonyServiceProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 
 /**
@@ -45,7 +43,7 @@ class CsvConfigurableProducer extends AbstractConfigurableProducer implements Co
     {
         $options = $endpoint->getOptions();
 
-        $method = $options[SymfonyServiceProtocol::OPTION_METHOD];
+        $method = $options[CsvConfigurableProtocol::OPTION_METHOD];
         $config = $this->methodsConfiguration[$method];
         $steps = $config[ConfigurableProducerInterface::CONF_STEPS];
 
@@ -53,7 +51,7 @@ class CsvConfigurableProducer extends AbstractConfigurableProducer implements Co
 
         $this->configurableStepsProvider->executeSteps($steps, $options, $context);
 
-        $empty = [];
-        $this->configurableStepsProvider->executeStep(CsvConfigurableStepsProvider::STEP_CLEAN_FILE_HANDLES,$empty,$options,$context);
+        $empty = [];  //We would like to pass as a referance, so this must be a variable
+        $this->configurableStepsProvider->executeStep(CsvConfigurableStepsProvider::STEP_CLEAN_FILE_HANDLES, $empty, $options, $context);
     }
 }

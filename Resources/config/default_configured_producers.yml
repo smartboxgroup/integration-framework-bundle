@@ -1,0 +1,26 @@
+parameters:
+  smartesb.producers.csv.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableProducer
+
+
+smartbox_integration_framework:
+    producers:
+        generic_csv:
+            class: "%smartesb.producers.csv.class%"
+            description: Producer to write out csv files
+            calls:
+                - [ setId, ['smartesb.producers.generic_csv']]
+                - [setConfigurableStepsProvider,["@smartesb.steps_provider.csv_file"]]
+
+            options:
+                delimiter: ','
+                enclosure: '"'
+                escape_char: '\'
+
+            methods:
+
+                process_lines:
+                    description: Append lines to the csv file
+                    steps:
+                        - append_lines:
+                            rows: eval: body['lines']
+                    response: []
