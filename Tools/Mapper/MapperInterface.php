@@ -8,20 +8,22 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\Mapper;
 interface MapperInterface
 {
     /**
-     * @param $obj mixed
-     * @param $mappingName string
+     * @param mixed $obj
+     * @param string $mappingName
+     * @param array $context
      *
      * @return mixed
      */
-    public function map($obj, $mappingName);
+    public function map($obj, $mappingName, $context);
 
     /**
-     * @param mixed array
-     * @param $mappingName string
+     * @param array $elements
+     * @param string $mappingName
+     * @param array $context
      *
      * @return mixed
      */
-    public function mapAll($elements, $mappingName);
+    public function mapAll($elements, $mappingName, $context);
 
     /**
      * @param array $mappings
