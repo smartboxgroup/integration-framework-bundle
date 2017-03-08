@@ -23,12 +23,20 @@ parameters:
 
   smartesb.steps_provider.dbal.class: Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\DbalStepsProvider
   smartesb.steps_provider.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLStepsProvider
+  smartesb.steps_provider.csv.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableStepsProvider
 
 services:
   smartesb.serialization.handler.mongodate:
       class: %smartesb.serialization.handler.mongodate.class%
       tags:
         - { name: jms_serializer.subscribing_handler }
+
+  # CSV
+  smartesb.steps_provider.csv_file:
+      class: %smartesb.steps_provider.csv.class%
+      calls:
+        - [setId, ['smartesb.steps_provider.csv_file']]
+        - [setConfHelper, [@smartesb.configurable_service_helper]]
 
   # DB Configurable services
   smartesb.steps_provider.dbal:
