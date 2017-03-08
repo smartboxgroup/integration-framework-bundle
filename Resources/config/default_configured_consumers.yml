@@ -16,7 +16,7 @@ smartbox_integration_framework:
                 batch_size: 1
 
             methods:
-                read_lines:
+                process_lines:
                     description: Read from a csv file batch_size lines at a time
 
                     query_steps:
