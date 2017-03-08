@@ -93,8 +93,8 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
 
         foreach ($params as $param => $info) {
             $value = null;
-            if(isset($info['value'])){
-                $value = $this->confHelper->resolve($info['value'], $context);
+            if (isset($info['value'])) {
+                $value = $info['value'];
             }
 
             $type = 'string';
