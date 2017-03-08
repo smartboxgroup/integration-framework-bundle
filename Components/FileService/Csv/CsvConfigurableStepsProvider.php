@@ -191,6 +191,11 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $file_handle = fopen( $full_path, 'w' );
 
         foreach ($rows as $row) {
+            if (!is_array($row)){
+                $type = gettype($row);
+                throw new \InvalidArgumentException("Row in Rows is not an array, {$type} given." );
+            }
+
             fputcsv($file_handle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR] );
         }
 
@@ -203,7 +208,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      *
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_CSV_ROWS
-     * 
+     *
      * @param array                       $stepActionParams
      * @param array                       $endpointOptions
      * @param array                       $context
@@ -224,6 +229,12 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $rows = $params[self::PARAM_CSV_ROWS];
 
         foreach ($rows as $row) {
+
+            if (!is_array($row)){
+                $type = gettype($row);
+                throw new \InvalidArgumentException("Row in Rows is not an array, {$type} given." );
+            }
+
             fputcsv($file_handle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR] );
         }
     }

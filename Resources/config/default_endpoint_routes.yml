@@ -27,10 +27,12 @@ csv.generic:
   defaults:
     _protocol: "@smartesb.protocols.configurable.csv_file"
     _consumer: "@smartesb.consumers.generic_csv"
+    _producer: "@smartesb.producers.generic_csv"
     root_path: "/"
     delimiter: ","
     enclosure: '"'
     escape_char: '\'
-    method: read_lines
+    method: process_lines
   requirements:
     default_path: "[a-zA-Z0-9/\\-._]+"
+
