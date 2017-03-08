@@ -292,6 +292,8 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      * @param array                       $stepActionParams
      * @param array                       $endpointOptions
      * @param array                       $context
+     *
+     * @throws NoResultsException if there are no more lines to consume
      */
     protected function readLines(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
@@ -436,7 +438,8 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      * resolve the root path from the configuration
      * 
      * @param array                       $endpointOptions
-     * @param array                       $stepActionParams
+     *
+     * @return string The root path as in the configuration
      */
     public function getRootPath( array $endpointOptions )
     {
@@ -444,11 +447,13 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     }
 
     /**
-     * resolve the file path from the configuration
+     * Resolve the file path from the configuration
      * use the configured default path if none is set
      * 
      * @param array                       $endpointOptions
      * @param array                       $stepActionParams
+     *
+     * @return string The file path to the file as in the configuration
      */
     protected function getFilePath( array $endpointOptions, $stepActionParams )
     {
@@ -464,6 +469,8 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      * 
      * @param array                       $endpointOptions
      * @param array                       $stepActionParams
+     *
+     * @return string A full path to the file from the configuration
      */
     protected function getFullPath( array $endpointOptions, $stepActionParams )
     {
