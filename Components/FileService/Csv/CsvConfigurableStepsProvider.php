@@ -373,10 +373,10 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $newFilePath = $params[self::PARAM_NEW_FILE_PATH];
-        $newFullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $newFilePath;
+        $newFullPath = $rootPath . DIRECTORY_SEPARATOR . $newFilePath;
 
         $originalFilePath = $params[self::PARAM_FILE_PATH];
-        $originalFullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $originalFilePath;
+        $originalFullPath = $rootPath . DIRECTORY_SEPARATOR . $originalFilePath;
 
 
         rename( $originalFullPath, $newFullPath );
@@ -406,10 +406,10 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $newFilePath = $params[self::PARAM_NEW_FILE_PATH];
-        $newFullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $newFilePath;
+        $newFullPath = $rootPath . DIRECTORY_SEPARATOR . $newFilePath;
 
         $originalFilePath = $params[self::PARAM_FILE_PATH];
-        $originalFullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $originalFilePath;
+        $originalFullPath = $rootPath . DIRECTORY_SEPARATOR . $originalFilePath;
 
         copy( $originalFullPath, $newFullPath );
     }
