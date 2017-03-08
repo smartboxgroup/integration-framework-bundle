@@ -182,13 +182,13 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $file_path = $params[self::PARAM_FILE_PATH];
-        $full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $file_path;
+        $filePath = $params[self::PARAM_FILE_PATH];
+        $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
 
         $rows = $params[self::PARAM_CSV_ROWS];
 
         //open the file, reset the pointer to zero, create it if not already created
-        $file_handle = fopen( $full_path, 'w' );
+        $fileHandle = fopen( $fullPath, 'w' );
 
         foreach ($rows as $row) {
             if (!is_array($row)){
@@ -196,10 +196,10 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
                 throw new \InvalidArgumentException("Row in Rows is not an array, {$type} given." );
             }
 
-            fputcsv($file_handle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR] );
+            fputcsv($fileHandle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR] );
         }
 
-        fclose($file_handle);
+        fclose($fileHandle);
     }
 
     /**
@@ -222,9 +222,9 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $stepParamsResolver->setDefault( self::PARAM_FILE_PATH, $endpointOptions[CsvConfigurableProtocol::OPTION_DEFAULT_PATH] );
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $file_path = $params[self::PARAM_FILE_PATH];
-        $full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $file_path;
-        $file_handle = $this->getFileHandle($full_path,'w+');
+        $filePath = $params[self::PARAM_FILE_PATH];
+        $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
+        $fileHandle = $this->getFileHandle($fullPath,'w+');
 
         $rows = $params[self::PARAM_CSV_ROWS];
 
@@ -235,7 +235,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
                 throw new \InvalidArgumentException("Row in Rows is not an array, {$type} given." );
             }
 
-            fputcsv($file_handle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR] );
+            fputcsv($fileHandle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR] );
         }
     }
 
@@ -260,24 +260,24 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $file_path = $params[self::PARAM_FILE_PATH];
-        $full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $file_path;
+        $filePath = $params[self::PARAM_FILE_PATH];
+        $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
         
-        $context_result_name = $params[self::PARAM_CONTEXT_RESULT_NAME];
-        $max_line_length = $endpointOptions[CsvConfigurableProtocol::OPTION_MAX_LENGTH];
+        $contextResultName = $params[self::PARAM_CONTEXT_RESULT_NAME];
+        $maxLineLength = $endpointOptions[CsvConfigurableProtocol::OPTION_MAX_LENGTH];
 
         //open the file, reset the pointer to zero
-        $file_handle = fopen( $full_path, 'r' );
+        $fileHandle = fopen( $fullPath, 'r' );
 
         $rows = [];
 
-        while (( $row = fgetcsv($file_handle, $max_line_length, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER])) !== FALSE) {
+        while (( $row = fgetcsv($fileHandle, $maxLineLength, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER])) !== FALSE) {
             $rows[] = $row;
         }
 
-        fclose($file_handle);
+        fclose($fileHandle);
 
-        $context[$context_result_name] = $rows;
+        $context[$contextResultName] = $rows;
     }
 
     /**
@@ -304,20 +304,20 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $stepParamsResolver->setDefault( self::PARAM_FILE_PATH, $endpointOptions[CsvConfigurableProtocol::OPTION_DEFAULT_PATH] );
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $file_path = $params[self::PARAM_FILE_PATH];
-        $full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $file_path;
-        $file_handle = $this->getFileHandle($full_path,'r');
+        $filePath = $params[self::PARAM_FILE_PATH];
+        $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
+        $fileHandle = $this->getFileHandle($fullPath,'r');
 
-        $context_result_name = $params[self::PARAM_CONTEXT_RESULT_NAME];
-        $max_lines = $params[self::PARAM_MAX_LINES];
-        $max_line_length = $endpointOptions[CsvConfigurableProtocol::OPTION_MAX_LENGTH];
+        $contextResultName = $params[self::PARAM_CONTEXT_RESULT_NAME];
+        $maxLines = $params[self::PARAM_MAX_LINES];
+        $maxLineLength = $endpointOptions[CsvConfigurableProtocol::OPTION_MAX_LENGTH];
 
         $rows = [];
 
         $i = 0;
-        while ( $i < $max_lines ) {
+        while ( $i < $maxLines ) {
 
-            $row = fgetcsv($file_handle, $max_line_length, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER]);
+            $row = fgetcsv($fileHandle, $maxLineLength, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER]);
 
             if($row === false) break;
 
@@ -326,10 +326,10 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         }
 
         if( count($rows) === 0 ){
-            throw new NoResultsException("No more results from $$full_path");
+            throw new NoResultsException("No more results from $$fullPath");
         }
 
-        $context[self::KEY_RESULTS][$context_result_name] = $rows;
+        $context[self::KEY_RESULTS][$contextResultName] = $rows;
     }
 
     /**
@@ -344,9 +344,9 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     protected function unlinkFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        $full_path = $this->getFullPath( $endpointOptions, $stepActionParams);
+        $fullPath = $this->getFullPath( $endpointOptions, $stepActionParams);
 
-        unlink($full_path);
+        unlink($fullPath);
     }
 
     /**
@@ -361,7 +361,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     protected function renameFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        $root_path = $this->getRootPath( $endpointOptions, $stepActionParams);
+        $rootPath = $this->getRootPath( $endpointOptions, $stepActionParams);
 
         $stepParamsResolver = new OptionsResolver();
         $stepParamsResolver->setRequired( [
@@ -370,14 +370,14 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $new_file_path = $params[self::PARAM_NEW_FILE_PATH];
-        $new_full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $new_file_path;
+        $newFilePath = $params[self::PARAM_NEW_FILE_PATH];
+        $newFullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $newFilePath;
 
-        $original_file_path = $params[self::PARAM_FILE_PATH];
-        $original_full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $original_file_path;
+        $originalFilePath = $params[self::PARAM_FILE_PATH];
+        $originalFullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $originalFilePath;
 
 
-        rename( $original_full_path, $new_full_path );
+        rename( $originalFullPath, $newFullPath );
     }
 
     /**
@@ -394,7 +394,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     protected function copyFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        $root_path = $this->getRootPath( $endpointOptions, $stepActionParams);
+        $rootPath = $this->getRootPath( $endpointOptions, $stepActionParams);
 
         $stepParamsResolver = new OptionsResolver();
         $stepParamsResolver->setRequired( [
@@ -403,13 +403,13 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $new_file_path = $params[self::PARAM_NEW_FILE_PATH];
-        $new_full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $new_file_path;
+        $newFilePath = $params[self::PARAM_NEW_FILE_PATH];
+        $newFullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $newFilePath;
 
-        $original_file_path = $params[self::PARAM_FILE_PATH];
-        $original_full_path = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $original_file_path;
+        $originalFilePath = $params[self::PARAM_FILE_PATH];
+        $originalFullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $originalFilePath;
 
-        copy( $original_full_path, $new_full_path );
+        copy( $originalFullPath, $newFullPath );
     }
 
     /**
@@ -426,10 +426,10 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     protected function createFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        $full_path = $this->getFullPath( $endpointOptions, $stepActionParams);
+        $fullPath = $this->getFullPath( $endpointOptions, $stepActionParams);
 
-        $file_handle = fopen( $full_path, 'w' );
-        fclose($file_handle);
+        $fileHandle = fopen( $fullPath, 'w' );
+        fclose($fileHandle);
     }
 
     /**
