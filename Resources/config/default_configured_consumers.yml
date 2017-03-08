@@ -1,0 +1,30 @@
+parameters:
+  smartesb.consumers.csv.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableConsumer
+
+
+smartbox_integration_framework:
+    consumers:
+        generic_csv:
+            class: "%smartesb.consumers.csv.class%"
+            description: A Generic Consumer for csv files
+            calls:
+                - [ setId, ['smartesb.consumers.generic_csv']]
+                - [setConfigurableStepsProvider,[@smartesb.steps_provider.csv_file]]
+
+            options:
+                stop_on_eof: true
+                batch_size: 1
+
+            methods:
+                process_lines:
+                    description: Read from a csv file batch_size lines at a time
+
+                    query_steps:
+                        - read_lines:
+                            result_name: processed_lines
+                            max_lines: eval: options['batch_size']
+
+                    query_result:
+                        lines: eval: results['processed_lines']
+
+                    on_consume: ~
