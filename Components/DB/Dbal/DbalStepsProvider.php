@@ -89,12 +89,12 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         $parameters = [];
         $parameterTypes = [];
 
-        foreach ($configuration[self::CONF_PARAMETERS] as $param => $info) {
-            $value = $this->confHelper->resolve($info['value'], $context);
-            if ($value === null) {
-                throw new \RuntimeException(
-                    "Error while trying to execute query in DbalStepsProvider, null value found for query parameter: '$param'"
-                );
+        $params = $this->confHelper->resolve($configuration[self::CONF_PARAMETERS], $context);
+
+        foreach ($params as $param => $info) {
+            $value = null;
+            if (isset($info['value'])) {
+                $value = $info['value'];
             }
 
             $type = 'string';
@@ -142,7 +142,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
             );
             $this->configResolver->setDefined(self::CONF_QUERY_NAME);
             $this->configResolver->setAllowedTypes(self::CONF_SQL, ['string']);
-            $this->configResolver->setAllowedTypes(self::CONF_PARAMETERS, ['array']);
+            $this->configResolver->setAllowedTypes(self::CONF_PARAMETERS, ['array', 'string']);
         }
     }
 
