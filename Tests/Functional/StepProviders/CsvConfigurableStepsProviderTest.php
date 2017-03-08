@@ -1,24 +1,30 @@
 <?php
+
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
 
-use Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableProducer;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
-use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
-use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\AbstractConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 
 class CsvConfigurableStepsProviderTest extends BaseTestCase
 {
+    const TMP_FOLDER = '/tmp/framework-csv-tests/';
     /** @var CsvConfigurableProducer */
     protected $configurableProducer;
 
     /** @var CsvConfigurableStepsProvider */
     protected $stepsProvider;
 
+    /** @var OptionsResolver */
+    protected $optionsResolver;
+
+    /** @var ConfigurableWebserviceProtocol */
+    protected $protocol;
+
+    /**
+     * {@inheritdoc}
+     */
     public function setUp()
     {
         parent::setUp();
@@ -31,6 +37,34 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->stepsProvider = self::getContainer()->get('smartesb.steps_provider.csv_file');
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+        //create a temporary folder
+        mkdir(self::TMP_FOLDER);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function tearDownAfterClass()
+    {
+        $files = glob(self::TMP_FOLDER . '*');
+        foreach ($files as $file) {
+            if (is_file($file))
+                unlink($file); // delete file
+        }
+        //remove the folder
+        rmdir(self::TMP_FOLDER);
+        parent::tearDown();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function testProviderExists()
     {   
         $this->assertInstanceOf('Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableStepsProvider', $this->stepsProvider); 
@@ -49,15 +83,13 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
 
     public function testCreateFile()
     {
-        $file_name = md5(microtime()) . '.hello.world';
+        $fileName = $this->generateFilename();
 
         $stepAction = 'create';
-        $stepActionParams = [
-
-        ];
+        $stepActionParams = [];
         $options = [
-            'root_path' => '/tmp',
-            'default_path' => $file_name
+            'root_path' => self::TMP_FOLDER,
+            'default_path' => $fileName
         ];
         $context = [];
 
@@ -65,23 +97,23 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertTrue( $ans );
 
         //The new file should exist
-        $this->assertFileExists('/tmp/' . $file_name);
+        $this->assertFileExists(self::TMP_FOLDER . $fileName);
 
         //Tidy up
-        @unlink('/tmp/' . $file_name);
+        @unlink(self::TMP_FOLDER . $fileName);
     }
 
     public function testCreateFileWithPathSet()
     {
-        $default_file_name = md5(microtime()) . '.goodbye.world';
-        $file_name = md5(microtime()) . '.hello.world';
+        $default_file_name = $this->generateFilename('.goodbye.world');
+        $fileName = $this->generateFilename();
 
         $stepAction = 'create';
         $stepActionParams = [
-            'file_path' => $file_name
+            'file_path' => $fileName
         ];
         $options = [
-            'root_path' => '/tmp',
+            'root_path' => self::TMP_FOLDER,
             'default_path' => $default_file_name
         ];
         $context = [];
@@ -90,31 +122,29 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertTrue( $ans );
 
         //The new file should exist
-        $this->assertFileExists('/tmp/' . $file_name);
+        $this->assertFileExists(self::TMP_FOLDER . $fileName);
 
-        //and the default file does not exisit!
-        $this->assertFalse( file_exists('/tmp/' .  $default_file_name), 'The default file should not exist' );
+        //and the default file does not exist!
+        $this->assertFalse( file_exists(self::TMP_FOLDER .  $default_file_name), 'The default file should not exist' );
 
         //Tidy up
-        @unlink('/tmp/' . $file_name);
-        @unlink('/tmp/' . $default_file_name);
+        @unlink(self::TMP_FOLDER . $fileName);
+        @unlink(self::TMP_FOLDER . $default_file_name);
     }
 
     public function testUnlinkFile()
     {
-        $file_name = md5(microtime()) . '.hello.world';
-        $full_path = '/tmp/' . $file_name;
+        $fileName = $this->generateFilename();
+        $fullPath = self::TMP_FOLDER . $fileName;
 
         //create the file before the test
-        file_put_contents($full_path, '');
+        file_put_contents($fullPath, '');
 
         $stepAction = 'delete';
-        $stepActionParams = [
-
-        ];
+        $stepActionParams = [];
         $options = [
-            'root_path' => '/tmp',
-            'default_path' => $file_name
+            'root_path' => self::TMP_FOLDER,
+            'default_path' => $fileName
         ];
         $context = [];
 
@@ -122,28 +152,27 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertTrue( $ans );
 
         //The new file should not exist
-        $this->assertFalse( file_exists($full_path) );
+        $this->assertFalse( file_exists($fullPath) );
 
         //Tidy up
-        @unlink($file_path);
+        @unlink($fullPath);
     }
 
     public function testRenameFile()
     {
-        $file_name = md5(microtime()) . '.goodbye.world';
-        $new_file_name = md5(microtime()) . '.hello.world';
+        $fileName = md5(microtime()) . '.goodbye.world';
+        $newFileName = $this->generateFilename();
 
         //create the file before the test
-        file_put_contents('/tmp/' . $file_name, '');
+        file_put_contents(self::TMP_FOLDER . $fileName, 'I am content');
 
         $stepAction = 'rename';
         $stepActionParams = [
-            'file_path' => $file_name,
-            'new_file_path' => $new_file_name,
+            'file_path' => $fileName,
+            'new_file_path' => $newFileName,
         ];
         $options = [
-            'root_path' => '/tmp',
-            'default_path' => 'delete.me'
+            'root_path' => self::TMP_FOLDER,
         ];
         $context = [];
 
@@ -151,32 +180,31 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertTrue( $ans );
 
         //The old file should not exist
-        $this->assertFalse( file_exists('/tmp/' . $file_name) );
+        $this->assertFalse( file_exists(self::TMP_FOLDER . $fileName) );
 
         //and the new should
-        $this->assertFileExists('/tmp/' . $new_file_name);
+        $this->assertFileExists(self::TMP_FOLDER . $newFileName);
 
         //Tidy up
-        @unlink('/tmp/' . $file_name);
-        @unlink('/tmp/' . $new_file_name);
+        @unlink(self::TMP_FOLDER . $fileName);  //this should do nothing as it is renamed ;)
+        @unlink(self::TMP_FOLDER . $newFileName);
     }
 
     public function testCopyFile()
     {
-        $file_name = md5(microtime()) . '.hello.world';
-        $new_file_name = md5(microtime()) . '.really.hello.world';
+        $fileName = $this->generateFilename();
+        $newFileName = $this->generateFilename('.really.hello.world');
 
         //create the file before the test
-        file_put_contents('/tmp/' . $file_name, '');
+        file_put_contents(self::TMP_FOLDER . $fileName, 'I am content');
 
         $stepAction = 'copy';
         $stepActionParams = [
-            'file_path' => $file_name,
-            'new_file_path' => $new_file_name,
+            'file_path' => $fileName,
+            'new_file_path' => $newFileName,
         ];
         $options = [
-            'root_path' => '/tmp',
-            'default_path' => 'delete.me'
+            'root_path' => self::TMP_FOLDER,
         ];
         $context = [];
 
@@ -184,23 +212,25 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertTrue( $ans );
 
         //The original file should be there
-        $this->assertFileExists('/tmp/' . $file_name);
+        $this->assertFileExists(self::TMP_FOLDER . $fileName);
 
         //and the new should also
-        $this->assertFileExists('/tmp/' . $new_file_name);
+        $this->assertFileExists(self::TMP_FOLDER . $newFileName);
+
+        // test we still have content
 
         //Tidy up
-        @unlink('/tmp/' . $file_name);
-        @unlink('/tmp/' . $new_file_name);
+        @unlink(self::TMP_FOLDER . $fileName);
+        @unlink(self::TMP_FOLDER . $newFileName);
     }
 
     public function testWriteToFile()
     {
-        $file_name = md5(microtime()) . '.hello.world';
+        $fileName = $this->generateFilename();
 
         $stepAction = 'write';
         $stepActionParams = [
-            'file_path' => $file_name,
+            'file_path' => $fileName,
             'rows' => [
                 [ "x1", "y1", "z1" ],
                 [ "x2", "y2", "z2" ],
@@ -212,7 +242,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
             ]
         ];
         $options = [
-            'root_path' => '/tmp',
+            'root_path' => self::TMP_FOLDER,
             'default_path' => 'delete.me',
             'delimiter' => '|',
             'enclosure' => '+',
@@ -224,20 +254,20 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertTrue( $ans );
 
         //The original file should be there
-        $this->assertFileExists('/tmp/' . $file_name);
-        $lines = file('/tmp/' . $file_name);
+        $this->assertFileExists(self::TMP_FOLDER . $fileName);
+        $lines = file(self::TMP_FOLDER . $fileName);
         $this->assertEquals( count($lines), 7 ); //should be 7 rows
         $this->assertEquals( count( explode('|', $lines[0])) , 3 ); //should be 3 cols
 
         //Tidy up
-        @unlink('/tmp/' . $file_name);
+        @unlink(self::TMP_FOLDER . $fileName);
     }
 
     public function testAppendLinesToFile()
     {
-        $file_name = md5(microtime()) . '.hello.world';
+        $fileName = $this->generateFilename();
 
-        $handle = fopen('/tmp/' . $file_name, 'w');
+        $handle = fopen(self::TMP_FOLDER . $fileName, 'w');
 
         $stepAction = 'append_lines';
         $stepActionParams = [
@@ -250,10 +280,10 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
                 [ "a6", "b6", "c6" ],
                 [ "a7", "b7", "c7" ],
             ],
-            'file_path' => $file_name,
+            'file_path' => $fileName,
         ];
         $options = [
-            'root_path' => '/tmp',
+            'root_path' => self::TMP_FOLDER,
             'default_path' => 'delete.me',
             'delimiter' => '|',
             'enclosure' => '+',
@@ -267,27 +297,27 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertTrue( $ans );
 
         //The original file should be there
-        $this->assertFileExists('/tmp/' . $file_name);
-        $lines = file('/tmp/' . $file_name);
+        $this->assertFileExists(self::TMP_FOLDER . $fileName);
+        $lines = file(self::TMP_FOLDER . $fileName);
         $this->assertEquals( count($lines), 7 ); //should be 7 rows
         $this->assertEquals( count( explode('|', $lines[0])) , 3 ); //should be 3 cols
 
         //Tidy up
         fclose($handle);
-        @unlink('/tmp/' . $file_name);
+        @unlink(self::TMP_FOLDER . $fileName);
     }
 
     public function testReadFile()
     {
-        $file_name = md5(microtime()) . '.hello.world';
+        $fileName = $this->generateFilename();
 
         $stepAction = 'read';
         $stepActionParams = [
-            'file_path' => $file_name,
+            'file_path' => $fileName,
             'result_name' => 'resultness',
         ];
         $options = [
-            'root_path' => '/tmp',
+            'root_path' => self::TMP_FOLDER,
             'default_path' => 'delete.me',
             'delimiter' => '|',
             'enclosure' => '+',
@@ -296,7 +326,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         ];
         $context = [];
 
-        file_put_contents('/tmp/' . $file_name, "a1|b1|c1\na2|b2|c2\na3|b3|c3\na4|b4|c4\na5|b5|c5\na6|b6|c6\na7|b7|c7");
+        file_put_contents(self::TMP_FOLDER . $fileName, "a1|b1|c1\na2|b2|c2\na3|b3|c3\na4|b4|c4\na5|b5|c5\na6|b6|c6\na7|b7|c7");
 
         $ans = $this->stepsProvider->executeStep($stepAction, $stepActionParams, $options, $context);
         $this->assertTrue( $ans );
@@ -305,24 +335,24 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertSame( 'a1', $context['resultness'][0][0] ); 
 
         //Tidy up
-        @unlink('/tmp/' . $file_name);
+        @unlink(self::TMP_FOLDER . $fileName);
     }
 
     public function testReadLinesFromFile()
     {
-        $file_name = md5(microtime()) . '.hello.world';
-        file_put_contents('/tmp/' . $file_name, "a1|b1|c1\na2|b2|c2\na3|b3|c3\na4|b4|c4\na5|b5|c5\na6|b6|c6\na7|b7|c7");
+        $fileName = $this->generateFilename();
+        file_put_contents(self::TMP_FOLDER . $fileName, "a1|b1|c1\na2|b2|c2\na3|b3|c3\na4|b4|c4\na5|b5|c5\na6|b6|c6\na7|b7|c7");
 
-        $handle = fopen('/tmp/' . $file_name, 'r');
+        $handle = fopen(self::TMP_FOLDER . $fileName, 'r');
 
         $stepAction = 'read_lines';
         $stepActionParams = [
             'max_lines' => 2,
             'result_name' => 'resultness',
-            'file_path' => $file_name,
+            'file_path' => $fileName,
         ];
         $options = [
-            'root_path' => '/tmp',
+            'root_path' => self::TMP_FOLDER,
             'default_path' => 'delete.me',
             'delimiter' => '|',
             'enclosure' => '+',
@@ -340,7 +370,15 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertCount( 2, $context['results']['resultness'] );
 
         //Tidy up
-        @unlink('/tmp/' . $file_name);
+        @unlink(self::TMP_FOLDER . $fileName);
+    }
+
+    /**
+     * @return string
+     */
+    private function generateFilename($postFix = '.hello.world')
+    {
+        return md5(microtime()) . $postFix;
     }
 
 }

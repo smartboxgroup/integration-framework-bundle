@@ -70,3 +70,5 @@ services:
   # Csv File
   smartesb.protocols.configurable.csv_file:
       class: "%smartesb.protocols.csv_file.class%"
+      calls:
+        - [setDefaultHandler, [@smartesb.handlers.async]]

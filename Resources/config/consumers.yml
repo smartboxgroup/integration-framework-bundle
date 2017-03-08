@@ -1,6 +1,5 @@
 parameters:
   smartesb.consumers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer
-  smartesb.consumers.csv.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableConsumer
 
 services:
   smartesb.consumers.queue:
