@@ -149,6 +149,12 @@ class Mapper implements MapperInterface
         return array_key_exists($key, $obj);
     }
 
+    /**
+     * @param $class
+     * @param $property
+     *
+     * @return bool
+     */
     public function propertyExists($class, $property)
     {
         return property_exists($class, $property);
@@ -252,6 +258,18 @@ class Mapper implements MapperInterface
         }
 
         throw new \RuntimeException('To instantiate a Mongo ObjectID object you need to install the php mongo extension.');
+    }
+
+    /**
+     * @param $search
+     * @param $replace
+     * @param $subject
+     *
+     * @return mixed
+     */
+    public function replaceStr($search, $replace, $subject)
+    {
+        return str_replace($search, $replace, $subject);
     }
 
     /**
