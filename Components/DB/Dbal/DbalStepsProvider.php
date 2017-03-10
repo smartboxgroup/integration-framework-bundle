@@ -80,9 +80,8 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      * @param array $configuration
      * @param $context
      *
-     * @return Statement
-     *
-     * @internal param array $endpointOptions
+     * @return array
+     * @throws NoResultsException
      */
     protected function performQuery(array $configuration, &$context)
     {
