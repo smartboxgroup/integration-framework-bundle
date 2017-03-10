@@ -91,6 +91,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
             $definition->addMethodCall('setOptions', [$options]);
             $definition->addMethodCall('setConfHelper', [new Reference('smartesb.configurable_service_helper')]);
+            $definition->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
             $definition->addMethodCall('setName', [$producerName]);
@@ -145,6 +146,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setOptions', [$options]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
+            $definition->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
             $definition->addMethodCall('setName', [$consumerName]);
             $container->setDefinition($consumerId, $definition);
 
