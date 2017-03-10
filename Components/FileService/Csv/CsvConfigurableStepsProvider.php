@@ -28,12 +28,13 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     const KEY_RESULTS = 'results';
 
     // Method Params
-    const PARAM_FILE_PATH = 'file_path';
+    const PARAM_FILE_NAME = 'filename';
     const PARAM_NEW_FILE_PATH = 'new_file_path';
     const PARAM_CSV_ROWS = 'rows';
     const PARAM_CSV_ROW = 'row';
     const PARAM_CONTEXT_RESULT_NAME = 'result_name';
     const PARAM_MAX_LINES = 'max_lines';
+    const PARAM_HEADERS = 'headers';
 
     // Context constants
     const CONTEXT_FILE_HANDLE = 'file_handle';
@@ -173,7 +174,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_CSV_ROWS
      * Optional Params:
-     *     - CsvConfigurableProducer::PARAM_FILE_PATH
+     *     - CsvConfigurableProducer::PARAM_FILE_NAME
      * 
      * @param array                       $stepActionParams
      * @param array                       $endpointOptions
@@ -183,12 +184,12 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     {
         $stepParamsResolver = new OptionsResolver();
         $stepParamsResolver->setRequired( [
-            self::PARAM_FILE_PATH,
+            self::PARAM_FILE_NAME,
             self::PARAM_CSV_ROWS,
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $filePath = $params[self::PARAM_FILE_PATH];
+        $filePath = $params[self::PARAM_FILE_NAME];
         $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
 
         $rows = $params[self::PARAM_CSV_ROWS];
@@ -225,14 +226,21 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $stepParamsResolver->setRequired( [
             self::PARAM_CSV_ROWS,
         ]);
-        $stepParamsResolver->setDefault( self::PARAM_FILE_PATH, $endpointOptions[CsvConfigurableProtocol::OPTION_DEFAULT_PATH] );
+        $stepParamsResolver->setDefault( self::PARAM_FILE_NAME, $endpointOptions[CsvConfigurableProtocol::OPTION_PATH] );
+        $stepParamsResolver->setDefault( self::PARAM_HEADERS, null );
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $filePath = $params[self::PARAM_FILE_PATH];
+        $filePath = $params[self::PARAM_FILE_NAME];
         $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
-        $fileHandle = $this->getFileHandle($fullPath,'w+');
 
         $rows = $params[self::PARAM_CSV_ROWS];
+
+        $headers = $params[self::PARAM_HEADERS];
+        if (is_array($headers) && !file_exists($fullPath)) {
+            $rows = array_merge([$headers], $rows);
+        }
+
+        $fileHandle = $this->getFileHandle($fullPath,'a');
 
         foreach ($rows as $row) {
 
@@ -251,7 +259,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_CONTEXT_RESULT_NAME
      * Optional Params:
-     *     - CsvConfigurableProducer::PARAM_FILE_PATH
+     *     - CsvConfigurableProducer::PARAM_FILE_NAME
      * 
      * @param array                       $stepActionParams
      * @param array                       $endpointOptions
@@ -261,12 +269,12 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     {
         $stepParamsResolver = new OptionsResolver();
         $stepParamsResolver->setRequired( [
-            self::PARAM_FILE_PATH,
+            self::PARAM_FILE_NAME,
             self::PARAM_CONTEXT_RESULT_NAME,
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $filePath = $params[self::PARAM_FILE_PATH];
+        $filePath = $params[self::PARAM_FILE_NAME];
         $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
         
         $contextResultName = $params[self::PARAM_CONTEXT_RESULT_NAME];
@@ -309,10 +317,10 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         ]);
 
         $stepParamsResolver->setDefault( self::PARAM_MAX_LINES, 1 );
-        $stepParamsResolver->setDefault( self::PARAM_FILE_PATH, $endpointOptions[CsvConfigurableProtocol::OPTION_DEFAULT_PATH] );
+        $stepParamsResolver->setDefault( self::PARAM_FILE_NAME, $endpointOptions[CsvConfigurableProtocol::OPTION_PATH] );
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $filePath = $params[self::PARAM_FILE_PATH];
+        $filePath = $params[self::PARAM_FILE_NAME];
         $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
         $fileHandle = $this->getFileHandle($fullPath,'r');
 
@@ -327,7 +335,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
 
             $row = fgetcsv($fileHandle, $maxLineLength, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER]);
 
-            if($row === false) break;
+            if ($row === false) break;
 
             $rows[] = $row;
             $i++;
@@ -344,7 +352,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      * Delete a file
      *
      * Optional Params:
-     *     - CsvConfigurableProducer::PARAM_FILE_PATH
+     *     - CsvConfigurableProducer::PARAM_FILE_NAME
      *
      * @param array                       $stepActionParams
      * @param array                       $endpointOptions
@@ -361,7 +369,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      * Rename the file for this producer
      *
      * Optional Params:
-     *     - CsvConfigurableProducer::PARAM_FILE_PATH
+     *     - CsvConfigurableProducer::PARAM_FILE_NAME
      * 
      * @param array                       $stepActionParams
      * @param array                       $endpointOptions
@@ -373,7 +381,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
 
         $stepParamsResolver = new OptionsResolver();
         $stepParamsResolver->setRequired( [
-            self::PARAM_FILE_PATH,
+            self::PARAM_FILE_NAME,
             self::PARAM_NEW_FILE_PATH,
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
@@ -381,7 +389,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $newFilePath = $params[self::PARAM_NEW_FILE_PATH];
         $newFullPath = $rootPath . DIRECTORY_SEPARATOR . $newFilePath;
 
-        $originalFilePath = $params[self::PARAM_FILE_PATH];
+        $originalFilePath = $params[self::PARAM_FILE_NAME];
         $originalFullPath = $rootPath . DIRECTORY_SEPARATOR . $originalFilePath;
 
 
@@ -394,7 +402,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_NEW_FILE_PATH
      * Optional Params:
-     *     - CsvConfigurableProducer::PARAM_FILE_PATH
+     *     - CsvConfigurableProducer::PARAM_FILE_NAME
      * 
      * @param array                       $stepActionParams
      * @param array                       $endpointOptions
@@ -406,7 +414,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
 
         $stepParamsResolver = new OptionsResolver();
         $stepParamsResolver->setRequired( [
-            self::PARAM_FILE_PATH,
+            self::PARAM_FILE_NAME,
             self::PARAM_NEW_FILE_PATH,
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
@@ -414,7 +422,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $newFilePath = $params[self::PARAM_NEW_FILE_PATH];
         $newFullPath = $rootPath . DIRECTORY_SEPARATOR . $newFilePath;
 
-        $originalFilePath = $params[self::PARAM_FILE_PATH];
+        $originalFilePath = $params[self::PARAM_FILE_NAME];
         $originalFullPath = $rootPath . DIRECTORY_SEPARATOR . $originalFilePath;
 
         copy( $originalFullPath, $newFullPath );
@@ -426,7 +434,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_NEW_FILE_PATH
      * Optional Params:
-     *     - CsvConfigurableProducer::PARAM_FILE_PATH
+     *     - CsvConfigurableProducer::PARAM_FILE_NAME
      * 
      * @param array                       $stepActionParams
      * @param array                       $endpointOptions
@@ -449,7 +457,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     public function getRootPath( array $endpointOptions )
     {
-        return $endpointOptions[CsvConfigurableProtocol::OPTION_ROOT_PATH];
+        return $endpointOptions[CsvConfigurableProtocol::OPTION_PATH];
     }
 
     /**
@@ -463,10 +471,10 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     protected function getFilePath( array $endpointOptions, $stepActionParams )
     {
-        if(array_key_exists(self::PARAM_FILE_PATH,$stepActionParams)){
-            return $stepActionParams[self::PARAM_FILE_PATH];
+        if(array_key_exists(self::PARAM_FILE_NAME,$stepActionParams)){
+            return $stepActionParams[self::PARAM_FILE_NAME];
         }else{
-            return $endpointOptions[CsvConfigurableProtocol::OPTION_DEFAULT_PATH];
+            return $endpointOptions[CsvConfigurableProtocol::OPTION_PATH];
         }
     }
 

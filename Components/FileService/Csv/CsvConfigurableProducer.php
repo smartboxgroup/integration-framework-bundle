@@ -50,8 +50,5 @@ class CsvConfigurableProducer extends AbstractConfigurableProducer implements Co
         $context = $this->getConfHelper()->createContext($options, $exchange->getIn(), $exchange);
 
         $this->configurableStepsProvider->executeSteps($steps, $options, $context);
-
-        $empty = [];  //We would like to pass as a referance, so this must be a variable
-        $this->configurableStepsProvider->executeStep(CsvConfigurableStepsProvider::STEP_CLEAN_FILE_HANDLES, $empty, $options, $context);
     }
 }
