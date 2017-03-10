@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInte
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
@@ -80,7 +81,13 @@ class CsvConfigurableConsumer extends AbstractConsumer implements ConfigurableCo
             $result = new SerializableArray($result);
         }
 
-        return $this->smartesbHelper->getMessageFactory()->createMessage($result);
+        $context = new Context([
+            Context::FLOWS_VERSION => $this->getFlowsVersion(),
+            Context::TRANSACTION_ID => uniqid("",true),
+            Context::ORIGINAL_FROM => $endpoint->getURI()
+        ]);
+
+        return $this->smartesbHelper->getMessageFactory()->createMessage($result, [], $context);
     }
 
     /**
