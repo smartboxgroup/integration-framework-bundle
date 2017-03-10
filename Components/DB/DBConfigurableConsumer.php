@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\DB;
 
 
 use Smartbox\CoreBundle\Type\SerializableArray;
+use Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\ConfigurableDbalProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLConfigurableProtocol;
 use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
@@ -19,6 +20,7 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
     use IsStopableConsumer;
     use UsesSmartesbHelper;
     use IsConfigurableService;
+
 
     /** @var  ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
@@ -63,6 +65,9 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
             );
         }catch(NoResultsException $exception){
             $result = null;
+            if( $options[ConfigurableDbalProtocol::OPTION_STOP_ON_NO_RESULTS] ){
+                $this->stop();
+            }
         }
 
         if($result == null){
