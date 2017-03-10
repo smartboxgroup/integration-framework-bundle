@@ -23,6 +23,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     protected $doctrine;
 
     const STEP_EXECUTE = 'execute';
+    const STEP_INSERT = 'insert';
 
     const CONF_PARAMETERS = 'parameters';
     const CONF_SQL = 'sql';
@@ -65,14 +66,16 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         switch ($stepAction) {
             case self::STEP_EXECUTE:
                 $stepActionParams = $this->configResolver->resolve($stepActionParams);
-                $this->performQuery($stepActionParams, $context);
+                $this->execute($stepActionParams, $context);
 
                 return true;
-                break;
+            case self::STEP_INSERT:
+                $stepActionParams = $this->configResolver->resolve($stepActionParams);
+                $this->insert($stepActionParams, $context);
 
+                return true;
             default:
                 return false;
-                break;
         }
     }
 
@@ -81,17 +84,58 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      * @param $context
      *
      * @return Statement
-     *
-     * @internal param array $endpointOptions
      */
-    protected function performQuery(array $configuration, &$context)
+    protected function execute(array $configuration, &$context)
     {
+        $parameters = $this->confHelper->resolve($configuration[self::CONF_PARAMETERS], $context);
+        $parameters = $this->prepareParameters($parameters);
+
+        $sql = $this->confHelper->resolve($configuration[self::CONF_SQL], $context);
+
+        return $this->performQuery($configuration, $context, $parameters, $sql);
+    }
+
+    /**
+     * @param array $configuration
+     * @param $context
+     *
+     * @return Statement
+     */
+    protected function insert(array $configuration, &$context)
+    {
+        $tuples = [];
         $parameters = [];
-        $parameterTypes = [];
 
-        $params = $this->confHelper->resolve($configuration[self::CONF_PARAMETERS], $context);
+        $rows = $this->confHelper->resolve($configuration[self::CONF_PARAMETERS], $context);
+        foreach ($rows as $key => $params) {
+            $params = $this->prepareParameters($params, $key);
+            $tuples[] = '('.implode(',', $params['names']).')';
+            $parameters = array_merge_recursive($parameters, $params);
+        }
 
-        foreach ($params as $param => $info) {
+        $sql = $this->confHelper->resolve($configuration[self::CONF_SQL], $context);
+        $sql = str_replace(':values', implode(',', $tuples), $sql);
+
+        return $this->performQuery($configuration, $context, $parameters, $sql);
+    }
+
+    /**
+     * @param array $params
+     * @param string $suffix
+     *
+     * @return array
+     */
+    protected function prepareParameters(array $params, $suffix = '')
+    {
+        $parameters = [
+            'names' => [],
+            'values' => [],
+            'types' => [],
+        ];
+
+        foreach ($params as $name => $info) {
+            $name = $name.$suffix;
+
             $value = null;
             if (isset($info['value'])) {
                 $value = $info['value'];
@@ -102,14 +146,26 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
                 $type = $info['type'];
             }
 
-            $parameters[$param] = $value;
-            $parameterTypes[$param] = $type;
+            $parameters['names'][] = ":$name";
+            $parameters['values'][$name] = $value;
+            $parameters['types'][$name] = $type;
         }
 
-        $sql = $this->confHelper->resolve($configuration[self::CONF_SQL], $context);
+        return $parameters;
+    }
 
+    /**
+     * @param array $configuration
+     * @param $context
+     * @param array $parameters
+     * @param string $sql
+     *
+     * @return Statement
+     */
+    protected function performQuery(array $configuration, &$context, array $parameters, $sql)
+    {
         /** @var PDOStatement $stmt */
-        $stmt = $this->doctrine->getConnection()->executeQuery($sql, $parameters, $parameterTypes);
+        $stmt = $this->doctrine->getConnection()->executeQuery($sql, $parameters['values'], $parameters['types']);
 
         if ($stmt->columnCount() > 0){ // SQL query is for example a SELECT
             $result = $stmt->fetchAll();
