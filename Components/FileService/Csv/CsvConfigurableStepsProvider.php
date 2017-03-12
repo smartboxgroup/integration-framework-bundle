@@ -117,6 +117,12 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
      */
     public function executeStep($stepAction, array &$stepActionParams, array &$options, array &$context)
     {
+        $handled = $this->getConfHelper()->executeStep($stepAction, $stepActionParams, $options, $context);
+
+        if ($handled) {
+            return true;
+        }
+
         switch ($stepAction) {
             case self::STEP_CLEAN_FILE_HANDLES:
                 $this->closeAllFileHandles();
