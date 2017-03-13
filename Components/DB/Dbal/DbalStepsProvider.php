@@ -23,6 +23,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     protected $doctrine;
 
     const STEP_EXECUTE = 'execute';
+    const STEP_EXECUTE_ALL = 'execute_all';
     const STEP_INSERT = 'insert';
 
     const CONF_PARAMETERS = 'parameters';
@@ -69,6 +70,11 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
                 $this->execute($stepActionParams, $context);
 
                 return true;
+            case self::STEP_EXECUTE_ALL:
+                $stepActionParams = $this->configResolver->resolve($stepActionParams);
+                $this->executeAll($stepActionParams, $context);
+
+                return true;
             case self::STEP_INSERT:
                 $stepActionParams = $this->configResolver->resolve($stepActionParams);
                 $this->insert($stepActionParams, $context);
@@ -93,6 +99,27 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         $sql = $this->confHelper->resolve($configuration[self::CONF_SQL], $context);
 
         return $this->performQuery($configuration, $context, $parameters, $sql);
+    }
+
+    /**
+     * @param array $configuration
+     * @param $context
+     *
+     * @return array
+     */
+    protected function executeAll(array $configuration, &$context)
+    {
+        $parameters = $this->confHelper->resolve($configuration[self::CONF_PARAMETERS], $context);
+        $sql = $this->confHelper->resolve($configuration[self::CONF_SQL], $context);
+
+        $results = [];
+
+        foreach ($parameters as $params) {
+            $params = $this->prepareParameters($params);
+            $results[] = $this->performQuery($configuration, $context, $params, $sql);
+        }
+
+        return $results;
     }
 
     /**
