@@ -25,7 +25,8 @@
         "smartbox/core-bundle": "dev-master",
         "mongodb/mongodb": "~1.0",
         "ocramius/proxy-manager": "~1.0",
-        "stomp-php/stomp-php": "4.*"
+        "stomp-php/stomp-php": "4.*",
+        "doctrine/doctrine-bundle": "^1.6"
     },
     "require-dev": {
         "phpunit/php-code-coverage": "~4.0",
