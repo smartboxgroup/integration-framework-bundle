@@ -17,6 +17,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createContainsFunction(),
             $this->createUniqIdFunction(),
             $this->createSubStrFunction(),
+            $this->createDefaultTo(),
         ];
     }
 
@@ -36,6 +37,22 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                 }
 
                 return strpos($string, $search) !== false;
+            }
+        );
+    }
+
+    /**
+     * @return ExpressionFunction
+     */
+    protected function createDefaultTo()
+    {
+        return new ExpressionFunction(
+            'defaultTo',
+            function ($value, $defaultValue) {
+                return sprintf('(%s !== null ? %s : %s)', $value, $value, $defaultValue);
+            },
+            function ($arguments, $value, $defaultValue) {
+                return $value !== null ? $value : $defaultValue;
             }
         );
     }
