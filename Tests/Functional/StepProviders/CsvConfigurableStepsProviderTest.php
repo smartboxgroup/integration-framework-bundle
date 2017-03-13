@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Producers;
 
 use Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableProducer;
+use Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableStepsProvider;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
@@ -86,10 +87,11 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $fileName = $this->generateFilename();
 
         $stepAction = 'create';
-        $stepActionParams = [];
+        $stepActionParams = [
+            'filename' => $fileName
+        ];
         $options = [
-            'root_path' => self::TMP_FOLDER,
-            'default_path' => $fileName
+            'path' => self::TMP_FOLDER
         ];
         $context = [];
 
@@ -110,11 +112,10 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
 
         $stepAction = 'create';
         $stepActionParams = [
-            'file_path' => $fileName
+            'filename' => $fileName
         ];
         $options = [
-            'root_path' => self::TMP_FOLDER,
-            'default_path' => $default_file_name
+            'path' => self::TMP_FOLDER,
         ];
         $context = [];
 
@@ -141,10 +142,11 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         file_put_contents($fullPath, '');
 
         $stepAction = 'delete';
-        $stepActionParams = [];
+        $stepActionParams = [
+            'filename' => $fileName
+        ];
         $options = [
-            'root_path' => self::TMP_FOLDER,
-            'default_path' => $fileName
+            'path' => self::TMP_FOLDER,
         ];
         $context = [];
 
@@ -168,11 +170,11 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
 
         $stepAction = 'rename';
         $stepActionParams = [
-            'file_path' => $fileName,
+            'filename' => $fileName,
             'new_file_path' => $newFileName,
         ];
         $options = [
-            'root_path' => self::TMP_FOLDER,
+            'path' => self::TMP_FOLDER,
         ];
         $context = [];
 
@@ -200,11 +202,11 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
 
         $stepAction = 'copy';
         $stepActionParams = [
-            'file_path' => $fileName,
+            'filename' => $fileName,
             'new_file_path' => $newFileName,
         ];
         $options = [
-            'root_path' => self::TMP_FOLDER,
+            'path' => self::TMP_FOLDER,
         ];
         $context = [];
 
@@ -230,7 +232,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
 
         $stepAction = 'write';
         $stepActionParams = [
-            'file_path' => $fileName,
+            'filename' => $fileName,
             'rows' => [
                 [ "x1", "y1", "z1" ],
                 [ "x2", "y2", "z2" ],
@@ -242,8 +244,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
             ]
         ];
         $options = [
-            'root_path' => self::TMP_FOLDER,
-            'default_path' => 'delete.me',
+            'path' => self::TMP_FOLDER,
             'delimiter' => '|',
             'enclosure' => '+',
             'escape_char' =>'\\',
@@ -280,11 +281,10 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
                 [ "a6", "b6", "c6" ],
                 [ "a7", "b7", "c7" ],
             ],
-            'file_path' => $fileName,
+            'filename' => $fileName,
         ];
         $options = [
-            'root_path' => self::TMP_FOLDER,
-            'default_path' => 'delete.me',
+            'path' => self::TMP_FOLDER,
             'delimiter' => '|',
             'enclosure' => '+',
             'escape_char' =>'\\',
@@ -313,12 +313,11 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
 
         $stepAction = 'read';
         $stepActionParams = [
-            'file_path' => $fileName,
+            'filename' => $fileName,
             'result_name' => 'resultness',
         ];
         $options = [
-            'root_path' => self::TMP_FOLDER,
-            'default_path' => 'delete.me',
+            'path' => self::TMP_FOLDER,
             'delimiter' => '|',
             'enclosure' => '+',
             'escape_char' =>'\\',
@@ -349,11 +348,10 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $stepActionParams = [
             'max_lines' => 2,
             'result_name' => 'resultness',
-            'file_path' => $fileName,
+            'filename' => $fileName,
         ];
         $options = [
-            'root_path' => self::TMP_FOLDER,
-            'default_path' => 'delete.me',
+            'path' => self::TMP_FOLDER,
             'delimiter' => '|',
             'enclosure' => '+',
             'escape_char' =>'\\',
