@@ -24,6 +24,7 @@ class MessageFactory implements MessageFactoryInterface
         if (!$context) {
             $context = new Context([
                 Context::FLOWS_VERSION => $this->getFlowsVersion(),
+                Context::TRANSACTION_ID => uniqid('', true),
             ]);
         }
 

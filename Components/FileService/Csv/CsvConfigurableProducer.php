@@ -14,10 +14,9 @@ use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInte
  */
 class CsvConfigurableProducer extends AbstractConfigurableProducer implements ConfigurableProducerInterface
 {
-
     use UsesSerializer;
 
-    /** @var  ConfigurableStepsProviderInterface */
+    /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
 
     /**
@@ -51,7 +50,7 @@ class CsvConfigurableProducer extends AbstractConfigurableProducer implements Co
 
         $this->configurableStepsProvider->executeSteps($steps, $options, $context);
 
-        $empty = [];  //We would like to pass as a referance, so this must be a variable
+        $empty = [];  //We would like to pass as a reference, so this must be a variable
         $this->configurableStepsProvider->executeStep(CsvConfigurableStepsProvider::STEP_CLEAN_FILE_HANDLES, $empty, $options, $context);
     }
 }

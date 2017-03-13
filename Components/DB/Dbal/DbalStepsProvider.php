@@ -4,7 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\DB\Dbal;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Driver\PDOStatement;
-use Doctrine\DBAL\Statement;
 use Smartbox\Integration\FrameworkBundle\Components\DB\ConfigurableStepsProviderInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
@@ -184,7 +183,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     }
 
     /**
-     * @param array $params
+     * @param array  $params
      * @param string $suffix
      *
      * @return array
@@ -225,6 +224,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      * @param $sql
      *
      * @return array
+     *
      * @throws NoResultsException
      */
     protected function performQuery(array $configuration, &$context, array $parameters, $sql)
@@ -232,7 +232,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         /** @var PDOStatement $stmt */
         $stmt = $this->doctrine->getConnection()->executeQuery($sql, $parameters['values'], $parameters['types']);
 
-        if ($stmt->columnCount() > 0){ // SQL query is for example a SELECT
+        if ($stmt->columnCount() > 0) { // SQL query is for example a SELECT
             $result = $stmt->fetchAll();
         } else { // SQL query is for example an UPDATE
             $result = ['count' => $stmt->rowCount()];
@@ -242,7 +242,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
             $name = $configuration[self::CONF_QUERY_NAME];
             $context[self::CONTEXT_RESULTS][$name] = $result;
             if (count($result) == 0) {
-                throw new NoResultsException("No results found for query named: ".$name);
+                throw new NoResultsException('No results found for query named: '.$name);
             }
         }
 
