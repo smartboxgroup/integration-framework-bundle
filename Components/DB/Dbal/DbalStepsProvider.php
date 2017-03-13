@@ -5,7 +5,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\DB\Dbal;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Driver\PDOStatement;
 use Doctrine\DBAL\Statement;
-use Doctrine\ORM\NoResultException;
 use Smartbox\Integration\FrameworkBundle\Components\DB\ConfigurableStepsProviderInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
@@ -49,6 +48,44 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         $this->doctrine = $doctrine;
     }
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        if (!$this->configResolver) {
+            $this->configResolver = new OptionsResolver();
+            $this->configResolver->setRequired([self::CONF_SQL, self::CONF_PARAMETERS]);
+            $this->configResolver->setDefaults(
+                [
+                    self::CONF_PARAMETERS => [],
+                ]
+            );
+            $this->configResolver->setDefined(self::CONF_QUERY_NAME);
+            $this->configResolver->setAllowedTypes(self::CONF_SQL, ['string']);
+            $this->configResolver->setAllowedTypes(self::CONF_PARAMETERS, ['array', 'string']);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function executeSteps(array $stepsConfig, array &$options, array &$context)
+    {
+        if (!array_key_exists(self::CONTEXT_RESULTS, $context)) {
+            $context[self::CONTEXT_RESULTS] = [];
+        }
+
+        if (!array_key_exists(self::CONTEXT_VARS, $context)) {
+            $context[self::CONTEXT_VARS] = [];
+        }
+
+        foreach ($stepsConfig as $step) {
+            foreach ($step as $stepAction => $stepActionParams) {
+                $this->executeStep($stepAction, $stepActionParams, $options, $context);
+            }
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -89,7 +126,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      * @param array $configuration
      * @param $context
      *
-     * @return Statement
+     * @return array
      */
     protected function execute(array $configuration, &$context)
     {
@@ -126,7 +163,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      * @param array $configuration
      * @param $context
      *
-     * @return Statement
+     * @return array
      */
     protected function insert(array $configuration, &$context)
     {
@@ -185,9 +222,10 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      * @param array $configuration
      * @param $context
      * @param array $parameters
-     * @param string $sql
+     * @param $sql
      *
-     * @return Statement
+     * @return array
+     * @throws NoResultsException
      */
     protected function performQuery(array $configuration, &$context, array $parameters, $sql)
     {
@@ -209,40 +247,5 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         }
 
         return $result;
-    }
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        if (!$this->configResolver) {
-            $this->configResolver = new OptionsResolver();
-            $this->configResolver->setRequired([self::CONF_SQL, self::CONF_PARAMETERS]);
-            $this->configResolver->setDefaults(
-                [
-                    self::CONF_PARAMETERS => [],
-                ]
-            );
-            $this->configResolver->setDefined(self::CONF_QUERY_NAME);
-            $this->configResolver->setAllowedTypes(self::CONF_SQL, ['string']);
-            $this->configResolver->setAllowedTypes(self::CONF_PARAMETERS, ['array', 'string']);
-        }
-    }
-
-    public function executeSteps(array $stepsConfig, array &$options, array &$context)
-    {
-        if (!array_key_exists(self::CONTEXT_RESULTS, $context)) {
-            $context[self::CONTEXT_RESULTS] = [];
-        }
-
-        if (!array_key_exists(self::CONTEXT_VARS, $context)) {
-            $context[self::CONTEXT_VARS] = [];
-        }
-
-        foreach ($stepsConfig as $step) {
-            foreach ($step as $stepAction => $stepActionParams) {
-                $this->executeStep($stepAction, $stepActionParams, $options, $context);
-            }
-        }
     }
 }
