@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB;
 
-
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\ConfigurableDbalProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLConfigurableProtocol;
@@ -22,8 +21,7 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
     use UsesSmartesbHelper;
     use IsConfigurableService;
 
-
-    /** @var  ConfigurableStepsProviderInterface */
+    /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
 
     /**
@@ -43,9 +41,10 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
     }
 
     /**
-     * Reads a message from the NoSQL database executing the configured steps
+     * Reads a message from the NoSQL database executing the configured steps.
      *
      * @param EndpointInterface $endpoint
+     *
      * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\Message
      */
     protected function readMessage(EndpointInterface $endpoint)
@@ -57,40 +56,40 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
 
         $context = $this->getConfHelper()->createContext($options);
 
-        try{
+        try {
             $this->configurableStepsProvider->executeSteps($steps, $options, $context);
 
             $result = $this->getConfHelper()->resolve(
                 $config[ConfigurableConsumerInterface::CONFIG_QUERY_RESULT],
                 $context
             );
-        }catch(NoResultsException $exception){
+        } catch (NoResultsException $exception) {
             $result = null;
-            if( $options[ConfigurableDbalProtocol::OPTION_STOP_ON_NO_RESULTS] ){
+            if ($options[ConfigurableDbalProtocol::OPTION_STOP_ON_NO_RESULTS]) {
                 $this->stop();
             }
         }
 
-        if($result == null){
+        if ($result == null) {
             return null;
-        }elseif(is_array($result)){
+        } elseif (is_array($result)) {
             $result = new SerializableArray($result);
         }
 
         $context = new Context([
             Context::FLOWS_VERSION => $this->getFlowsVersion(),
-            Context::TRANSACTION_ID => uniqid("",true),
-            Context::ORIGINAL_FROM => $endpoint->getURI()
+            Context::TRANSACTION_ID => uniqid('', true),
+            Context::ORIGINAL_FROM => $endpoint->getURI(),
         ]);
 
         return $this->smartesbHelper->getMessageFactory()->createMessage($result, [], $context);
     }
 
     /**
-     * Executes the necessary actions after the message has been consumed
+     * Executes the necessary actions after the message has been consumed.
      *
      * @param EndpointInterface $endpoint
-     * @param MessageInterface $message
+     * @param MessageInterface  $message
      */
     protected function onConsume(EndpointInterface $endpoint, MessageInterface $message)
     {
@@ -99,7 +98,7 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
         $config = $this->methodsConfiguration[$method];
         $steps = $config[ConfigurableConsumerInterface::CONFIG_ON_CONSUME];
 
-        $context = $this->getConfHelper()->createContext($options,$message);
+        $context = $this->getConfHelper()->createContext($options, $message);
 
         $this->configurableStepsProvider->executeSteps($steps, $options, $context);
     }

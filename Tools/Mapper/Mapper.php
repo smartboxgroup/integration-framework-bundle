@@ -68,7 +68,7 @@ class Mapper implements MapperInterface
 
         $mapping = @$this->mappings[$mappingName];
 
-        return $this->resolve($mapping,$obj, $context);
+        return $this->resolve($mapping, $obj, $context);
     }
 
     /**
@@ -99,17 +99,17 @@ class Mapper implements MapperInterface
 
             try {
                 $res = @$this->evaluator->evaluateWithVars($mapping, $dictionary);
-            } catch(\RuntimeException $e) {
+            } catch (\RuntimeException $e) {
                 if ($this->debug) {
                     throw $e;
                 }
             }
+
             return $res;
         }
 
-        throw new \RuntimeException("Mapper expected the mapping to be a string or an array");
+        throw new \RuntimeException('Mapper expected the mapping to be a string or an array');
     }
-
 
     /**
      * @param mixed  $elements
@@ -120,8 +120,8 @@ class Mapper implements MapperInterface
      */
     public function mapAll($elements, $mappingName, $context = [])
     {
-        if(!is_array($elements)){
-            throw new \RuntimeException("MapAll expected an array");
+        if (!is_array($elements)) {
+            throw new \RuntimeException('MapAll expected an array');
         }
 
         if (empty($elements)) {
@@ -137,9 +137,9 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Return true if the key exists in the given array
+     * Return true if the key exists in the given array.
      *
-     * @param array $obj
+     * @param array  $obj
      * @param string $key
      *
      * @return bool
@@ -227,10 +227,10 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Flatten an array by key
+     * Flatten an array by key.
      *
-     * @param array $data The array to flatten
-     * @param string $key The common key
+     * @param array  $data The array to flatten
+     * @param string $key  The common key
      *
      * @return array
      */
@@ -273,7 +273,7 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Serialize the given datas into the expected format with a group
+     * Serialize the given datas into the expected format with a group.
      *
      * @param $data
      * @param $format
@@ -284,6 +284,7 @@ class Mapper implements MapperInterface
     public function serializeWithGroup($data, $format, $group)
     {
         $serializer = $this->evaluator->getSerializer();
+
         return $serializer->serialize($data, $format, SerializationContext::create()->setGroups([$group]));
     }
 }
