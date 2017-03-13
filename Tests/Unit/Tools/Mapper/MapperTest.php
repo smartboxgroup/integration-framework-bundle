@@ -82,7 +82,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     {
         $array = [
             ['fruits' => 'banana'],
-            ['fruits' => 'apple']
+            ['fruits' => 'apple'],
         ];
 
         $res = $this->mapper->flattenArrayByKey($array, 'fruits');
@@ -95,7 +95,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     public function testKeyExists()
     {
         $array = [
-            'fruits' => 'banana'
+            'fruits' => 'banana',
         ];
 
         $this->assertTrue($this->mapper->keyExists($array, 'fruits'));
@@ -104,11 +104,10 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
     public function testStrReplace()
     {
-        $string = "banana";
-        $needle = "a";
-        $replacedBy = "o";
+        $string = 'banana';
+        $needle = 'a';
+        $replacedBy = 'o';
 
-        $this->assertEquals("bonono", $this->mapper->replaceStr($needle, $replacedBy, $string));
+        $this->assertEquals('bonono', $this->mapper->replaceStr($needle, $replacedBy, $string));
     }
-
 }
