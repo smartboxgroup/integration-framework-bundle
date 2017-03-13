@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInte
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
@@ -19,7 +20,7 @@ class CsvConfigurableConsumer extends AbstractConsumer implements ConfigurableCo
     use UsesSmartesbHelper;
     use IsConfigurableService;
 
-    /** @var  ConfigurableStepsProviderInterface */
+    /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
 
     /**
@@ -46,9 +47,10 @@ class CsvConfigurableConsumer extends AbstractConsumer implements ConfigurableCo
     }
 
     /**
-     * Reads a message from the CSV file and executing the configured steps
+     * Reads a message from the CSV file and executing the configured steps.
      *
      * @param EndpointInterface $endpoint
+     *
      * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\Message
      */
     protected function readMessage(EndpointInterface $endpoint)
@@ -67,20 +69,26 @@ class CsvConfigurableConsumer extends AbstractConsumer implements ConfigurableCo
                 $config[ConfigurableConsumerInterface::CONFIG_QUERY_RESULT],
                 $context
             );
-        } catch(NoResultsException $exception) { // TODO: Replace with a actual end of file exception
+        } catch (NoResultsException $exception) { // TODO: Replace with a actual end of file exception
             $result = null;
-            if ( $options[CsvConfigurableProtocol::OPTION_STOP_ON_EOF] ){
+            if ($options[CsvConfigurableProtocol::OPTION_STOP_ON_EOF]) {
                 $this->stop();
             }
         }
 
-        if($result == null ){
+        if ($result == null) {
             return null;
-        }elseif(is_array($result)){
+        } elseif (is_array($result)) {
             $result = new SerializableArray($result);
         }
 
-        return $this->smartesbHelper->getMessageFactory()->createMessage($result);
+        $context = new Context([
+            Context::FLOWS_VERSION => $this->getFlowsVersion(),
+            Context::TRANSACTION_ID => uniqid('', true),
+            Context::ORIGINAL_FROM => $endpoint->getURI(),
+        ]);
+
+        return $this->smartesbHelper->getMessageFactory()->createMessage($result, [], $context);
     }
 
     /**

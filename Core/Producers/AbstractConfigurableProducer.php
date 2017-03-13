@@ -4,15 +4,10 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Producers;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
-use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class AbstractConfigurableProducer.
@@ -47,7 +42,7 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
          * CONTEXT PREPARATION
          */
         $methodConf = $this->methodsConfiguration[$method];
-        $context = $this->getConfHelper()->createContext($options,$exchange->getIn(),$exchange);
+        $context = $this->getConfHelper()->createContext($options, $exchange->getIn(), $exchange);
 
         $context[self::KEY_PRODUCER] = $this;
         $context[self::KEY_PRODUCER_SHORT] = $this;
@@ -61,13 +56,13 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
             }
         }
 
-        $this->getConfHelper()->runValidations($methodConf[ConfigurableProducerInterface::CONF_VALIDATIONS],$context);
+        $this->getConfHelper()->runValidations($methodConf[ConfigurableProducerInterface::CONF_VALIDATIONS], $context);
 
         /*
          * RESPONSE
          */
         if ($options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT
-            &&  array_key_exists(ConfigurableProducerInterface::CONF_RESPONSE, $methodConf)) {
+            && array_key_exists(ConfigurableProducerInterface::CONF_RESPONSE, $methodConf)) {
             $resultConfig = $methodConf[ConfigurableProducerInterface::CONF_RESPONSE];
             $result = $this->confHelper->resolve($resultConfig, $context);
 
@@ -90,7 +85,6 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
      */
     public function executeStep($stepAction, &$stepActionParams, &$options, array &$context)
     {
-        return $this->getConfHelper()->executeStep($stepAction,$stepActionParams,$options,$context);
+        return $this->getConfHelper()->executeStep($stepAction, $stepActionParams, $options, $context);
     }
-
 }
