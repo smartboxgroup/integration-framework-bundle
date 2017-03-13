@@ -14,10 +14,9 @@ use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInte
  */
 class CsvConfigurableProducer extends AbstractConfigurableProducer implements ConfigurableProducerInterface
 {
-
     use UsesSerializer;
 
-    /** @var  ConfigurableStepsProviderInterface */
+    /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
 
     /**
