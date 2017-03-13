@@ -100,7 +100,15 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($this->mapper->keyExists($array, 'fruits'));
         $this->assertFalse($this->mapper->keyExists($array, 'vegetables'));
+    }
 
+    public function testStrReplace()
+    {
+        $string = "banana";
+        $needle = "a";
+        $replacedBy = "o";
+
+        $this->assertEquals("bonono", $this->mapper->replaceStr($needle, $replacedBy, $string));
     }
 
 }
