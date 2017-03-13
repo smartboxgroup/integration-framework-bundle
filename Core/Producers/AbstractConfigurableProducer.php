@@ -11,6 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -20,6 +21,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 abstract class AbstractConfigurableProducer extends Producer implements ConfigurableProducerInterface
 {
     use IsConfigurableService;
+    use UsesEventDispatcher;
 
     const KEY_PRODUCER = 'producer';
     const KEY_PRODUCER_SHORT = 'c';
