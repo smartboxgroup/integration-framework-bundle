@@ -307,6 +307,41 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @unlink(self::TMP_FOLDER . $fileName);
     }
 
+    public function testAppendLinesToFileWithHeader()
+    {
+        $fileName = $this->generateFilename();
+
+        $stepAction = 'append_lines';
+        $stepActionParams = [
+            'rows' => [
+                [ "a1", "b1", "c1" ],
+            ],
+            'headers' => ["Column1", "Column2", "Column3"],
+            'filename' => $fileName,
+        ];
+        $options = [
+            'path' => self::TMP_FOLDER,
+            'delimiter' => '|',
+            'enclosure' => '+',
+            'escape_char' =>'\\',
+        ];
+        $context = [
+            'vars'=>[]
+        ];
+
+        $ans = $this->stepsProvider->executeStep($stepAction, $stepActionParams, $options, $context);
+        $this->assertTrue( $ans );
+
+        //The original file should be there
+        $this->assertFileExists(self::TMP_FOLDER . $fileName);
+        $lines = file(self::TMP_FOLDER . $fileName);
+        $this->assertEquals( 2, count($lines) ); //should be 7 rows
+        $this->assertEquals( count( explode('|', $lines[0])) , 3 ); //should be 3 cols
+
+        //Tidy up
+        @unlink(self::TMP_FOLDER . $fileName);
+    }
+
     public function testReadFile()
     {
         $fileName = $this->generateFilename();
