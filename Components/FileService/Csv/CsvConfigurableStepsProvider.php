@@ -42,7 +42,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     /** @var OptionsResolver */
     protected $configResolver;
 
-    /** @var  array */
+    /** @var array */
     protected $openFileHandles = [];
 
     public function __construct()
@@ -69,20 +69,20 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     protected function getFileHandle($fullPath, $mode)
     {
         $key = md5($fullPath.$mode);
-        if (array_key_exists($key, $this->openFileHandles) ){
+        if (array_key_exists($key, $this->openFileHandles)) {
             $handle = $this->openFileHandles[$key];
-        }else{
+        } else {
             $handle = fopen($fullPath, $mode);
             $this->openFileHandles[$key] = $handle;
         }
 
-        if( get_resource_type($handle) !== 'stream' ){
-            throw new \Exception( 'The file handle is not a file stream!' );
+        if (get_resource_type($handle) !== 'stream') {
+            throw new \Exception('The file handle is not a file stream!');
         }
 
-        if(strpos($mode,'w') !== false){
-            if( !is_writeable($fullPath) === 'stream' ){
-                throw new \Exception( 'The file handle in the context is not writeable!' );
+        if (strpos($mode, 'w') !== false) {
+            if (!is_writeable($fullPath) === 'stream') {
+                throw new \Exception('The file handle in the context is not writeable!');
             }
         }
 
@@ -90,11 +90,11 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     }
 
     /**
-     * Close all open file handles
+     * Close all open file handles.
      */
     protected function closeAllFileHandles()
     {
-        foreach ($this->openFileHandles as $handle ) {
+        foreach ($this->openFileHandles as $handle) {
             fclose($handle);
         }
         $this->openFileHandles = [];
@@ -127,83 +127,91 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         switch ($stepAction) {
             case self::STEP_CLEAN_FILE_HANDLES:
                 $this->closeAllFileHandles();
+
                 return true;
             case self::STEP_WRITE_TO_FILE:
                 $this->writeToFile($stepActionParams, $options, $context);
+
                 return true;
 
             case self::STEP_APPEND_LINES_TO_FILE:
                 $this->appendLines($stepActionParams, $options, $context);
+
                 return true;
 
             case self::STEP_READ_FROM_FILE:
                 $this->readFile($stepActionParams, $options, $context);
+
                 return true;
 
             case self::STEP_READ_LINES_FROM_FILE:
                 $this->readLines($stepActionParams, $options, $context);
+
                 return true;
 
             case self::STEP_REMOVE_FILE:
             case self::STEP_DELETE_FILE:
             case self::STEP_UNLINK_FILE:
                 $this->unlinkFile($stepActionParams, $options, $context);
+
                 return true;
 
             case self::STEP_RENAME_FILE:
             case self::STEP_MV_FILE:
                 $this->renameFile($stepActionParams, $options, $context);
+
                 return true;
 
             case self::STEP_COPY_FILE:
                 $this->copyFile($stepActionParams, $options, $context);
+
                 return true;
 
             case self::STEP_CREATE_FILE:
                 $this->createFile($stepActionParams, $options, $context);
-                return true;
 
+                return true;
         }
 
         return false;
     }
 
     /**
-     * Write rows out to a csv file
+     * Write rows out to a csv file.
      *
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_CSV_ROWS
      * Optional Params:
      *     - CsvConfigurableProducer::PARAM_FILE_NAME
-     * 
-     * @param array                       $stepActionParams
-     * @param array                       $endpointOptions
-     * @param array                       $context
+     *
+     * @param array $stepActionParams
+     * @param array $endpointOptions
+     * @param array $context
      */
     protected function writeToFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
         $stepParamsResolver = new OptionsResolver();
-        $stepParamsResolver->setRequired( [
+        $stepParamsResolver->setRequired([
             self::PARAM_FILE_NAME,
             self::PARAM_CSV_ROWS,
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $filePath = $params[self::PARAM_FILE_NAME];
-        $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
+        $fullPath = $this->getRootPath($endpointOptions).DIRECTORY_SEPARATOR.$filePath;
 
         $rows = $params[self::PARAM_CSV_ROWS];
 
         //open the file, reset the pointer to zero, create it if not already created
-        $fileHandle = fopen( $fullPath, 'w' );
+        $fileHandle = fopen($fullPath, 'w');
 
         foreach ($rows as $row) {
-            if (!is_array($row)){
+            if (!is_array($row)) {
                 $type = gettype($row);
-                throw new \InvalidArgumentException("Row in Rows is not an array, {$type} given." );
+                throw new \InvalidArgumentException("Row in Rows is not an array, {$type} given.");
             }
 
-            fputcsv($fileHandle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR] );
+            fputcsv($fileHandle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR]);
         }
 
         fclose($fileHandle);
@@ -211,27 +219,27 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
 
     /**
      * Write an array of lines to a csv file in to a context variable
-     * it is assumed the file handle is in the context
+     * it is assumed the file handle is in the context.
      *
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_CSV_ROWS
      *
-     * @param array                       $stepActionParams
-     * @param array                       $endpointOptions
-     * @param array                       $context
+     * @param array $stepActionParams
+     * @param array $endpointOptions
+     * @param array $context
      */
     protected function appendLines(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
         $stepParamsResolver = new OptionsResolver();
-        $stepParamsResolver->setRequired( [
+        $stepParamsResolver->setRequired([
             self::PARAM_CSV_ROWS,
         ]);
-        $stepParamsResolver->setDefault( self::PARAM_FILE_NAME, $endpointOptions[CsvConfigurableProtocol::OPTION_PATH] );
-        $stepParamsResolver->setDefault( self::PARAM_HEADERS, null );
+        $stepParamsResolver->setDefault(self::PARAM_FILE_NAME, $endpointOptions[CsvConfigurableProtocol::OPTION_PATH]);
+        $stepParamsResolver->setDefault(self::PARAM_HEADERS, null);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $filePath = $params[self::PARAM_FILE_NAME];
-        $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
+        $fullPath = $this->getRootPath($endpointOptions).DIRECTORY_SEPARATOR.$filePath;
 
         $rows = $params[self::PARAM_CSV_ROWS];
 
@@ -240,52 +248,51 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
             $rows = array_merge([$headers], $rows);
         }
 
-        $fileHandle = $this->getFileHandle($fullPath,'a');
+        $fileHandle = $this->getFileHandle($fullPath, 'a');
 
         foreach ($rows as $row) {
-
-            if (!is_array($row)){
+            if (!is_array($row)) {
                 $type = gettype($row);
-                throw new \InvalidArgumentException("Row in Rows is not an array, {$type} given." );
+                throw new \InvalidArgumentException("Row in Rows is not an array, {$type} given.");
             }
 
-            fputcsv($fileHandle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR] );
+            fputcsv($fileHandle, $row, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER], $endpointOptions[CsvConfigurableProtocol::OPTION_ENCLOSURE], $endpointOptions[CsvConfigurableProtocol::OPTION_ESCAPE_CHAR]);
         }
     }
 
     /**
-     * Read a csv file in to a context variable
+     * Read a csv file in to a context variable.
      *
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_CONTEXT_RESULT_NAME
      * Optional Params:
      *     - CsvConfigurableProducer::PARAM_FILE_NAME
-     * 
-     * @param array                       $stepActionParams
-     * @param array                       $endpointOptions
-     * @param array                       $context
+     *
+     * @param array $stepActionParams
+     * @param array $endpointOptions
+     * @param array $context
      */
     protected function readFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
         $stepParamsResolver = new OptionsResolver();
-        $stepParamsResolver->setRequired( [
+        $stepParamsResolver->setRequired([
             self::PARAM_FILE_NAME,
             self::PARAM_CONTEXT_RESULT_NAME,
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $filePath = $params[self::PARAM_FILE_NAME];
-        $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
-        
+        $fullPath = $this->getRootPath($endpointOptions).DIRECTORY_SEPARATOR.$filePath;
+
         $contextResultName = $params[self::PARAM_CONTEXT_RESULT_NAME];
         $maxLineLength = $endpointOptions[CsvConfigurableProtocol::OPTION_MAX_LENGTH];
 
         //open the file, reset the pointer to zero
-        $fileHandle = fopen( $fullPath, 'r' );
+        $fileHandle = fopen($fullPath, 'r');
 
         $rows = [];
 
-        while (( $row = fgetcsv($fileHandle, $maxLineLength, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER])) !== FALSE) {
+        while (($row = fgetcsv($fileHandle, $maxLineLength, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER])) !== false) {
             $rows[] = $row;
         }
 
@@ -296,33 +303,33 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
 
     /**
      * Read a line from a csv file in to a context variable
-     * it is assumed the file handle is in the context
+     * it is assumed the file handle is in the context.
      *
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_CONTEXT_RESULT_NAME
      * Optional Params:
      *     - CsvConfigurableProducer::PARAM_MAX_LINES Defaults to 1
-     * 
-     * @param array                       $stepActionParams
-     * @param array                       $endpointOptions
-     * @param array                       $context
+     *
+     * @param array $stepActionParams
+     * @param array $endpointOptions
+     * @param array $context
      *
      * @throws NoResultsException if there are no more lines to consume
      */
     protected function readLines(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
         $stepParamsResolver = new OptionsResolver();
-        $stepParamsResolver->setRequired( [
+        $stepParamsResolver->setRequired([
             self::PARAM_CONTEXT_RESULT_NAME,
         ]);
 
-        $stepParamsResolver->setDefault( self::PARAM_MAX_LINES, 1 );
-        $stepParamsResolver->setDefault( self::PARAM_FILE_NAME, $endpointOptions[CsvConfigurableProtocol::OPTION_PATH] );
+        $stepParamsResolver->setDefault(self::PARAM_MAX_LINES, 1);
+        $stepParamsResolver->setDefault(self::PARAM_FILE_NAME, $endpointOptions[CsvConfigurableProtocol::OPTION_PATH]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $filePath = $params[self::PARAM_FILE_NAME];
-        $fullPath = $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $filePath;
-        $fileHandle = $this->getFileHandle($fullPath,'r');
+        $fullPath = $this->getRootPath($endpointOptions).DIRECTORY_SEPARATOR.$filePath;
+        $fileHandle = $this->getFileHandle($fullPath, 'r');
 
         $contextResultName = $params[self::PARAM_CONTEXT_RESULT_NAME];
         $maxLines = $params[self::PARAM_MAX_LINES];
@@ -331,17 +338,18 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $rows = [];
 
         $i = 0;
-        while ( $i < $maxLines ) {
-
+        while ($i < $maxLines) {
             $row = fgetcsv($fileHandle, $maxLineLength, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER]);
 
-            if ($row === false) break;
+            if ($row === false) {
+                break;
+            }
 
             $rows[] = $row;
-            $i++;
+            ++$i;
         }
 
-        if( count($rows) === 0 ){
+        if (count($rows) === 0) {
             throw new NoResultsException("No more results from $$fullPath");
         }
 
@@ -349,145 +357,144 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
     }
 
     /**
-     * Delete a file
+     * Delete a file.
      *
      * Optional Params:
      *     - CsvConfigurableProducer::PARAM_FILE_NAME
      *
-     * @param array                       $stepActionParams
-     * @param array                       $endpointOptions
-     * @param array                       $context
+     * @param array $stepActionParams
+     * @param array $endpointOptions
+     * @param array $context
      */
     protected function unlinkFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        $fullPath = $this->getFullPath( $endpointOptions, $stepActionParams);
+        $fullPath = $this->getFullPath($endpointOptions, $stepActionParams);
 
         unlink($fullPath);
     }
 
     /**
-     * Rename the file for this producer
+     * Rename the file for this producer.
      *
      * Optional Params:
      *     - CsvConfigurableProducer::PARAM_FILE_NAME
-     * 
-     * @param array                       $stepActionParams
-     * @param array                       $endpointOptions
-     * @param array                       $context
+     *
+     * @param array $stepActionParams
+     * @param array $endpointOptions
+     * @param array $context
      */
     protected function renameFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        $rootPath = $this->getRootPath( $endpointOptions, $stepActionParams);
+        $rootPath = $this->getRootPath($endpointOptions, $stepActionParams);
 
         $stepParamsResolver = new OptionsResolver();
-        $stepParamsResolver->setRequired( [
+        $stepParamsResolver->setRequired([
             self::PARAM_FILE_NAME,
             self::PARAM_NEW_FILE_PATH,
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $newFilePath = $params[self::PARAM_NEW_FILE_PATH];
-        $newFullPath = $rootPath . DIRECTORY_SEPARATOR . $newFilePath;
+        $newFullPath = $rootPath.DIRECTORY_SEPARATOR.$newFilePath;
 
         $originalFilePath = $params[self::PARAM_FILE_NAME];
-        $originalFullPath = $rootPath . DIRECTORY_SEPARATOR . $originalFilePath;
+        $originalFullPath = $rootPath.DIRECTORY_SEPARATOR.$originalFilePath;
 
-
-        rename( $originalFullPath, $newFullPath );
+        rename($originalFullPath, $newFullPath);
     }
 
     /**
-     * Copy a file for this producer
+     * Copy a file for this producer.
      *
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_NEW_FILE_PATH
      * Optional Params:
      *     - CsvConfigurableProducer::PARAM_FILE_NAME
-     * 
-     * @param array                       $stepActionParams
-     * @param array                       $endpointOptions
-     * @param array                       $context
+     *
+     * @param array $stepActionParams
+     * @param array $endpointOptions
+     * @param array $context
      */
     protected function copyFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        $rootPath = $this->getRootPath( $endpointOptions, $stepActionParams);
+        $rootPath = $this->getRootPath($endpointOptions, $stepActionParams);
 
         $stepParamsResolver = new OptionsResolver();
-        $stepParamsResolver->setRequired( [
+        $stepParamsResolver->setRequired([
             self::PARAM_FILE_NAME,
             self::PARAM_NEW_FILE_PATH,
         ]);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $newFilePath = $params[self::PARAM_NEW_FILE_PATH];
-        $newFullPath = $rootPath . DIRECTORY_SEPARATOR . $newFilePath;
+        $newFullPath = $rootPath.DIRECTORY_SEPARATOR.$newFilePath;
 
         $originalFilePath = $params[self::PARAM_FILE_NAME];
-        $originalFullPath = $rootPath . DIRECTORY_SEPARATOR . $originalFilePath;
+        $originalFullPath = $rootPath.DIRECTORY_SEPARATOR.$originalFilePath;
 
-        copy( $originalFullPath, $newFullPath );
+        copy($originalFullPath, $newFullPath);
     }
 
     /**
-     * Create a new blank file
+     * Create a new blank file.
      *
      * Required Params:
      *     - CsvConfigurableProducer::PARAM_NEW_FILE_PATH
      * Optional Params:
      *     - CsvConfigurableProducer::PARAM_FILE_NAME
-     * 
-     * @param array                       $stepActionParams
-     * @param array                       $endpointOptions
-     * @param array                       $context
+     *
+     * @param array $stepActionParams
+     * @param array $endpointOptions
+     * @param array $context
      */
     protected function createFile(array &$stepActionParams, array &$endpointOptions, array &$context)
     {
-        $fullPath = $this->getFullPath( $endpointOptions, $stepActionParams);
+        $fullPath = $this->getFullPath($endpointOptions, $stepActionParams);
 
-        $fileHandle = fopen( $fullPath, 'w' );
+        $fileHandle = fopen($fullPath, 'w');
         fclose($fileHandle);
     }
 
     /**
-     * resolve the root path from the configuration
-     * 
-     * @param array                       $endpointOptions
+     * resolve the root path from the configuration.
+     *
+     * @param array $endpointOptions
      *
      * @return string The root path as in the configuration
      */
-    public function getRootPath( array $endpointOptions )
+    public function getRootPath(array $endpointOptions)
     {
         return $endpointOptions[CsvConfigurableProtocol::OPTION_PATH];
     }
 
     /**
      * Resolve the file path from the configuration
-     * use the configured default path if none is set
-     * 
-     * @param array                       $endpointOptions
-     * @param array                       $stepActionParams
+     * use the configured default path if none is set.
+     *
+     * @param array $endpointOptions
+     * @param array $stepActionParams
      *
      * @return string The file path to the file as in the configuration
      */
-    protected function getFilePath( array $endpointOptions, $stepActionParams )
+    protected function getFilePath(array $endpointOptions, $stepActionParams)
     {
-        if(array_key_exists(self::PARAM_FILE_NAME,$stepActionParams)){
+        if (array_key_exists(self::PARAM_FILE_NAME, $stepActionParams)) {
             return $stepActionParams[self::PARAM_FILE_NAME];
-        }else{
+        } else {
             return $endpointOptions[CsvConfigurableProtocol::OPTION_PATH];
         }
     }
 
     /**
-     * resolve the full path to the file in the configuration
-     * 
-     * @param array                       $endpointOptions
-     * @param array                       $stepActionParams
+     * resolve the full path to the file in the configuration.
+     *
+     * @param array $endpointOptions
+     * @param array $stepActionParams
      *
      * @return string A full path to the file from the configuration
      */
-    protected function getFullPath( array $endpointOptions, $stepActionParams )
+    protected function getFullPath(array $endpointOptions, $stepActionParams)
     {
-        return  $this->getRootPath( $endpointOptions ) . DIRECTORY_SEPARATOR . $this->getFilePath( $endpointOptions, $stepActionParams);
+        return  $this->getRootPath($endpointOptions).DIRECTORY_SEPARATOR.$this->getFilePath($endpointOptions, $stepActionParams);
     }
 }

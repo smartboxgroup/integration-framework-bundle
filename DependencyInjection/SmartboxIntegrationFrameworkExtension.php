@@ -186,7 +186,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef = new Definition(StompQueueDriver::class, []);
                     $driverDef->addMethodCall('setId', [$driverId]);
 
-
                     $driverDef->addMethodCall('configure', [
                         $driverConfig['host'],
                         $driverConfig['username'],
@@ -296,7 +295,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                 $driverDef->addMethodCall('setRetryURI', [false]);
             }
 
-            $driverDef->addMethodCall('setThrowExceptions',  [$handlerConfig['throw_exceptions']]);
+            $driverDef->addMethodCall('setThrowExceptions', [$handlerConfig['throw_exceptions']]);
             $driverDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
 
             $driverDef->addTag('kernel.event_listener', [
