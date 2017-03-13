@@ -93,6 +93,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setConfHelper', [new Reference('smartesb.configurable_service_helper')]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
+            $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $definition->addMethodCall('setName', [$producerName]);
             $container->setDefinition($producerId, $definition);
 
@@ -338,6 +339,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         $def->addTag('kernel.event_listener', [
             'event' => 'smartesb.handler.after_handle',
+            'method' => 'onEvent',
+        ]);
+
+        $def->addTag('kernel.event_listener', [
+            'event' => 'smartesb.event.external_system_http_event',
             'method' => 'onEvent',
         ]);
 

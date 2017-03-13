@@ -11,6 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\R
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\UnrecoverableSoapException;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
 
 /**
  * Class AbstractSoapConfigurableProducer.
@@ -92,6 +93,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             $soapClient->setExecutionTimeout($endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT]);
 
             $response = $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
+            $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($response));
         } catch (\Exception $ex) {
             $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, false, $ex->getCode(), $ex);
         }
@@ -270,4 +272,14 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     {
         return '';
     }
+
+    public function getExternalSystemHTTPEvent($soapClientResponse)
+    {
+        // Dispatch event with error information
+        $event = new ExternalSystemHTTPEvent();
+        $event->setId(uniqid('', true));
+        $event->setTimestampToCurrent();
+        return $event;
+    }
+
 }
