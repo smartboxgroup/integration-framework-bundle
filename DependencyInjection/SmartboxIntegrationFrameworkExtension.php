@@ -91,6 +91,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setMethodsConfiguration', [$methodsSteps]);
             $definition->addMethodCall('setOptions', [$options]);
             $definition->addMethodCall('setConfHelper', [new Reference('smartesb.configurable_service_helper')]);
+            $definition->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
             $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
@@ -146,6 +147,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setOptions', [$options]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
+            $definition->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
             $definition->addMethodCall('setName', [$consumerName]);
             $container->setDefinition($consumerId, $definition);
 
@@ -184,7 +186,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                     $driverDef = new Definition(StompQueueDriver::class, []);
                     $driverDef->addMethodCall('setId', [$driverId]);
-
 
                     $driverDef->addMethodCall('configure', [
                         $driverConfig['host'],
@@ -295,7 +296,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                 $driverDef->addMethodCall('setRetryURI', [false]);
             }
 
-            $driverDef->addMethodCall('setThrowExceptions',  [$handlerConfig['throw_exceptions']]);
+            $driverDef->addMethodCall('setThrowExceptions', [$handlerConfig['throw_exceptions']]);
             $driverDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
 
             $driverDef->addTag('kernel.event_listener', [

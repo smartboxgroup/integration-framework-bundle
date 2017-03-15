@@ -20,6 +20,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
 
 /**
  * Class RestConfigurableProducer.
@@ -172,7 +173,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         try {
             $response = $client->send($request, $restOptions);
             $responseContent = $response->getBody()->getContents();
-
+            $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context,$request,$response,$responseContent));
             // Tries to parse the body and convert it into an object
             $responseBody = null;
             if ($responseContent) {
@@ -305,5 +306,33 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $exception->setExternalSystemName($this->getName());
         $exception->setShowExternalSystemErrorMessage($showMessage);
         throw $exception;
+    }
+
+    public function getExternalSystemHTTPEvent($context,$request,$response, $restClientResponse)
+    {
+        // Dispatch event with error information
+        $event = new ExternalSystemHTTPEvent();
+        $event->setStatus('melbo was here');
+
+        $event->setEndpointUri($request->getUri()->__toString());
+        $event->setRequestHttpHeaders(json_encode($request->getHeaders(),JSON_PRETTY_PRINT));
+        $event->setResponseHttpHeaders(json_encode($response->getHeaders(),JSON_PRETTY_PRINT));
+        $event->setContext(json_encode($context,JSON_PRETTY_PRINT));
+        $event->setExchangeId($context['exchange']->getId());
+        $event->setResponseHttpBody(json_encode($restClientResponse,JSON_PRETTY_PRINT));
+
+        //$event->setTimestampToCurrent();
+        error_log("MEL_LOG_event.getRequestHttpHeaders():\n" .$event->getRequestHttpHeaders(). "\n");
+        error_log("MEL_LOG_event.getResponseHttpHeaders():\n" .$event->getResponseHttpHeaders(). "\n");
+        error_log("MEL_LOG_event.getUri():\n" .$event->getEndpointUri(). "\n");
+        error_log("MEL_LOG_event.getResponseHttpBody():\n" .$event->getResponseHttpBody(). "\n");
+        error_log("MEL_LOG_event.getExchangeId:\n" .$event->getExchangeId(). "\n");
+        error_log("MEL_LOG_event.getContext():\n" .$event->getContext(). "\n");//should be array
+
+       // error_log("MEL_LOG_response.getHeaders():\n" .json_encode($response->getHeaders(), JSON_PRETTY_PRINT). "\n");
+
+
+       // error_log("MEL_LOG_restClientResponse:\n" .json_encode($restClientResponse, JSON_PRETTY_PRINT). "\n");
+        return $event;
     }
 }
