@@ -18,6 +18,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createUniqIdFunction(),
             $this->createSubStrFunction(),
             $this->createDefaultTo(),
+            $this->createNumberFormat(),
         ];
     }
 
@@ -155,6 +156,26 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                 }
 
                 return $sub_string;
+            }
+        );
+    }
+
+    /**
+     * Exposes php number_format
+     *
+     * string numberFormat ( float $number , int $decimals = 0 , string $dec_point = "." , string $thousands_sep = "," )
+     *
+     * @return ExpressionFunction
+     */
+    protected function createNumberFormat()
+    {
+        return new ExpressionFunction(
+            'numberFormat',
+            function ($number, $decimals = 0, $dec_point = ".", $thousands_sep = ",") {
+                return sprintf('(number_format(%1$s, %2$s, %3$s, %4$s))', $number, $decimals, $dec_point, $thousands_sep);
+            },
+            function ($arguments, $number, $decimals = 0, $dec_point = ".", $thousands_sep = ",") {
+                return number_format($number, $decimals, $dec_point, $thousands_sep);
             }
         );
     }
