@@ -302,7 +302,7 @@ class Mapper implements MapperInterface
         $wrapped = wordwrap($string, $length, '\mapperDelimiter', true);
         $lines = explode('\mapperDelimiter', $wrapped);
 
-        $section = --$section;
+        --$section;
         $result = '';
         if (isset($lines[$section])) {
             $result = $lines[$section];
