@@ -291,9 +291,9 @@ class Mapper implements MapperInterface
     /**
      * Return the n-th section of the given string splitted by piece of the given length
      *
-     * @param $string
-     * @param $length
-     * @param $section
+     * @param string $string
+     * @param int $length
+     * @param int $section
      *
      * @return string
      */
@@ -302,9 +302,10 @@ class Mapper implements MapperInterface
         $wrapped = wordwrap($string, $length, '\mapperDelimiter', true);
         $lines = explode('\mapperDelimiter', $wrapped);
 
+        $section = --$section;
         $result = '';
-        if (isset($lines[$section-1])) {
-            $result = $lines[$section-1];
+        if (isset($lines[$section])) {
+            $result = $lines[$section];
         }
         return $result;
     }
