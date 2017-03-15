@@ -164,6 +164,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
      * Exposes php number_format
      *
      * string numberFormat ( float $number , int $decimals = 0 , string $dec_point = "." , string $thousands_sep = "," )
+     * returns null if null passed
      *
      * @return ExpressionFunction
      */
@@ -172,9 +173,12 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
         return new ExpressionFunction(
             'numberFormat',
             function ($number, $decimals = 0, $dec_point = ".", $thousands_sep = ",") {
-                return sprintf('(number_format(%1$s, %2$s, %3$s, %4$s))', $number, $decimals, $dec_point, $thousands_sep);
+                return sprintf('( %1$s !== null ? number_format(%1$s, %2$s, %3$s, %4$s)) : null', $number, $decimals, $dec_point, $thousands_sep);
             },
             function ($arguments, $number, $decimals = 0, $dec_point = ".", $thousands_sep = ",") {
+                if( $number === null ){
+                    return null;
+                }
                 return number_format($number, $decimals, $dec_point, $thousands_sep);
             }
         );
