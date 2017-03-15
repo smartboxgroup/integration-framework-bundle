@@ -17,6 +17,7 @@ class ExternalSystemHTTPEvent extends Event
      */
     public function __construct()
     {
+        error_log("MEL_HTTP_EVENT:CONSTRUCTOR.\n");
         parent::__construct(self::EVENT_NAME);
     }
 

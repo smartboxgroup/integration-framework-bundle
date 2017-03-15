@@ -93,6 +93,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             $soapClient->setExecutionTimeout($endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT]);
 
             $response = $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
+            error_log("MEL_WAS_HERE:001\n");
             $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($response));
         } catch (\Exception $ex) {
             $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, false, $ex->getCode(), $ex);
@@ -277,8 +278,8 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     {
         // Dispatch event with error information
         $event = new ExternalSystemHTTPEvent();
-        $event->setId(uniqid('', true));
-        $event->setTimestampToCurrent();
+        $event->setStatus('melbo was here.soap.');
+        //$event->setTimestampToCurrent();
         return $event;
     }
 
