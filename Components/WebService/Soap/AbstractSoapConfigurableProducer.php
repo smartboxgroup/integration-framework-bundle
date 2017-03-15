@@ -94,7 +94,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             $response = $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
 
             $lastResponseCode = $soapClient->__getLastResponseCode();
-            if ( $lastResponseCode >=400 && $lastResponseCode <=599) {
+            if ( $lastResponseCode >= 400 && $lastResponseCode <= 599) {
                 $this->throwUnrecoverableSoapProducerException("Unrecoverable error. SOAP HTTP Response code is ".$lastResponseCode.", 200 was expected.", $soapClient);
 
             } elseif ($lastResponseCode != 200) {

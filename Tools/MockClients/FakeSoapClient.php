@@ -61,7 +61,9 @@ class FakeSoapClient extends BasicAuthSoapClient
 
         if (getenv('MOCKS_ENABLED') === 'true') {
             try {
-                return $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
+                $response = $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
+                $this->lastResponseHeaders= "HTTP/1.1 200 OK";
+                return $response;
             } catch (\InvalidArgumentException $e) {
                 throw $e;
             }
