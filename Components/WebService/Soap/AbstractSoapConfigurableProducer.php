@@ -92,6 +92,14 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             $soapClient->setExecutionTimeout($endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT]);
 
             $response = $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
+
+            $lastResponseCode = $soapClient->__getLastResponseCode();
+            if ( $lastResponseCode >= 400 && $lastResponseCode <= 599) {
+                $this->throwUnrecoverableSoapProducerException("Unrecoverable error. SOAP HTTP Response code is ".$lastResponseCode.", 200 was expected.", $soapClient);
+
+            } elseif ($lastResponseCode != 200) {
+                $this->throwRecoverableSoapProducerException("Recoverable error. SOAP HTTP Response code is ".$lastResponseCode.", 200 was expected.", $soapClient);
+            }
         } catch (\Exception $ex) {
             $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, false, $ex->getCode(), $ex);
         }
