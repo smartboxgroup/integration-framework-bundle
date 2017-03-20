@@ -10,7 +10,7 @@ class QueueMessage extends Message implements QueueMessageInterface
 {
     const HEADER_QUEUE = 'destination';
     const HEADER_PERSISTENT = 'persistent';
-    const HEADER_DELIVERY_MODE = 'delivery_mode';
+    const HEADER_DELIVERY_MODE = 'delivery-mode';
 
     const HEADER_TTL = 'ttl';
 
