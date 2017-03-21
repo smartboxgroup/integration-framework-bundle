@@ -6,6 +6,7 @@ use JMS\Serializer\Annotation as JMS;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\MessageFactoryAware;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
 
 /**
  * Class Service.
@@ -13,6 +14,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\MessageFacto
 abstract class Service implements SerializableInterface
 {
     use HasInternalType;
+    use UsesEventDispatcher;
     use MessageFactoryAware;
 
     /**

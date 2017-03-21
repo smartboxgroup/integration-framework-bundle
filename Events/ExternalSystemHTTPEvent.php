@@ -13,74 +13,124 @@ class ExternalSystemHTTPEvent extends Event
     const EVENT_NAME = 'smartesb.event.external_system_http_event';
 
     /**
-     *
+     * ExternalSystemHTTPEvent Constructor
      */
     public function __construct()
     {
-        error_log("MEL_HTTP_EVENT:CONSTRUCTOR.\n");
         parent::__construct(self::EVENT_NAME);
     }
 
     /**
-     * @var string ******
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("string")
+     *
+     * @var string
      */
-    protected $context;
+    protected $transactionId;
 
     /**
-     * @var string ******
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("string")
+     *
+     * @var string
      */
     protected $exchangeId;
 
     /**
-     * @var string ******
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("string")
+     *
+     * @var string
      */
-    protected $endpointUri;
+    protected $httpURI;
 
     /**
-     * @var string ******
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("string")
+     *
+     * @var string
+     */
+    protected $fromUri;
+
+    /**
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("array")
+     *
+     * @var array
      */
     protected $requestHttpHeaders;
 
     /**
-     * @var string ******
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("string")
+     *
+     * @var string
      */
     protected $requestHttpBody;
 
     /**
-     * @var string ******
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("array")
+     *
+     * @var array
      */
-
     protected $responseHttpHeaders;
 
     /**
-     * @var string ******
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("string")
+     *
+     * @var string
      */
     protected $responseHttpBody;
 
     /**
-     * @var string ******
+     * @JMS\Expose
+     * @JMS\Groups({"logs"})
+     * @JMS\Type("string")
+     *
+     * @var string
      */
     protected $status;
 
     /**
-     * @var string ******
+     * @return string
      */
-    protected $exception;
+    public function getTransactionId()
+    {
+        return $this->transactionId;
+    }
+
+    /**
+     * @param string $transactionId
+     */
+    public function setTransactionId($transactionId)
+    {
+        $this->transactionId = $transactionId;
+    }
 
     /**
      * @return string
      */
-    public function getContext()
+    public function getHttpURI()
     {
-        return $this->context;
+        return $this->httpURI;
     }
 
     /**
-     * @param string $context
+     * @param string $httpURI
      */
-    public function setContext($context)
+    public function setHttpURI($httpURI)
     {
-        $this->context = $context;
+        $this->httpURI = $httpURI;
     }
 
     /**
@@ -97,22 +147,6 @@ class ExternalSystemHTTPEvent extends Event
     public function setExchangeId($exchangeId)
     {
         $this->exchangeId = $exchangeId;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEndpointUri()
-    {
-        return $this->endpointUri;
-    }
-
-    /**
-     * @param string $endpointUri
-     */
-    public function setEndpointUri($endpointUri)
-    {
-        $this->endpointUri = $endpointUri;
     }
 
     /**
@@ -198,17 +232,17 @@ class ExternalSystemHTTPEvent extends Event
     /**
      * @return string
      */
-    public function getException()
+    public function getFromUri()
     {
-        return $this->exception;
+        return $this->fromUri;
     }
 
     /**
-     * @param string $exception
+     * @param string $fromUri
      */
-    public function setException($exception)
+    public function setFromUri($fromUri)
     {
-        $this->exception = $exception;
+        $this->fromUri = $fromUri;
     }
 
 

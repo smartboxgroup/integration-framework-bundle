@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\AbstractWebServic
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\RecoverableSoapException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\UnrecoverableSoapException;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
@@ -101,8 +102,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             } elseif ($lastResponseCode != 200) {
                 $this->throwRecoverableSoapProducerException("Recoverable error. SOAP HTTP Response code is ".$lastResponseCode.", 200 was expected.", $soapClient);
             }
-            error_log("MEL_WAS_HERE:001\n");
-            $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($response));
+
         } catch (\Exception $ex) {
             $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, false, $ex->getCode(), $ex);
         }
@@ -168,6 +168,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
 
         $result = $this->performRequest($soapMethodName, $soapMethodParams, $endpointOptions, $soapOptions, $soapHeaders);
+        $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context,$endpointOptions));
         $context[self::KEY_RESPONSES][$requestName] = $result;
 
         // Validates response (if needed)
@@ -282,12 +283,28 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         return '';
     }
 
-    public function getExternalSystemHTTPEvent($soapClientResponse)
+    public function getExternalSystemHTTPEvent(&$context, &$endpointOptions)
     {
         // Dispatch event with error information
         $event = new ExternalSystemHTTPEvent();
-        $event->setStatus('melbo was here.soap.');
-        //$event->setTimestampToCurrent();
+        $event->setEventDetails( 'HTTP SOAP Request/Response Event' );
+        $event->setTimestampToCurrent();
+        $event->setExchangeId( $context['exchange']->getId() );
+        $event->setTransactionId($context['msg']->getContext()['transaction_id']);
+        $event->setFromUri($context['msg']->getContext()['from']);
+        $event->setHttpURI( $this->getSoapClient($endpointOptions)->__getLastRequestUri() );
+        $event->setRequestHttpHeaders( $this->getSoapClient($endpointOptions)->__getLastRequestHeaders() );
+        $event->setResponseHttpHeaders( $this->getSoapClient($endpointOptions)->__getLastResponseHeaders() );
+        $event->setRequestHttpBody( $this->getSoapClient($endpointOptions)->__getLastRequest() );
+        $event->setResponseHttpBody( $this->getSoapClient($endpointOptions)->__getLastResponse() );
+
+        if( $this->getSoapClient($endpointOptions)->__getLastResponseCode() === 200 )
+        {
+            $event->setStatus('Success');
+        }else{
+            $event->setStatus('Error');
+        }
+
         return $event;
     }
 
