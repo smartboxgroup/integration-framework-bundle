@@ -60,7 +60,7 @@ class DBConfigurableProducer extends Service implements ConfigurableProducerInte
                 $result = new SerializableArray($result);
             }
 
-            $exchange->getIn()->setBody($result);
+            $exchange->getOut()->setBody($result);
         }
     }
 }
