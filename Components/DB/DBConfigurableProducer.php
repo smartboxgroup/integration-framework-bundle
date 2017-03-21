@@ -48,7 +48,7 @@ class DBConfigurableProducer extends Service implements ConfigurableProducerInte
 
         $this->configurableStepsProvider->executeSteps($steps, $options, $context);
 
-        $this->getCofHelper()->runValidations(@$config[ConfigurableProducerInterface::CONF_VALIDATIONS], $context);
+        $this->getConfHelper()->runValidations(@$config[ConfigurableProducerInterface::CONF_VALIDATIONS], $context);
 
         if (
             $options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT &&
