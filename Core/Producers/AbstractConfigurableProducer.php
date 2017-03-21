@@ -16,7 +16,6 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDis
 abstract class AbstractConfigurableProducer extends Producer implements ConfigurableProducerInterface
 {
     use IsConfigurableService;
-    use UsesEventDispatcher;
 
     const KEY_PRODUCER = 'producer';
     const KEY_PRODUCER_SHORT = 'c';
@@ -32,7 +31,6 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
      */
     public function send(Exchange $exchange, EndpointInterface $endpoint)
     {
-        error_log("MEL_WAS_HERE:004\n");
         $options = $endpoint->getOptions();
 
         $method = $options[ConfigurableWebserviceProtocol::OPTION_METHOD];
