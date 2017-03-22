@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 /**
  * Class ExpressionEvaluatorTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator
  */
 class ExpressionEvaluatorTest extends KernelTestCase
 {
@@ -54,14 +54,18 @@ class ExpressionEvaluatorTest extends KernelTestCase
             'Check substr returns a substring' => [
                 'expected' => 'abc',
                 'expression' => 'substr("abcdef", 0, 3)',
-                'vars' => []
+                'vars' => [],
             ],
             'Check substr returns a blank string' => [
                 'expected' => '',
                 'expression' => 'substr("abcdef", 10, 3)',
-                'vars' => []
+                'vars' => [],
             ],
-
+            'Check md5 returns a hash' => [
+                'expected' => '187ef4436122d1cc2f40dc2b92f0eba0',
+                'expression' => 'md5("ab")',
+                'var' => [],
+            ],
         ];
     }
 
