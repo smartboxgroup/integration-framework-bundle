@@ -65,7 +65,7 @@ class ContentRouter extends Processor
         $evaluator = $this->getEvaluator();
 
         foreach ($this->clauses as $clause) {
-            if ($evaluator->evaluateWithExchange($clause->getCondition(), $exchange) === true) {
+            if ($evaluator->evaluateWithExchange($clause->getCondition(), $exchange)) {
                 $exchange->getItinerary()->prepend($clause->getItinerary());
                 $processingContext->set(self::CONDITION_MATCHED, $clause->getCondition());
 
