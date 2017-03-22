@@ -23,10 +23,12 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     const STEP_EXECUTE = 'execute';
     const STEP_EXECUTE_ALL = 'execute_all';
     const STEP_INSERT = 'insert';
+    const STEP_EXECUTE_IF_CONDITION = 'execute_if';
 
     const CONF_PARAMETERS = 'parameters';
     const CONF_SQL = 'sql';
     const CONF_QUERY_NAME = 'name';
+    const CONF_CONDITION = 'condition';
 
     /** @var OptionsResolver */
     protected $configResolver;
@@ -60,8 +62,10 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
                 ]
             );
             $this->configResolver->setDefined(self::CONF_QUERY_NAME);
+            $this->configResolver->setDefined(self::CONF_CONDITION);
             $this->configResolver->setAllowedTypes(self::CONF_SQL, ['string']);
             $this->configResolver->setAllowedTypes(self::CONF_PARAMETERS, ['array', 'string']);
+            $this->configResolver->setAllowedTypes(self::CONF_CONDITION, ['string']);
         }
     }
 
@@ -114,6 +118,11 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
             case self::STEP_INSERT:
                 $stepActionParams = $this->configResolver->resolve($stepActionParams);
                 $this->insert($stepActionParams, $context);
+
+                return true;
+            case self::STEP_EXECUTE_IF_CONDITION:
+                $stepActionParams = $this->configResolver->resolve($stepActionParams);
+                $this->executeIfConditionMatch($stepActionParams, $context);
 
                 return true;
             default:
@@ -180,6 +189,21 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         $sql = str_replace(':values', implode(',', $tuples), $sql);
 
         return $this->performQuery($configuration, $context, $parameters, $sql);
+    }
+
+    /**
+     * @param array $configuration
+     * @param $context
+     *
+     * @return array
+     */
+    public function executeIfConditionMatch(array $configuration, &$context)
+    {
+        $condition = $this->confHelper->resolve($configuration[self::CONF_CONDITION], $context);
+
+        if ($condition) {
+            return $this->execute($configuration, $context);
+        }
     }
 
     /**
