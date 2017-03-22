@@ -2,7 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB;
 
-
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLConfigurableProtocol;
 use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
@@ -11,11 +11,11 @@ use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInte
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\Service;
 
-class DBConfigurableProducer extends Service implements ConfigurableProducerInterface{
-
+class DBConfigurableProducer extends Service implements ConfigurableProducerInterface
+{
     use IsConfigurableService;
 
-    /** @var  ConfigurableStepsProviderInterface */
+    /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
 
     /**
@@ -44,16 +44,23 @@ class DBConfigurableProducer extends Service implements ConfigurableProducerInte
         $config = $this->methodsConfiguration[$method];
         $steps = $config[ConfigurableProducerInterface::CONF_STEPS];
 
-        $context = $this->getConfHelper()->createContext($options,$exchange->getIn(),$exchange);
+        $context = $this->getConfHelper()->createContext($options, $exchange->getIn(), $exchange);
 
         $this->configurableStepsProvider->executeSteps($steps, $options, $context);
 
-        $this->getConfHelper()->runValidations(@$config[ConfigurableProducerInterface::CONF_VALIDATIONS],$context);
+        $this->getConfHelper()->runValidations(@$config[ConfigurableProducerInterface::CONF_VALIDATIONS], $context);
 
-        if( $options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT &&
-            @$config[ConfigurableProducerInterface::CONF_RESPONSE]){
-            $result = $this->getConfHelper()->resolve($config[ConfigurableProducerInterface::CONF_RESPONSE],$context);
-            $exchange->setOut($result);
+        if (
+            $options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT &&
+            array_key_exists(ConfigurableProducerInterface::CONF_RESPONSE, $config)
+        ) {
+            $result = $this->getConfHelper()->resolve($config[ConfigurableProducerInterface::CONF_RESPONSE], $context);
+
+            if (is_array($result)) {
+                $result = new SerializableArray($result);
+            }
+
+            $exchange->getOut()->setBody($result);
         }
     }
 }

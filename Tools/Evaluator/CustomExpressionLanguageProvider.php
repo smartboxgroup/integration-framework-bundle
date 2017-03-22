@@ -11,7 +11,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
     public function getFunctions()
     {
         return [
-            $this->createHasHeyFunction(),
+            $this->createHasKeyFunction(),
             $this->createGetFirstFunction(),
             $this->createIsRecoverableFunction(),
             $this->createContainsFunction(),
@@ -19,6 +19,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createSubStrFunction(),
             $this->createDefaultTo(),
             $this->createNumberFormat(),
+            $this->createMd5Function(),
         ];
     }
 
@@ -61,7 +62,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
     /**
      * @return ExpressionFunction
      */
-    protected function createHasHeyFunction()
+    protected function createHasKeyFunction()
     {
         return new ExpressionFunction(
             'hasKey',
@@ -145,14 +146,13 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                 return sprintf('( is_string(%1$1) && substr(%1$s, %2$s, %3$s) : %1$s ) === false ? "" : substr(%1$s, %2$s, %3$s) : %1$s ) )', $string, $start, $length);
             },
             function ($arguments, $string, $start, $length) {
-
-                if( !is_string($string)  ){
-                    return "";
+                if (!is_string($string)) {
+                    return '';
                 }
 
-                $sub_string =  substr($string, $start, $length);
-                if( $sub_string === false){
-                    return "";
+                $sub_string = substr($string, $start, $length);
+                if ($sub_string === false) {
+                    return '';
                 }
 
                 return $sub_string;
@@ -176,10 +176,26 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                 return sprintf('( %1$s !== null ? number_format(%1$s, %2$s, %3$s, %4$s)) : null', $number, $decimals, $dec_point, $thousands_sep);
             },
             function ($arguments, $number, $decimals = 0, $dec_point = ".", $thousands_sep = ",") {
-                if( $number === null ){
+                if ($number === null) {
                     return null;
                 }
                 return number_format($number, $decimals, $dec_point, $thousands_sep);
+            }
+        );
+    }
+
+    /**
+     * @return ExpressionFunction
+     */
+    protected function createMd5Function()
+    {
+        return new ExpressionFunction(
+            'md5',
+            function ($string) {
+                return sprintf('md5(%s)', $string);
+            },
+            function ($arguments, $string) {
+                return md5($string);
             }
         );
     }
