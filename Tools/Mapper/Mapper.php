@@ -287,4 +287,26 @@ class Mapper implements MapperInterface
 
         return $serializer->serialize($data, $format, SerializationContext::create()->setGroups([$group]));
     }
+
+    /**
+     * Return the n-th section of the given string splitted by piece of the given length
+     *
+     * @param string $string
+     * @param int $length
+     * @param int $section
+     *
+     * @return string
+     */
+    public function wordWrap($string, $length, $section)
+    {
+        $wrapped = wordwrap($string, $length, '\mapperDelimiter', true);
+        $lines = explode('\mapperDelimiter', $wrapped);
+
+        --$section;
+        $result = '';
+        if (isset($lines[$section])) {
+            $result = $lines[$section];
+        }
+        return $result;
+    }
 }

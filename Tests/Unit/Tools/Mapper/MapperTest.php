@@ -19,6 +19,30 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $this->mapper = null;
     }
 
+    /**
+     * @return array
+     */
+    public function wordWrapDataProvider()
+    {
+        return [
+            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 12, 1, "I'm a very" ],
+            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 12, 100, "" ],
+            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 12, 2, "long string," ],
+            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 109, 1, "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious" ],
+            [ "", 98, 1, "" ],
+            [ null, 109, 1, "" ],
+            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 11, "Supercalif" ],
+            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 12, "ragilistic" ],
+            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 13, "expialidoc" ],
+            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 14, "ious" ],
+            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 1023, 1, "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", ],
+            [ "Supercalifragilisticexpialidocious", 1, 1, "S" ],
+            [ "Supercalifragilisticexpialidocious", 1, 34, "s" ],
+            [ "Supercalifragilisticexpialidocious", 17, 1, "Supercalifragilis" ],
+            [ "Supercalifragilisticexpialidocious", 17, 2, "ticexpialidocious" ],
+        ];
+    }
+
     public function testFormatDateWhenDateIsNull()
     {
         $this->assertNull($this->mapper->formatDate('Y-m-d', null));
@@ -110,4 +134,20 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('bonono', $this->mapper->replaceStr($needle, $replacedBy, $string));
     }
+
+    /**
+     * @param $string
+     * @param $length
+     * @param $section
+     * @param $expected
+     *
+     * @dataProvider wordWrapDataProvider
+     */
+    public function testWordWrap($string, $length, $section, $expected)
+    {
+        $result = $this->mapper->wordWrap($string, $length, $section);
+        $this->assertEquals($expected, $result);
+    }
 }
+
+
