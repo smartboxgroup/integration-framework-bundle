@@ -35,6 +35,13 @@ class MongoDBDriverTest extends KernelTestCase
 
     public static function setUpBeforeClass()
     {
+        if (!extension_loaded('mongodb')) {
+            self::markTestSkipped(
+                'The MongoDB extension is not available.'
+            );
+            return;
+        }
+
         $kernel = self::createKernel();
         $kernel->boot();
 
