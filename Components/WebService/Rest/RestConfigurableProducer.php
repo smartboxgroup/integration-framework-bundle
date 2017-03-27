@@ -16,10 +16,12 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebse
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\RecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
 
 /**
  * Class RestConfigurableProducer.
@@ -164,7 +166,8 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $restOptions = $this->getBasicHTTPOptions($params, $endpointOptions);
 
         $encoding = $endpointOptions[RestConfigurableProtocol::OPTION_ENCODING];
-        $restOptions['body'] = $this->encodeRequestBody($encoding, $body);
+        $requestBody = $this->encodeRequestBody($encoding, $body);
+        $restOptions['body'] = $requestBody;
 
         /* @var Response $response */
         $request = new Request($httpMethod, $resolvedURI, $requestHeaders);
@@ -172,7 +175,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         try {
             $response = $client->send($request, $restOptions);
             $responseContent = $response->getBody()->getContents();
-
+            $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context,$request,$requestBody,$response,$responseContent,$endpointOptions));
             // Tries to parse the body and convert it into an object
             $responseBody = null;
             if ($responseContent) {
@@ -205,9 +208,9 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                         true === $validationStep[self::VALIDATION_DISPLAY_MESSAGE]
                     );
                     if ($recoverable) {
-                        $this->throwRecoverableRestProducerException($message, $request, $response, $showMessage);
+                        $this->throwRecoverableRestProducerException($message, $request->getHeaders(),$requestBody, $response->getHeaders(), $responseBody, $response->getStatusCode(), $showMessage);
                     } else {
-                        $this->throwUnrecoverableRestProducerException($message, $request, $response, $showMessage);
+                        $this->throwUnrecoverableRestProducerException($message, $request->getHeaders(),$requestBody, $response->getHeaders(), $responseBody, $response->getStatusCode(), $showMessage);
                     }
                 }
             }
@@ -219,32 +222,39 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             // * 500-599 status codes: recoverable
 
             $response = null;
-            $statusCode = $e->getCode();
             if ($e instanceof RequestException) {
                 $response = $e->getResponse();
             }
 
-            if ($request) {
-                $request->getBody()->rewind();
-            }
-
             if ($response) {
                 $response->getBody()->rewind();
+                $responseBody = $response->getBody()->getContents();
+                $responseHeaders = $response->getHeaders();
+                $statusCode = $response->getStatusCode();
+            }else{
+                $responseBody = 'No response found';
+                $responseHeaders = [];
+                $statusCode = 0;
             }
 
             if ($statusCode >= 400 && $statusCode <= 499) {
-                $this->throwUnrecoverableRestProducerException($e->getMessage(), $request, $response, false, $statusCode, $e);
+                $this->throwUnrecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $statusCode, false, $e->getCode(), $e);
             } else {
-                $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, false, $statusCode, $e);
+                $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $statusCode, false, $e->getCode(), $e);
             }
         } catch (UnrecoverableRestException $e) {
             throw $e;
         } catch (\Exception $e) {
             if ($response) {
                 $response->getBody()->rewind();
+                $responseBody = $response->getBody()->getContents();
+                $responseHeaders = $response->getHeaders();
+            }else{
+                $responseBody = 'No response found';
+                $responseHeaders = [];
             }
             $showMessage = ($e instanceof ExternalSystemExceptionInterface && $e->mustShowExternalSystemErrorMessage());
-            $this->throwRecoverableRestProducerException($e->getMessage(), $request, $response, $showMessage, $response ? $response->getStatusCode() : null, $e);
+            $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $showMessage, $response ? $response->getStatusCode() : null, $e);
         }
     }
 
@@ -260,50 +270,84 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
     }
 
     /**
-     * @param string                                   $message
-     * @param \Psr\Http\Message\RequestInterface       $request
-     * @param \Psr\Http\Message\ResponseInterface|null $response
-     * @param bool                                     $showMessage
-     * @param int                                      $code
-     * @param \Exception|null                          $previousException
-     *
-     * @throws \Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\RecoverableRestException
+     * @param $message
+     * @param array $requestHeaders
+     * @param string $requestBody
+     * @param array $responseHeaders
+     * @param string $responseBody
+     * @param int $responseStatusCode
+     * @param string $showMessage
+     * @param int $code
+     * @param \Exception $previous
+     * @throws RecoverableRestException
      */
     public function throwRecoverableRestProducerException(
         $message,
-        RequestInterface $request,
-        ResponseInterface $response = null,
-        $showMessage = false,
+        array $requestHeaders = [],
+        $requestBody = '',
+        $responseHeaders = [],
+        $responseBody = '',
+        $responseStatusCode = 0,
+        $showMessage = '',
         $code = 0,
-        \Exception $previousException = null
+        \Exception $previous = null
     ) {
-        $exception = new RecoverableRestException($message, $request, $response, $code, $previousException);
+        $exception = new RecoverableRestException($message, $requestHeaders, $requestBody, $responseHeaders, $responseBody, $responseStatusCode, $code, $previous);
         $exception->setExternalSystemName($this->getName());
         $exception->setShowExternalSystemErrorMessage($showMessage);
         throw $exception;
     }
 
     /**
-     * @param string                                   $message
-     * @param \Psr\Http\Message\RequestInterface       $request
-     * @param \Psr\Http\Message\ResponseInterface|null $response
-     * @param bool                                     $showMessage
-     * @param int                                      $code
-     * @param \Exception|null                          $previousException
-     *
-     * @throws \Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException
+     * @param $message
+     * @param array $requestHeaders
+     * @param string $requestBody
+     * @param array $responseHeaders
+     * @param string $responseBody
+     * @param int $responseStatusCode
+     * @param string $showMessage
+     * @param int $code
+     * @param \Exception $previous
+     * @throws UnrecoverableRestException
      */
     public function throwUnrecoverableRestProducerException(
         $message,
-        RequestInterface $request,
-        ResponseInterface $response = null,
-        $showMessage = false,
+        array $requestHeaders = [],
+        $requestBody = '',
+        $responseHeaders = [],
+        $responseBody = '',
+        $responseStatusCode = 0,
+        $showMessage = '',
         $code = 0,
-        \Exception $previousException = null
+        \Exception $previous = null
     ) {
-        $exception = new UnrecoverableRestException($message, $request, $response, $code, $previousException);
+        $exception = new UnrecoverableRestException($message, $requestHeaders, $requestBody, $responseHeaders, $responseBody, $responseStatusCode, $code, $previous);
         $exception->setExternalSystemName($this->getName());
         $exception->setShowExternalSystemErrorMessage($showMessage);
         throw $exception;
+    }
+
+    public function getExternalSystemHTTPEvent($context, RequestInterface $request,$requestBody,ResponseInterface $response, $restClientResponse,$endpointOptions)
+    {
+        $event = new ExternalSystemHTTPEvent();
+        $event->setEventDetails( 'HTTP REST Request/Response Event' );
+        $event->setTimestampToCurrent();
+        $event->setHttpURI($request->getUri()->__toString());
+        $event->setRequestHttpHeaders( $request->getHeaders() );
+        $event->setResponseHttpHeaders( $response->getHeaders() );
+        $event->setFromUri($context['msg']->getContext()['from']);
+        $event->setExchangeId( $context['exchange']->getId() );
+        $event->setTransactionId($context['msg']->getContext()['transaction_id']);
+        $event->setResponseHttpBody($restClientResponse);
+        $event->setRequestHttpBody($requestBody);
+
+        if( $response->getStatusCode() === 200 )
+        {
+            $event->setStatus( 'Success' );
+        }else{
+            $event->setStatus('Error');
+        }
+
+        return $event;
     }
 }
