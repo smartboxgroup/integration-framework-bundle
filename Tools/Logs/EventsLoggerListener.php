@@ -127,9 +127,9 @@ class EventsLoggerListener
 
     public function getLogLevelForEvent(Event $event){
         if($event instanceof ProcessingErrorEvent){
-            return self::DEFAULT_ERRORS_LEVEL;
+            return $this->errorsLogLevel;
         }else{
-            return self::DEFAULT_EVENTS_LEVEL;
+            return $this->eventsLogLevel;
         }
     }
 
