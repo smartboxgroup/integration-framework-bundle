@@ -94,6 +94,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
+            $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $definition->addMethodCall('setName', [$producerName]);
             $container->setDefinition($producerId, $definition);
 
@@ -147,6 +148,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
             $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
             $definition->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+            $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $definition->addMethodCall('setName', [$consumerName]);
             $container->setDefinition($consumerId, $definition);
 
@@ -275,35 +277,35 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         // Create services for message handlers
         foreach ($this->config['message_handlers'] as $handlerName => $handlerConfig) {
             $handlerName = self::HANDLER_PREFIX.$handlerName;
-            $driverDef = new Definition(MessageHandler::class, []);
+            $handlerDef = new Definition(MessageHandler::class, []);
 
-            $driverDef->addMethodCall('setId', [$handlerName]);
-            $driverDef->addMethodCall('setContainer', [new Reference('service_container')]);
-            $driverDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
-            $driverDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
-            $driverDef->addMethodCall('setRetryDelay', [$handlerConfig['retry_delay']]);
-            $driverDef->addMethodCall('setEndpointFactory', [new Reference('smartesb.endpoint_factory')]);
-            $driverDef->addMethodCall('setItineraryResolver', [new Reference('smartesb.itineray_resolver')]);
-            $driverDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
-            $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
-            $driverDef->addMethodCall('setRetryStrategy', [$handlerConfig['retry_strategy']]);
-            $driverDef->addMethodCall('setRetryDelayFactor', [$handlerConfig['retry_delay_factor']]);
+            $handlerDef->addMethodCall('setId', [$handlerName]);
+            $handlerDef->addMethodCall('setContainer', [new Reference('service_container')]);
+            $handlerDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
+            $handlerDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
+            $handlerDef->addMethodCall('setRetryDelay', [$handlerConfig['retry_delay']]);
+            $handlerDef->addMethodCall('setEndpointFactory', [new Reference('smartesb.endpoint_factory')]);
+            $handlerDef->addMethodCall('setItineraryResolver', [new Reference('smartesb.itineray_resolver')]);
+            $handlerDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
+            $handlerDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+            $handlerDef->addMethodCall('setRetryStrategy', [$handlerConfig['retry_strategy']]);
+            $handlerDef->addMethodCall('setRetryDelayFactor', [$handlerConfig['retry_delay_factor']]);
 
             if ($handlerConfig['retry_uri'] != 'original') {
-                $driverDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
+                $handlerDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
             } else {
-                $driverDef->addMethodCall('setRetryURI', [false]);
+                $handlerDef->addMethodCall('setRetryURI', [false]);
             }
 
-            $driverDef->addMethodCall('setThrowExceptions', [$handlerConfig['throw_exceptions']]);
-            $driverDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
+            $handlerDef->addMethodCall('setThrowExceptions', [$handlerConfig['throw_exceptions']]);
+            $handlerDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
 
-            $driverDef->addTag('kernel.event_listener', [
+            $handlerDef->addTag('kernel.event_listener', [
                 'event' => 'smartesb.exchange.new',
                 'method' => 'onNewExchangeEvent',
             ]);
 
-            $container->setDefinition($handlerName, $driverDef);
+            $container->setDefinition($handlerName, $handlerDef);
         }
     }
 
@@ -339,6 +341,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         $def->addTag('kernel.event_listener', [
             'event' => 'smartesb.handler.after_handle',
+            'method' => 'onEvent',
+        ]);
+
+        $def->addTag('kernel.event_listener', [
+            'event' => 'smartesb.event.external_system_http_event',
             'method' => 'onEvent',
         ]);
 

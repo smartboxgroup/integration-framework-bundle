@@ -4,8 +4,11 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\Logs;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
+use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
@@ -122,16 +125,24 @@ class EventsLoggerListener
         $this->errorsLogLevel = $errorsLogLevel;
     }
 
+    public function getLogLevelForEvent(Event $event){
+        if($event instanceof ProcessingErrorEvent){
+            return $this->errorsLogLevel;
+        }else{
+            return $this->eventsLogLevel;
+        }
+    }
+
     /**
      * @param Event $event
      */
     public function onEvent(Event $event)
     {
-        $logLevel = $this->eventsLogLevel;
+        $logLevel = $this->getLogLevelForEvent($event);
+
         if ($event instanceof ProcessingErrorEvent) {
             $event->setRequestStack($this->requestStack);
             $message = 'Exception: '.$event->getException()->getMessage();
-            $logLevel = $this->errorsLogLevel;
         } else {
             $message = sprintf('Event "%s" occurred', $event->getEventName());
         }
@@ -153,7 +164,21 @@ class EventsLoggerListener
             'event_details' => $event->getEventDetails(),
         ];
 
-        if (
+        if ($event instanceof ExternalSystemHTTPEvent) {
+            $context['http_uri'] = $event->getHttpURI();
+            $context['request_body'] = $event->getRequestHttpBody();
+            $context['request_headers'] = $event->getRequestHttpHeaders();
+            $context['response_body'] = $event->getResponseHttpBody();
+            $context['response_headers'] = $event->getResponseHttpHeaders();
+            $context['status'] = $event->getStatus();
+            $context['exchange'] = [
+                'id' => $event->getExchangeId()
+            ];
+            $context['transaction'] = [
+                'id' => $event->getTransactionId(),
+                'uri' => $event->getFromUri()
+            ];
+        } elseif (
             $event instanceof HandlerEvent ||
             $event instanceof ProcessEvent
         ) {
