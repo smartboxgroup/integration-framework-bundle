@@ -227,6 +227,19 @@ class Mapper implements MapperInterface
     }
 
     /**
+     * Converts a string into an array.
+     *
+     * @param string $delimiter
+     * @param string $string
+     *
+     * @return array
+     */
+    public function stringToArray($delimiter, $string)
+    {
+        return explode($delimiter, $string);
+    }
+
+    /**
      * Flatten an array by key.
      *
      * @param array  $data The array to flatten
