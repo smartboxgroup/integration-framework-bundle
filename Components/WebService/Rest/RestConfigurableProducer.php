@@ -292,7 +292,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $code = 0,
         \Exception $previous = null
     ) {
-        $exception = new RecoverableRestException($message, $requestHeaders, $requestBody, $responseHeaders, $responseBody, $responseStatusCode);
+        $exception = new RecoverableRestException($message, $requestHeaders, $requestBody, $responseHeaders, $responseBody, $responseStatusCode, $code, $previous);
         $exception->setExternalSystemName($this->getName());
         $exception->setShowExternalSystemErrorMessage($showMessage);
         throw $exception;
@@ -321,7 +321,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $code = 0,
         \Exception $previous = null
     ) {
-        $exception = new UnrecoverableRestException($message, $requestHeaders, $requestBody, $responseHeaders, $responseBody, $responseStatusCode);
+        $exception = new UnrecoverableRestException($message, $requestHeaders, $requestBody, $responseHeaders, $responseBody, $responseStatusCode, $code, $previous);
         $exception->setExternalSystemName($this->getName());
         $exception->setShowExternalSystemErrorMessage($showMessage);
         throw $exception;
