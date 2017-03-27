@@ -66,6 +66,16 @@ class ExpressionEvaluatorTest extends KernelTestCase
                 'expression' => 'md5("ab")',
                 'var' => [],
             ],
+            'Check numberFormat returns null if null is passed' => [
+                'expected' => null,
+                'expression' => 'numberFormat(null)',
+                'vars' => []
+            ],
+            'Check numberFormat returns a main land number format to 2 decimals and no thousands separator' => [
+                'expected' => '123456,00',
+                'expression' => 'numberFormat( 123456.001, 2, ",", "" )',
+                'vars' => []
+            ],
         ];
     }
 
