@@ -27,7 +27,6 @@ class QueueMessage extends Message implements QueueMessageInterface
     public function __construct(SerializableInterface $body = null, $headers = [], Context $context = null)
     {
         parent::__construct($body, $headers, $context);
-        $this->setPersistent(true);
     }
 
     public function setQueue($queue)
@@ -69,6 +68,7 @@ class QueueMessage extends Message implements QueueMessageInterface
             $this->setHeader(self::HEADER_DELIVERY_MODE, self::DELIVERY_MODE_PERSISTENT);
         } else {
             $this->setHeader(self::HEADER_DELIVERY_MODE, self::DELIVERY_MODE_NON_PERSISTENT);
+            unset($this->headers[self::HEADER_DELIVERY_MODE]);
         }
     }
 
