@@ -18,6 +18,12 @@ class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function setup()
     {
+        if (!extension_loaded('mongodb')) {
+            $this->markTestSkipped(
+                'The MongoDB extension is not available.'
+            );
+            return;
+        }
         $this->handler = new MongoDBDateHandler();
     }
 
