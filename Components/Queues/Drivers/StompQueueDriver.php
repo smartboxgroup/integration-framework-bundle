@@ -152,7 +152,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $version = self::STOMP_VERSION, $vhost = null, $timeout = 3)
+    public function configure($host, $username, $password,  $format = QueueDriverInterface::FORMAT_JSON, $version = self::STOMP_VERSION, $vhost = null, $timeout = 3, $sync = true)
     {
         $this->format = $format;
         $this->host = $host;
@@ -165,7 +165,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $client = new Client($this->host);
         $client->setLogin($this->getUsername(), $this->getPass());
         $client->setReceiptWait($this->timeout);
-        $client->setSync(true);
+        $client->setSync($sync);
         $client->getConnection()->setReadTimeout($this->timeout);
         $client->setVersions([$version]);
         $client->setVhostname($vhost);
