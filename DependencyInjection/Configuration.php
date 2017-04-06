@@ -378,6 +378,11 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(null)
                 ->end()
 
+                ->scalarNode('sync')
+                    ->info('This parameter define if the stomp driver will be synchronous or not')
+                    ->defaultValue(true)
+            ->end()
+
             ->end()
 
             ->end()
