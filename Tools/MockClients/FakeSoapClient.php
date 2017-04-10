@@ -71,6 +71,19 @@ class FakeSoapClient extends BasicAuthSoapClient
 
         $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
 
+        if (getenv('DISPLAY_REQUEST') === 'true') {
+            echo "\nREQUEST for $location / $action / Version $version";
+            echo "\n=====================================================================================================";
+            echo "\n".$request;
+            echo "\n=====================================================================================================";
+            echo "\n\n";
+            echo "\nRESPONSE";
+            echo "\n=====================================================================================================";
+            echo "\n".$response;
+            echo "\n=====================================================================================================";
+            echo "\n\n";
+        }
+
         if (getenv('RECORD_RESPONSE') === 'true') {
             $this->setResponseInCache($actionName, $response, self::CACHE_SUFFIX);
             $this->setRequestInCache($actionName, $request, self::CACHE_SUFFIX);
