@@ -65,18 +65,6 @@ trait FakeClientTrait
         }
     }
 
-    protected function setRequestInCache($resource, $content, $suffix = null)
-    {
-        $requestsDir = "Requests";
-        if (!in_array($this->actionName, $this->cacheExclusions)) {
-            if (!is_dir($this->cacheDir."/".$requestsDir)) {
-                mkdir($this->cacheDir."/".$requestsDir, 0777, true);
-            }
-            $fileName = $this->getFileName($requestsDir."/".$resource, $suffix);
-            file_put_contents($fileName, $content);
-        }
-    }
-
     protected function saveWsdlToCache($wsdl, $options)
     {
         $originalWsdlCacheDir = Cache::getDirectory();

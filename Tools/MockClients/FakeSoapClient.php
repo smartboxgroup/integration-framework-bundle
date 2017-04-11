@@ -87,7 +87,6 @@ class FakeSoapClient extends BasicAuthSoapClient
 
         if (getenv('RECORD_RESPONSE') === 'true') {
             $this->setResponseInCache($actionName, $response, self::CACHE_SUFFIX);
-            $this->setRequestInCache($actionName, $request, self::CACHE_SUFFIX);
         }
 
         return $response;
