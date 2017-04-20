@@ -227,6 +227,19 @@ class Mapper implements MapperInterface
     }
 
     /**
+     * Converts a string into an array.
+     *
+     * @param string $delimiter
+     * @param string $string
+     *
+     * @return array
+     */
+    public function stringToArray($delimiter, $string)
+    {
+        return explode($delimiter, $string);
+    }
+
+    /**
      * Flatten an array by key.
      *
      * @param array  $data The array to flatten
@@ -286,5 +299,27 @@ class Mapper implements MapperInterface
         $serializer = $this->evaluator->getSerializer();
 
         return $serializer->serialize($data, $format, SerializationContext::create()->setGroups([$group]));
+    }
+
+    /**
+     * Return the n-th section of the given string splitted by piece of the given length
+     *
+     * @param string $string
+     * @param int $length
+     * @param int $section
+     *
+     * @return string
+     */
+    public function wordWrap($string, $length, $section)
+    {
+        $wrapped = wordwrap($string, $length, '\mapperDelimiter', true);
+        $lines = explode('\mapperDelimiter', $wrapped);
+
+        --$section;
+        $result = '';
+        if (isset($lines[$section])) {
+            $result = $lines[$section];
+        }
+        return $result;
     }
 }
