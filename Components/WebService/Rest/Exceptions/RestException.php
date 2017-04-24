@@ -71,6 +71,7 @@ class RestException extends \Exception implements SerializableInterface, Externa
      * @param string $requestBody
      * @param array $responseHeaders
      * @param string $responseBody
+     * @param int $responseStatusCode
      * @param int $code
      * @param \Exception $previous
      */
@@ -84,7 +85,7 @@ class RestException extends \Exception implements SerializableInterface, Externa
         $code = 0,
         \Exception $previous = null
     ) {
-        parent::__construct($message, 0, $previous); //TODO: 2nd param should be $code
+        parent::__construct($message, $code, $previous);
         $this->requestHttpHeaders = $requestHeaders;
         $this->requestHttpBody = $requestBody;
         $this->responseHttpHeaders = $responseHeaders;
