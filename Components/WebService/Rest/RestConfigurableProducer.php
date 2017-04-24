@@ -254,7 +254,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                 $responseHeaders = [];
             }
             $showMessage = ($e instanceof ExternalSystemExceptionInterface && $e->mustShowExternalSystemErrorMessage());
-            $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $response ? $response->getStatusCode() : 0, false ,$e->getCode(), $e);
+            $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $response ? $response->getStatusCode() : 0, $showMessage ,$e->getCode(), $e);
         }
     }
 
