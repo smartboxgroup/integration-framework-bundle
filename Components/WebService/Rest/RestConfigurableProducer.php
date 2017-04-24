@@ -254,7 +254,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                 $responseHeaders = [];
             }
             $showMessage = ($e instanceof ExternalSystemExceptionInterface && $e->mustShowExternalSystemErrorMessage());
-            $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $showMessage, $response ? $response->getStatusCode() : null, $e);
+            $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $response ? $response->getStatusCode() : 0, false ,$e->getCode(), $e);
         }
     }
 
@@ -276,7 +276,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
      * @param array $responseHeaders
      * @param string $responseBody
      * @param int $responseStatusCode
-     * @param string $showMessage
+     * @param boolean $showMessage
      * @param int $code
      * @param \Exception $previous
      * @throws RecoverableRestException
@@ -288,7 +288,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $responseHeaders = [],
         $responseBody = '',
         $responseStatusCode = 0,
-        $showMessage = '',
+        $showMessage = false,
         $code = 0,
         \Exception $previous = null
     ) {
@@ -305,7 +305,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
      * @param array $responseHeaders
      * @param string $responseBody
      * @param int $responseStatusCode
-     * @param string $showMessage
+     * @param boolean $showMessage
      * @param int $code
      * @param \Exception $previous
      * @throws UnrecoverableRestException
@@ -317,7 +317,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $responseHeaders = [],
         $responseBody = '',
         $responseStatusCode = 0,
-        $showMessage = '',
+        $showMessage = false,
         $code = 0,
         \Exception $previous = null
     ) {
