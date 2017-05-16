@@ -24,6 +24,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     const SOAP_METHOD_NAME = 'soap_method';
     const SOAP_OPTIONS = 'soap_options';
     const SOAP_HEADERS = 'soap_headers';
+    const HTTP_HEADERS = 'http_headers';
     const VALIDATION = 'validations';
     const VALIDATION_RULE = 'rule';
     const VALIDATION_MESSAGE = 'message';
@@ -132,6 +133,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         $paramsResolver->setDefined([
             self::SOAP_OPTIONS,
             self::SOAP_HEADERS,
+            self::HTTP_HEADERS,
             self::VALIDATION,
         ]);
 
@@ -164,9 +166,13 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         $soapMethodParams = $this->confHelper->resolve($params[self::REQUEST_PARAMETERS], $context);
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
+        $httpHeaders = $this->confHelper->resolve($params[self::HTTP_HEADERS], $context);
 
         $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
-
+        if($this->getSoapClient($endpointOptions)){
+            $httpHeaders = array_merge($this->getSoapClient($endpointOptions)->__getRequestHeaders(), $httpHeaders);
+            $this->getSoapClient($endpointOptions)->setRequestHeaders($httpHeaders);
+        }
         $result = $this->performRequest($soapMethodName, $soapMethodParams, $endpointOptions, $soapOptions, $soapHeaders);
         $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context,$endpointOptions));
         $context[self::KEY_RESPONSES][$requestName] = $result;
