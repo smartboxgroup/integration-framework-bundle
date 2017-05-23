@@ -71,10 +71,12 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     {
         $soapClient = $this->getSoapClient($endpointOptions);
         $response = null;
+
+        if (!$soapClient) {
+            throw new \RuntimeException('SoapConfigurableProducer requires a SoapClient as a dependency');
+        }
+
         try {
-            if (!$soapClient) {
-                throw new \RuntimeException('SoapConfigurableProducer requires a SoapClient as a dependency');
-            }
 
             // creates a proper set of SoapHeader objects
             $processedSoapHeaders = array_map(function ($header) {
