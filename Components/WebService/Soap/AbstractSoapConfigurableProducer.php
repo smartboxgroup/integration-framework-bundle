@@ -172,8 +172,8 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
 
         $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
         if($this->getSoapClient($endpointOptions)){
-            $httpHeaders['transaction_id']=$context['msg']->getContext()['transaction_id'];
-            $httpHeaders['timestamp'] = $context['msg']->getContext()['timestamp'];
+            $httpHeaders[self::HTTP_HEADER_TRANSACTION_ID]=$context['msg']->getContext()['transaction_id'];
+            $httpHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
             $this->getSoapClient($endpointOptions)->setRequestHeaders($httpHeaders);
         }
         $result = $this->performRequest($soapMethodName, $soapMethodParams, $endpointOptions, $soapOptions, $soapHeaders);

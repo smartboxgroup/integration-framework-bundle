@@ -18,6 +18,8 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
     const OUTPUT_OBJECT = 'object';
     const OUTPUT_GROUP = 'group';
     const OUTPUT_DISPLAY_ERROR = 'display_error';
+    const HTTP_HEADER_TRANSACTION_ID ='X-Transaction-Id';
+    const HTTP_HEADER_EAI_TIMESTAMP ='X-Eai-Timestamp';
 
     /**
      * @param $stepActionParams
