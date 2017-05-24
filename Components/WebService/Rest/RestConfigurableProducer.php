@@ -168,8 +168,8 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $encoding = $endpointOptions[RestConfigurableProtocol::OPTION_ENCODING];
         $requestBody = $this->encodeRequestBody($encoding, $body);
         $restOptions['body'] = $requestBody;
-        $requestHeaders['transaction_id']=$context['msg']->getContext()['transaction_id'];
-        $requestHeaders['timestamp'] = $context['msg']->getContext()['timestamp'];
+        $requestHeaders[self::HTTP_HEADER_TRANSACTION_ID]=$context['msg']->getContext()['transaction_id'];
+        $requestHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
         /* @var Response $response */
         $request = new Request($httpMethod, $resolvedURI, $requestHeaders);
         $response = null;
