@@ -168,7 +168,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         $soapMethodParams = $this->confHelper->resolve($params[self::REQUEST_PARAMETERS], $context);
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
-        $httpHeaders = $this->confHelper->resolve($params[self::HTTP_HEADERS], $context);
+        $httpHeaders = isset($params[self::HTTP_HEADERS]) ? $this->confHelper->resolve($params[self::HTTP_HEADERS], $context): [];
 
         $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
         if($this->getSoapClient($endpointOptions)){
