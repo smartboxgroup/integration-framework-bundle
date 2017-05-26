@@ -322,4 +322,22 @@ class Mapper implements MapperInterface
         }
         return $result;
     }
+
+    /**
+     * Return $value if $string is empty. $value can be null.
+     *
+     * @param string $string
+     * @param string $value
+     *
+     * @return string
+     */
+    public function emptyTo($string, $value)
+    {
+        if (!empty($string)) {
+            return $string;
+        } else {
+            return $value;
+        }
+    }
+
 }
