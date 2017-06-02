@@ -127,7 +127,7 @@ class EventsLoggerListener
     }
 
     public function getLogLevelForEvent(Event $event){
-        if($event instanceof ProcessingErrorEvent){
+        if($event instanceof ProcessingErrorEvent || $event instanceof HandlerErrorEvent){
             return $this->errorsLogLevel;
         }else{
             return $this->eventsLogLevel;
