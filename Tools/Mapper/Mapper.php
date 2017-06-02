@@ -324,7 +324,7 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Return $value if $string is empty. $value can be null.
+     * Return $value if $string is empty. $value can be null. If $string is not empty, returns $string.
      *
      * @param string $string
      * @param string $value
