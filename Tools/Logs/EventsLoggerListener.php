@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
+use Smartbox\Integration\FrameworkBundle\Events\HandlerErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
@@ -208,7 +209,7 @@ class EventsLoggerListener
             $context['exchange']['detail'] = $event->getExchange();
         }
 
-        if ($event instanceof ProcessingErrorEvent) {
+        if ($event instanceof ProcessingErrorEvent || $event instanceof HandlerErrorEvent) {
             $context['exception'] = $event->getException();
         }
 
