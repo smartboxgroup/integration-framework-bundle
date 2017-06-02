@@ -148,6 +148,55 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $result = $this->mapper->wordWrap($string, $length, $section);
         $this->assertEquals($expected, $result);
     }
+
+    public function testEmptyTo()
+    {
+        $value = 5;
+        // Testing empty values, returning a non null value
+        $res = $this->mapper->emptyTo("", $value);
+        $this->assertSame($value, $res);
+        $res = $this->mapper->emptyTo(0, $value);
+        $this->assertSame($value, $res);
+        $res = $this->mapper->emptyTo(null, $value);
+        $this->assertSame($value, $res);
+        $res = $this->mapper->emptyTo(false, $value);
+        $this->assertSame($value, $res);
+
+        // Testing empty values, returning a null value
+        $value = null;
+        $res = $this->mapper->emptyTo("", $value);
+        $this->assertSame($value, $res);
+        $res = $this->mapper->emptyTo(0, $value);
+        $this->assertSame($value, $res);
+        $res = $this->mapper->emptyTo(null, $value);
+        $this->assertSame($value, $res);
+        $res = $this->mapper->emptyTo(false, $value);
+        $this->assertSame($value, $res);
+
+        $value = 5;
+        // Testing non empty values, returning a non null value
+        $input = "A";
+        $res = $this->mapper->emptyTo($input, $value);
+        $this->assertSame($input, $res);
+        $input = 10;
+        $res = $this->mapper->emptyTo($input, $value);
+        $this->assertSame($input, $res);
+        $input = array(0 => "A");
+        $res = $this->mapper->emptyTo($input, $value);
+        $this->assertSame($input, $res);
+
+        $value = null;
+        // Testing non empty values, returning a null value
+        $input = "A";
+        $res = $this->mapper->emptyTo($input, $value);
+        $this->assertSame($input, $res);
+        $input = 10;
+        $res = $this->mapper->emptyTo($input, $value);
+        $this->assertSame($input, $res);
+        $input = array(0 => "A");
+        $res = $this->mapper->emptyTo($input, $value);
+        $this->assertSame($input, $res);
+    }
 }
 
 
