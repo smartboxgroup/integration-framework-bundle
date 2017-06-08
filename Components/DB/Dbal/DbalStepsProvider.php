@@ -253,8 +253,14 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      */
     protected function performQuery(array $configuration, &$context, array $parameters, $sql)
     {
+        // Select database
+        $databaseName = null; // Default database
+        if (isset($context['options']['databaseName']) && $context['options']['databaseName'] != '') {
+            $databaseName = $context['options']['databaseName'];
+        }
+
         /** @var PDOStatement $stmt */
-        $stmt = $this->doctrine->getConnection()->executeQuery($sql, $parameters['values'], $parameters['types']);
+        $stmt = $this->doctrine->getConnection($databaseName)->executeQuery($sql, $parameters['values'], $parameters['types']);
 
         if ($stmt->columnCount() > 0) { // SQL query is for example a SELECT
             $result = $stmt->fetchAll();
