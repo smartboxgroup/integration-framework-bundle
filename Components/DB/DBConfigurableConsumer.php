@@ -116,8 +116,6 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
                 $endpoint->handle($message);
 
                 $this->onConsume($endpoint, $message);
-
-                echo "A message was consumed.\n";
             }
         }
     }

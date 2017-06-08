@@ -42,6 +42,23 @@ class ConsumeCommand extends ContainerAwareCommand
         $this
             ->setName('smartesb:consumer:start')
             ->setDescription('Start a daemon consuming messages from a given URI')
+            ->setHelp("Run the consumer. You can kill the consumer after x messages by using the --killAfter option.
+Ex:
+Consume all the messages, and never die:
+app/console smartesb:consumer:start queue://main/api --killAfter -1
+
+Consume the events and die after 10 messages:
+app/console smartesb:consumer:start queue://events --killAfter 10
+
+Recover on eai_test database all transactions corresponding to a string containing xxxxxx (using %...%) on mediapost (double quotes are mandatory if you don't want to have to url encode the uri):
+app/console smartesb:consumer:start \"dbal://eai/recover?searchString=%xxxxxxx%&databaseName=eai_test&targetUri=%//mediapost/%\"
+
+Discard on the default database all transactions corresponding exactly to the string \"Error\" :
+app/console smartesb:consumer:start \"dbal://eai/discard?searchString=Error\"
+
+Discard on the default database all the transactions for the  method getWebOrderDetailsByCriteria:
+app/console smartesb:consumer:start \"dbal://eai/discard?targetUri=%getWebOrderDetailsByCriteria%\"
+")
         ;
 
         $this->addArgument(
