@@ -2,12 +2,18 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
+use ComponentInstaller\Process\Process;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
+use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
+use Smartbox\Integration\FrameworkBundle\Events\HandlerErrorEvent;
+use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\ConnectivityCheckSmokeTest;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -321,32 +327,37 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $def->addMethodCall('setErrorsLogLevel', ['%smartesb.event_listener.events_logger.errors_log_level%']);
 
         $def->addTag('kernel.event_listener', [
-            'event' => 'smartesb.handler.before_handle',
+            'event' => HandlerEvent::BEFORE_HANDLE_EVENT_NAME,
+            'method' => 'onEvent',
+        ]);
+
+            $def->addTag('kernel.event_listener', [
+                'event' => ProcessEvent::TYPE_BEFORE,
             'method' => 'onEvent',
         ]);
 
         $def->addTag('kernel.event_listener', [
-            'event' => 'smartesb.process.before_process',
+            'event' => ProcessingErrorEvent::EVENT_NAME,
             'method' => 'onEvent',
         ]);
 
         $def->addTag('kernel.event_listener', [
-            'event' => 'smartesb.event.error',
+            'event' => ProcessEvent::TYPE_AFTER,
             'method' => 'onEvent',
         ]);
 
         $def->addTag('kernel.event_listener', [
-            'event' => 'smartesb.process.after_process',
+            'event' => HandlerEvent::AFTER_HANDLE_EVENT_NAME,
             'method' => 'onEvent',
         ]);
 
         $def->addTag('kernel.event_listener', [
-            'event' => 'smartesb.handler.after_handle',
+            'event' => HandlerErrorEvent::EVENT_NAME,
             'method' => 'onEvent',
         ]);
 
         $def->addTag('kernel.event_listener', [
-            'event' => 'smartesb.event.external_system_http_event',
+            'event' => ExternalSystemHTTPEvent::EVENT_NAME,
             'method' => 'onEvent',
         ]);
 
