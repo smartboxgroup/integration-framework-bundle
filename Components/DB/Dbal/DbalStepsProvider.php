@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\DB\Dbal;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Driver\PDOStatement;
+use Smartbox\EAIAdminBundle\EventListener\EventStorageListener;
 use Smartbox\Integration\FrameworkBundle\Components\DB\ConfigurableStepsProviderInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
@@ -33,6 +34,9 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     /** @var OptionsResolver */
     protected $configResolver;
 
+    /** @var  array */
+    protected $databaseSplit;
+
     /**
      * @return Registry
      */
@@ -49,6 +53,14 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         $this->doctrine = $doctrine;
     }
 
+    public function setDatabaseSplit($databaseSplit)
+    {
+        $this->databaseSplit = $databaseSplit;
+    }
+
+    /**
+     * DbalStepsProvider constructor.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -257,6 +269,8 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         $databaseName = null; // Default database
         if (isset($context['options']['databaseName']) && $context['options']['databaseName'] != '') {
             $databaseName = $context['options']['databaseName'];
+        } else {
+            $databaseName = EventStorageListener::getDBNameForTimestamp($this->databaseSplit, null);
         }
 
         /** @var PDOStatement $stmt */
