@@ -27,84 +27,86 @@ parameters:
 
 services:
   smartesb.serialization.handler.mongodate:
-      class: %smartesb.serialization.handler.mongodate.class%
+      class: '%smartesb.serialization.handler.mongodate.class%'
       tags:
         - { name: jms_serializer.subscribing_handler }
 
   # CSV
   smartesb.steps_provider.csv_file:
-      class: %smartesb.steps_provider.csv.class%
+      class: '%smartesb.steps_provider.csv.class%'
       calls:
         - [setId, ['smartesb.steps_provider.csv_file']]
-        - [setConfHelper, [@smartesb.configurable_service_helper]]
+        - [setConfHelper, ['@smartesb.configurable_service_helper']]
 
   # DB Configurable services
   smartesb.steps_provider.dbal:
-      class: %smartesb.steps_provider.dbal.class%
+      class: '%smartesb.steps_provider.dbal.class%'
       calls:
         - [ setId, [ 'smartesb.configurable.nosql'] ]
-        - [ setDoctrine, [ @?doctrine ] ]
-        - [ setMessageFactory, [ @smartesb.message_factory ] ]
-        - [setConfHelper, [@smartesb.configurable_service_helper]]
+        - [ setDoctrine, [ '@?doctrine' ] ]
+        - [ setMessageFactory, [ '@smartesb.message_factory' ] ]
+        - [ setConfHelper, [ '@smartesb.configurable_service_helper' ] ]
+        - [ setDatabaseSplit, [ '%mysql.databases%' ] ]
+
 
   # DB Configurable services
   smartesb.steps_provider.nosql:
-      class: %smartesb.steps_provider.nosql.class%
+      class: '%smartesb.steps_provider.nosql.class%'
       calls:
         - [ setId, [ 'smartesb.configurable.nosql'] ]
-        - [ setDriverRegistry, [ @smartesb.drivers.nosql._registry ] ]
-        - [ setMessageFactory, [ @smartesb.message_factory ] ]
-        - [setConfHelper, [@smartesb.configurable_service_helper]]
+        - [ setDriverRegistry, [ '@smartesb.drivers.nosql._registry' ] ]
+        - [ setMessageFactory, [ '@smartesb.message_factory' ] ]
+        - [setConfHelper, ['@smartesb.configurable_service_helper']]
 
   # UTILS
   smartesb.util.expression_language:
-      class: %smartesb.util.expression_language.class%
-      factory: [%smartesb.util.expression_language_factory.class%, createExpressionLanguage]
+      class: '%smartesb.util.expression_language.class%'
+      factory: ['%smartesb.util.expression_language_factory.class%', createExpressionLanguage]
 
   smartesb.util.evaluator:
-      class: %smartesb.util.evaluator.class%
-      arguments: [@smartesb.util.expression_language]
+      class: '%smartesb.util.evaluator.class%'
+      arguments: ['@smartesb.util.expression_language']
       calls:
-        - [setSerializer, [@serializer]]
-        - [setMapper, [@smartesb.util.mapper]]
+        - [setSerializer, ['@serializer']]
+        - [setMapper, ['@smartesb.util.mapper']]
 
   smartesb.util.mapper:
-      class: %smartesb.util.mapper.class%
+      class: '%smartesb.util.mapper.class%'
       calls:
-        - [setDebug, ["%kernel.debug%"]]
-        - [setEvaluator, [@smartesb.util.evaluator]]
+        - [setDebug, ['%kernel.debug%']]
+        - [setEvaluator, ['@smartesb.util.evaluator']]
 
   # INTERNAL HELPERS
   smartesb.message_factory:
       class: Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory
       calls:
-          - [ setFlowsVersion, [ %smartesb.flows_version% ] ]
+          - [ setFlowsVersion, [ '%smartesb.flows_version%' ] ]
 
   smartesb.endpoint_factory:
     class: Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory
     calls:
-        - [ setEndpointsRouter, [ @smartesb.router.endpoints ] ]
-        - [ setMessageFactory, [ @smartesb.message_factory ] ]
+        - [ setEndpointsRouter, [ '@smartesb.router.endpoints' ] ]
+        - [ setMessageFactory, [ '@smartesb.message_factory' ] ]
 
   smartesb.configurable_service_helper:
       class: Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper
       calls:
-          - [ setEvaluator, [ @smartesb.util.evaluator ] ]
-          - [ setSerializer, [ @jms_serializer.serializer ] ]
+          - [ setEvaluator, [ '@smartesb.util.evaluator' ] ]
+          - [ setSerializer, [ '@jms_serializer.serializer' ] ]
 
   smartesb.helper:
-      class: %smartesb.helper.class%
+      class: '%smartesb.helper.class%'
       calls:
-          - [ setContainer, [ @service_container ] ]
+          - [ setContainer, [ '@service_container' ] ]
 
   smartesb.itineray_resolver:
-      class: %smartesb.itineray_resolver.class%
+      class: '%smartesb.itineray_resolver.class%'
       calls:
-          - [ setItinerariesRouter, [ @smartesb.router.itineraries ] ]
+          - [ setItinerariesRouter, [ '@smartesb.router.itineraries' ] ]
 
   # PLACEHOLDERS FOR CONFIGURED HANLDERS
   smartesb.handlers.sync:
-      class: %smartesb.handlers.message_routing.class%
+      class: '%smartesb.handlers.message_routing.class%'
 
   smartesb.handlers.async:
-      class: %smartesb.handlers.message_routing.class%
+      class: '%smartesb.handlers.message_routing.class%'
