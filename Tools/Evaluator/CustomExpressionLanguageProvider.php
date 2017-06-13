@@ -20,6 +20,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createDefaultTo(),
             $this->createNumberFormat(),
             $this->createMd5Function(),
+            $this->createCountFunction(),
         ];
     }
 
@@ -196,6 +197,24 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             },
             function ($arguments, $string) {
                 return md5($string);
+            }
+        );
+    }
+
+    /**
+     * Return the number of elements that an array has
+     *
+     * @return ExpressionFunction
+     */
+    protected function createCountFunction()
+    {
+        return new ExpressionFunction(
+            'count',
+            function ($string) {
+                return sprintf('count(%s)', $string);
+            },
+            function ($arguments, $string) {
+                return count($string);
             }
         );
     }
