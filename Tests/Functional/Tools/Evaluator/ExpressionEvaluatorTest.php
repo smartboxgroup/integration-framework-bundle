@@ -76,6 +76,16 @@ class ExpressionEvaluatorTest extends KernelTestCase
                 'expression' => 'numberFormat( 123456.001, 2, ",", "" )',
                 'vars' => []
             ],
+            'Check count return number of elements inside an array' => [
+                'expected' => 2,
+                'expression' => 'count(array)',
+                'vars' => [
+                    'array' => [
+                        1,
+                        2
+                    ]
+                ]
+            ]
         ];
     }
 
