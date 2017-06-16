@@ -50,14 +50,14 @@ app/console smartesb:consumer:start queue://main/api --killAfter -1
 Consume the events and die after 10 messages:
 app/console smartesb:consumer:start queue://events --killAfter 10
 
-Recover on eai_test database all transactions corresponding to a string containing xxxxxx (using %...%) on mediapost (double quotes are mandatory if you don't want to have to url encode the uri):
-app/console smartesb:consumer:start \"dbal://eai/recover?searchString=%xxxxxxx%&databaseName=eai_test&targetUri=%//mediapost/%\"
+Recover on my_database database all transactions corresponding to a string containing xxxxxx (using %...%) on my_producer (double quotes are mandatory if you don't want to have to url encode the uri):
+app/console smartesb:consumer:start \"dbal://eai/recover?errorMessage=%xxxxxxx%&databaseName=my_database&targetUri=%//my_producer/%\"
 
 Discard on the default database all transactions corresponding exactly to the string \"Error\" :
-app/console smartesb:consumer:start \"dbal://eai/discard?searchString=Error\"
+app/console smartesb:consumer:start \"dbal://eai/discard?errorMessage=Error\"
 
-Discard on the default database all the transactions for the  method getWebOrderDetailsByCriteria:
-app/console smartesb:consumer:start \"dbal://eai/discard?targetUri=%getWebOrderDetailsByCriteria%\"
+Discard on the default database all the transactions for the  method my_method:
+app/console smartesb:consumer:start \"dbal://eai/discard?targetUri=%my_method%\"
 ")
         ;
 
