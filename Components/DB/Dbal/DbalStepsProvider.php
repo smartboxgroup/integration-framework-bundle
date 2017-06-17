@@ -4,7 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\DB\Dbal;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Driver\PDOStatement;
-use Smartbox\EAIAdminBundle\EventListener\EventStorageListener;
 use Smartbox\Integration\FrameworkBundle\Components\DB\ConfigurableStepsProviderInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
@@ -34,9 +33,6 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     /** @var OptionsResolver */
     protected $configResolver;
 
-    /** @var  array */
-    protected $databaseSplit;
-
     /**
      * @return Registry
      */
@@ -51,11 +47,6 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     public function setDoctrine($doctrine)
     {
         $this->doctrine = $doctrine;
-    }
-
-    public function setDatabaseSplit($databaseSplit)
-    {
-        $this->databaseSplit = $databaseSplit;
     }
 
     /**
@@ -265,16 +256,8 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      */
     protected function performQuery(array $configuration, &$context, array $parameters, $sql)
     {
-        // Select database
-        $databaseName = null; // Default database
-        if (isset($context['options']['databaseName']) && $context['options']['databaseName'] != '') {
-            $databaseName = $context['options']['databaseName'];
-        } else {
-            $databaseName = EventStorageListener::getDBNameForTimestamp($this->databaseSplit, null);
-        }
-
         /** @var PDOStatement $stmt */
-        $stmt = $this->doctrine->getConnection($databaseName)->executeQuery($sql, $parameters['values'], $parameters['types']);
+        $stmt = $this->getConnection($context)->executeQuery($sql, $parameters['values'], $parameters['types']);
 
         if ($stmt->columnCount() > 0) { // SQL query is for example a SELECT
             $result = $stmt->fetchAll();
@@ -291,5 +274,15 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         }
 
         return $result;
+    }
+
+    /**
+     * @param $context
+     * @return object
+     */
+    protected function getConnection($context) {
+        $connection = $this->doctrine->getConnection();
+
+        return $connection;
     }
 }

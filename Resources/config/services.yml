@@ -42,12 +42,10 @@ services:
   smartesb.steps_provider.dbal:
       class: '%smartesb.steps_provider.dbal.class%'
       calls:
-        - [ setId, [ 'smartesb.configurable.nosql'] ]
+        - [ setId, [ 'smartesb.configurable.nosql'] ] # TODO: Check why .nosql and not .dbal for example
         - [ setDoctrine, [ '@?doctrine' ] ]
         - [ setMessageFactory, [ '@smartesb.message_factory' ] ]
         - [ setConfHelper, [ '@smartesb.configurable_service_helper' ] ]
-        - [ setDatabaseSplit, [ '%mysql.databases%' ] ]
-
 
   # DB Configurable services
   smartesb.steps_provider.nosql:
