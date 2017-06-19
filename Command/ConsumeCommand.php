@@ -42,12 +42,20 @@ class ConsumeCommand extends ContainerAwareCommand
         $this
             ->setName('smartesb:consumer:start')
             ->setDescription('Start a daemon consuming messages from a given URI')
+            ->setHelp("Run the consumer. You can kill the consumer after x messages by using the --killAfter option.
+Ex:
+Consume all the messages, and never die:
+app/console smartesb:consumer:start queue://api --killAfter -1
+
+Consume the events and die after 10 messages:
+app/console smartesb:consumer:start queue://events --killAfter 10
+")
         ;
 
         $this->addArgument(
             'uri',
             InputArgument::REQUIRED,
-            'Source URI ( e.g.: queue://api/*/*/*/* )'
+            'Source URI ( e.g.: queue://api/* )'
         );
         $this->addOption(
             self::OPTION_MAX_MESSAGES,

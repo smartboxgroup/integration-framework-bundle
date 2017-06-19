@@ -83,7 +83,6 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
                 $message = $this->readMessage($endpoint);
 
                 // Process
-
                 if ($message) {
                     --$this->expirationCount;
 
