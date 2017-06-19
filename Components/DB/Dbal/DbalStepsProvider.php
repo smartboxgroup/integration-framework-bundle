@@ -49,6 +49,9 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         $this->doctrine = $doctrine;
     }
 
+    /**
+     * DbalStepsProvider constructor.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -254,7 +257,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     protected function performQuery(array $configuration, &$context, array $parameters, $sql)
     {
         /** @var PDOStatement $stmt */
-        $stmt = $this->doctrine->getConnection()->executeQuery($sql, $parameters['values'], $parameters['types']);
+        $stmt = $this->getConnection($context)->executeQuery($sql, $parameters['values'], $parameters['types']);
 
         if ($stmt->columnCount() > 0) { // SQL query is for example a SELECT
             $result = $stmt->fetchAll();
@@ -271,5 +274,14 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         }
 
         return $result;
+    }
+
+    /**
+     * @param $context
+     * @return object
+     */
+    protected function getConnection($context)
+    {
+        return $this->doctrine->getConnection();
     }
 }
