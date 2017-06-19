@@ -280,7 +280,8 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      * @param $context
      * @return object
      */
-    protected function getConnection($context) {
+    protected function getConnection($context)
+    {
         $connection = $this->doctrine->getConnection();
 
         return $connection;

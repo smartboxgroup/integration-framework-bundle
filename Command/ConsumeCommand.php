@@ -45,26 +45,17 @@ class ConsumeCommand extends ContainerAwareCommand
             ->setHelp("Run the consumer. You can kill the consumer after x messages by using the --killAfter option.
 Ex:
 Consume all the messages, and never die:
-app/console smartesb:consumer:start queue://main/api --killAfter -1
+app/console smartesb:consumer:start queue://api --killAfter -1
 
 Consume the events and die after 10 messages:
 app/console smartesb:consumer:start queue://events --killAfter 10
-
-Recover on my_database database all transactions corresponding to a string containing xxxxxx (using %...%) on my_producer (double quotes are mandatory if you don't want to have to url encode the uri):
-app/console smartesb:consumer:start \"dbal://eai/recover?errorMessage=%xxxxxxx%&databaseName=my_database&targetUri=%//my_producer/%\"
-
-Discard on the default database all transactions corresponding exactly to the string \"Error\" :
-app/console smartesb:consumer:start \"dbal://eai/discard?errorMessage=Error\"
-
-Discard on the default database all the transactions for the  method my_method:
-app/console smartesb:consumer:start \"dbal://eai/discard?targetUri=%my_method%\"
 ")
         ;
 
         $this->addArgument(
             'uri',
             InputArgument::REQUIRED,
-            'Source URI ( e.g.: queue://api/*/*/*/* )'
+            'Source URI ( e.g.: queue://api/* )'
         );
         $this->addOption(
             self::OPTION_MAX_MESSAGES,
