@@ -7,7 +7,8 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
-use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableException;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\RecoverableExternalSystemException;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\UnrecoverableExternalSystemException;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -36,6 +37,7 @@ class ConfigurableServiceHelper
     const OPTION_METHOD = 'method';
     const KEY_DESCRIPTION = 'description';
     const KEY_RESPONSE = 'response';
+    const CONF_DISPLAY_MESSAGE = 'display_message';
 
     /** @var OptionsResolver */
     protected $validateResolver;
@@ -46,12 +48,14 @@ class ConfigurableServiceHelper
         $this->validateResolver->setRequired([self::CONF_RULE]);
         $this->validateResolver->setDefaults([
             self::CONF_NO_RESULTS => false,
+            self::CONF_DISPLAY_MESSAGE => false,
             self::CONF_RECOVERABLE => false,
             self::CONF_MESSAGE => 'Validation not passed',
         ]);
 
         $this->validateResolver->setAllowedTypes(self::CONF_RECOVERABLE, 'boolean');
         $this->validateResolver->setAllowedTypes(self::CONF_NO_RESULTS, 'boolean');
+        $this->validateResolver->setAllowedTypes(self::CONF_DISPLAY_MESSAGE, 'boolean');
         $this->validateResolver->setAllowedTypes(self::CONF_MESSAGE, 'string');
         $this->validateResolver->setAllowedTypes(self::CONF_RULE, 'string');
     }
@@ -194,12 +198,14 @@ class ConfigurableServiceHelper
 
     public function validate(array $stepConfig, array &$context)
     {
+
         $config = $this->validateResolver->resolve($stepConfig);
 
         $rule = $config[self::CONF_RULE];
         $message = $config[self::CONF_MESSAGE];
         $recoverable = $config[self::CONF_RECOVERABLE];
         $no_results = $config[self::CONF_NO_RESULTS];
+        $display_message= $config[self::CONF_DISPLAY_MESSAGE];
 
         $evaluation = $this->resolve($rule, $context);
         if ($evaluation !== true) {
@@ -207,9 +213,15 @@ class ConfigurableServiceHelper
             if ($no_results) {
                 throw new NoResultsException($message);
             } elseif ($recoverable) {
-                throw new RecoverableException($message);
+                $exception = new RecoverableExternalSystemException($message);
+                $exception->setExternalSystemName($context['producer']->getName());
+                $exception->setShowExternalSystemErrorMessage($display_message);
+                throw $exception;
             } else {
-                throw new \RuntimeException($message);
+                $exception = new UnrecoverableExternalSystemException($message);
+                $exception->setExternalSystemName($context['producer']->getName());
+                $exception->setShowExternalSystemErrorMessage($display_message);
+                throw $exception;
             }
         }
     }
