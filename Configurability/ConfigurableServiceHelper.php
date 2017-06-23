@@ -205,7 +205,7 @@ class ConfigurableServiceHelper
         $message = $config[self::CONF_MESSAGE];
         $recoverable = $config[self::CONF_RECOVERABLE];
         $no_results = $config[self::CONF_NO_RESULTS];
-        $display_message= $config[self::CONF_DISPLAY_MESSAGE];
+        $display_message = $config[self::CONF_DISPLAY_MESSAGE];
 
         $evaluation = $this->resolve($rule, $context);
         if ($evaluation !== true) {
