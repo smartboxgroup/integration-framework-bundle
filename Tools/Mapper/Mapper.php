@@ -351,6 +351,5 @@ class Mapper implements MapperInterface
     {
         return is_int ($var);
     }
-
-
+    
 }
