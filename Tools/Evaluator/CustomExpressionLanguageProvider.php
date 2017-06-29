@@ -223,7 +223,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
     }
 
     /**
-     * Return a boolean
+     * Check if a variable is an integer
      *
      * @return ExpressionFunction
      */
