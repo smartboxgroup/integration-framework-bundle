@@ -21,6 +21,9 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createNumberFormat(),
             $this->createMd5Function(),
             $this->createCountFunction(),
+            $this->createIsIntFunction(),
+            $this->createExplodeFunction(),
+            $this->createImplodeFunction(),
         ];
     }
 
@@ -218,4 +221,59 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             }
         );
     }
+
+    /**
+     * Return a boolean
+     *
+     * @return ExpressionFunction
+     */
+    protected function createIsIntFunction()
+    {
+        return new ExpressionFunction(
+            'isInt',
+            function ($var) {
+                return sprintf('isInt(%s)', $var);
+            },
+            function ($arguments, $var) {
+                return is_int ($var);
+            }
+        );
+    }
+
+    /**
+     * Explode a string into an array.
+     *
+     * @return ExpressionFunction
+     */
+    protected function createExplodeFunction()
+    {
+        return new ExpressionFunction(
+            'explode',
+            function ($delimiter , $string) {
+                return sprintf('explode(%s,%s)', $delimiter , $string);
+            },
+            function ($arguments, $delimiter , $string) {
+                return explode($delimiter, $string);
+            }
+        );
+    }
+
+    /**
+     * Implode an array to a string
+     *
+     * @return ExpressionFunction
+     */
+    protected function createImplodeFunction()
+    {
+        return new ExpressionFunction(
+            'implode',
+            function ($glue , $pieces) {
+                return sprintf('implode(%s,%s)', $glue , $pieces);
+            },
+            function ($arguments, $glue , $pieces) {
+                return implode($glue , $pieces);
+            }
+        );
+    }
+
 }
