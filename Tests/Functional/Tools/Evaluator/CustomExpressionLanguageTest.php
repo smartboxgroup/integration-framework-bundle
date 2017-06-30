@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Tools\Evaluator;
 
-use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\CustomExpressionLanguageProvider;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
