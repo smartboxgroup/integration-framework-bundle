@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  * @group ExpressionLanguage
  * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Tools\Evaluator\CustomExpressionLanguageProvider
  */
-class CustomExpressionLanguageTest extends BaseTestCase
+class CustomExpressionLanguageTest extends KernelTestCase
 {
     /** @var CustomExpressionLanguageProvider|ExpressionFunctionProviderInterface */
     protected $evaluator;
