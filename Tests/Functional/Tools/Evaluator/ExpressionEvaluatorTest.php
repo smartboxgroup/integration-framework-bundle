@@ -26,6 +26,11 @@ class ExpressionEvaluatorTest extends KernelTestCase
         $this->evaluator = static::$kernel->getContainer()->get('smartesb.util.evaluator');
     }
 
+    protected function tearDown()
+    {
+        $this->evaluator = null;
+    }
+
     /**
      * @return array
      */
@@ -85,6 +90,36 @@ class ExpressionEvaluatorTest extends KernelTestCase
                         2
                     ]
                 ]
+            ],
+            'Check explode array' => [
+                'expected' => ['this','is','a','test'],
+                'expression' => 'explode(",","this,is,a,test")',
+                'vars' => [],
+            ],
+            'Check explode array with single element' => [
+                'expected' => ['this'],
+                'expression' => 'explode(",","this")',
+                'vars' => [],
+            ],
+            'Check explode array with single element and trailing delimiter' => [
+                'expected' => ['this',''],
+                'expression' => 'explode(",","this,")',
+                'vars' => [],
+            ],
+            'Check explode when passed null return an array with 1 empty element' => [
+                'expected' => [''],
+                'expression' => 'explode(",",null)',
+                'vars' => [],
+            ],
+            'Check implode returns a correctly formatted string' => [
+                'expected' => "this_is_a_test",
+                'expression' => 'implode("_",["this","is","a","test"])',
+                'vars' => [],
+            ],
+            'Check implode returns a correctly formatted string when passed an array with only one element' => [
+                'expected' => "this",
+                'expression' => 'implode("_",["this"])',
+                'vars' => [],
             ]
         ];
     }

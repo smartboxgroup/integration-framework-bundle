@@ -21,6 +21,8 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createNumberFormat(),
             $this->createMd5Function(),
             $this->createCountFunction(),
+            $this->createExplodeFunction(),
+            $this->createImplodeFunction(),
         ];
     }
 
@@ -215,6 +217,42 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             },
             function ($arguments, $string) {
                 return count($string);
+            }
+        );
+    }
+
+    /**
+     * Explode a string into an array
+     *
+     * @return ExpressionFunction
+     */
+    protected function createExplodeFunction()
+    {
+        return new ExpressionFunction(
+            'explode',
+            function ($delimiter , $string) {
+                return sprintf('explode(%s,%s)', $delimiter , $string);
+            },
+            function ($arguments, $delimiter , $string) {
+                return explode($delimiter, $string);
+            }
+        );
+    }
+
+    /**
+     * Implode an array to a string
+     *
+     * @return ExpressionFunction
+     */
+    protected function createImplodeFunction()
+    {
+        return new ExpressionFunction(
+            'implode',
+            function ($glue , $pieces) {
+                return sprintf('implode(%s,%s)', $glue , $pieces);
+            },
+            function ($arguments, $glue , $pieces) {
+                return implode($glue , $pieces);
             }
         );
     }
