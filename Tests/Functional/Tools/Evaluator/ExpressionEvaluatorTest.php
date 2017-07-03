@@ -2,29 +2,30 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Tools\Evaluator;
 
-use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\CustomExpressionLanguageProvider;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
+use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
- * Class CustomExpressionLanguageTest.
- * @group ExpressionLanguage
- * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Tools\Evaluator\CustomExpressionLanguageProvider
+ * Class ExpressionEvaluatorTest.
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator
  */
-class CustomExpressionLanguageTest extends KernelTestCase
+class ExpressionEvaluatorTest extends KernelTestCase
 {
-    /** @var CustomExpressionLanguageProvider|ExpressionFunctionProviderInterface */
+    /**
+     * @var ExpressionEvaluator
+     */
     protected $evaluator;
 
-    public function setUp()
+    protected function setUp()
     {
-        $this->bootKernel(['debug' => false]);
+        $this->bootKernel();
         $this->evaluator = static::$kernel->getContainer()->get('smartesb.util.evaluator');
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $this->evaluator = null;
     }
@@ -89,26 +90,6 @@ class CustomExpressionLanguageTest extends KernelTestCase
                     ]
                 ]
             ],
-            'Check isInt returns true when passed an integer' => [
-                'expected' => true,
-                'expression' => 'isInt(3)',
-                'vars' => [],
-            ],
-            'Check isInt returns false when passed a string' => [
-                'expected' => false,
-                'expression' => 'isInt("string")',
-                'vars' => [],
-            ],
-            'Check isInt returns false when passed an array' => [
-                'expected' => false,
-                'expression' => 'isInt([4,5])',
-                'vars' => [],
-            ],
-            'Check isInt returns false when passed an null' => [
-                'expected' => false,
-                'expression' => 'isInt(null)',
-                'vars' => [],
-            ],
             'Check explode array' => [
                 'expected' => ['this','is','a','test'],
                 'expression' => 'explode(",","this,is,a,test")',
@@ -141,7 +122,6 @@ class CustomExpressionLanguageTest extends KernelTestCase
             ]
         ];
     }
-
 
     /**
      * @covers ::evaluateWithVars
@@ -221,6 +201,4 @@ class CustomExpressionLanguageTest extends KernelTestCase
     {
         $this->assertEquals($expected, $this->evaluator->evaluateWithExchange($expression, $exchange));
     }
-
-
 }
