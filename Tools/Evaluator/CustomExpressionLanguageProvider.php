@@ -21,7 +21,6 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createNumberFormat(),
             $this->createMd5Function(),
             $this->createCountFunction(),
-            $this->createIsIntFunction(),
             $this->createExplodeFunction(),
             $this->createImplodeFunction(),
         ];
@@ -223,25 +222,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
     }
 
     /**
-     * Check if a variable is an integer
-     *
-     * @return ExpressionFunction
-     */
-    protected function createIsIntFunction()
-    {
-        return new ExpressionFunction(
-            'isInt',
-            function ($var) {
-                return sprintf('isInt(%s)', $var);
-            },
-            function ($arguments, $var) {
-                return is_int ($var);
-            }
-        );
-    }
-
-    /**
-     * Explode a string into an array.
+     * Explode a string into an array
      *
      * @return ExpressionFunction
      */
@@ -275,5 +256,4 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             }
         );
     }
-
 }
