@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * Class ExpressionEvaluatorTest.
+ *
  * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator
  */
 class ExpressionEvaluatorTest extends KernelTestCase
