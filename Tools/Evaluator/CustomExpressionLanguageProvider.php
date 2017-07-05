@@ -6,7 +6,7 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterfac
 use Symfony\Component\ExpressionLanguage\ExpressionFunction;
 use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
 
-class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInterface
+class CustomExpressionLanguageProvider implements ExpressionFun ctionProviderInterface
 {
     public function getFunctions()
     {
@@ -21,6 +21,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createNumberFormat(),
             $this->createMd5Function(),
             $this->createCountFunction(),
+            $this->createSliceFunction(),
         ];
     }
 
@@ -215,6 +216,25 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             },
             function ($arguments, $string) {
                 return count($string);
+            }
+        );
+    }
+
+
+    /**
+     * Exposes php array_slice
+     *
+     * @return ExpressionFunction
+     */
+    protected function createSliceFunction()
+    {
+        return new ExpressionFunction(
+            'slice',
+            function ($array, $start, $length = null, $preserve_keys = false) {
+                return sprintf('array_slice(%s, $s, $s, %s)', $array, $start, $length, $preserve_keys);
+            },
+            function ($arguments, $array, $start, $length = null, $preserve_keys = false){
+                return array_slice($array, $start, $length, $preserve_keys);
             }
         );
     }
