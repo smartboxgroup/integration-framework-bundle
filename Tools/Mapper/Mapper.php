@@ -339,17 +339,5 @@ class Mapper implements MapperInterface
             return $value;
         }
     }
-
-    /**
-     * Check to see if a variable is an integer
-     *
-     * @param string $var
-     *
-     * @return bool
-     */
-    public function isInt($var)
-    {
-        return is_int ($var);
-    }
     
 }
