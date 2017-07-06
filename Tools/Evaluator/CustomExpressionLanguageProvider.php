@@ -22,6 +22,8 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createMd5Function(),
             $this->createCountFunction(),
             $this->createSliceFunction(),
+            $this->createExplodeFunction(),
+            $this->createImplodeFunction(),
         ];
     }
 
@@ -220,23 +222,56 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
         );
     }
 
-    protected
     /**
      * Exposes php array_slice
      *
-     *
-     *
      * @return ExpressionFunction
      */
-    function createSliceFunction()
+    protected function createSliceFunction()
     {
         return new ExpressionFunction(
             'slice',
             function ($array, $start, $length = null, $preserve_keys = false) {
                 return sprintf('array_slice(%s, $s, $s, %s)', $array, $start, $length, $preserve_keys);
             },
-            function ($arguments, $array, $start, $length = null, $preserve_keys = false){
+            function ($arguments, $array, $start, $length = null, $preserve_keys = false) {
                 return array_slice($array, $start, $length, $preserve_keys);
+            }
+        );
+    }
+
+    /**
+     * Explode a string into an array
+     *
+     * @return ExpressionFunction
+     */
+    protected function createExplodeFunction()
+    {
+        return new ExpressionFunction(
+            'explode',
+            function ($delimiter , $string) {
+                return sprintf('explode(%s,%s)', $delimiter , $string);
+            },
+            function ($arguments, $delimiter , $string) {
+                return explode($delimiter, $string);
+            }
+        );
+    }
+
+    /**
+     * Implode an array to a string
+     *
+     * @return ExpressionFunction
+     */
+    protected function createImplodeFunction()
+    {
+        return new ExpressionFunction(
+            'implode',
+            function ($glue , $pieces) {
+                return sprintf('implode(%s,%s)', $glue , $pieces);
+            },
+            function ($arguments, $glue , $pieces) {
+                return implode($glue , $pieces);
             }
         );
     }
