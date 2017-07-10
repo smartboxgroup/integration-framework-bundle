@@ -223,7 +223,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
     }
 
     /**
-     * Exposes php array_slice
+     * Returns the sequence of elements from an array based on start and length parameters
      *
      * @return ExpressionFunction
      */
@@ -231,11 +231,11 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
     {
         return new ExpressionFunction(
             'slice',
-            function ($array, $start, $length = null, $preserve_keys = false) {
-                return sprintf('array_slice(%s, $s, $s, %s)', $array, $start, $length, $preserve_keys);
+            function ($array, $start, $length = null, $preserveKeys = false) {
+                return sprintf('array_slice(%s, %s, %s, %s)', $array, $start, $length, $preserveKeys);
             },
-            function ($arguments, $array, $start, $length = null, $preserve_keys = false) {
-                return array_slice($array, $start, $length, $preserve_keys);
+            function ($arguments, $array, $start, $length = null, $preserveKeys = false) {
+                return array_slice($array, $start, $length, $preserveKeys);
             }
         );
     }
