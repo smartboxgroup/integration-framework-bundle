@@ -91,18 +91,18 @@ class ExpressionEvaluatorTest extends KernelTestCase
                     ]
                 ]
             ],
-            'Check slice array 1' => [
+            'Check slice getting elements from the array starting from position 2 until the end' => [
                 'expected' => ['c','d','e'],
-                'expression' => 'slice(["a", "b", "c", "d", "e"],2)',
+                'expression' => 'slice(["a", "b", "c", "d", "e"], 2)',
                 'vars' => [],
             ],
-            'Check slice array 2' => [
+            'Check slice getting 1 element from the array stating 2 positions from the end' => [
                 'expected' => ['d'],
                 'expression' => 'slice(["a", "b", "c", "d", "e"], -2, 1)',
                 'vars' => [],
             ],
-            'Check slice array 3' => [
-                'expected' => ["a", "b", "c"],
+            'Check slice getting 3 elements from the array starting from the beginning' => [
+                'expected' => ['a', 'b', "c"],
                 'expression' => 'slice(["a", "b", "c", "d", "e"], 0, 3)',
                 'vars' => [],
             ],
