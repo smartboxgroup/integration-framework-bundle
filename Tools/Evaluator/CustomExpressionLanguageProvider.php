@@ -21,6 +21,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createNumberFormat(),
             $this->createMd5Function(),
             $this->createCountFunction(),
+            $this->createSliceFunction(),
             $this->createExplodeFunction(),
             $this->createImplodeFunction(),
         ];
@@ -217,6 +218,24 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             },
             function ($arguments, $string) {
                 return count($string);
+            }
+        );
+    }
+
+    /**
+     * Returns the sequence of elements from an array based on start and length parameters
+     *
+     * @return ExpressionFunction
+     */
+    protected function createSliceFunction()
+    {
+        return new ExpressionFunction(
+            'slice',
+            function ($array, $start, $length = null, $preserveKeys = false) {
+                return sprintf('array_slice(%s, %s, %s, %s)', $array, $start, $length, $preserveKeys);
+            },
+            function ($arguments, $array, $start, $length = null, $preserveKeys = false) {
+                return array_slice($array, $start, $length, $preserveKeys);
             }
         );
     }
