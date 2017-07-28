@@ -1,5 +1,5 @@
 {
-    "name": "smartbox/framework-bundle",
+    "name": "smartbox/integration-framework-bundle",
     "description": "Smartbox Framework Bundle",
     "type": "symfony-bundle",
     "license": "MIT",
