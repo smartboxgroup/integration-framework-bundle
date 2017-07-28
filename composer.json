@@ -36,16 +36,6 @@
     "config": {
         "bin-dir": "bin"
     },
-    "repositories": [
-        {
-          "type": "vcs",
-          "url":  "git@github.com:smartboxgroup/besimplesoap-bundle.git"
-        },
-        {
-          "type": "vcs",
-          "url":  "git@github.com:smartboxgroup/commons-bundle.git"
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable" : true
 }
