@@ -6,6 +6,9 @@ Some of those building blocks allow for example to route and transform informati
 
 This library is currently used internally in the Enterprise Application Integration layer of the [Smartbox Group](http://smartbox.com).
 
+[![Latest Stable Version](https://img.shields.io/packagist/v/smartbox/integration-framework-bundle.svg?style=flat-square)](https://packagist.org/packages/smartbox/integration-framework-bundle)
+[![Minimum PHP Version](https://img.shields.io/badge/php-~%207.0-8892BF.svg?style=flat-square)](https://php.net/)
+[![Build Status](https://travis-ci.org/smartbox/integration-framework-bundle.svg?branch=master)](https://travis-ci.org/smartbox/integration-framework-bundle)
 
 ## Current status 
 

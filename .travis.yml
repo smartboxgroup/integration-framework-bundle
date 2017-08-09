@@ -1,0 +1,28 @@
+language: php
+
+php:
+  - 5.6
+  - 7.0
+  - 7.1
+
+env:
+  - SYMFONY_VERSION=2.7.*
+
+matrix:
+  allow_failures:
+    - php: 7.1
+
+before_install:
+  - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+
+before_script:
+  - composer self-update
+  - composer install --prefer-source --no-interaction --dev
+
+script:
+  - bin/phpunit --coverage-text --debug
+
+notifications:
+  email: true
+  on_success: always
+  on_failure: always
