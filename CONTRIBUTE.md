@@ -1,6 +1,5 @@
 # How to contribute
 
-This is still in a non-stable version.
 Feel free to have a look around and experiment with the code.
 
 You are welcome to submit a pull request but be sure to do the following:
