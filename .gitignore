@@ -12,3 +12,6 @@ composer.lock
 
 # Coverage report files
 /.coverage
+
+# MacOS
+.DS_Store
