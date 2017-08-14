@@ -12,7 +12,7 @@ This library is currently used internally in the Enterprise Application Integrat
 
 ## Current status 
 
-This library is **NOT stable** yet. We are currently working on creating a detailed documentation that will be published here soon.
+We are currently working on creating a detailed documentation that will be published here soon.
 
 If you are interested in knowing more you can have a first look at the code and contact the [Integration team](mailto:si-integration@smartbox.com) at Smartbox.
 
