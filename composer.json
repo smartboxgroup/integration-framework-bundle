@@ -29,8 +29,8 @@
         "phpunit/phpunit-mock-objects": "~3.2",
         "phpunit/phpunit": "~5.4",
         "sensio/generator-bundle": "~2.3",
-        "smartbox/besimple-soap": "~1.0.0",
-        "smartbox/core-bundle": "~1.0.0",
+        "smartbox/besimple-soap": "~1.0",
+        "smartbox/core-bundle": "~1.0",
         "mongodb/mongodb": "~1.0"
     },
     "config": {
