@@ -71,6 +71,12 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
                 $result = new SerializableArray($result);
             }
             $exchange->getOut()->setBody($result);
+            if(in_array('responseHeaders', $context, true)){
+                foreach ($context['responseHeaders'] as $key => $value){
+                    $exchange->getOut()->setHeader($key,$value);
+                }
+            }
+
         }
     }
 
