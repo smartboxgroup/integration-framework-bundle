@@ -10,6 +10,7 @@ class JsonFileLoaderProtocol extends Protocol implements DescriptableInterface
 {
     const OPTION_FILENAME = 'filename';
     const OPTION_BASE_PATH = 'base_path';
+    const OPTION_TYPE = 'type';
 
     /**
      * {@inheritdoc}
@@ -28,12 +29,11 @@ class JsonFileLoaderProtocol extends Protocol implements DescriptableInterface
      */
     public function getOptionsDescriptions()
     {
-        return array_merge_recursive(parent::getOptionsDescriptions(),
-            [
+        return array_merge_recursive(parent::getOptionsDescriptions(), [
             self::OPTION_BASE_PATH => ['Base path to look for the json file', []],
             self::OPTION_FILENAME => ['Name of the file to load', []],
-            ]
-        );
+            self::OPTION_TYPE => ['Name of the type', []],//e.g. body or headers
+        ]);
     }
 
     /**
@@ -50,5 +50,7 @@ class JsonFileLoaderProtocol extends Protocol implements DescriptableInterface
         $resolver->setAllowedTypes(self::OPTION_BASE_PATH, ['string']);
         $resolver->setRequired(self::OPTION_FILENAME);
         $resolver->setAllowedTypes(self::OPTION_FILENAME, ['string']);
+        $resolver->setRequired(self::OPTION_TYPE);
+        $resolver->setAllowedTypes(self::OPTION_TYPE, ['string']);
     }
 }

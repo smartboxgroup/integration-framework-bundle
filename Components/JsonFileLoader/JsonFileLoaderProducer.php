@@ -18,6 +18,7 @@ class JsonFileLoaderProducer extends Producer
 {
     const OPTION_FILENAME = 'filename';
     const OPTION_BASE_PATH = 'base_path';
+    const OPTION_TYPE = 'type';
 
     use UsesSerializer;
 
@@ -26,7 +27,22 @@ class JsonFileLoaderProducer extends Producer
     {
         $options = $endpoint->getOptions();
         $path = $options[self::OPTION_BASE_PATH].'/'.$options[self::OPTION_FILENAME];
+        $json = $this->getJsonFile($path);
 
+        switch ($options['type']) {
+            case 'body':
+                $content = $this->getDeserializedContent($json);
+                $ex->getIn()->setBody($content);
+                break;
+            case 'headers':
+                $headers = json_decode($json, true);
+                $ex->getIn()->setHeaders($headers);
+                break;
+        }
+    }
+
+    protected function getJsonFile($path) : string
+    {
         if (!file_exists($path)) {
             $path = $path.'.json';
         }
@@ -41,8 +57,7 @@ class JsonFileLoaderProducer extends Producer
             throw new InvalidFormatException("The file $path does not have a valid JSON format");
         }
 
-        $content = $this->getDeserializedContent($json);
-        $ex->getIn()->setBody($content);
+        return $json;
     }
 
     /**
