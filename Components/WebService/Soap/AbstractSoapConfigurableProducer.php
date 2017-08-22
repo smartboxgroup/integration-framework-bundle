@@ -25,6 +25,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     const SOAP_OPTIONS = 'soap_options';
     const SOAP_HEADERS = 'soap_headers';
     const HTTP_HEADERS = 'http_headers';
+    const RESPONSE_HEADERS = 'response_headers';
     const VALIDATION = 'validations';
     const VALIDATION_RULE = 'rule';
     const VALIDATION_MESSAGE = 'message';
@@ -136,6 +137,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             self::SOAP_OPTIONS,
             self::SOAP_HEADERS,
             self::HTTP_HEADERS,
+            self::RESPONSE_HEADERS,
             self::VALIDATION,
         ]);
 
