@@ -19,6 +19,8 @@ class JsonFileLoaderProducer extends Producer
     const OPTION_FILENAME = 'filename';
     const OPTION_BASE_PATH = 'base_path';
     const OPTION_TYPE = 'type';
+    const OPTION_TYPE_VALUE_HEADERS = 'headers';
+    const OPTION_TYPE_VALUE_BODY = 'body';
 
     use UsesSerializer;
 
@@ -30,18 +32,18 @@ class JsonFileLoaderProducer extends Producer
         $json = $this->getJsonFile($path);
 
         switch ($options['type']) {
-            case 'body':
+            case self::OPTION_TYPE_VALUE_BODY:
                 $content = $this->getDeserializedContent($json);
                 $ex->getIn()->setBody($content);
                 break;
-            case 'headers':
+            case self::OPTION_TYPE_VALUE_HEADERS:
                 $headers = json_decode($json, true);
                 $ex->getIn()->setHeaders($headers);
                 break;
         }
     }
 
-    protected function getJsonFile($path) : string
+    protected function getJsonFile($path)
     {
         if (!file_exists($path)) {
             $path = $path.'.json';
