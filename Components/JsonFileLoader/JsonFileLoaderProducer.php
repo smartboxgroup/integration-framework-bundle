@@ -25,7 +25,7 @@ class JsonFileLoaderProducer extends Producer
         $path = $options[JsonFileLoaderProtocol::OPTION_BASE_PATH].'/'.$options[JsonFileLoaderProtocol::OPTION_FILENAME];
         $json = $this->getJsonFile($path);
 
-        switch ($options['type']) {
+        switch ($options[JsonFileLoaderProtocol::OPTION_TYPE]) {
             case JsonFileLoaderProtocol::OPTION_TYPE_VALUE_BODY:
                 $content = $this->getDeserializedContent($json);
                 $ex->getIn()->setBody($content);

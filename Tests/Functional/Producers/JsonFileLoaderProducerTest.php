@@ -27,8 +27,8 @@ class JsonFileLoaderProducerTest extends BaseTestCase
         $exchange = new Exchange($this->createMessage(new EntityX(1)));
 
         $opts = [
-            JsonFileLoaderProducer::OPTION_BASE_PATH => $pathFixtures,
-            JsonFileLoaderProducer::OPTION_FILENAME => 'entity_x.json',
+            JsonFileLoaderProtocol::OPTION_BASE_PATH => $pathFixtures,
+            JsonFileLoaderProtocol::OPTION_FILENAME => 'entity_x.json',
         ];
 
         $this->producer->send($exchange, new Endpoint('xxx', $opts, new JsonFileLoaderProtocol()));
