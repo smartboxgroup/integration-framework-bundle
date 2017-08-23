@@ -16,30 +16,26 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 class JsonFileLoaderProducer extends Producer
 {
-    const OPTION_FILENAME = 'filename';
-    const OPTION_BASE_PATH = 'base_path';
-    const OPTION_TYPE = 'type';
-    const OPTION_TYPE_VALUE_HEADERS = 'headers';
-    const OPTION_TYPE_VALUE_BODY = 'body';
-
     use UsesSerializer;
 
     /** {@inheritdoc} */
     public function send(Exchange $ex, EndpointInterface $endpoint)
     {
         $options = $endpoint->getOptions();
-        $path = $options[self::OPTION_BASE_PATH].'/'.$options[self::OPTION_FILENAME];
+        $path = $options[JsonFileLoaderProtocol::OPTION_BASE_PATH].'/'.$options[JsonFileLoaderProtocol::OPTION_FILENAME];
         $json = $this->getJsonFile($path);
 
         switch ($options['type']) {
-            case self::OPTION_TYPE_VALUE_BODY:
+            case JsonFileLoaderProtocol::OPTION_TYPE_VALUE_BODY:
                 $content = $this->getDeserializedContent($json);
                 $ex->getIn()->setBody($content);
                 break;
-            case self::OPTION_TYPE_VALUE_HEADERS:
+            case JsonFileLoaderProtocol::OPTION_TYPE_VALUE_HEADERS:
                 $headers = json_decode($json, true);
                 $ex->getIn()->setHeaders($headers);
                 break;
+            default:
+                throw new \LogicException("Invalid type provided when loading json");
         }
     }
 
