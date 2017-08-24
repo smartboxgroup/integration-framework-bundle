@@ -53,6 +53,7 @@ class JsonFileLoaderProtocol extends Protocol implements DescriptableInterface
         $resolver->setRequired(self::OPTION_FILENAME);
         $resolver->setAllowedTypes(self::OPTION_FILENAME, ['string']);
         $resolver->setRequired(self::OPTION_TYPE);
-        $resolver->setAllowedTypes(self::OPTION_TYPE, [self::OPTION_TYPE_VALUE_BODY, self::OPTION_TYPE_VALUE_HEADERS]);
+        $resolver->setAllowedTypes(self::OPTION_TYPE, ['string']);
+        $resolver->setAllowedValues(self::OPTION_TYPE, [self::OPTION_TYPE_VALUE_BODY, self::OPTION_TYPE_VALUE_HEADERS]);
     }
 }
