@@ -20,11 +20,11 @@
         "sensio/framework-extra-bundle": "^3.0",
         "incenteev/composer-parameter-handler": "~2.0",
         "jms/serializer-bundle": "^0.13.0",
-        "smartbox/besimple-soap": "~1.0.0",
-        "smartbox/core-bundle": "~1.0.0",
         "ocramius/proxy-manager": "~1.0",
         "stomp-php/stomp-php": "4.*",
-        "doctrine/doctrine-bundle": "^1.6"
+        "doctrine/doctrine-bundle": "^1.6",
+        "smartbox/besimple-soap": "~1.0",
+        "smartbox/core-bundle": "~1.0"
     },
     "require-dev": {
         "phpunit/php-code-coverage": "~4.0",
