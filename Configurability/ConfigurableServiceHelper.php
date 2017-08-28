@@ -39,7 +39,6 @@ class ConfigurableServiceHelper
     const KEY_RESPONSE = 'response';
     const CONF_DISPLAY_MESSAGE = 'display_message';
 
-    const STEP_RESPONSE_HEADERS = 'response_headers';
     /** @var OptionsResolver */
     protected $validateResolver;
 
@@ -166,10 +165,6 @@ class ConfigurableServiceHelper
                 $this->validate($stepActionParams, $context);
                 return true;
                 break;
-            case self::STEP_RESPONSE_HEADERS:
-                $this->addResponseHeaders($stepActionParams, $context);
-                return true;
-                break;
             default:
                 return false;
                 break;
@@ -226,13 +221,6 @@ class ConfigurableServiceHelper
                 $exception->setShowExternalSystemErrorMessage($display_message);
                 throw $exception;
             }
-        }
-    }
-
-    public function addResponseHeaders(array $stepConfig, array &$context)
-    {
-        if($stepConfig){
-            $context['responseHeaders'] = $stepConfig;
         }
     }
 
