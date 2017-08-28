@@ -15,7 +15,6 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
     use UsesGroupVersionHydrator;
 
     const STEP_VALIDATE_OBJECT_OUTPUT = 'validate_output';
-    const STEP_RESPONSE_HEADERS = 'response_headers';
     const OUTPUT_OBJECT = 'object';
     const OUTPUT_GROUP = 'group';
     const OUTPUT_DISPLAY_ERROR = 'display_error';
@@ -77,29 +76,11 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
             switch ($stepAction) {
                 case self::STEP_VALIDATE_OBJECT_OUTPUT:
                     $this->validateOutput($stepActionParams, $options, $context);
+
                     return true;
-                    break;
-                case self::STEP_RESPONSE_HEADERS:
-                    $this->addResponseHeaders($stepActionParams, $options, $context);
-                    return true;
-                    break;
             }
         }
 
         return false;
-    }
-
-
-
-    /**
-     * @param $stepActionParams
-     * @param $options
-     * @param $context
-     *
-     * @throws ExternalSystemException
-     */
-    protected function addResponseHeaders($stepActionParams, $options, $context)
-    {
-        //add code here
     }
 }
