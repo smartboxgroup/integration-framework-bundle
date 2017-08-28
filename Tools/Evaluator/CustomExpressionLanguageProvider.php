@@ -24,6 +24,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createSliceFunction(),
             $this->createExplodeFunction(),
             $this->createImplodeFunction(),
+            $this->createRemoveNewLinesFunction(),
         ];
     }
 
@@ -278,11 +279,19 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
 
     /**
      * Remove any new lines in $string, like \n, \n\r or \r
-     * @param $string
-     * @return mixed
+     *
+     * @return ExpressionFunction
      */
-    public function removeNewLines($string)
+    protected function createRemoveNewLinesFunction()
     {
-        return preg_replace('/[\r\n]+/', ' ', trim($string));
+        return new ExpressionFunction(
+            'removeNewLines',
+            function ($string) {
+                return sprintf('removeNewLines(%s)', $string);
+            },
+            function ($arguments, $string) {
+                return preg_replace('/[\r\n]+/', ' ', trim($string));
+            }
+        );
     }
 }
