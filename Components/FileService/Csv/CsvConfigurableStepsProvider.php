@@ -328,8 +328,8 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $fullPath = $this->getRootPath($endpointOptions);
-        if($params[self::PARAM_FILE_NAME] !== null){
-            if (substr($fullPath, -1) != DIRECTORY_SEPARATOR){
+        if ($params[self::PARAM_FILE_NAME] !== null) {
+            if (substr($fullPath, -1) !== DIRECTORY_SEPARATOR) {
                 $fullPath .= DIRECTORY_SEPARATOR;
             }
             $fullPath .= $params[self::PARAM_FILE_NAME];
