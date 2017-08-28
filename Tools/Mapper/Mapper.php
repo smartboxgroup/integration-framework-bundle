@@ -339,5 +339,16 @@ class Mapper implements MapperInterface
             return $value;
         }
     }
+
+    /**
+     * Remove any new lines in $string, like \n, \n\r or \r
+     * @param $string
+     * @return mixed
+     */
+    public function removeNewLines($string)
+    {
+        $string = preg_replace('/[\r\n]+/', ' ', trim($string));
+        return $string;
+    }
     
 }
