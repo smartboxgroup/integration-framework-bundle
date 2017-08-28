@@ -324,11 +324,17 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         ]);
 
         $stepParamsResolver->setDefault(self::PARAM_MAX_LINES, 1);
-        $stepParamsResolver->setDefault(self::PARAM_FILE_NAME, $endpointOptions[CsvConfigurableProtocol::OPTION_PATH]);
+        $stepParamsResolver->setDefault(self::PARAM_FILE_NAME, null);
         $params = $stepParamsResolver->resolve($stepActionParams);
 
-        $filePath = $params[self::PARAM_FILE_NAME];
-        $fullPath = $this->getRootPath($endpointOptions).DIRECTORY_SEPARATOR.$filePath;
+        $fullPath = $this->getRootPath($endpointOptions);
+        if ($params[self::PARAM_FILE_NAME] !== null) {
+            if (substr($fullPath, -1) !== DIRECTORY_SEPARATOR) {
+                $fullPath .= DIRECTORY_SEPARATOR;
+            }
+            $fullPath .= $params[self::PARAM_FILE_NAME];
+        }
+
         $fileHandle = $this->getFileHandle($fullPath, 'r');
 
         $contextResultName = $params[self::PARAM_CONTEXT_RESULT_NAME];
