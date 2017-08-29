@@ -135,7 +135,13 @@ class ExpressionEvaluatorTest extends KernelTestCase
                 'expected' => "this",
                 'expression' => 'implode("_",["this"])',
                 'vars' => [],
-            ]
+            ],
+            'Check removeNewLines removes any new lines in a string' => [
+                'expected' => "Line 1 Line 2",
+                'expression' => 'removeNewLines("\nLine 1\nLine 2\n")',
+                'vars' => [],
+            ],
+
         ];
     }
 

@@ -339,5 +339,4 @@ class Mapper implements MapperInterface
             return $value;
         }
     }
-    
 }
