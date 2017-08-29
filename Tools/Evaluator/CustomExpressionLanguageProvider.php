@@ -278,7 +278,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
     }
 
     /**
-     * Remove any new lines in $string, like \n, \n\r or \r
+     * Remove any new lines in $string, like \n, \r\n or \r
      *
      * @return ExpressionFunction
      */
