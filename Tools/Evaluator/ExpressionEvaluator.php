@@ -37,14 +37,28 @@ class ExpressionEvaluator
         ];
     }
 
+    /**
+     * @param $expression
+     * @param $vars
+     *
+     * @throws \Exception if the language failed to evaluate the expresion
+     *
+     * @return string
+     */
     public function evaluateWithVars($expression, $vars)
     {
         $vars = array_merge($vars, [
             'serializer' => $this->getSerializer(),
             'mapper' => $this->getMapper(),
         ]);
-
-        return $this->language->evaluate($expression, $vars);
+        try{
+            $evaluated = $this->language->evaluate($expression, $vars);
+        }
+        catch(\Exception $e){
+            $class = get_class($e);
+            throw new $class("Could not evaluate '{$expression}'. " . $e);
+        }
+        return $evaluated;
     }
 
     public function evaluateWithExchange($expression, Exchange $exchange, \Exception $exception = null)
