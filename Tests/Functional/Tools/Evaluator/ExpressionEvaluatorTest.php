@@ -160,26 +160,6 @@ class ExpressionEvaluatorTest extends KernelTestCase
     }
 
     /**
-     * Test that evaluteWithVars method adds a the failed expression t thrown errors
-     *
-     * @covers ::evaluateWithVars
-     */
-    public function testEvaluateCatchesAndRethrowsEvaluationErrors()
-    {
-        $language = $this->createMock(ExpressionLanguage::class);
-        $language->method('evaluate')
-            ->willThrowException(new \RuntimeException('Original Message'));
-
-        $failingExpression = 'expression';
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageRegExp("/.*'expression'\\. Original Message.*/");
-
-        $this->evaluator->__construct($language);
-        $this->evaluator->evaluateWithVars($failingExpression, []);
-    }
-
-    /**
      * @return array
      */
     public function dataProviderForExpressionsEvaluatedWithExchange()
