@@ -173,7 +173,7 @@ class ExpressionEvaluatorTest extends KernelTestCase
         $failingExpression = 'expression';
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageRegExp("/.*'expression'\\. RuntimeException: Original Message.*/");
+        $this->expectExceptionMessageRegExp("/.*'expression'\\. Original Message.*/");
 
         $this->evaluator->__construct($language);
         $this->evaluator->evaluateWithVars($failingExpression, []);
