@@ -31,6 +31,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
     use UsesGuzzleHttpClient;
 
     const REQUEST_BODY = 'body';
+    const REQUEST_QUERY_PARAMETERS = 'query';
     const REQUEST_NAME = 'name';
     const REQUEST_HTTP_VERB = 'http_method';
     const REQUEST_URI = 'uri';
@@ -118,6 +119,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $stepParamsResolver->setDefined([
             RestConfigurableProtocol::OPTION_HEADERS,
             self::VALIDATION,
+            self::REQUEST_QUERY_PARAMETERS
         ]);
 
         $stepParamsResolver->setAllowedValues(self::REQUEST_HTTP_VERB, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
@@ -148,14 +150,13 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
 
         $name = $this->confHelper->resolve($params[self::REQUEST_NAME], $context);
         $httpMethod = $this->confHelper->resolve($params[self::REQUEST_HTTP_VERB], $context);
-        $body = $this->confHelper->resolve($params[self::REQUEST_BODY], $context);
+        $httpMethod = strtoupper($httpMethod);
 
         $resolvedURI = $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
         $resolvedURI .= $this->confHelper->resolve($params[self::REQUEST_URI], $context);
 
         $endpointOptions = $this->confHelper->resolve($endpointOptions, $context);
 
-        $httpMethod = strtoupper($httpMethod);
         $requestHeaders = isset($params[RestConfigurableProtocol::OPTION_HEADERS]) ?
             $this->confHelper->resolve($params[RestConfigurableProtocol::OPTION_HEADERS], $context):
             []
@@ -167,20 +168,21 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
 
         $encoding = $endpointOptions[RestConfigurableProtocol::OPTION_ENCODING];
 
-        $requestBody = $this->encodeRequestBody($encoding, $body);
-
+        $body = $this->confHelper->resolve($params[self::REQUEST_BODY], $context);
+        $requestBody = "";
+        if ($body) {
+            $requestBody = $this->encodeRequestBody($encoding, $body);
+        }
         $restOptions['body'] = $requestBody;
+
         if ($httpMethod == "GET") {
-            if ($requestBody) {
-                if (substr_count($resolvedURI, "?") > 0) {
-                    $resolvedURI .= "&";
-                } else {
-                    $resolvedURI .= "?";
-                }
-                $resolvedURI .= $requestBody;
+            $query_parameters = $this->confHelper->resolve($params[self::REQUEST_QUERY_PARAMETERS], $context);
+            if (!$query_parameters) {
+                throw new InvalidConfigurationException(
+                    "'parameters' entry in 'request' configuration is mandatory for GET HTTP method"
+                );
             }
-        } else {
-            $restOptions['body'] = $requestBody;
+            $restOptions['query'] = $query_parameters;
         }
 
         $requestHeaders[self::HTTP_HEADER_TRANSACTION_ID]=$context['msg']->getContext()['transaction_id'];
