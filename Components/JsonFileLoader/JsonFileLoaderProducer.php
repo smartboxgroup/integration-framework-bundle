@@ -16,17 +16,31 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
  */
 class JsonFileLoaderProducer extends Producer
 {
-    const OPTION_FILENAME = 'filename';
-    const OPTION_BASE_PATH = 'base_path';
-
     use UsesSerializer;
 
     /** {@inheritdoc} */
     public function send(Exchange $ex, EndpointInterface $endpoint)
     {
         $options = $endpoint->getOptions();
-        $path = $options[self::OPTION_BASE_PATH].'/'.$options[self::OPTION_FILENAME];
+        $path = $options[JsonFileLoaderProtocol::OPTION_BASE_PATH].'/'.$options[JsonFileLoaderProtocol::OPTION_FILENAME];
+        $json = $this->getJsonFile($path);
 
+        switch ($options[JsonFileLoaderProtocol::OPTION_TYPE]) {
+            case JsonFileLoaderProtocol::OPTION_TYPE_VALUE_BODY:
+                $content = $this->getDeserializedContent($json);
+                $ex->getIn()->setBody($content);
+                break;
+            case JsonFileLoaderProtocol::OPTION_TYPE_VALUE_HEADERS:
+                $headers = json_decode($json, true);
+                $ex->getIn()->setHeaders($headers);
+                break;
+            default:
+                throw new \LogicException("Invalid type provided when loading json");
+        }
+    }
+
+    protected function getJsonFile($path)
+    {
         if (!file_exists($path)) {
             $path = $path.'.json';
         }
@@ -41,8 +55,7 @@ class JsonFileLoaderProducer extends Producer
             throw new InvalidFormatException("The file $path does not have a valid JSON format");
         }
 
-        $content = $this->getDeserializedContent($json);
-        $ex->getIn()->setBody($content);
+        return $json;
     }
 
     /**
