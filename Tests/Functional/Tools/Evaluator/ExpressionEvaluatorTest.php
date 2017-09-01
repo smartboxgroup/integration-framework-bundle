@@ -7,6 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
  * Class ExpressionEvaluatorTest.
@@ -156,6 +157,26 @@ class ExpressionEvaluatorTest extends KernelTestCase
     public function testEvaluateWithVars($expected, $expression, array $vars)
     {
         $this->assertEquals($expected, $this->evaluator->evaluateWithVars($expression, $vars));
+    }
+
+    /**
+     * Test that evaluteWithVars method adds a the failed expression t thrown errors
+     *
+     * @covers ::evaluateWithVars
+     */
+    public function testEvaluateCatchesAndRethrowsEvaluationErrors()
+    {
+        $language = $this->createMock(ExpressionLanguage::class);
+        $language->method('evaluate')
+            ->willThrowException(new \RuntimeException('Original Message'));
+
+        $failingExpression = 'expression';
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageRegExp("/.*'expression'\\. RuntimeException: Original Message.*/");
+
+        $this->evaluator->__construct($language);
+        $this->evaluator->evaluateWithVars($failingExpression, []);
     }
 
     /**
