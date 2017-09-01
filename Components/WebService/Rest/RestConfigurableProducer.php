@@ -166,8 +166,23 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $restOptions = $this->getBasicHTTPOptions($params, $endpointOptions);
 
         $encoding = $endpointOptions[RestConfigurableProtocol::OPTION_ENCODING];
+
         $requestBody = $this->encodeRequestBody($encoding, $body);
+
         $restOptions['body'] = $requestBody;
+        if ($httpMethod == "GET") {
+            if ($requestBody) {
+                if (substr_count($resolvedURI, "?") > 0) {
+                    $resolvedURI .= "&";
+                } else {
+                    $resolvedURI .= "?";
+                }
+                $resolvedURI .= $requestBody;
+            }
+        } else {
+            $restOptions['body'] = $requestBody;
+        }
+
         $requestHeaders[self::HTTP_HEADER_TRANSACTION_ID]=$context['msg']->getContext()['transaction_id'];
         $requestHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
         /* @var Response $response */

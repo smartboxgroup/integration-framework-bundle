@@ -32,7 +32,7 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
     {
         if (!is_array($stepActionParams)) {
             throw new InvalidConfigurationException(
-                "Step 'validate_output' in AbstractConfigurableProducer expected an array as configuration"
+                "Step '" . self::STEP_VALIDATE_OBJECT_OUTPUT . "' in AbstractConfigurableProducer expected an array as configuration"
             );
         }
 
