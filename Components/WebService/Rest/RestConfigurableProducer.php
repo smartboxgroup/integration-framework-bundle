@@ -176,13 +176,13 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $restOptions['body'] = $requestBody;
 
         if ($httpMethod == "GET") {
-            $query_parameters = $this->confHelper->resolve($params[self::REQUEST_QUERY_PARAMETERS], $context);
-            if (!$query_parameters) {
+            $queryParameters = $this->confHelper->resolve($params[self::REQUEST_QUERY_PARAMETERS], $context);
+            if (!$queryParameters) {
                 throw new InvalidConfigurationException(
                     "'parameters' entry in 'request' configuration is mandatory for GET HTTP method"
                 );
             }
-            $restOptions['query'] = $query_parameters;
+            $restOptions['query'] = $queryParameters;
         }
 
         $requestHeaders[self::HTTP_HEADER_TRANSACTION_ID]=$context['msg']->getContext()['transaction_id'];
