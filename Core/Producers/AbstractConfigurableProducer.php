@@ -67,10 +67,15 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
             $resultConfig = $methodConf[ConfigurableProducerInterface::CONF_RESPONSE];
             $result = $this->confHelper->resolve($resultConfig, $context);
 
-            if (is_array($result)) {
-                $result = new SerializableArray($result);
+            $body = isset($result['body']) ? $result['body'] : null;
+            if (is_array($body)) {
+                $body = new SerializableArray($body);
             }
-            $exchange->getOut()->setBody($result);
+            $exchange->getOut()->setBody($body);
+
+            if (isset($result['headers']) && is_array($result['headers']) ) {
+                $exchange->getOut()->setHeaders($result['headers']);
+            }
         }
     }
 
