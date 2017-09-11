@@ -161,10 +161,8 @@ class ConfigurableServiceHelper
 
                 return true;
                 break;
-
             case self::STEP_VALIDATE:
                 $this->validate($stepActionParams, $context);
-
                 return true;
                 break;
             default:
