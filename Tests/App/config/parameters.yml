@@ -1,9 +1,12 @@
 parameters:
-    hostname: queue.local
+    hostname: localhost
     database_host: localhost
     database_user: root
     database_password: 1234
     database_name: test
     flows.version: 0
-    rabbitmq.username: 'guest'
-    rabbitmq.password: 'guest'
+    rabbitmq.hostname: rabbit.local
+    rabbitmq.username: guest
+    rabbitmq.password: guest
+    rabbitmq.vhost: /
+    rabbitmq.timeout: 15
