@@ -1,6 +1,4 @@
 addons:
-  hosts:
-    - rabbit.local
   hostname: rabbit.local
 
 language: php
@@ -19,7 +17,6 @@ matrix:
 
 before_install:
   - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - sudo service rabbitmq-server status
 before_script:
   - composer self-update
   - composer install --prefer-dist --no-interaction
