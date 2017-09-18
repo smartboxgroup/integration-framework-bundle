@@ -1,5 +1,5 @@
 parameters:
-    hostname: real.smartesb.local
+    hostname: localhost
     database_host: localhost
     database_user: root
     database_password: 1234
