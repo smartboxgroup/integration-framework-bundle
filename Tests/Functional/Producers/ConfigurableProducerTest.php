@@ -10,11 +10,10 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\AbstractConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerRecoverableException;
-use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerUnrecoverableException;
-use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableException;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\UnrecoverableExternalSystemException;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\RecoverableExternalSystemException;
 
 class ConfigurableProducerTest extends BaseTestCase
 {
@@ -63,7 +62,7 @@ class ConfigurableProducerTest extends BaseTestCase
                   ],
               ],
               ConfigurableProducerInterface::CONF_RESPONSE => [
-                  'result' => 'eval: 1 + 2 + msg.getBody().get(\'value\') + 10',
+                  'body' => ['result' => 'eval: 1 + 2 + msg.getBody().get(\'value\') + 10'],
               ],
           ],
     ];
@@ -183,7 +182,7 @@ class ConfigurableProducerTest extends BaseTestCase
 
     public function testValidationWorksWithUnrecoverableException()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(UnrecoverableExternalSystemException::class);
 
         $exchange = new Exchange(
             new Message(new SerializableArray(['value' => 1313666]))
@@ -201,7 +200,7 @@ class ConfigurableProducerTest extends BaseTestCase
 
     public function testValidationWorksWithRecoverableException()
     {
-        $this->expectException(RecoverableException::class);
+        $this->expectException(RecoverableExternalSystemException::class);
 
         $exchange = new Exchange(
             new Message(new SerializableArray(['value' => 666]))
