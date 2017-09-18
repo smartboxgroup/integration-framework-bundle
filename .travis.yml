@@ -14,8 +14,6 @@ matrix:
 
 before_install:
   - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-# Increase Memory Limit
-  - phpenv config-add travis.php.ini
 
 before_script:
   - composer self-update
