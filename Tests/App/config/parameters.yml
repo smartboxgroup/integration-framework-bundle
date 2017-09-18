@@ -1,5 +1,5 @@
 parameters:
-    hostname: localhost
+    hostname: rabbit.local
     database_host: localhost
     database_user: root
     database_password: 1234
@@ -8,5 +8,5 @@ parameters:
     rabbitmq.hostname: "tcp://rabbit.local:61613"
     rabbitmq.username: guest
     rabbitmq.password: guest
-    rabbitmq.vhost: /
+    rabbitmq.vhost: test
     rabbitmq.timeout: 15
