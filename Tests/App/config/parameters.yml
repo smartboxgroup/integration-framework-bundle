@@ -8,5 +8,5 @@ parameters:
     rabbitmq.hostname: "tcp://rabbit.local:61613"
     rabbitmq.username: guest
     rabbitmq.password: guest
-    rabbitmq.vhost: test
+    rabbitmq.vhost: '/'
     rabbitmq.timeout: 15
