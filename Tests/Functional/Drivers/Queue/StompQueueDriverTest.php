@@ -45,12 +45,14 @@ class StompQueueDriverTest extends BaseTestCase
     protected function createDriver()
     {
         $host = $this->getContainer()->getParameter('hostname');
-
+        $username = $this->getContainer()->getParameter('rabbitmq.username');
+        $password = $this->getContainer()->getParameter('rabbitmq.password');
+        
         /* @var StompQueueDriver $processor */
         $driver = new StompQueueDriver();
         $driver->setMessageFactory($this->getContainer()->get('smartesb.message_factory'));
         $driver->setSerializer($this->getContainer()->get('serializer'));
-        $driver->configure('tcp://'.$host, '', '');
+        $driver->configure('tcp://'.$host, $username, $password);
         $driver->connect();
 
         return $driver;

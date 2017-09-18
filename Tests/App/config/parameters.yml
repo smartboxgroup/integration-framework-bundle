@@ -5,3 +5,5 @@ parameters:
     database_password: 1234
     database_name: test
     flows.version: 0
+    rabbitmq.username: 'guest'
+    rabbitmq.password: 'guest'
