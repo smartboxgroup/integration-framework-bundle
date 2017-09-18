@@ -44,17 +44,19 @@ class StompQueueDriverTest extends BaseTestCase
      */
     protected function createDriver()
     {
-        $host = $this->getContainer()->getParameter('hostname');
-        $username = $this->getContainer()->getParameter('rabbitmq.username');
-        $password = $this->getContainer()->getParameter('rabbitmq.password');
-        
+//        $host = $this->getContainer()->getParameter('rabbitmq.hostname');
+//        $username = $this->getContainer()->getParameter('rabbitmq.username');
+//        $password = $this->getContainer()->getParameter('rabbitmq.password');
+//        $vhost = $this->getContainer()->getParameter('rabbitmq.password');
+//        $version = $this->getContainer()->getParameter('rabbitmq.version');
+//        $format  = $this->getContainer()->getParameter('rabbitmq.format');
         /* @var StompQueueDriver $processor */
-        $driver = new StompQueueDriver();
-        $driver->setMessageFactory($this->getContainer()->get('smartesb.message_factory'));
-        $driver->setSerializer($this->getContainer()->get('serializer'));
-        $driver->configure('tcp://'.$host, $username, $password);
-        $driver->connect();
-
+//        $driver = new StompQueueDriver();
+//        $driver->setMessageFactory($this->getContainer()->get('smartesb.message_factory'));
+//        $driver->setSerializer($this->getContainer()->get('serializer'));
+//        $driver->configure('tcp://'.$host, $username, $password, 'json','1.1');
+//        $driver->connect();
+        $driver = $this->getContainer()->get('smartesb.drivers.queue.main');
         return $driver;
     }
 
