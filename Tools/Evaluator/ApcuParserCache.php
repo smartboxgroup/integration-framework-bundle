@@ -30,11 +30,16 @@ class ApcuParserCache implements ParserCacheInterface
      */
     public function fetch($key)
     {
-        $cached = apcu_fetch($key);
-        if (!$cached) {
-            return;
-        }
+        if(extension_loaded('apcu') && function_exists('apcu_fetch')) {
+            $cached = apcu_fetch($key);
+            if (!$cached) {
+                return null;
+            }
 
-        return $cached;
+            return $cached;
+
+        }else{
+            return null;
+        }
     }
 }

@@ -1,6 +1,6 @@
 parameters:
     hostname: rabbit.local
-    database_host: localhost
+    database_host: rabbit.local
     database_user: root
     database_password: 1234
     database_name: test

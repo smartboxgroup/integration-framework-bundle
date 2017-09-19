@@ -1,5 +1,6 @@
 addons:
-  hostname: rabbit.local
+  hosts:
+    - rabbit.local
 
 language: php
 
@@ -17,9 +18,11 @@ matrix:
 
 before_install:
   - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - rabbitmq-plugins enable rabbitmq_stomp
-  - service rabbitmq-server restart
+
 before_script:
+  - if [[ "$(php -v | grep 'PHP 7')" ]]; then yes | pecl install -f apcu; composer require atoum/atoum; fi
+  - sudo rabbitmq-plugins enable rabbitmq_stomp
+  - sudo service rabbitmq-server restart
   - composer self-update
   - composer install --prefer-dist --no-interaction
 
@@ -35,3 +38,4 @@ notifications:
 
 services:
   - rabbitmq
+  - mongodb
