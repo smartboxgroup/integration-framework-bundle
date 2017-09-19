@@ -17,6 +17,8 @@ matrix:
 
 before_install:
   - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - rabbitmq-plugins enable rabbitmq_stomp
+  - service rabbitmq-server restart
 before_script:
   - composer self-update
   - composer install --prefer-dist --no-interaction
