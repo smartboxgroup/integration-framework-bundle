@@ -1,6 +1,7 @@
 addons:
   hosts:
     - rabbit.local
+    - database.local
 
 language: php
 
