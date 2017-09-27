@@ -33,12 +33,14 @@ smartbox_integration_framework:
     defer_events_to_uri: queue://events
     queue_drivers:
         main:
-            type: ActiveMQ
-            description: Default queue driver
-            host: "tcp://%hostname%"
-            username: ''
-            password: ''
+            type: RabbitMQ
+            description: RabbitMQ queue driver
+            host: "%rabbitmq.hostname%"
+            username: "%rabbitmq.username%"
+            password: "%rabbitmq.password%"
             format: json
+            vhost: '%rabbitmq.vhost%'
+            timeout: '%rabbitmq.timeout%'
 
     nosql_drivers: ~
 

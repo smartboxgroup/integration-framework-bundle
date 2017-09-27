@@ -1,3 +1,8 @@
+addons:
+  hosts:
+    - rabbit.local
+    - database.local
+
 language: php
 
 php:
@@ -16,6 +21,9 @@ before_install:
   - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 before_script:
+  - if [[ "$(php -v | grep 'PHP 7')" ]]; then yes | pecl install -f apcu; fi
+  - sudo rabbitmq-plugins enable rabbitmq_stomp
+  - sudo service rabbitmq-server restart
   - composer self-update
   - composer install --prefer-dist --no-interaction
 
@@ -28,3 +36,7 @@ notifications:
       - si-integration@smartandco.com
     on_success: change 
     on_failure: always
+
+services:
+  - rabbitmq
+  - mongodb

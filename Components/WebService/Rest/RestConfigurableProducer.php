@@ -185,8 +185,12 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             $restOptions['query'] = $queryParameters;
         }
 
-        $requestHeaders[self::HTTP_HEADER_TRANSACTION_ID]=$context['msg']->getContext()['transaction_id'];
-        $requestHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
+        try {
+            $requestHeaders[self::HTTP_HEADER_TRANSACTION_ID] = $context['msg']->getContext()['transaction_id'];
+            $requestHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
+        } catch (\Exception $e) {
+
+        }
         /* @var Response $response */
         $request = new Request($httpMethod, $resolvedURI, $requestHeaders);
         $response = null;
