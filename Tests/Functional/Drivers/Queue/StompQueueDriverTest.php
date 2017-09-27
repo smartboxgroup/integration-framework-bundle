@@ -27,7 +27,7 @@ class StompQueueDriverTest extends BaseTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->driver = $this->createDriver();
+        $this->driver = $this->getContainer()->get('smartesb.drivers.queue.main');
         ++self::$testIndex;
         $this->queueName = self::QUEUE_PREFIX.(new \ReflectionClass($this))->getShortName().self::$testIndex;
     }
@@ -37,23 +37,6 @@ class StompQueueDriverTest extends BaseTestCase
         $this->driver->disconnect();
         $this->driver = null;
         parent::tearDown();
-    }
-
-    /**
-     * @return StompQueueDriver
-     */
-    protected function createDriver()
-    {
-        $host = $this->getContainer()->getParameter('hostname');
-
-        /* @var StompQueueDriver $processor */
-        $driver = new StompQueueDriver();
-        $driver->setMessageFactory($this->getContainer()->get('smartesb.message_factory'));
-        $driver->setSerializer($this->getContainer()->get('serializer'));
-        $driver->configure('tcp://'.$host, '', '');
-        $driver->connect();
-
-        return $driver;
     }
 
     /**
