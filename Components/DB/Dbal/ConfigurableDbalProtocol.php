@@ -10,6 +10,7 @@ class ConfigurableDbalProtocol extends Protocol implements DescriptableInterface
 {
     const OPTION_METHOD = 'method';
     const OPTION_STOP_ON_NO_RESULTS = 'stop_on_no_results';
+    const OPTION_DATABASE_NAME = 'database_name';
 
     /**
      * Get static default options.
@@ -21,6 +22,7 @@ class ConfigurableDbalProtocol extends Protocol implements DescriptableInterface
         return array_merge(parent::getOptionsDescriptions(), [
             self::OPTION_METHOD => ['Method to be executed in the consumer/producer', []],
             self::OPTION_STOP_ON_NO_RESULTS => ['Consumer should stop on when all the records have been processed.', []],
+            self::OPTION_DATABASE_NAME => ['Option to chose which DB the consumer/producer should use', []],
         ]);
     }
 
@@ -38,10 +40,12 @@ class ConfigurableDbalProtocol extends Protocol implements DescriptableInterface
 
         $resolver->setDefaults([
             self::OPTION_STOP_ON_NO_RESULTS => false,
+            self::OPTION_DATABASE_NAME => '',
         ]);
 
         $resolver->setAllowedTypes(self::OPTION_METHOD, ['string']);
         $resolver->setAllowedTypes(self::OPTION_STOP_ON_NO_RESULTS, ['bool']);
+        $resolver->setAllowedTypes(self::OPTION_DATABASE_NAME, ['string']);
     }
 
     /**

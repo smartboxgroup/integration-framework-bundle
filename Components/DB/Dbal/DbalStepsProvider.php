@@ -282,6 +282,12 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      */
     protected function getConnection($context)
     {
-        return $this->doctrine->getConnection();
+        $databaseName = null;
+
+        if (!empty($context['options']['database_name'])) {
+            $databaseName = $context['options']['database_name'];
+        }
+
+        return $this->doctrine->getConnection($databaseName);
     }
 }
