@@ -97,7 +97,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      */
     public function executeStep($stepAction, array &$stepActionParams, array &$options, array &$context)
     {
-        if ($this->doctrine === null) {
+        if (null === $this->doctrine) {
             throw new \InvalidArgumentException('Doctrine should be installed to use DbalStepsProvider');
         }
 
@@ -268,7 +268,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
         if (array_key_exists(self::CONF_QUERY_NAME, $configuration)) {
             $name = $configuration[self::CONF_QUERY_NAME];
             $context[self::CONTEXT_RESULTS][$name] = $result;
-            if (count($result) == 0) {
+            if (0 == count($result)) {
                 throw new NoResultsException('No results found for query named: '.$name);
             }
         }
@@ -278,16 +278,17 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
 
     /**
      * @param $context
+     *
      * @return object
      */
     protected function getConnection($context)
     {
-        $databaseName = null;
+        $connectionName = null;
 
-        if (!empty($context['options']['database_name'])) {
-            $databaseName = $context['options']['database_name'];
+        if (!empty($context['options']['db_connection_name'])) {
+            $connectionName = $context['options']['db_connection_name'];
         }
 
-        return $this->doctrine->getConnection($databaseName);
+        return $this->doctrine->getConnection($connectionName);
     }
 }

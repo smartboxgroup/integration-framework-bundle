@@ -25,21 +25,21 @@ class DbalStepsProviderTest extends \PHPUnit_Framework_TestCase
     public function contextProvider()
     {
         return [
-            'Context contains a specific database' => [
+            'Context contains a specific database connection name' => [
                 'context' => [
                     'options' => [
-                        'database_name' => 'dbtest'
-                    ]
+                        'db_connection_name' => 'dbtest',
+                    ],
                 ],
                 'options' => [
-                    'database_name' => 'dbtest'
+                    'db_connection_name' => 'dbtest',
                 ],
-                'databaseName' => 'dbtest'
+                'db_connection_name' => 'dbtest',
             ],
-            'Context does not contain specific database' => [
+            'Context does not contain specific database connection name' => [
                 'context' => [],
                 'options' => [],
-                'databaseName' => null
+                'db_connection_name' => null,
             ],
         ];
     }
@@ -50,7 +50,7 @@ class DbalStepsProviderTest extends \PHPUnit_Framework_TestCase
      * @param array $context
      * @param array $options
      */
-    public function testDoctrineGetConnection(array $context, array $options, $databaseName)
+    public function testDoctrineGetConnection(array $context, array $options, $connectionName)
     {
         $parameters = [];
         $sql = 'SELECT test FROM test';
@@ -75,7 +75,7 @@ class DbalStepsProviderTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $doctrine->expects($this->once())
             ->method('getConnection')
-            ->with($databaseName)
+            ->with($connectionName)
             ->will($this->returnValue($dbal));
 
         $confHelper = $this->getMockBuilder(ConfigurableServiceHelper::class)->getMock();
@@ -86,7 +86,7 @@ class DbalStepsProviderTest extends \PHPUnit_Framework_TestCase
         $action = 'execute';
         $actionParams = [
             'sql' => $sql,
-            'parameters' => $parameters
+            'parameters' => $parameters,
         ];
 
         $this->dbalStepsProvider->setDoctrine($doctrine);
