@@ -2,20 +2,31 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\MockClients;
 
+use BeSimple\SoapClient\Curl;
 use BeSimple\SoapClient\WsdlDownloader as BeSimpleSoapWsdlDownloader;
+use BeSimple\SoapCommon\Cache;
 use BeSimple\SoapCommon\Helper;
 
-
+/**
+ * Class WsdlDownloader
+ * This class is only used for testing purposes, with RECORD_RESPONSE flag set to true.
+ */
 class WsdlDownloader extends BeSimpleSoapWsdlDownloader
 {
+    public function __construct(Curl $curl, $resolveRemoteIncludes = true, $cacheWsdl = Cache::TYPE_DISK)
+    {
+        parent::__construct($curl, $resolveRemoteIncludes, $cacheWsdl);
+        $this->cacheEnabled = false; // Will always update the wsdl files
+    }
+
     public function cacheFileFromWsdl($wsdl)
     {
-        return $this->cacheDir . DIRECTORY_SEPARATOR . 'wsdl_' . md5($wsdl) . '.cache';
+        return $this->cacheDir.DIRECTORY_SEPARATOR.'wsdl_'.md5($wsdl).'.cache';
     }
 
     protected function extractFilePartFromCachePath($path)
     {
-        return str_replace($this->cacheDir . DIRECTORY_SEPARATOR, '', $path);
+        return str_replace($this->cacheDir.DIRECTORY_SEPARATOR, '', $path);
     }
 
     /**
@@ -31,7 +42,7 @@ class WsdlDownloader extends BeSimpleSoapWsdlDownloader
         $xpath->registerNamespace(Helper::PFX_WSDL, Helper::NS_WSDL);
 
         // WSDL include/import
-        $query = './/' . Helper::PFX_WSDL . ':include | .//' . Helper::PFX_WSDL . ':import';
+        $query = './/'.Helper::PFX_WSDL.':include | .//'.Helper::PFX_WSDL.':import';
         $nodes = $xpath->query($query);
         if ($nodes->length > 0) {
             foreach ($nodes as $node) {
@@ -48,7 +59,7 @@ class WsdlDownloader extends BeSimpleSoapWsdlDownloader
         }
 
         // XML schema include/import
-        $query = './/' . Helper::PFX_XML_SCHEMA . ':include | .//' . Helper::PFX_XML_SCHEMA . ':import';
+        $query = './/'.Helper::PFX_XML_SCHEMA.':include | .//'.Helper::PFX_XML_SCHEMA.':import';
         $nodes = $xpath->query($query);
         if ($nodes->length > 0) {
             foreach ($nodes as $node) {
