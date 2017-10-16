@@ -121,7 +121,7 @@ class StompQueueDriverTest extends BaseTestCase
     }
 
     /**
-     * In ActiveMQ, you can configure the number of redeliveries. We test here this behaviour.
+     * maximumRedeliveries is not support by RabbitMQ - Skipped
      * (CF : http://activemq.apache.org/redelivery-policy.html - /opt/apache-activemq-5.12.0/conf/activemq.xml)
      *
      * @dataProvider getMessages
@@ -159,7 +159,7 @@ class StompQueueDriverTest extends BaseTestCase
     }
 
     /**
-     * The "expires" header is not supported by RabbitMQ, we should use "ttl" instead
+     * The "expires" header is not supported by RabbitMQ - Skipped
      * (CF: https://www.rabbitmq.com/stomp.html)
      *
      * @dataProvider getMessages
@@ -257,8 +257,9 @@ class StompQueueDriverTest extends BaseTestCase
     }
 
     /**
-     * Subscibe by selector is feature not supported by RabbitMQ
+     * Subscribe by selector is a feature not supported by RabbitMQ - Skipped
      * (CF: http://rabbitmq.1065348.n5.nabble.com/STOMP-amp-selector-td35518.html)
+     *
      * @dataProvider getMessages
      *
      * @param MessageInterface $msg
