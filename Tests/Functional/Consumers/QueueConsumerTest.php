@@ -17,7 +17,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class QueueConsumerTest extends BaseKernelTestCase
 {
-    const queue = '/test/command/1';
+    const queue = '/test/command';
 
     /**
      * @return QueueConsumer
