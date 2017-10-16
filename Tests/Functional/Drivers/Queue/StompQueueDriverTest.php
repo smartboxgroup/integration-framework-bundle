@@ -121,12 +121,17 @@ class StompQueueDriverTest extends BaseTestCase
     }
 
     /**
+     * In ActiveMQ, you can configure the number of redeliveries. We test here this behaviour.
+     * (CF : http://activemq.apache.org/redelivery-policy.html - /opt/apache-activemq-5.12.0/conf/activemq.xml)
+     *
      * @dataProvider getMessages
      *
      * @param MessageInterface $msg
      */
     public function testAfterRetriesShouldDiscard($msg)
     {
+        $this->markTestSkipped('Test the maximumRedeliveries feature in ActiveMQ, not testable for RabbitMQ');
+
         $this->driver->send($this->createQueueMessage($msg));
 
         $this->driver->subscribe($this->queueName);
@@ -154,12 +159,17 @@ class StompQueueDriverTest extends BaseTestCase
     }
 
     /**
+     * The "expires" header is not supported by RabbitMQ, we should use "ttl" instead
+     * (CF: https://www.rabbitmq.com/stomp.html)
+     *
      * @dataProvider getMessages
      *
      * @param MessageInterface $msg
      */
     public function testAfterExpiresShouldDiscard(MessageInterface $msg)
     {
+        $this->markTestSkipped('Test specific for ActiveMQ, feature not supported in RabbitMQ');
+
         $ttlSeconds = 2;
 
         $msgIn = $this->createQueueMessage($msg);
@@ -247,12 +257,16 @@ class StompQueueDriverTest extends BaseTestCase
     }
 
     /**
+     * Subscibe by selector is feature not supported by RabbitMQ
+     * (CF: http://rabbitmq.1065348.n5.nabble.com/STOMP-amp-selector-td35518.html)
      * @dataProvider getMessages
      *
      * @param MessageInterface $msg
      */
     public function testShouldNotSelect(MessageInterface $msg)
     {
+        $this->markTestSkipped('Test specific for ActiveMQ, feature not supported in RabbitMQ');
+
         $msgIn = $this->createQueueMessage($msg);
         $msgIn->addHeader('test_header', '12345');
         $this->driver->send($msgIn);
