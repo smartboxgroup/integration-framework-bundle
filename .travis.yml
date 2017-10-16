@@ -22,6 +22,7 @@ before_install:
 
 before_script:
   - if [[ "$(php -v | grep 'PHP 7')" ]]; then yes | pecl install -f apcu; fi
+  - phpenv config-add travis.php.ini
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo service rabbitmq-server restart
   - composer self-update
