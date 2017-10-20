@@ -1,11 +1,7 @@
 #!/bin/bash
-php --version
-php --ini
 
 if [[ "$(php -v | grep 'PHP 7.0')" ]] ; then
-    php --ini
     yes | pecl -f install channel://pecl.php.net/APCu-5.1.8;
-
 elif [[ "$(php -v | grep 'PHP 7.1')" ]] ; then
     yes | pecl -f install channel://pecl.php.net/APCu-5.1.8;
 else
