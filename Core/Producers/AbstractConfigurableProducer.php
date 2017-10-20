@@ -61,7 +61,7 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
         /*
          * RESPONSE
          */
-        if ($options[Protocol::OPTION_EXCHANGE_PATTERN] == Protocol::EXCHANGE_PATTERN_IN_OUT
+        if (Protocol::EXCHANGE_PATTERN_IN_OUT == $options[Protocol::OPTION_EXCHANGE_PATTERN]
             && array_key_exists(ConfigurableProducerInterface::CONF_RESPONSE, $methodConf)) {
             $resultConfig = $methodConf[ConfigurableProducerInterface::CONF_RESPONSE];
             $result = $this->confHelper->resolve($resultConfig, $context);
@@ -72,7 +72,7 @@ abstract class AbstractConfigurableProducer extends Producer implements Configur
             }
             $exchange->getOut()->setBody($body);
 
-            if (isset($result['headers']) && is_array($result['headers']) ) {
+            if (isset($result['headers']) && is_array($result['headers'])) {
                 $exchange->getOut()->setHeaders($result['headers']);
             }
         }
