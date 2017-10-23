@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Components\WebService\Rest;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Components\WebService\Rest;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
