@@ -25,7 +25,6 @@ use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableExceptionInterface;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEndpointFactory;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -35,7 +34,6 @@ use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 class MessageHandler extends Service implements HandlerInterface, ContainerAwareInterface
 {
     use ContainerAwareTrait;
-    use UsesEventDispatcher;
     use UsesEndpointFactory;
     use UsesItineraryResolver;
 
@@ -148,7 +146,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
-     * Return the valid retry strategies
+     * Return the valid retry strategies.
      *
      * @return array
      */
@@ -304,16 +302,14 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $failedExchange = new Exchange($envelope);
                 $this->failedEndpoint->produce($failedExchange);
             }
-        }
-        catch(\Exception $exceptionHandlingException){
-            $wrapException = new \Exception("Error while trying to handle Exception in the MessageHandler".$exceptionHandlingException->getMessage(),0,$exceptionHandlingException);
+        } catch (\Exception $exceptionHandlingException) {
+            $wrapException = new \Exception('Error while trying to handle Exception in the MessageHandler'.$exceptionHandlingException->getMessage(), 0, $exceptionHandlingException);
             $event = new HandlerErrorEvent($exchangeBackup, $wrapException);
             $event->setId(uniqid('', true));
             $event->setTimestampToCurrent();
             $this->getEventDispatcher()->dispatch(HandlerErrorEvent::EVENT_NAME, $event);
             throw $exceptionHandlingException;
-       }
-
+        }
 
         if ($this->shouldThrowExceptions()) {
             throw $originalException;
