@@ -18,11 +18,10 @@ matrix:
     - php: 7.1
 
 before_install:
-  - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - phpenv config-add travis/travis.ini
+  - bash travis/install-apcu-pecl.sh
 
 before_script:
-  - bash travis/install-apcu-pecl.sh || true
-  - phpenv config-add travis/php.ini
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo service rabbitmq-server restart
   - composer self-update
