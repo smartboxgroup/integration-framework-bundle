@@ -42,7 +42,7 @@ class Mapper implements MapperInterface
      */
     public function formatDate($format, \DateTime $date = null)
     {
-        if ($date === null) {
+        if (null === $date) {
             return null;
         }
 
@@ -87,7 +87,7 @@ class Mapper implements MapperInterface
             foreach ($mapping as $key => $value) {
                 $resolved = $this->resolve($value, $obj, $context);
 
-                if ($resolved !== null) {
+                if (null !== $resolved) {
                     $res[$key] = $resolved;
                 }
             }
@@ -146,6 +146,10 @@ class Mapper implements MapperInterface
      */
     public function keyExists(array $obj, $key)
     {
+        if (!is_string($key) and !is_integer($key)) {
+            throw new \RuntimeException('keyExists expected either a string or an integer, \''.print_r($key, true).'\' was given.');
+        }
+
         return array_key_exists($key, $obj);
     }
 
@@ -302,11 +306,11 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Return the n-th section of the given string splitted by piece of the given length
+     * Return the n-th section of the given string splitted by piece of the given length.
      *
      * @param string $string
-     * @param int $length
-     * @param int $section
+     * @param int    $length
+     * @param int    $section
      *
      * @return string
      */
@@ -320,6 +324,7 @@ class Mapper implements MapperInterface
         if (isset($lines[$section])) {
             $result = $lines[$section];
         }
+
         return $result;
     }
 
