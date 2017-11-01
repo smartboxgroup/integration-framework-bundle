@@ -9,7 +9,7 @@
       }
     },
     "require": {
-        "php": ">=5.6.0 <7.2",
+        "php": ">=5.6.0",
         "ext-pcntl": "*",
         "guzzlehttp/guzzle": "^6.0",
         "symfony/symfony": "^2.7.0",
