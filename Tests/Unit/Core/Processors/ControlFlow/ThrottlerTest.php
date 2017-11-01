@@ -7,6 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\Throttler;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottledException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 
@@ -61,6 +62,7 @@ class ThrottleTest extends \PHPUnit_Framework_TestCase
         catch(\Exception $e){
             $thrown = true;
             $this->assertInstanceOf(ProcessingException::class, $e);
+            $this->assertInstanceOf(ThrottledException::class, $e->getOriginalException());
             $this->assertEquals(self::DELAY, $e->getOriginalException()->getDelay());
         }
 
