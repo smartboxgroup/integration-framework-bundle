@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Traits\HasItinerary;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\RetryLaterException;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottledException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottlingLimitReachedException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesCacheService;
@@ -23,6 +23,11 @@ class Throttler extends Processor
      * @var int Time in milliseconds to reset the throttling limit
      */
     protected $periodMs = 60000;
+
+    /**
+     * @var int Time in seconds to delay a throttled message for
+     */
+    protected $delayS = 1;
 
     /**
      * @var string Symfony expression to determine the max amount of requests that can cross the throttler
@@ -62,6 +67,22 @@ class Throttler extends Processor
     public function setPeriodMs($periodMs)
     {
         $this->periodMs = $periodMs;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDelayS()
+    {
+        return $this->delayS;
+    }
+
+    /**
+     * @param int $delayS
+     */
+    public function setDelayS($delayS)
+    {
+        $this->delayS = (int)$delayS;
     }
 
     /**
@@ -142,7 +163,7 @@ class Throttler extends Processor
      * @param SerializableArray $processingContext
      *
      * @throws ThrottlingLimitReachedException
-     * @throws RetryLaterException
+     * @throws ThrottledException
      */
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
@@ -150,8 +171,8 @@ class Throttler extends Processor
 
         if (!$this->shouldPass($exchange)) {
             if ($this->isAsyncDelayed()) {
-                $exception = new RetryLaterException("This message can't be processed because the throttling limit is reached in processor with id: ".$this->getId());
-                $delaySeconds = (int) ($this->getPeriodMs() / 1000);
+                $delaySeconds = $this->getDelayS();
+                $exception = new ThrottledException("This message can't be processed because the throttling limit is reached in processor with id: ".$this->getId()." Delaying for ".$delaySeconds." seconds");
                 $exception->setDelay($delaySeconds);
             } else {
                 $error = sprintf('Reached throttling limit in processor "%s"', $this->id);
