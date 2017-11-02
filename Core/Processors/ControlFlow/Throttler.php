@@ -163,7 +163,7 @@ class Throttler extends Processor
      * @param SerializableArray $processingContext
      *
      * @throws ThrottlingLimitReachedException
-     * @throws RetryLaterException
+     * @throws ThrottledException
      */
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
