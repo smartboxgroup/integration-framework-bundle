@@ -19,7 +19,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottledExc
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\ProcessorInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesItineraryResolver;
-use Smartbox\Integration\FrameworkBundle\Events\HandlerErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\NewExchangeEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
