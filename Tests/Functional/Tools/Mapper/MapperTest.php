@@ -198,6 +198,40 @@ class MapperTest extends BaseTestCase
     /**
      * @covers ::map
      */
+    public function testKeyExistsForExceptions()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->mapper->addMappings([
+            'mapping_name' => [
+                'test_key_1' => "mapper.keyExists(obj.get('test_array'), obj.get('test_key'))",
+            ],
+        ]);
+
+        // Testing 1st argument
+        $this->expectExceptionMessage('keyExists expected the first argument to be an array');
+        $this->mapper->map(
+            new SerializableArray([
+                'test_array' => 'A',
+                'test_key' => 'B',
+            ]),
+            'mapping_name'
+        );
+
+        // Testing 2nd argument
+        $this->expectExceptionMessage('keyExists expected the key (second argument) to be either a string or an integer');
+        $this->mapper->map(
+            new SerializableArray([
+                'test_array' => ['A' => 0, 'B' => 0],
+                'test_key' => [10],
+            ]),
+            'mapping_name'
+        );
+
+    }
+
+    /**
+     * @covers ::map
+     */
     public function testMapForNotExistingMapping()
     {
         $this->expectException(\InvalidArgumentException::class);

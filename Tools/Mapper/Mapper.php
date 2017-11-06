@@ -144,14 +144,14 @@ class Mapper implements MapperInterface
      *
      * @return bool
      */
-    public function keyExists(array $array, $key)
+    public function keyExists($array, $key)
     {
         if (!is_array($array)) {
-            throw new \RuntimeException('keyExists expected the first argument to be an array, \''.print_r($array, true).'\' was given.');
+            throw new \InvalidArgumentException('keyExists expected the first argument to be an array, \''.print_r($array, true).'\' was given.');
         }
 
         if (!is_string($key) and !is_integer($key)) {
-            throw new \RuntimeException('keyExists expected the key (second argument) to be either a string or an integer, \''.print_r($key, true).'\' was given.');
+            throw new \InvalidArgumentException('keyExists expected the key (second argument) to be either a string or an integer, \''.print_r($key, true).'\' was given.');
         }
 
         return array_key_exists($key, $array);
