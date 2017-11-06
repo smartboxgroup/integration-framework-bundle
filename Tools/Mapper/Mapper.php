@@ -42,7 +42,7 @@ class Mapper implements MapperInterface
      */
     public function formatDate($format, \DateTime $date = null)
     {
-        if (null === $date) {
+        if ($date === null) {
             return null;
         }
 
@@ -87,7 +87,7 @@ class Mapper implements MapperInterface
             foreach ($mapping as $key => $value) {
                 $resolved = $this->resolve($value, $obj, $context);
 
-                if (null !== $resolved) {
+                if ($resolved !== null) {
                     $res[$key] = $resolved;
                 }
             }
@@ -302,11 +302,11 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Return the n-th section of the given string splitted by piece of the given length.
+     * Return the n-th section of the given string splitted by piece of the given length
      *
      * @param string $string
-     * @param int    $length
-     * @param int    $section
+     * @param int $length
+     * @param int $section
      *
      * @return string
      */
@@ -320,7 +320,6 @@ class Mapper implements MapperInterface
         if (isset($lines[$section])) {
             $result = $lines[$section];
         }
-
         return $result;
     }
 
