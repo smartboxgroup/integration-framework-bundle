@@ -30,7 +30,7 @@ class ConfigurableServiceHelper
     const CONF_MESSAGE = 'message';
     const CONF_RECOVERABLE = 'recoverable';
 
-    const CONF_NO_RESULTS = 'no_results';
+    const CONF_NO_RESULTS = 'noResults';
     const STEP_DEFINE = 'define';
 
     const STEP_VALIDATE = 'validate';
@@ -96,13 +96,11 @@ class ConfigurableServiceHelper
         return $context;
     }
 
-    public function resolveArray($input, &$context)
-    {
+    public function resolveArray($input, &$context){
         $output = [];
-        foreach ($input as $key => $value) {
-            $output[$key] = $this->resolve($value, $context);
+        foreach($input as $key => $value){
+            $output[$key] = $this->resolve($value,$context);
         }
-
         return $output;
     }
 
@@ -165,7 +163,6 @@ class ConfigurableServiceHelper
                 break;
             case self::STEP_VALIDATE:
                 $this->validate($stepActionParams, $context);
-
                 return true;
                 break;
             default:
@@ -199,6 +196,7 @@ class ConfigurableServiceHelper
 
     public function validate(array $stepConfig, array &$context)
     {
+
         $config = $this->validateResolver->resolve($stepConfig);
 
         $rule = $config[self::CONF_RULE];
@@ -208,7 +206,7 @@ class ConfigurableServiceHelper
         $display_message = $config[self::CONF_DISPLAY_MESSAGE];
 
         $evaluation = $this->resolve($rule, $context);
-        if (true !== $evaluation) {
+        if ($evaluation !== true) {
             $message = $this->resolve($message, $context);
             if ($no_results) {
                 throw new NoResultsException($message);
