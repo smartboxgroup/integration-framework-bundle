@@ -146,10 +146,6 @@ class Mapper implements MapperInterface
      */
     public function keyExists(array $obj, $key)
     {
-        if (!is_string($key) and !is_integer($key)) {
-            throw new \RuntimeException('keyExists expected either a string or an integer, \''.print_r($key, true).'\' was given.');
-        }
-
         return array_key_exists($key, $obj);
     }
 
