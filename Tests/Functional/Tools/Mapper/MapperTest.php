@@ -37,7 +37,7 @@ class MapperTest extends BaseTestCase
                         'x' => "obj.get('x') + 1",
                         'y' => "obj.get('x') + 2",
                         'z' => "obj.get('x') + 3",
-                        'array' => "obj.get('a')"
+                        'array' => "obj.get('a')",
                     ],
                 ],
                 'mapping_name' => 'x_to_xyz',
@@ -47,7 +47,7 @@ class MapperTest extends BaseTestCase
                     'x' => 11,
                     'y' => 12,
                     'z' => 13,
-                    'array' => []
+                    'array' => [],
                 ],
             ],
             'Test null values' => [
@@ -55,7 +55,7 @@ class MapperTest extends BaseTestCase
                     'mapping_name' => [
                         'x' => "obj.get('x') + 1",
                         'y' => "obj.get('y')",
-                        'z' => "obj.get('y').get('z')"
+                        'z' => "obj.get('y').get('z')",
                     ],
                 ],
                 'mapping_name' => 'mapping_name',
@@ -121,6 +121,23 @@ class MapperTest extends BaseTestCase
                     'date_1' => '2015-01-01 20:00:00',
                     'date_2' => '2015-01-01T20:00:00+0100',
                     'date_3' => '2015-01-01T20:00:00.000',
+                ],
+            ],
+            'Test keyExists' => [
+                'mappings' => [
+                    'mapping_name' => [
+                        'test_key_1' => "mapper.keyExists(obj.get('test_array'), 'A')",
+                        'test_key_2' => "mapper.keyExists(obj.get('test_array'), 'C')",
+                    ],
+                ],
+                'mapping_name' => 'mapping_name',
+                'mapped_values' => new SerializableArray([
+                    'test_array' => ['A' => 0, 'B' => 0],
+                ]),
+                'context' => [],
+                'expected_value' => [
+                    'test_key_1' => true,
+                    'test_key_2' => false,
                 ],
             ],
             'Test mapping getting information from the context' => [
