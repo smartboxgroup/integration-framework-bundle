@@ -289,20 +289,27 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $handlerDef->addMethodCall('setId', [$handlerName]);
             $handlerDef->addMethodCall('setContainer', [new Reference('service_container')]);
             $handlerDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
-            $handlerDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
-            $handlerDef->addMethodCall('setRetryDelay', [$handlerConfig['retry_delay']]);
             $handlerDef->addMethodCall('setEndpointFactory', [new Reference('smartesb.endpoint_factory')]);
             $handlerDef->addMethodCall('setItineraryResolver', [new Reference('smartesb.itineray_resolver')]);
             $handlerDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
             $handlerDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+
+            // Settings for retry mechanism
+            $handlerDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
+            $handlerDef->addMethodCall('setRetryDelay', [$handlerConfig['retry_delay']]);
             $handlerDef->addMethodCall('setRetryStrategy', [$handlerConfig['retry_strategy']]);
             $handlerDef->addMethodCall('setRetryDelayFactor', [$handlerConfig['retry_delay_factor']]);
-
             if ($handlerConfig['retry_uri'] != 'original') {
                 $handlerDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
             } else {
                 $handlerDef->addMethodCall('setRetryURI', [false]);
             }
+
+            // Settings for throttle mechanism
+            $handlerDef->addMethodCall('setThrottleDelay', [$handlerConfig['throttle_delay']]);
+            $handlerDef->addMethodCall('setThrottleStrategy', [$handlerConfig['throttle_strategy']]);
+            $handlerDef->addMethodCall('setThrottleDelayFactor', [$handlerConfig['throttle_delay_factor']]);
+            $handlerDef->addMethodCall('setThrottleURI', [$handlerConfig['throttle_uri']]);
 
             $handlerDef->addMethodCall('setThrowExceptions', [$handlerConfig['throw_exceptions']]);
             $handlerDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);

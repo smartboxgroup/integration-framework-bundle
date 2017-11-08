@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Handlers;
 
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
 use Smartbox\CoreBundle\Type\SerializableArray;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -70,10 +71,10 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $messageHandlerMock = $this->getMockBuilder(MessageHandler::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('deferRetryExchangeMessage', 'addCommonErrorHeadersToEnvelope'))
+            ->setMethods(array('deferExchangeMessage', 'addCommonErrorHeadersToEnvelope'))
             ->getMock();
 
-        $messageHandlerMock->setRetryStrategy(MessageHandler::RETRY_STRATEGY_PROGRESSIVE);
+        $messageHandlerMock->setThrottleStrategy(MessageHandler::RETRY_STRATEGY_PROGRESSIVE);
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $messageHandlerMock->setEventDispatcher($eventDispatcherMock);
@@ -88,10 +89,10 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
         //Set up the test, i.e. that the onhandle sets a ThrottledExchangeEnvelope
         $messageHandlerMock->expects($this->once())
-            ->method('deferRetryExchangeMessage')
-            ->with($this->isInstanceOf(ThrottledExchangeEnvelope::class));
+            ->method('deferExchangeMessage')
+            ->with($this->isInstanceOf(ThrottledExchangeEnvelope::class), null);
 
         //And now call the the Handler
-        $messageHandlerMock->onHandleException($exception, $processor, $exchange, null, null);
+        $messageHandlerMock->onHandleException($exception, $processor, $exchange, null, 1);
     }
 }

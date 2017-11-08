@@ -48,10 +48,6 @@ class ThrottleTest extends \PHPUnit_Framework_TestCase
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $throttlerMock->setEventDispatcher($eventDispatcherMock);
 
-        //set the delay, then check it is set
-        $throttlerMock->setDelayS(self::DELAY);
-        $this->assertEquals(self::DELAY, $throttlerMock->getDelayS());
-
         $exchange = new Exchange(new Message(new TestEntity()));
 
         //We do not use expectException, instead we want to actually inspect what is in the exception
@@ -63,7 +59,6 @@ class ThrottleTest extends \PHPUnit_Framework_TestCase
             $thrown = true;
             $this->assertInstanceOf(ProcessingException::class, $e);
             $this->assertInstanceOf(ThrottledException::class, $e->getOriginalException());
-            $this->assertEquals(self::DELAY, $e->getOriginalException()->getDelay());
         }
 
         $this->assertTrue($thrown, 'Process did not throw and exception');
