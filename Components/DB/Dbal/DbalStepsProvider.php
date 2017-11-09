@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsExce
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Doctrine\DBAL\Connection;
 
 class DbalStepsProvider extends Service implements ConfigurableStepsProviderInterface
 {
@@ -24,7 +25,6 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
     const STEP_EXECUTE_ALL = 'execute_all';
     const STEP_INSERT = 'insert';
     const STEP_EXECUTE_IF_CONDITION = 'execute_if';
-
     const CONF_PARAMETERS = 'parameters';
     const CONF_SQL = 'sql';
     const CONF_QUERY_NAME = 'name';
@@ -69,6 +69,21 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
             $this->configResolver->setAllowedTypes(self::CONF_SQL, ['string']);
             $this->configResolver->setAllowedTypes(self::CONF_PARAMETERS, ['array', 'string']);
             $this->configResolver->setAllowedTypes(self::CONF_CONDITION, ['string']);
+        }
+    }
+
+    /*
+     * Gracefully closes a connection.
+     *
+     * @param Connection $connection
+     * */
+    public function closeDownConnection(Connection $connection)
+    {
+        if ($connection->isConnected()) {
+            if ($connection->isTransactionActive()) {
+                $connection->commit();
+            }
+            $connection->close();
         }
     }
 
@@ -256,8 +271,9 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
      */
     protected function performQuery(array $configuration, &$context, array $parameters, $sql)
     {
+        $connection = $this->getConnection($context);
         /** @var PDOStatement $stmt */
-        $stmt = $this->getConnection($context)->executeQuery($sql, $parameters['values'], $parameters['types']);
+        $stmt = $connection->executeQuery($sql, $parameters['values'], $parameters['types']);
 
         if ($stmt->columnCount() > 0) { // SQL query is for example a SELECT
             $result = $stmt->fetchAll();
@@ -272,6 +288,7 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
                 throw new NoResultsException('No results found for query named: '.$name);
             }
         }
+        $this->closeDownConnection($connection);
 
         return $result;
     }
