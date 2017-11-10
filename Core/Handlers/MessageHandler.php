@@ -52,11 +52,13 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     /** @var int */
     protected $retryDelayFactor = 1;
 
-    /** @var EndpointInterface */
-    protected $retryEndpoint;
-
     /** @var string */
     protected $retryStrategy;
+
+    /**
+     * @var string The URI of the endpoint that messages for retry will be send to
+     */
+    protected $retryURI;
 
     /** @var int */
     protected $throttleDelay;
@@ -64,11 +66,13 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     /** @var int */
     protected $throttleDelayFactor = 1;
 
-    /** @var EndpointInterface */
-    protected $throttleEndpoint;
-
     /** @var string */
     protected $throttleStrategy;
+
+    /**
+     * @var string The URI of the endpoint that throttle messages will be send to
+     */
+    protected $throttleURI;
 
     /** @var bool */
     protected $throwExceptions;
@@ -251,11 +255,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
      */
     public function setRetryURI($retryURI)
     {
-        if (empty($retryURI)) {
-            $this->retryEndpoint = null;
-        } else {
-            $this->retryEndpoint = $this->getEndpointFactory()->createEndpoint($retryURI, EndpointFactory::MODE_PRODUCE);
-        }
+        $this->retryURI = $retryURI;
     }
 
     /**
@@ -263,11 +263,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
      */
     public function setThrottleURI($throttleURI)
     {
-        if (empty($throttleURI)) {
-            $this->throttleEndpoint = null;
-        } else {
-            $this->throttleEndpoint = $this->getEndpointFactory()->createEndpoint($throttleURI, EndpointFactory::MODE_PRODUCE);
-        }
+        $this->throttleURI = $throttleURI;
     }
 
     /**
@@ -369,7 +365,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
             if ($originalException instanceof ThrottledException) {
                 $throttledExchangeEnvelope = new ThrottledExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
                 $this->addCommonErrorHeadersToEnvelope($throttledExchangeEnvelope, $exception, $processor, $retries);
-                $this->deferExchangeMessage($throttledExchangeEnvelope, $this->throttleEndpoint);
+                $this->deferExchangeMessage($throttledExchangeEnvelope, $this->throttleURI);
 
             } // If it's an exchange that can be retried later but it's failing due to an error
             elseif ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
@@ -377,7 +373,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
 
                 $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
-                $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryEndpoint);
+                $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
             } // If it's an exchange that is failing and it should not be retried later
             else {
                 $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
@@ -462,7 +458,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $delaySinceLastRetry = round(microtime(true) * 1000) - $message->getHeader(RetryExchangeEnvelope::HEADER_LAST_RETRY_AT);
                 $retryDelay = $message->getHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY) * 1000;
                 if ($delaySinceLastRetry < $retryDelay) {
-                    $this->deferExchangeMessage($message, $this->retryEndpoint);
+                    $this->deferExchangeMessage($message, $this->retryURI);
 
                     return;
                 }
@@ -560,18 +556,33 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
+     * This is left for here for backwards compatibility
+     * It is preferred to use deferExchangeMessage from now on with a $retryUri
+     *
      * @param ExchangeEnvelope $deferredExchange
-     * @param null $endpoint
      */
-    public function deferExchangeMessage(ExchangeEnvelope $deferredExchange, Endpoint $endpoint = null)
+    public function deferRetryExchangeMessage(ExchangeEnvelope $deferredExchange)
+    {
+        $this->deferExchangeMessage($deferredExchange, $this->retryURI);
+    }
+
+    /**
+     * Defer and ExchangeEnvelope to an endpoint
+     * If no endpoint is defined then look inside the envelope for the exchange and use original endpoint.
+     *
+     * @param ExchangeEnvelope $deferredExchange
+     * @param null $endpointURI
+     */
+    public function deferExchangeMessage(ExchangeEnvelope $deferredExchange, $endpointURI = null)
     {
         $exchange = new Exchange($deferredExchange);
 
-        if ($endpoint === null) {
+        if (!$endpointURI) {
             $oldExchange = $deferredExchange->getBody();
-            $URI = $oldExchange->getHeader(Exchange::HEADER_FROM);
-            $endpoint = $this->getEndpointFactory()->createEndpoint($URI, EndpointFactory::MODE_PRODUCE);
+            $endpointURI = $oldExchange->getHeader(Exchange::HEADER_FROM);
         }
+
+        $endpoint = $this->getEndpointFactory()->createEndpoint($endpointURI, EndpointFactory::MODE_PRODUCE);
 
         $endpoint->produce($exchange);
     }
