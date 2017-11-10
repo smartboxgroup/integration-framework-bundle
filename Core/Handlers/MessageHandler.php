@@ -335,6 +335,13 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
+     * If an exception occurs while trying to process or handle an exchange this method is called.
+     *
+     * We check the exception type to see what type of exception it was
+     * - ThrottledException, here we will defer(deal with later) the message to the endpoint defined in the throttledURI
+     * - RecoverableException, defer to the retryURI, only if we have not reached the max number of retires
+     * - otherwise we will deal with call the exchange a failed exchange and produce it to the failed endpoint
+     *
      * @param ProcessingException $exception
      * @param Processor           $processor
      * @param Exchange            $exchangeBackup
@@ -397,6 +404,15 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
+     * This method adds headers to the Envelope that we put the Failed/Retry/Throttled exchange into, this is so that the
+     * consumer of the has information to do deal with it.
+     *
+     * - add the number of retries
+     * - add the delay for the message
+     * - add the strategy used for calculating the delay
+     * - add the last error message and the time the error happened
+     * - add information about the processor that was being used when the event occurred
+     *
      * @param ErrorExchangeEnvelope $envelope
      * @param ProcessingException   $exception
      * @param int                   $retries
@@ -442,6 +458,11 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
+     * Handle a message.
+     *
+     * If the message is a retryable message and the message is not ready to be processed yet, we will re-defer the message.
+     * Otherwise process the message by putting it as part of an exchange, and processing the exchange.
+     *
      * {@inheritdoc}
      */
     public function handle(MessageInterface $message, EndpointInterface $endpointFrom)
@@ -457,8 +478,11 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $retries = $message->getRetries();
                 $delaySinceLastRetry = round(microtime(true) * 1000) - $message->getHeader(RetryExchangeEnvelope::HEADER_LAST_RETRY_AT);
                 $retryDelay = $message->getHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY) * 1000;
+
+                $endpointURI = $message instanceof ThrottledExchangeEnvelope ?  $this->throttleURI : $this->retryURI;
+
                 if ($delaySinceLastRetry < $retryDelay) {
-                    $this->deferExchangeMessage($message, $this->retryURI);
+                    $this->deferExchangeMessage($message, $endpointURI);
 
                     return;
                 }
