@@ -213,7 +213,7 @@ class Mapper implements MapperInterface
 
     /**
      * Converts a date from a format to another.
-     * Ex: convertDate('y/m/d', 'Y-m-d', '25/12/0000').
+     * Ex: convertDate('y/m/d', 'Y-m-d', '25/12/2017').
      *
      * @param string $inputFormat
      * @param string $outputFormat
