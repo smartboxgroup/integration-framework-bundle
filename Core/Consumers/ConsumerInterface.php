@@ -22,6 +22,11 @@ interface ConsumerInterface extends ServiceInterface
     public function setExpirationCount($count);
 
     /**
+     * @param $time
+     */
+    public function setExpirationTime($time);
+
+    /**
      * Consumes messages from the given $endpoint until either the expirationCount reaches 0 or ::stop() is called.
      *
      * @param EndpointInterface $endpoint

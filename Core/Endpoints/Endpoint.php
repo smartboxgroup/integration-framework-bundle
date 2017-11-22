@@ -118,10 +118,14 @@ class Endpoint implements EndpointInterface
     /**
      * {@inheritdoc}
      */
-    public function consume($maxAmount = 0)
+    public function consume($maxAmount = 0, $maxTime = 0)
     {
         if ($maxAmount > 0) {
             $this->getConsumer()->setExpirationCount($maxAmount);
+        }
+
+        if ($maxTime > 0) {
+            $this->getConsumer()->setExpirationTime($maxTime);
         }
 
         $this->getConsumer()->consume($this);

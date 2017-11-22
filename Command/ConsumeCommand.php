@@ -17,6 +17,8 @@ class ConsumeCommand extends ContainerAwareCommand
 {
     const OPTION_MAX_MESSAGES = 'killAfter';
     const OPTION_MAX_MESSAGES_DEFAULT_VALUE = -1; // -1 = No limit
+    const OPTION_MAX_TIME = 'killAfterTime';
+    const OPTION_MAX_TIME_DEFAULT_VALUE = 0; // 0 = No limit
 
     /** @var EndpointInterface */
     protected $endpoint;
@@ -64,6 +66,13 @@ app/console smartesb:consumer:start queue://events --killAfter 10
             'How many messages should be processed before the worker is killed? -1 for never, default value is '.self::OPTION_MAX_MESSAGES_DEFAULT_VALUE.'.',
             self::OPTION_MAX_MESSAGES_DEFAULT_VALUE
         );
+        $this->addOption(
+            self::OPTION_MAX_TIME,
+            't',
+            InputOption::VALUE_REQUIRED,
+            'How long before the worker is killed? 0 for never, default value is '.self::OPTION_MAX_TIME_DEFAULT_VALUE.'.',
+            self::OPTION_MAX_TIME_DEFAULT_VALUE
+        );
 
     }
 
@@ -80,12 +89,15 @@ app/console smartesb:consumer:start queue://events --killAfter 10
         if ($input->getOption(self::OPTION_MAX_MESSAGES) > 0) {
             $message .= ' limited to '.$input->getOption(self::OPTION_MAX_MESSAGES).' messages';
         }
+        if ($input->getOption(self::OPTION_MAX_TIME) > 0) {
+            $message .= ' limited to '.$input->getOption(self::OPTION_MAX_TIME).' seconds';
+        }
         $message .= '.</info>';
         $output->writeln($message);
 
         pcntl_signal(SIGINT, [$this, 'handleSignal']);
         pcntl_signal(SIGTERM, [$this, 'handleSignal']);
-        $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES));
+        $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES), $input->getOption(self::OPTION_MAX_TIME));
 
         $output->writeln('<info>Consumer was gracefully stopped for: '.$this->endpoint->getURI().'</info>');
     }
