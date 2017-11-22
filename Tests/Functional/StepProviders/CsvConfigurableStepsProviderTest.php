@@ -61,7 +61,6 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         }
         //remove the folder
         rmdir(self::TMP_FOLDER);
-        parent::tearDown();
     }
 
     /**
