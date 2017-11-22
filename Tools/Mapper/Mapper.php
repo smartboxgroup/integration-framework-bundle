@@ -195,6 +195,24 @@ class Mapper implements MapperInterface
     }
 
     /**
+     * Convert a formatted string to a date.
+     *
+     * The portions of the generated time not provided in format, will be set to corresponding values from the Unix epoch.
+     * Ex: dateFromFormat('d/m/Y', '23/03/2018').
+     *
+     * @param string $format
+     * @param string $date
+     *
+     * @return bool|\DateTime
+     */
+    public function dateFromFormat($format, $date)
+    {
+        if (!empty($format) && !empty($date)) {
+            return \DateTime::createFromFormat($format, $date);
+        }
+    }
+
+    /**
      * @param $timestamp
      *
      * @return \DateTime

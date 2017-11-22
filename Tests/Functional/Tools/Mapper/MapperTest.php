@@ -151,6 +151,21 @@ class MapperTest extends BaseTestCase
                     'test_0' => \DateTime::createFromFormat(\DateTime::ISO8601, '2020-12-31T15:31:28+00:00'),
                 ],
             ],
+            'Test dateFromFormat' => [
+                'mappings' => [
+                    'tests' => [
+                        'test_0' => "mapper.dateFromFormat('!d/m/Y', '23/03/2018')",
+                        'test_1' => "mapper.dateFromFormat('d/m/Y His', '23/03/2018 201530')",
+                    ],
+                ],
+                'mapping_name' => 'tests',
+                'mapped_values' => new SerializableArray([]),
+                'context' => [],
+                'expected_value' => [
+                    'test_0' => \DateTime::createFromFormat(\DateTime::ISO8601, '2018-03-23T00:00:00+00:00'),
+                    'test_1' => \DateTime::createFromFormat(\DateTime::ISO8601, '2018-03-23T20:15:30+00:00'),
+                ],
+            ],
             'Test mapping getting information from the context' => [
                 'mappings' => [
                     'x_to_xyz' => [
