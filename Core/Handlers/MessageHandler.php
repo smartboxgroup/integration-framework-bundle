@@ -373,10 +373,8 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $throttledExchangeEnvelope = new ThrottledExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
                 $this->addCommonErrorHeadersToEnvelope($throttledExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($throttledExchangeEnvelope, $this->throttleURI);
-
             } // If it's an exchange that can be retried later but it's failing due to an error
             elseif ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
-
                 $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
 
                 $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
@@ -423,15 +421,14 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
         $errorDescription = $originalException ? $originalException->getMessage() : $exception->getMessage();
 
         if ($envelope instanceof RetryExchangeEnvelope) {
-
             $delay = $this->getRetryDelay();
-            $dealyProgressive = $delay * pow($this->getRetryDelayFactor(), $retries);
+            $delayProgressive = $delay * pow($this->getRetryDelayFactor(), $retries);
             $strategy = $this->getRetryStrategy();
 
             // override the values for the throttler
-            if ($envelope instanceof ThrottledExchangeEnvelope){
+            if ($envelope instanceof ThrottledExchangeEnvelope) {
                 $delay = $this->getThrottleDelay();
-                $dealyProgressive = $delay * pow($this->getThrottleDelayFactor(), $retries);
+                $delayProgressive = $delay * pow($this->getThrottleDelayFactor(), $retries);
                 $strategy = $this->getThrottleStrategy();
             }
 
@@ -440,7 +437,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                     $envelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY, $delay);
                     break;
                 case self::RETRY_STRATEGY_PROGRESSIVE:
-                    $envelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY, $dealyProgressive);
+                    $envelope->setHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY, $delayProgressive);
                     break;
                 default:
                     throw new \RuntimeException("Unknown strategy $strategy.");
@@ -479,7 +476,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $delaySinceLastRetry = round(microtime(true) * 1000) - $message->getHeader(RetryExchangeEnvelope::HEADER_LAST_RETRY_AT);
                 $retryDelay = $message->getHeader(RetryExchangeEnvelope::HEADER_RETRY_DELAY) * 1000;
 
-                $endpointURI = $message instanceof ThrottledExchangeEnvelope ?  $this->throttleURI : $this->retryURI;
+                $endpointURI = $message instanceof ThrottledExchangeEnvelope ? $this->throttleURI : $this->retryURI;
 
                 if ($delaySinceLastRetry < $retryDelay) {
                     $this->deferExchangeMessage($message, $endpointURI);
@@ -581,7 +578,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
     /**
      * This is left for here for backwards compatibility
-     * It is preferred to use deferExchangeMessage from now on with a $retryUri
+     * It is preferred to use deferExchangeMessage from now on with a $retryUri.
      *
      * @param ExchangeEnvelope $deferredExchange
      */
@@ -595,7 +592,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
      * If no endpoint is defined then look inside the envelope for the exchange and use original endpoint.
      *
      * @param ExchangeEnvelope $deferredExchange
-     * @param null $endpointURI
+     * @param null             $endpointURI
      */
     public function deferExchangeMessage(ExchangeEnvelope $deferredExchange, $endpointURI = null)
     {

@@ -4,7 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Handlers;
 
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -23,7 +22,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->messageHandler = new MessageHandler;
+        $this->messageHandler = new MessageHandler();
     }
 
     protected function tearDown()

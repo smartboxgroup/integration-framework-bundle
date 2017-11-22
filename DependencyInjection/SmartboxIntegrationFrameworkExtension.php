@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
-use ComponentInstaller\Process\Process;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
@@ -338,7 +337,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             'method' => 'onEvent',
         ]);
 
-            $def->addTag('kernel.event_listener', [
+        $def->addTag('kernel.event_listener', [
                 'event' => ProcessEvent::TYPE_BEFORE,
             'method' => 'onEvent',
         ]);

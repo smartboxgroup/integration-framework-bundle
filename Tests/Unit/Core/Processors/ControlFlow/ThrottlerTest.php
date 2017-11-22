@@ -10,22 +10,21 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingEx
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottledException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-
 /**
  * Class ThrottleTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrottleTest
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrottleTest
  */
 class ThrottleTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * A delay used for testing
+     * A delay used for testing.
      */
     const DELAY = 3333;
 
     /**
      * Test that when we process a message that shall not pass and the processor is asyncDelayed that we do throw an
-     * Exception and that exception has a delay set
+     * Exception and that exception has a delay set.
      */
     public function testExceptionsDelayIsSet()
     {
@@ -52,10 +51,9 @@ class ThrottleTest extends \PHPUnit_Framework_TestCase
 
         //We do not use expectException, instead we want to actually inspect what is in the exception
         $thrown = false;
-        try{
+        try {
             $throttlerMock->process($exchange);
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             $thrown = true;
             $this->assertInstanceOf(ProcessingException::class, $e);
             $this->assertInstanceOf(ThrottledException::class, $e->getOriginalException());
