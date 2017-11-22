@@ -311,12 +311,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
             // If there is no throttle_uri set, we need to set it with something, so we will use the retry uri.
             // This will maintains the current behaviour, but allows us to explicitly set a throttle_uri
-            if(isset($handlerConfig['throttle_uri'])){
-                $handlerDef->addMethodCall('setThrottleURI', [$handlerConfig['throttle_uri']]);
-            }
-            else{
-                $handlerDef->addMethodCall('setThrottleURI', [$handlerConfig['retry_uri']]);
-            }
+            $throttleUri = isset($handlerConfig['throttle_uri']) ? $handlerConfig['throttle_uri'] : $handlerConfig['retry_uri'];
+            $handlerDef->addMethodCall('setThrottleURI', [$throttleUri]);
 
             $handlerDef->addMethodCall('setThrowExceptions', [$handlerConfig['throw_exceptions']]);
             $handlerDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
