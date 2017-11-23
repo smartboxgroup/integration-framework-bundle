@@ -305,8 +305,7 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('throttle_delay')
             ->info('Minimum delay in seconds used by the handler between two throttle of the same message')
-            ->defaultValue(0)
-            ->isRequired()
+            ->defaultValue(1)
             ->end()
 
             ->enumNode('throttle_strategy')
@@ -321,8 +320,7 @@ class Configuration implements ConfigurationInterface
             ->end()
 
             ->scalarNode('throttle_uri')
-            ->info('The URI where the messages pending of throttling will be delivered.')
-            ->isRequired()
+            ->info('The URI where the messages pending of throttling will be delivered. If no value is supplied, the retry_uri will be used')
             ->end()
 
             ->scalarNode('failed_uri')

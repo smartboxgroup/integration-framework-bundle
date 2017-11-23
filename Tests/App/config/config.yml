@@ -56,10 +56,6 @@ smartbox_integration_framework:
             retry_uri: queue://main/sync/retry
             throw_exceptions: true
             defer_new_exchanges: false
-            throttle_delay: 1
-            throttle_delay_factor: 1
-            throttle_strategy: fixed
-            throttle_uri: queue://main/throttlerAsync
 
         async:
             description: Message hanlder to handle messages comming from a queue
