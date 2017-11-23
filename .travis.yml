@@ -19,7 +19,7 @@ matrix:
     - php: 7.1
 
 before_install:
-  - phpenv config-add travis/travis.ini
+  - phpenv config-add travis/z_php.ini
   - bash travis/install-apcu-pecl.sh
 
 before_script:
