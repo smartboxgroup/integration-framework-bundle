@@ -154,7 +154,7 @@ class MapperTest extends BaseTestCase
             'Test dateFromFormat' => [
                 'mappings' => [
                     'tests' => [
-                        'test_0' => "mapper.dateFromFormat('d/m/Y', '23/03/2018')",
+                        'test_0' => "mapper.dateFromFormat('!d/m/Y', '23/03/2018')",
                         'test_1' => "mapper.dateFromFormat('d/m/Y His', '23/03/2018 201530')",
                     ],
                 ],
@@ -164,21 +164,6 @@ class MapperTest extends BaseTestCase
                 'expected_value' => [
                     'test_0' => \DateTime::createFromFormat(\DateTime::ISO8601, '2018-03-23T00:00:00+00:00'),
                     'test_1' => \DateTime::createFromFormat(\DateTime::ISO8601, '2018-03-23T20:15:30+00:00'),
-                ],
-            ],
-            'Test convertDate' => [
-                'mappings' => [
-                    'tests' => [
-                        'test_0' => "mapper.convertDate('d/m/Y', 'Y-m-d', '23/03/2018')",
-                        'test_1' => "mapper.convertDate('d/m/Y H.i.s', 'Y-m-d H:i:s', '23/03/2018 17.41.23')",
-                    ],
-                ],
-                'mapping_name' => 'tests',
-                'mapped_values' => new SerializableArray([]),
-                'context' => [],
-                'expected_value' => [
-                    'test_0' => '2018-03-23',
-                    'test_1' => '2018-03-23 17:41:23',
                 ],
             ],
             'Test mapping getting information from the context' => [
