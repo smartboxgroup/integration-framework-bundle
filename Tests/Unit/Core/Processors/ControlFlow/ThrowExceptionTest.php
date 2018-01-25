@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrowException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
-use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableException;
+use Smartbox\Integration\FrameworkBundle\Exceptions\Deprecated\BadRequestException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -50,8 +50,8 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetExceptionClassOK()
     {
-        $this->throwException->setExceptionClass(RecoverableException::class);
-        $this->assertEquals(RecoverableException::class, $this->throwException->getExceptionClass());
+        $this->throwException->setExceptionClass(BadRequestException::class);
+        $this->assertEquals(BadRequestException::class, $this->throwException->getExceptionClass());
     }
 
     /**
@@ -70,9 +70,9 @@ class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
      */
     public function testProcessOK()
     {
-        $this->expectException(RecoverableException::class);
+        $this->expectException(BadRequestException::class);
 
-        $this->throwException->setExceptionClass(RecoverableException::class);
+        $this->throwException->setExceptionClass(BadRequestException::class);
 
         $ex = new Exchange(new Message(new TestEntity()));
 
