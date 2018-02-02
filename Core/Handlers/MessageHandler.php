@@ -393,7 +393,8 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
             } // If it's an exchange that is failing and it should not be retried later
             else {
-                if($this->callbackEndpoint) {
+                $headers = $exchangeBackup->getIn()->getContext()->toArray();
+                if($this->callbackEndpoint &&  $headers['callback'] == true && $headers['callbackMethod']!='') {
                     $callbackEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                     $this->addCallbackHeadersToEnvelope($callbackEnvelope, $exception, $processor);
                     $callbackExchange = new Exchange($callbackEnvelope);
@@ -480,7 +481,6 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
      *
      * @param CallbackExchangeEnvelope $envelope
      * @param ProcessingException   $exception
-
      */
     private function addCallbackHeadersToEnvelope(CallbackExchangeEnvelope $envelope, ProcessingException $exception, ProcessorInterface $processor)
     {
