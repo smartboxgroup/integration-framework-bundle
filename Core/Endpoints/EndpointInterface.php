@@ -61,10 +61,12 @@ interface EndpointInterface extends SerializableInterface
 
     /**
      * Consumes $maxAmount of messages, if $maxAmount is 0, then it consumes indefinitely in a loop.
+     * $maxTime before it is stopped, if $maxTime is 0, consumes indefinitely in a loop unless it is stopped before by $maxAmount.
      *
      * @param int $maxAmount
+     * @param int $maxTime
      */
-    public function consume($maxAmount = 0);
+    public function consume($maxAmount = 0, $maxTime = 0);
 
     /**
      * @return bool
