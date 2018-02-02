@@ -328,6 +328,11 @@ class Configuration implements ConfigurationInterface
             ->isRequired()
             ->end()
 
+            ->scalarNode('callback_uri')
+            ->info('The URI where the callback messages will be delivered.')
+            ->defaultValue('service://smartbox.callback_exchange_handler/handleSync')
+            ->end()
+
             ->scalarNode('throw_exceptions')
             ->info('Throw exceptions on errors and break the process or not')
             ->isRequired()

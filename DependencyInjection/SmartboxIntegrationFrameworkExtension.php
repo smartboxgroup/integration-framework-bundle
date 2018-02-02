@@ -291,6 +291,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $handlerDef->addMethodCall('setEndpointFactory', [new Reference('smartesb.endpoint_factory')]);
             $handlerDef->addMethodCall('setItineraryResolver', [new Reference('smartesb.itineray_resolver')]);
             $handlerDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
+            $handlerDef->addMethodCall('setCallbackURI', [$handlerConfig['callback_uri']]);
             $handlerDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
             // Settings for retry mechanism

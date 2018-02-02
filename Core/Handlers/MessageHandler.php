@@ -29,6 +29,7 @@ use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEndpointFactory;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use  Smartbox\Integration\FrameworkBundle\Core\Messages\CallbackExchangeEnvelope;
 
 /**
  * Class MessageHandler.
@@ -82,6 +83,9 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
     /** @var EndpointInterface */
     protected $failedEndpoint;
+
+    /** @var EndpointInterface */
+    protected $callbackEndpoint;
 
     /**
      * @return bool
@@ -275,6 +279,14 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
+     * @param string $failedURI
+     */
+    public function setCallbackURI($callbackURI)
+    {
+        $this->callbackEndpoint = $this->getEndpointFactory()->createEndpoint($callbackURI, EndpointFactory::MODE_PRODUCE);
+    }
+
+    /**
      * @param Exchange $ex
      */
     protected function prepareExchange(Exchange $ex)
@@ -380,7 +392,13 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
             } // If it's an exchange that is failing and it should not be retried later
-            else {
+            else { // if callback is true and message is unrecoverable -> then use callback endpoint produce a new message
+
+                $callbackEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
+                $this->addCallbackHeadersToEnvelope($callbackEnvelope, $exception, $processor);
+                $callbackExchange = new Exchange($callbackEnvelope);
+                $this->callbackEndpoint->produce($callbackExchange);
+
                 $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                 $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
 
@@ -452,6 +470,29 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
         $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_PROCESSOR_ID, $processor->getId());
         $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_PROCESSOR_DESCRIPTION, $processor->getDescription());
         $envelope->setHeader(ErrorExchangeEnvelope::HEADER_ERROR_NUM_RETRY, $retries);
+    }
+
+    /**
+     * This method adds headers to the Envelope that we put the Callback exchange into, this is so that the
+     * consumer of the has information to do deal with it.
+     *
+     * - add the last error message and the time the error happened
+     * - add information about the processor that was being used when the event occurred
+     *
+     * @param CallbackExchangeEnvelope $envelope
+     * @param ProcessingException   $exception
+
+     */
+    private function addCallbackHeadersToEnvelope(CallbackExchangeEnvelope $envelope, ProcessingException $exception, ProcessorInterface $processor)
+    {
+        $originalException = $exception->getOriginalException();
+        $errorDescription = $originalException ? $originalException->getMessage() : $exception->getMessage();
+
+        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_CREATED_AT, round(microtime(true) * 1000));
+        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_ERROR_MESSAGE, $errorDescription);
+        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_ERROR_PROCESSOR_ID, $processor->getId());
+        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_ERROR_PROCESSOR_DESCRIPTION, $processor->getDescription());
+        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_STATUS, CallbackExchangeEnvelope::HEADER_STATUS_FAILED);
     }
 
     /**
