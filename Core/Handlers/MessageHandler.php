@@ -279,7 +279,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
-     * @param string $failedURI
+     * @param string $callbackURI
      */
     public function setCallbackURI($callbackURI)
     {
@@ -392,16 +392,15 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
             } // If it's an exchange that is failing and it should not be retried later
-            else { // if callback is true and message is unrecoverable -> then use callback endpoint produce a new message
-
-                $callbackEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
-                $this->addCallbackHeadersToEnvelope($callbackEnvelope, $exception, $processor);
-                $callbackExchange = new Exchange($callbackEnvelope);
-                $this->callbackEndpoint->produce($callbackExchange);
-
+            else {
+                if($this->callbackEndpoint) {
+                    $callbackEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
+                    $this->addCallbackHeadersToEnvelope($callbackEnvelope, $exception, $processor);
+                    $callbackExchange = new Exchange($callbackEnvelope);
+                    $this->callbackEndpoint->produce($callbackExchange);
+                }
                 $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                 $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
-
                 $failedExchange = new Exchange($envelope);
                 $this->failedEndpoint->produce($failedExchange);
             }
