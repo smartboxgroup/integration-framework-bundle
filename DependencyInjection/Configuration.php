@@ -448,7 +448,7 @@ class Configuration implements ConfigurationInterface
             ->defaultValue(null)
             ->validate()->ifTrue(
                 function ($value) {
-                    return !(is_array($value) || $value === null);
+                    return !(is_array($value) || null === $value);
                 })
             ->thenInvalid('Invalid connection options it should be an array or null')
             ->end()
