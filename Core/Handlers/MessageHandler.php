@@ -395,8 +395,8 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
             } // If it's an exchange that is failing and it should not be retried later
             else {
-                $headers = $exchangeBackup->getIn()->getContext()->toArray();
-                if ($headers && null != $this->callbackURI && in_array('callback', $headers) && in_array('callbackMethod', $headers) && true == $headers['callback'] && '' != $headers['callbackMethod']) {
+                $context = $exchangeBackup->getIn()->getContext();
+                if (null != $this->callbackURI && true === $context->get(Context::CONTEXT_CALLBACK) && $context->get(Context::CONTEXT_CALLBACK_METHOD)) {
                     $callbackExchangeEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                     $this->addCallbackHeadersToEnvelope($callbackExchangeEnvelope, $exception, $processor);
                     $this->deferExchangeMessage($callbackExchangeEnvelope, $this->callbackURI);

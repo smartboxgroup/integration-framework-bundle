@@ -7,10 +7,13 @@ use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\CallbackExchangeEnvelope;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\ThrottledExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\Throttler;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottledException;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher;
@@ -92,6 +95,35 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
             ->with($this->isInstanceOf(ThrottledExchangeEnvelope::class), null);
 
         //And now call the the Handler
+        $messageHandlerMock->onHandleException($exception, $processor, $exchange, null, 1);
+    }
+
+    public function testMessageHandlerPutsCallbackHeadersCallbackEnvelope()
+    {
+        $messageHandlerMock = $this->getMockBuilder(MessageHandler::class)
+            ->disableOriginalConstructor()
+            ->setMethods(array('deferExchangeMessage', 'addCallbackHeadersToEnvelope'))
+            ->getMock();
+
+        $messageHandlerMock->setCallbackURI('123');
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
+        $messageHandlerMock->setEventDispatcher($eventDispatcherMock);
+        $exception = new ProcessingException();
+        $exception->setOriginalException(new \Exception());
+        $contextArray = array();
+        $contextArray['callback'] = true;
+        $contextArray['callbackMethod'] = 'cbm';
+        $newContext = new Context($contextArray);
+        $exception->setProcessingContext(new SerializableArray($contextArray));
+        $exchange = new Exchange(new Message(new TestEntity()));
+        $exchange->getIn()->setContext($newContext);
+        $processor = new EndpointProcessor();
+        $processor->setId('id');
+
+        $messageHandlerMock->expects($this->once())
+            ->method('deferExchangeMessage')
+            ->with($this->isInstanceOf(CallbackExchangeEnvelope::class), '123');
+
         $messageHandlerMock->onHandleException($exception, $processor, $exchange, null, 1);
     }
 }
