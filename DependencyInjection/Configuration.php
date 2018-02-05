@@ -330,7 +330,7 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('callback_uri')
             ->info('The URI where the callback messages will be delivered.')
-            ->defaultValue('service://smartbox.callback_exchange_handler/handleSync')
+            ->defaultValue(null)
             ->end()
 
             ->scalarNode('throw_exceptions')
