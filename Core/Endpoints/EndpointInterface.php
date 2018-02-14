@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
+use Psr\Log\LoggerInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -17,11 +18,12 @@ interface EndpointInterface extends SerializableInterface
 {
     /**
      * @param $resolvedUri
-     * @param array             $resolvedOptions
-     * @param ProtocolInterface $protocol
-     * @param ProducerInterface $producer
-     * @param ConsumerInterface $consumer
-     * @param HandlerInterface  $handler
+     * @param array                $resolvedOptions
+     * @param ProtocolInterface    $protocol
+     * @param ProducerInterface    $producer
+     * @param ConsumerInterface    $consumer
+     * @param HandlerInterface     $handler
+     * @param LoggerInterface|null $logger
      */
     public function __construct(
         $resolvedUri,
@@ -29,7 +31,8 @@ interface EndpointInterface extends SerializableInterface
         ProtocolInterface $protocol,
         ProducerInterface $producer = null,
         ConsumerInterface $consumer = null,
-        HandlerInterface $handler = null
+        HandlerInterface $handler = null,
+        LoggerInterface $logger = null
     );
 
     /**
@@ -60,6 +63,11 @@ interface EndpointInterface extends SerializableInterface
     public function getProducer();
 
     /**
+     * @return LoggerInterface
+     */
+    public function getLogger();
+
+    /**
      * Consumes $maxAmount of messages, if $maxAmount is 0, then it consumes indefinitely in a loop.
      *
      * @param int $maxAmount
@@ -67,6 +75,8 @@ interface EndpointInterface extends SerializableInterface
     public function consume($maxAmount = 0);
 
     /**
+     * @param Exchange $exchange
+     *
      * @return bool
      */
     public function produce(Exchange $exchange);

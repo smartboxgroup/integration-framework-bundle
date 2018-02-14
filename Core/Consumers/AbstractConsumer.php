@@ -64,6 +64,9 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
      * This function is called to confirm that a message was successfully handled. Until this point, the message should
      * not be removed from the source Endpoint, this is very important to ensure the Message delivery guarantee.
      *
+     * @param EndpointInterface $endpoint
+     * @param MessageInterface  $message
+     *
      * @return MessageInterface
      */
     abstract protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message);
@@ -87,6 +90,8 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
                     --$this->expirationCount;
 
                     $this->process($endpoint, $message);
+
+                    $endpoint->getLogger()->info('A message was consumed on '.date('Y-m-d H:i:s'));
 
                     $this->confirmMessage($endpoint, $message);
                 }

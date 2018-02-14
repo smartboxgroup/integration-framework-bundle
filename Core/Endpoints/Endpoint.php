@@ -3,6 +3,8 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
 use JMS\Serializer\Annotation as JMS;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
@@ -44,6 +46,9 @@ class Endpoint implements EndpointInterface
     /** @var HandlerInterface */
     protected $handler = null;
 
+    /** @var LoggerInterface */
+    protected $logger = null;
+
     /**
      * {@inheritdoc}
      */
@@ -53,7 +58,8 @@ class Endpoint implements EndpointInterface
         ProtocolInterface $protocol,
         ProducerInterface $producer = null,
         ConsumerInterface $consumer = null,
-        HandlerInterface $handler = null
+        HandlerInterface $handler = null,
+        LoggerInterface $logger = null
     ) {
         $this->uri = $resolvedUri;
         $this->consumer = $consumer;
@@ -61,6 +67,11 @@ class Endpoint implements EndpointInterface
         $this->handler = $handler;
         $this->protocol = $protocol;
         $this->options = $options;
+        if (is_null($logger)) {
+            $this->logger = new NullLogger();
+        } else {
+            $this->logger = $logger;
+        }
     }
 
     /**
@@ -113,6 +124,14 @@ class Endpoint implements EndpointInterface
         }
 
         return $this->producer;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLogger()
+    {
+        return $this->logger;
     }
 
     /**
@@ -179,7 +198,7 @@ class Endpoint implements EndpointInterface
      */
     public function isInOnly()
     {
-        return $this->getExchangePattern() == Protocol::EXCHANGE_PATTERN_IN_ONLY;
+        return Protocol::EXCHANGE_PATTERN_IN_ONLY == $this->getExchangePattern();
     }
 
     /**

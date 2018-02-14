@@ -70,7 +70,7 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
             }
         }
 
-        if ($result == null) {
+        if (null == $result) {
             return null;
         } elseif (is_array($result)) {
             $result = new SerializableArray($result);
@@ -103,6 +103,11 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
         $this->configurableStepsProvider->executeSteps($steps, $options, $context);
     }
 
+    /**
+     * @param EndpointInterface $endpoint
+     *
+     * @return bool|void
+     */
     public function consume(EndpointInterface $endpoint)
     {
         while (!$this->shouldStop()) {
@@ -114,6 +119,8 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
                 --$this->expirationCount;
 
                 $endpoint->handle($message);
+
+                $endpoint->getLogger()->info('A message was consumed on '.date('Y-m-d H:i:s'));
 
                 $this->onConsume($endpoint, $message);
             }
