@@ -354,7 +354,9 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
      * We check the exception type to see what type of exception it was
      * - ThrottledException, here we will defer(deal with later) the message to the endpoint defined in the throttledURI
      * - RecoverableException, defer to the retryURI, only if we have not reached the max number of retires
-     * - otherwise we will deal with call the exchange a failed exchange and produce it to the failed endpoint
+     * - otherwise, its a failed exchange
+     *   - If the context has a callback we will put the failed message in a callback envelope and defer the exchange
+     *   - Add a failed exchange and produce it to the failed endpoint
      *
      * @param ProcessingException $exception
      * @param Processor           $processor
@@ -387,25 +389,23 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $throttledExchangeEnvelope = new ThrottledExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
                 $this->addCommonErrorHeadersToEnvelope($throttledExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($throttledExchangeEnvelope, $this->throttleURI);
+
             } // If it's an exchange that can be retried later but it's failing due to an error
             elseif ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
                 $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
 
                 $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
-            } // If it's an exchange that is failing and it should not be retried later
-            else {
-                $context = $exchangeBackup->getIn()->getContext();
-                if (null != $this->callbackURI && true === $context->get(Context::CONTEXT_CALLBACK) && $context->get(Context::CONTEXT_CALLBACK_METHOD)) {
-                    $callbackExchangeEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
-                    $this->addCallbackHeadersToEnvelope($callbackExchangeEnvelope, $exception, $processor);
-                    $this->deferExchangeMessage($callbackExchangeEnvelope, $this->callbackURI);
-                } else {
-                    $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
-                    $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
-                    $failedExchange = new Exchange($envelope);
-                    $this->failedEndpoint->produce($failedExchange);
-                }
+            }
+            elseif ($exchangeBackup->getHeader(Exchange::HEADER_CALLBACK_METHOD) != '' && $this->callbackURI !== null) {
+                $callbackExchangeEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
+                $this->addCallbackHeadersToEnvelope($callbackExchangeEnvelope, $exception, $processor);
+                $this->deferExchangeMessage($callbackExchangeEnvelope, $this->callbackURI);
+            }else{
+                $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
+                $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
+                $failedExchange = new Exchange($envelope);
+                $this->failedEndpoint->produce($failedExchange);
             }
         } catch (\Exception $exceptionHandlingException) {
             $wrapException = new \Exception('Error while trying to handle Exception in the MessageHandler'.$exceptionHandlingException->getMessage(), 0, $exceptionHandlingException);
@@ -508,7 +508,6 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     public function handle(MessageInterface $message, EndpointInterface $endpointFrom)
     {
         $retries = 0;
-
         // If this is an exchange envelope, we extract the old exchange and prepare the new one
         if ($message && $message instanceof ExchangeEnvelope) {
             $oldExchange = $message->getBody();

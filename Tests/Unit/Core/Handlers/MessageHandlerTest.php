@@ -102,7 +102,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $messageHandlerMock = $this->getMockBuilder(MessageHandler::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('deferExchangeMessage', 'addCallbackHeadersToEnvelope'))
+            ->setMethods(array('deferExchangeMessage'))
             ->getMock();
 
         $messageHandlerMock->setCallbackURI('123');
