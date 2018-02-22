@@ -375,6 +375,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
         $retries
     ) {
         $originalException = $exception->getOriginalException();
+        $context = $exchangeBackup->getIn()->getContext();
 
         try {
             // Dispatch event with error information
@@ -397,7 +398,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
             }
-            elseif ($exchangeBackup->getHeader(Exchange::HEADER_CALLBACK_METHOD) != '' && $this->callbackURI !== null) {
+            elseif (null != $this->callbackURI && true === $context->get(Context::CONTEXT_CALLBACK) && $context->get(Context::CONTEXT_CALLBACK_METHOD)) {
                 $callbackExchangeEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                 $this->addCallbackHeadersToEnvelope($callbackExchangeEnvelope, $exception, $processor);
                 $this->deferExchangeMessage($callbackExchangeEnvelope, $this->callbackURI);

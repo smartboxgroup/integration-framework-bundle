@@ -19,7 +19,7 @@ class CallbackExchangeEnvelope extends ExchangeEnvelope
     const HEADER_ERROR_PROCESSOR_DESCRIPTION = 'error_processor_description';
     const HEADER_STATUS = 'status';
     const HEADER_STATUS_CODE = 'status_code';
-    const HEADER_STATUS_FAILED = 'failed';
+    const HEADER_STATUS_FAILED = 'failure';
     const HEADER_STATUS_SUCCESS = 'success';
 
     /**

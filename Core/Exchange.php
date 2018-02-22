@@ -20,7 +20,8 @@ class Exchange implements SerializableInterface
     const HEADER_PARENT_EXCHANGE = 'parent_exchange';
     const HEADER_HANDLER = 'handler';
     const HEADER_FROM = 'from';
-    const HEADER_CALLBACK_METHOD = 'callbackMethod';
+    const HEADER_METHOD = 'method';
+    const HEADER_STATUS = 'status';
 
     use HasInternalType;
     use HasItinerary;
