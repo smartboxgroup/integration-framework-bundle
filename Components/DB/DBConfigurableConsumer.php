@@ -120,7 +120,8 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
 
                 $endpoint->handle($message);
 
-                $endpoint->getLogger()->info('A message was consumed on '.date('Y-m-d H:i:s'));
+                $now = \DateTime::createFromFormat('U.u', microtime(true));
+                $endpoint->getLogger()->info('A message was consumed on '.$now->format('Y-m-d H:i:s.u'));
 
                 $this->onConsume($endpoint, $message);
             }

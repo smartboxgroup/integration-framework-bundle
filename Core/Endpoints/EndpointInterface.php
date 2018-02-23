@@ -18,12 +18,11 @@ interface EndpointInterface extends SerializableInterface
 {
     /**
      * @param $resolvedUri
-     * @param array                $resolvedOptions
-     * @param ProtocolInterface    $protocol
-     * @param ProducerInterface    $producer
-     * @param ConsumerInterface    $consumer
-     * @param HandlerInterface     $handler
-     * @param LoggerInterface|null $logger
+     * @param array             $resolvedOptions
+     * @param ProtocolInterface $protocol
+     * @param ProducerInterface $producer
+     * @param ConsumerInterface $consumer
+     * @param HandlerInterface  $handler
      */
     public function __construct(
         $resolvedUri,
@@ -31,9 +30,20 @@ interface EndpointInterface extends SerializableInterface
         ProtocolInterface $protocol,
         ProducerInterface $producer = null,
         ConsumerInterface $consumer = null,
-        HandlerInterface $handler = null,
-        LoggerInterface $logger = null
+        HandlerInterface $handler = null
     );
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger();
+
+    /**
+     * @param null|LoggerInterface $logger
+     *
+     * @return mixed
+     */
+    public function setLogger(LoggerInterface $logger);
 
     /**
      * Returns the resolved URI.
@@ -61,11 +71,6 @@ interface EndpointInterface extends SerializableInterface
      * @return ProducerInterface
      */
     public function getProducer();
-
-    /**
-     * @return LoggerInterface
-     */
-    public function getLogger();
 
     /**
      * Consumes $maxAmount of messages, if $maxAmount is 0, then it consumes indefinitely in a loop.

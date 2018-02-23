@@ -112,7 +112,8 @@ class EndpointFactory extends Service
         }
 
         // Create
-        $endpoint = new Endpoint($uri, $options, $protocol, $producer, $consumer, $handler, $logger);
+        $endpoint = new Endpoint($uri, $options, $protocol, $producer, $consumer, $handler);
+        $endpoint->setLogger($logger);
 
         // Cache
         $this->endpointsCache[$uri] = $endpoint;

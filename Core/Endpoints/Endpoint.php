@@ -47,7 +47,7 @@ class Endpoint implements EndpointInterface
     protected $handler = null;
 
     /** @var LoggerInterface */
-    protected $logger = null;
+    protected $logger;
 
     /**
      * {@inheritdoc}
@@ -58,8 +58,7 @@ class Endpoint implements EndpointInterface
         ProtocolInterface $protocol,
         ProducerInterface $producer = null,
         ConsumerInterface $consumer = null,
-        HandlerInterface $handler = null,
-        LoggerInterface $logger = null
+        HandlerInterface $handler = null
     ) {
         $this->uri = $resolvedUri;
         $this->consumer = $consumer;
@@ -67,11 +66,27 @@ class Endpoint implements EndpointInterface
         $this->handler = $handler;
         $this->protocol = $protocol;
         $this->options = $options;
+
+        $this->setLogger(new NullLogger());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setLogger(LoggerInterface $logger = null)
+    {
         if (is_null($logger)) {
-            $this->logger = new NullLogger();
-        } else {
-            $this->logger = $logger;
+            $logger = new NullLogger();
         }
+        $this->logger = $logger;
     }
 
     /**
@@ -124,14 +139,6 @@ class Endpoint implements EndpointInterface
         }
 
         return $this->producer;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getLogger()
-    {
-        return $this->logger;
     }
 
     /**
