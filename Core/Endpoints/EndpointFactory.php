@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
+use Psr\Log\LoggerInterface;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouterResourceNotFound;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
@@ -39,13 +40,13 @@ class EndpointFactory extends Service
     }
 
     /**
-     * @param string $uri
+     * @param string               $uri
+     * @param string               $mode
+     * @param LoggerInterface|null $logger
      *
-     * @return EndpointInterface
-     *
-     * @throws \Exception
+     * @return mixed|Endpoint
      */
-    public function createEndpoint($uri, $mode = self::MODE_PRODUCE)
+    public function createEndpoint($uri, $mode = self::MODE_PRODUCE, LoggerInterface $logger = null)
     {
         if (array_key_exists($uri, $this->endpointsCache)) {
             return $this->endpointsCache[$uri];
@@ -112,6 +113,7 @@ class EndpointFactory extends Service
 
         // Create
         $endpoint = new Endpoint($uri, $options, $protocol, $producer, $consumer, $handler);
+        $endpoint->setLogger($logger);
 
         // Cache
         $this->endpointsCache[$uri] = $endpoint;
@@ -133,9 +135,10 @@ class EndpointFactory extends Service
 
     /**
      * @param $uri
-     * @param array $routeOptions
+     * @param array             $routeOptions
      * @param ProtocolInterface $protocol
-     * @param string $mode
+     * @param string            $mode
+     *
      * @return OptionsResolver
      */
     protected function getOptionsResolver($uri, array &$routeOptions, ProtocolInterface $protocol, $mode)
@@ -148,7 +151,7 @@ class EndpointFactory extends Service
         $handler = array_key_exists(Protocol::OPTION_HANDLER, $routeOptions) ? $routeOptions[Protocol::OPTION_HANDLER] : $protocol->getDefaultHandler();
 
         // Check Consumer
-        if ($mode == self::MODE_CONSUME && $consumer) {
+        if (self::MODE_CONSUME == $mode && $consumer) {
             if ($consumer instanceof ConsumerInterface) {
                 if ($consumer instanceof ConfigurableInterface) {
                     $consumer->configureOptionsResolver($optionsResolver);
@@ -163,7 +166,7 @@ class EndpointFactory extends Service
         }
 
         // Check Producer
-        if ($mode == self::MODE_PRODUCE && $producer) {
+        if (self::MODE_PRODUCE == $mode && $producer) {
             if ($producer instanceof ProducerInterface) {
                 if ($producer instanceof ConfigurableInterface) {
                     $producer->configureOptionsResolver($optionsResolver);
@@ -197,6 +200,12 @@ class EndpointFactory extends Service
         return $optionsResolver;
     }
 
+    /**
+     * @param Exchange $exchange
+     * @param string   $uri
+     *
+     * @return mixed
+     */
     public static function resolveURIParams(Exchange $exchange, $uri)
     {
         preg_match_all('/\\{([^{}]+)\\}/', $uri, $matches);
