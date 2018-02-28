@@ -46,7 +46,7 @@ class ConsumeCommand extends ContainerAwareCommand
     {
         $uri = $this->getInput()->getArgument('uri');
 
-        return $this->endpointFactory->createEndpoint($uri, EndpointFactory::MODE_CONSUME);;
+        return $this->endpointFactory->createEndpoint($uri, EndpointFactory::MODE_CONSUME);
     }
 
     /**
@@ -92,7 +92,7 @@ app/console smartesb:consumer:start queue://events --killAfter 10
         $this->endpoint = $this->getSourceEndpoint();
 
         $logger = new ConsoleLogger($output);
-        $this->endpoint->setLogger($logger);
+        $this->endpoint->getConsumer()->setLogger($logger);
 
         $message = '<info>Consuming from '.$this->endpoint->getURI();
         if ($input->getOption(self::OPTION_MAX_MESSAGES) > 0) {
@@ -103,6 +103,7 @@ app/console smartesb:consumer:start queue://events --killAfter 10
 
         pcntl_signal(SIGINT, [$this, 'handleSignal']);
         pcntl_signal(SIGTERM, [$this, 'handleSignal']);
+
         $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES));
 
         $output->writeln('<info>Consumer was gracefully stopped for: '.$this->endpoint->getURI().'</info>');

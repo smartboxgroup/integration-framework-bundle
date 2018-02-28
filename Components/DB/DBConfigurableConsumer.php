@@ -2,6 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\ConfigurableDbalProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLConfigurableProtocol;
@@ -20,6 +22,9 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
     use IsStopableConsumer;
     use UsesSmartesbHelper;
     use IsConfigurableService;
+
+    /** @var LoggerInterface */
+    protected $logger = null;
 
     /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
@@ -120,11 +125,28 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
 
                 $endpoint->handle($message);
 
-                $now = \DateTime::createFromFormat('U.u', microtime(true));
-                $endpoint->getLogger()->info('A message was consumed on '.$now->format('Y-m-d H:i:s.u'));
+                if ($this->logger) {
+                    $now = \DateTime::createFromFormat('U.u', microtime(true));
+                    $this->logger->info('A message was consumed on '.$now->format('Y-m-d H:i:s.u'));
+                }
 
                 $this->onConsume($endpoint, $message);
             }
         }
+    }
+
+    /** {@inheritdoc} */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /** {@inheritdoc} */
+    public function setLogger(LoggerInterface $logger = null)
+    {
+        if (is_null($logger)) {
+            $logger = new NullLogger();
+        }
+        $this->logger = $logger;
     }
 }
