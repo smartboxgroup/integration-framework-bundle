@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
-use Psr\Log\LoggerInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
