@@ -48,7 +48,10 @@ class ConsumeCommand extends ContainerAwareCommand
     {
         $uri = $this->getInput()->getArgument('uri');
 
-        return $this->endpointFactory->createEndpoint($uri, EndpointFactory::MODE_CONSUME, $logger);
+        $endpoint = $this->endpointFactory->createEndpoint($uri, EndpointFactory::MODE_CONSUME);
+        $endpoint->setLogger($logger);
+
+        return $endpoint;
     }
 
     /**

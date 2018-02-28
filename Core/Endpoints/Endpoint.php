@@ -71,7 +71,7 @@ class Endpoint implements EndpointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return LoggerInterface
      */
     public function getLogger()
     {
@@ -79,7 +79,9 @@ class Endpoint implements EndpointInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param null|LoggerInterface $logger
+     *
+     * @return mixed
      */
     public function setLogger(LoggerInterface $logger = null)
     {

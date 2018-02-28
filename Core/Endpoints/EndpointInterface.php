@@ -34,18 +34,6 @@ interface EndpointInterface extends SerializableInterface
     );
 
     /**
-     * @return LoggerInterface
-     */
-    public function getLogger();
-
-    /**
-     * @param null|LoggerInterface $logger
-     *
-     * @return mixed
-     */
-    public function setLogger(LoggerInterface $logger);
-
-    /**
      * Returns the resolved URI.
      *
      * @return string
