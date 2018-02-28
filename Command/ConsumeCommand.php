@@ -40,18 +40,13 @@ class ConsumeCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param ConsoleLogger $logger
-     *
      * @return mixed|\Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint
      */
-    protected function getSourceEndpoint(ConsoleLogger $logger)
+    protected function getSourceEndpoint()
     {
         $uri = $this->getInput()->getArgument('uri');
 
-        $endpoint = $this->endpointFactory->createEndpoint($uri, EndpointFactory::MODE_CONSUME);
-        $endpoint->setLogger($logger);
-
-        return $endpoint;
+        return $this->endpointFactory->createEndpoint($uri, EndpointFactory::MODE_CONSUME);;
     }
 
     /**
@@ -91,12 +86,14 @@ app/console smartesb:consumer:start queue://events --killAfter 10
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $logger = new ConsoleLogger($output);
-
         $this->input = $input;
         $producer = null;
 
-        $this->endpoint = $this->getSourceEndpoint($logger);
+        $this->endpoint = $this->getSourceEndpoint();
+
+        $logger = new ConsoleLogger($output);
+        $this->endpoint->setLogger($logger);
+
         $message = '<info>Consuming from '.$this->endpoint->getURI();
         if ($input->getOption(self::OPTION_MAX_MESSAGES) > 0) {
             $message .= ' limited to '.$input->getOption(self::OPTION_MAX_MESSAGES).' messages';
