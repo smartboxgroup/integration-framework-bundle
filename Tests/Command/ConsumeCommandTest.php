@@ -7,7 +7,6 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class ConsumeCommandTest extends KernelTestCase
@@ -77,50 +76,5 @@ class ConsumeCommandTest extends KernelTestCase
         $output = $commandTester->getDisplay();
         $this->assertNotContains('limited to', $output);
         $this->assertContains('Consumer was gracefully stopped', $output);
-    }
-
-    public function verbosityProvider()
-    {
-        return [
-            [OutputInterface::VERBOSITY_QUIET, true],
-            [OutputInterface::VERBOSITY_NORMAL, true],
-            [OutputInterface::VERBOSITY_VERBOSE, true],
-            [OutputInterface::VERBOSITY_VERY_VERBOSE, false],
-            [OutputInterface::VERBOSITY_DEBUG, false],
-        ];
-    }
-
-    /**
-     * @dataProvider verbosityProvider
-     * @param $verbosity
-     * @param $expectsQuiet
-     */
-    public function testExecuteWithVerbosityLevel($verbosity, $expectsQuiet)
-    {
-        $this->setMockConsumer(self::NB_MESSAGES);
-
-        $application = new Application(self::$kernel);
-        $application->add(new ConsumeCommand($this->endpointFactory));
-
-        $command = $application->find('smartesb:consumer:start');
-
-        $commandTester = new CommandTester($command);
-        $commandTester->execute(
-            array(
-                'command' => $command->getName(),
-                'uri' => self::URI, // argument
-                '--killAfter' => self::NB_MESSAGES, // option
-            ),
-            array(
-                'verbosity' => $verbosity,
-            )
-        );
-
-        $output = $commandTester->getDisplay();
-        if ($expectsQuiet) {
-            $this->assertNotContains('A message was consumed', $output);
-        } else {
-            $this->assertContains('A message was consumed', $output);
-        }
     }
 }
