@@ -1,12 +1,12 @@
 parameters:
-    hostname: eai-demo.sandbox.local
+    hostname: rabbit.local
     database_host: database.local
     database_user: root
     database_password: 1234
     database_name: test
     flows.version: 0
-    rabbitmq.hostname: "tcp://eai-demo.sandbox.local:61613"
-    rabbitmq.username: rabbit
-    rabbitmq.password: eairabbitmq
+    rabbitmq.hostname: "tcp://rabbit.local:61613"
+    rabbitmq.username: guest
+    rabbitmq.password: guest
     rabbitmq.vhost: /
     rabbitmq.timeout: 15

@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumers;
 
+use Psr\Log\NullLogger;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
@@ -13,7 +14,7 @@ use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class QueueConsumerTest
+ * Class QueueConsumerTest.
  */
 class QueueConsumerTest extends BaseKernelTestCase
 {
@@ -38,7 +39,7 @@ class QueueConsumerTest extends BaseKernelTestCase
     }
 
     /**
-     * Stops the consumer if an endless loop is detected
+     * Stops the consumer if an endless loop is detected.
      */
     public function handleSignal()
     {
@@ -48,7 +49,7 @@ class QueueConsumerTest extends BaseKernelTestCase
     }
 
     /**
-     * Create 3 messages and send them the to queuing system to be consumed later
+     * Create 3 messages and send them the to queuing system to be consumed later.
      */
     public function testExecute()
     {
@@ -88,7 +89,7 @@ class QueueConsumerTest extends BaseKernelTestCase
             ->with($this->callback(
                 function ($message) use ($messages) {
                     $res = array_search($message, $messages);
-                    if ($res !== false) {
+                    if (false !== $res) {
                         unset($messages[$res]);
 
                         return true;
@@ -118,9 +119,75 @@ class QueueConsumerTest extends BaseKernelTestCase
 
         declare(ticks=1);
         pcntl_signal(SIGALRM, [$this, 'handleSignal']);
-
         pcntl_alarm(30);
         $consumer->consume($endpoint);
         pcntl_alarm(0);
+
+        $output = $this->getActualOutput();
+        $this->assertNotContains('A message was consumed', $output); // The consumer should not display message information if no logger
+    }
+
+    /**
+     * Create 3 messages and send them the to queuing system to be consumed later.
+     */
+    public function testExecuteWithLogger()
+    {
+        $consumer = $this->getConsumer();
+        $queueDriver = $this->getQueueDriver('main');
+        $queueDriver->connect();
+
+        $message1 = $this->createMessage(new EntityX(111));
+        $msg = $queueDriver->createQueueMessage();
+        $msg->setQueue(self::queue);
+        $msg->setHeader(Message::HEADER_FROM, self::queue);
+        $msg->setBody($message1);
+        $msg->setDestinationURI('direct://test');
+        $queueDriver->send($msg);
+
+        $messages = [$message1];
+        $queues = [self::queue];
+
+        $handlerMock = $this->createMock(MessageHandler::class);
+        $handlerMock->expects($this->any())->method('handle')
+            ->with($this->callback(
+                function ($message) use ($messages) {
+                    $res = array_search($message, $messages);
+                    if (false !== $res) {
+                        unset($messages[$res]);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+            ), $this->callback(
+                function (Endpoint $endpoint) use ($queues) {
+                    return true;
+                }
+            ))
+            ->willReturn(true);
+
+        $queueProtocol = new QueueProtocol(true, 3600);
+        $optionsResolver = new OptionsResolver();
+        $queueProtocol->configureOptionsResolver($optionsResolver);
+
+        $opts = $optionsResolver->resolve([
+            QueueProtocol::OPTION_QUEUE_DRIVER => 'main',
+            QueueProtocol::OPTION_QUEUE_NAME => self::queue,
+        ]);
+
+        $endpoint = new Endpoint('xxx', $opts, $queueProtocol, null, $consumer, $handlerMock);
+
+        $consumer->setExpirationCount(1);   // This will make the consumer stop after reading 1 message
+
+        declare(ticks=1);
+        pcntl_signal(SIGALRM, [$this, 'handleSignal']);
+        pcntl_alarm(30);
+        $consumer->setLogger(new NullLogger());
+        $consumer->consume($endpoint);
+        pcntl_alarm(0);
+
+        $output = $this->getActualOutput();
+        $this->assertNotContains('A message was consumed', $output); // The consumer should not display message information with Null logger
     }
 }
