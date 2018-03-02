@@ -18,7 +18,3 @@ composer.lock
 
 # PHP CS Fixer
 .php_cs.cache
-
-# Configuration file
-parameters.yml.local
-Tests/App/config/parameters.yml

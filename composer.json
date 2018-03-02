@@ -33,23 +33,9 @@
         "sensio/generator-bundle": "~2.3",
         "mongodb/mongodb": "~1.0"
     },
-    "scripts": {
-        "post-install-cmd": [
-            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
-        ],
-        "post-update-cmd": [
-            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
-        ]
-    },
     "config": {
         "bin-dir": "bin"
     },
     "minimum-stability": "dev",
-    "prefer-stable" : true,
-    "extra": {
-        "incenteev-parameters": {
-            "file": "Tests/App/config/parameters.yml",
-            "keep-outdated": true
-        }
-    }
+    "prefer-stable" : true
 }
