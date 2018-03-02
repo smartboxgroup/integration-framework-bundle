@@ -2,10 +2,9 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 
@@ -16,9 +15,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 {
     use UsesSmartesbHelper;
     use IsStopableConsumer;
-
-    /** @var LoggerInterface */
-    protected $logger = null;
+    use UsesLogger;
 
     /**
      * Initializes the consumer for a given endpoint.
@@ -111,29 +108,5 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
         }
 
         $this->cleanUp($endpoint);
-    }
-
-    /** {@inheritdoc} */
-    public function getName()
-    {
-        $reflection = new \ReflectionClass(self::class);
-        $name = $reflection->getShortName();
-
-        return basename($name, 'Consumer');
-    }
-
-    /** {@inheritdoc} */
-    public function getLogger()
-    {
-        return $this->logger;
-    }
-
-    /** {@inheritdoc} */
-    public function setLogger(LoggerInterface $logger = null)
-    {
-        if (is_null($logger)) {
-            $logger = new NullLogger();
-        }
-        $this->logger = $logger;
     }
 }

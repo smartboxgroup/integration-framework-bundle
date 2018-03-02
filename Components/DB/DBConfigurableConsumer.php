@@ -2,8 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\DB;
 
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\ConfigurableDbalProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLConfigurableProtocol;
@@ -14,17 +12,16 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 class DBConfigurableConsumer extends Service implements ConfigurableConsumerInterface
 {
-    use IsStopableConsumer;
-    use UsesSmartesbHelper;
     use IsConfigurableService;
-
-    /** @var LoggerInterface */
-    protected $logger = null;
+    use IsStopableConsumer;
+    use UsesLogger;
+    use UsesSmartesbHelper;
 
     /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
@@ -133,20 +130,5 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
                 $this->onConsume($endpoint, $message);
             }
         }
-    }
-
-    /** {@inheritdoc} */
-    public function getLogger()
-    {
-        return $this->logger;
-    }
-
-    /** {@inheritdoc} */
-    public function setLogger(LoggerInterface $logger = null)
-    {
-        if (is_null($logger)) {
-            $logger = new NullLogger();
-        }
-        $this->logger = $logger;
     }
 }
