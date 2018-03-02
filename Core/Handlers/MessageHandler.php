@@ -354,9 +354,8 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
      * We check the exception type to see what type of exception it was
      * - ThrottledException, here we will defer(deal with later) the message to the endpoint defined in the throttledURI
      * - RecoverableException, defer to the retryURI, only if we have not reached the max number of retires
-     * - otherwise, its a failed exchange
-     *   - If the context has a callback we will put the failed message in a callback envelope and defer the exchange
-     *   - Add a failed exchange and produce it to the failed endpoint
+     * - If the context has a callback we will put the failed message in a callback envelope and defer the exchange
+     * - Else it is a failed exchange and it will be produced to the failure endpoint
      *
      * @param ProcessingException $exception
      * @param Processor           $processor
