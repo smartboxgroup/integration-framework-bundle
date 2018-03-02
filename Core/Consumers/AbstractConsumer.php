@@ -13,9 +13,9 @@ use Smartbox\Integration\FrameworkBundle\Service;
  */
 abstract class AbstractConsumer extends Service implements ConsumerInterface
 {
-    use UsesSmartesbHelper;
     use IsStopableConsumer;
     use UsesLogger;
+    use UsesSmartesbHelper;
 
     /**
      * Initializes the consumer for a given endpoint.
@@ -108,5 +108,14 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
         }
 
         $this->cleanUp($endpoint);
+    }
+
+    /** {@inheritdoc} */
+    public function getName()
+    {
+        $reflection = new \ReflectionClass(self::class);
+        $name = $reflection->getShortName();
+
+        return basename($name, 'Consumer');
     }
 }
