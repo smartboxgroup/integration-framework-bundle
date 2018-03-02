@@ -390,19 +390,17 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $throttledExchangeEnvelope = new ThrottledExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
                 $this->addCommonErrorHeadersToEnvelope($throttledExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($throttledExchangeEnvelope, $this->throttleURI);
-
             } // If it's an exchange that can be retried later but it's failing due to an error
             elseif ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
                 $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
 
                 $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
-            }
-            elseif (null != $this->callbackURI && true === $context->get(Context::CONTEXT_CALLBACK) && $context->get(Context::CONTEXT_CALLBACK_METHOD)) {
+            } elseif (null != $this->callbackURI && true === $context->get(Context::CALLBACK) && $context->get(Context::CALLBACK_METHOD)) {
                 $callbackExchangeEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                 $this->addCallbackHeadersToEnvelope($callbackExchangeEnvelope, $exception, $processor);
                 $this->deferExchangeMessage($callbackExchangeEnvelope, $this->callbackURI);
-            }else{
+            } else {
                 $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                 $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
                 $failedExchange = new Exchange($envelope);
@@ -494,7 +492,6 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
         $envelope->setHeader(CallbackExchangeEnvelope::HEADER_ERROR_MESSAGE, $errorDescription);
         $envelope->setHeader(CallbackExchangeEnvelope::HEADER_ERROR_PROCESSOR_ID, $processor->getId());
         $envelope->setHeader(CallbackExchangeEnvelope::HEADER_ERROR_PROCESSOR_DESCRIPTION, $processor->getDescription());
-        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_STATUS, CallbackExchangeEnvelope::HEADER_STATUS_FAILED);
         $envelope->setHeader(CallbackExchangeEnvelope::HEADER_STATUS_CODE, $originalException->getCode());
     }
 

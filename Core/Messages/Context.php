@@ -14,8 +14,8 @@ class Context implements \ArrayAccess
     const ORIGINAL_TIMESTAMP = 'timestamp';
     const FLOWS_VERSION = 'version';
     const TRANSACTION_ID = 'transaction_id';
-    const CONTEXT_CALLBACK = 'callback';
-    const CONTEXT_CALLBACK_METHOD = 'callbackMethod';
+    const CALLBACK = 'callback';
+    const CALLBACK_METHOD = 'callbackMethod';
 
     /**
      * @JMS\Type("Smartbox\CoreBundle\Type\SerializableArray")
