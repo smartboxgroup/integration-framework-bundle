@@ -3,6 +3,8 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
 use JMS\Serializer\Annotation as JMS;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
@@ -44,6 +46,9 @@ class Endpoint implements EndpointInterface
     /** @var HandlerInterface */
     protected $handler = null;
 
+    /** @var LoggerInterface */
+    protected $logger;
+
     /**
      * {@inheritdoc}
      */
@@ -61,6 +66,27 @@ class Endpoint implements EndpointInterface
         $this->handler = $handler;
         $this->protocol = $protocol;
         $this->options = $options;
+
+        $this->setLogger(new NullLogger());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setLogger(LoggerInterface $logger = null)
+    {
+        if (is_null($logger)) {
+            $logger = new NullLogger();
+        }
+        $this->logger = $logger;
     }
 
     /**
