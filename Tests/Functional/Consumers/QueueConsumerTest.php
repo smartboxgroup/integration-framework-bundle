@@ -128,9 +128,9 @@ class QueueConsumerTest extends BaseKernelTestCase
     }
 
     /**
-     * Create 3 messages and send them the to queuing system to be consumed later.
+     * Create 1 message and send them the to queuing system to be consumed later.
      */
-    public function testExecuteWithLogger()
+    public function testExecuteWithNullLogger()
     {
         $consumer = $this->getConsumer();
         $queueDriver = $this->getQueueDriver('main');
