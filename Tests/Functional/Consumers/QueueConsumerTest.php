@@ -128,7 +128,7 @@ class QueueConsumerTest extends BaseKernelTestCase
     }
 
     /**
-     * Create 1 message and send them the to queuing system to be consumed later.
+     * Test that when we use a logger, it is really used, and it does not display message according to the verbosity by using NullLogger.
      */
     public function testExecuteWithNullLogger()
     {
@@ -147,8 +147,12 @@ class QueueConsumerTest extends BaseKernelTestCase
         $messages = [$message1];
         $queues = [self::queue];
 
+        $loggerMock = $this->getMockBuilder(NullLogger::class)
+            ->getMock();
+        $loggerMock->expects($this->atLeastOnce())->method('info'); // We test that the logger will be used.
+
         $handlerMock = $this->createMock(MessageHandler::class);
-        $handlerMock->expects($this->any())->method('handle')
+        $handlerMock->expects($this->exactly(1))->method('handle')
             ->with($this->callback(
                 function ($message) use ($messages) {
                     $res = array_search($message, $messages);
@@ -183,11 +187,11 @@ class QueueConsumerTest extends BaseKernelTestCase
         declare(ticks=1);
         pcntl_signal(SIGALRM, [$this, 'handleSignal']);
         pcntl_alarm(30);
-        $consumer->setLogger(new NullLogger());
+        $consumer->setLogger($loggerMock);
         $consumer->consume($endpoint);
         pcntl_alarm(0);
 
         $output = $this->getActualOutput();
-        $this->assertNotContains('A message was consumed', $output); // The consumer should not display message information with Null logger
+        $this->assertNotContains('A message was consumed', $output); // The consumer should not display message information with NullLogger
     }
 }
