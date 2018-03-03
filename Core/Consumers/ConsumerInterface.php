@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
-use Psr\Log\LoggerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\ServiceInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
@@ -44,16 +43,4 @@ interface ConsumerInterface extends ServiceInterface
      * @return string
      */
     public function getName();
-
-    /**
-     * @return LoggerInterface
-     */
-    public function getLogger();
-
-    /**
-     * @param null|LoggerInterface $logger
-     *
-     * @return mixed
-     */
-    public function setLogger(LoggerInterface $logger = null);
 }

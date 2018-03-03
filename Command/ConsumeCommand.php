@@ -87,12 +87,14 @@ app/console smartesb:consumer:start queue://events --killAfter 10
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
-        $producer = null;
 
         $this->endpoint = $this->getSourceEndpoint();
 
-        $logger = new ConsoleLogger($output);
-        $this->endpoint->getConsumer()->setLogger($logger);
+        $consumer = $this->endpoint->getConsumer();
+        if (method_exists($consumer, 'setLogger')) {
+            $logger = new ConsoleLogger($output);
+            $consumer->setLogger($logger);
+        }
 
         $message = '<info>Consuming from '.$this->endpoint->getURI();
         if ($input->getOption(self::OPTION_MAX_MESSAGES) > 0) {
