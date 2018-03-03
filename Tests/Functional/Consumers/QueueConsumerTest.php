@@ -18,7 +18,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class QueueConsumerTest extends BaseKernelTestCase
 {
-    const queue = '/test/command';
+    const QUEUE = '/test/command';
 
     /**
      * @return QueueConsumer
@@ -59,30 +59,30 @@ class QueueConsumerTest extends BaseKernelTestCase
 
         $message1 = $this->createMessage(new EntityX(111));
         $msg = $queueDriver->createQueueMessage();
-        $msg->setQueue(self::queue);
-        $msg->setHeader(Message::HEADER_FROM, self::queue);
+        $msg->setQueue(self::QUEUE);
+        $msg->setHeader(Message::HEADER_FROM, self::QUEUE);
         $msg->setBody($message1);
         $msg->setDestinationURI('direct://test');
         $queueDriver->send($msg);
 
         $message2 = $this->createMessage(new EntityX(222));
         $msg = $queueDriver->createQueueMessage();
-        $msg->setQueue(self::queue);
-        $msg->setHeader(Message::HEADER_FROM, self::queue);
+        $msg->setQueue(self::QUEUE);
+        $msg->setHeader(Message::HEADER_FROM, self::QUEUE);
         $msg->setBody($message2);
         $msg->setDestinationURI('direct://test');
         $queueDriver->send($msg);
 
         $message3 = $this->createMessage(new EntityX(333));
         $msg = $queueDriver->createQueueMessage();
-        $msg->setQueue(self::queue);
-        $msg->setHeader(Message::HEADER_FROM, self::queue);
+        $msg->setQueue(self::QUEUE);
+        $msg->setHeader(Message::HEADER_FROM, self::QUEUE);
         $msg->setBody($message3);
         $msg->setDestinationURI('direct://test');
         $queueDriver->send($msg);
 
         $messages = [$message1, $message2, $message3];
-        $queues = [self::queue];
+        $queues = [self::QUEUE];
 
         $handlerMock = $this->createMock(MessageHandler::class);
         $handlerMock->expects($this->exactly(3))->method('handle')
@@ -110,7 +110,7 @@ class QueueConsumerTest extends BaseKernelTestCase
 
         $opts = $optionsResolver->resolve([
             QueueProtocol::OPTION_QUEUE_DRIVER => 'main',
-            QueueProtocol::OPTION_QUEUE_NAME => self::queue,
+            QueueProtocol::OPTION_QUEUE_NAME => self::QUEUE,
         ]);
 
         $endpoint = new Endpoint('xxx', $opts, $queueProtocol, null, $consumer, $handlerMock);
@@ -138,14 +138,14 @@ class QueueConsumerTest extends BaseKernelTestCase
 
         $message1 = $this->createMessage(new EntityX(111));
         $msg = $queueDriver->createQueueMessage();
-        $msg->setQueue(self::queue);
-        $msg->setHeader(Message::HEADER_FROM, self::queue);
+        $msg->setQueue(self::QUEUE);
+        $msg->setHeader(Message::HEADER_FROM, self::QUEUE);
         $msg->setBody($message1);
         $msg->setDestinationURI('direct://test');
         $queueDriver->send($msg);
 
         $messages = [$message1];
-        $queues = [self::queue];
+        $queues = [self::QUEUE];
 
         $loggerMock = $this->getMockBuilder(NullLogger::class)
             ->getMock();
@@ -177,7 +177,7 @@ class QueueConsumerTest extends BaseKernelTestCase
 
         $opts = $optionsResolver->resolve([
             QueueProtocol::OPTION_QUEUE_DRIVER => 'main',
-            QueueProtocol::OPTION_QUEUE_NAME => self::queue,
+            QueueProtocol::OPTION_QUEUE_NAME => self::QUEUE,
         ]);
 
         $endpoint = new Endpoint('xxx', $opts, $queueProtocol, null, $consumer, $handlerMock);
