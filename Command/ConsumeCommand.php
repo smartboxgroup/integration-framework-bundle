@@ -25,20 +25,6 @@ class ConsumeCommand extends ContainerAwareCommand
     /** @var InputInterface */
     protected $input;
 
-    /** @var EndpointFactory */
-    protected $endpointFactory;
-
-    /**
-     * ConsumeCommand constructor.
-     *
-     * @param EndpointFactory $endpointFactory
-     */
-    public function __construct(EndpointFactory $endpointFactory)
-    {
-        parent::__construct();
-        $this->endpointFactory = $endpointFactory;
-    }
-
     /**
      * @return mixed|\Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint
      */
@@ -46,7 +32,7 @@ class ConsumeCommand extends ContainerAwareCommand
     {
         $uri = $this->getInput()->getArgument('uri');
 
-        return $this->endpointFactory->createEndpoint($uri, EndpointFactory::MODE_CONSUME);
+        return $this->getContainer()->get('smartesb.endpoint_factory')->createEndpoint($uri, EndpointFactory::MODE_CONSUME);
     }
 
     /**

@@ -39,10 +39,10 @@ class EndpointFactory extends Service
     }
 
     /**
-     * @param string               $uri
-     * @param string               $mode
+     * @param string $uri
+     * @param string $mode
      *
-     * @return mixed|Endpoint
+     * @return EndpointInterface
      */
     public function createEndpoint($uri, $mode = self::MODE_PRODUCE)
     {
@@ -201,7 +201,7 @@ class EndpointFactory extends Service
      * @param Exchange $exchange
      * @param string   $uri
      *
-     * @return mixed
+     * @return string
      */
     public static function resolveURIParams(Exchange $exchange, $uri)
     {
