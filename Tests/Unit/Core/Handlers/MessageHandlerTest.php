@@ -73,7 +73,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $messageHandlerMock = $this->getMockBuilder(MessageHandler::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('deferExchangeMessage', 'addCommonErrorHeadersToEnvelope'))
+            ->setMethods(['deferExchangeMessage', 'addCommonErrorHeadersToEnvelope'])
             ->getMock();
 
         $messageHandlerMock->setThrottleStrategy(MessageHandler::RETRY_STRATEGY_PROGRESSIVE);
@@ -102,7 +102,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $messageHandlerMock = $this->getMockBuilder(MessageHandler::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('deferExchangeMessage'))
+            ->setMethods(['deferExchangeMessage'])
             ->getMock();
 
         $messageHandlerMock->setCallbackURI('123');
@@ -110,7 +110,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
         $messageHandlerMock->setEventDispatcher($eventDispatcherMock);
         $exception = new ProcessingException();
         $exception->setOriginalException(new \Exception());
-        $contextArray = array();
+        $contextArray = [];
         $contextArray['callback'] = true;
         $contextArray['callbackMethod'] = 'cbm';
         $newContext = new Context($contextArray);
