@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
-use Psr\Log\LoggerInterface;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableInterface;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouterResourceNotFound;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
@@ -40,13 +39,12 @@ class EndpointFactory extends Service
     }
 
     /**
-     * @param string               $uri
-     * @param string               $mode
-     * @param LoggerInterface|null $logger
+     * @param string $uri
+     * @param string $mode
      *
-     * @return mixed|Endpoint
+     * @return EndpointInterface
      */
-    public function createEndpoint($uri, $mode = self::MODE_PRODUCE, LoggerInterface $logger = null)
+    public function createEndpoint($uri, $mode = self::MODE_PRODUCE)
     {
         if (array_key_exists($uri, $this->endpointsCache)) {
             return $this->endpointsCache[$uri];
@@ -113,7 +111,6 @@ class EndpointFactory extends Service
 
         // Create
         $endpoint = new Endpoint($uri, $options, $protocol, $producer, $consumer, $handler);
-        $endpoint->setLogger($logger);
 
         // Cache
         $this->endpointsCache[$uri] = $endpoint;
@@ -204,7 +201,7 @@ class EndpointFactory extends Service
      * @param Exchange $exchange
      * @param string   $uri
      *
-     * @return mixed
+     * @return string
      */
     public static function resolveURIParams(Exchange $exchange, $uri)
     {

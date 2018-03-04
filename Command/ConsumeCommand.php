@@ -25,30 +25,14 @@ class ConsumeCommand extends ContainerAwareCommand
     /** @var InputInterface */
     protected $input;
 
-    /** @var EndpointFactory */
-    protected $endpointFactory;
-
     /**
-     * ConsumeCommand constructor.
-     *
-     * @param EndpointFactory $endpointFactory
+     * @return \Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface
      */
-    public function __construct(EndpointFactory $endpointFactory)
-    {
-        parent::__construct();
-        $this->endpointFactory = $endpointFactory;
-    }
-
-    /**
-     * @param ConsoleLogger $logger
-     *
-     * @return mixed|\Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint
-     */
-    protected function getSourceEndpoint(ConsoleLogger $logger)
+    protected function getSourceEndpoint()
     {
         $uri = $this->getInput()->getArgument('uri');
 
-        return $this->endpointFactory->createEndpoint($uri, EndpointFactory::MODE_CONSUME, $logger);
+        return $this->getContainer()->get('smartesb.endpoint_factory')->createEndpoint($uri, EndpointFactory::MODE_CONSUME);
     }
 
     /**
@@ -88,12 +72,16 @@ app/console smartesb:consumer:start queue://events --killAfter 10
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $logger = new ConsoleLogger($output);
-
         $this->input = $input;
-        $producer = null;
 
-        $this->endpoint = $this->getSourceEndpoint($logger);
+        $this->endpoint = $this->getSourceEndpoint();
+
+        $consumer = $this->endpoint->getConsumer();
+        if (method_exists($consumer, 'setLogger')) {
+            $logger = new ConsoleLogger($output);
+            $consumer->setLogger($logger);
+        }
+
         $message = '<info>Consuming from '.$this->endpoint->getURI();
         if ($input->getOption(self::OPTION_MAX_MESSAGES) > 0) {
             $message .= ' limited to '.$input->getOption(self::OPTION_MAX_MESSAGES).' messages';
@@ -103,6 +91,7 @@ app/console smartesb:consumer:start queue://events --killAfter 10
 
         pcntl_signal(SIGINT, [$this, 'handleSignal']);
         pcntl_signal(SIGTERM, [$this, 'handleSignal']);
+
         $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES));
 
         $output->writeln('<info>Consumer was gracefully stopped for: '.$this->endpoint->getURI().'</info>');

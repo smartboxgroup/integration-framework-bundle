@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Endpoints;
 
-use Psr\Log\LoggerInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -32,18 +31,6 @@ interface EndpointInterface extends SerializableInterface
         ConsumerInterface $consumer = null,
         HandlerInterface $handler = null
     );
-
-    /**
-     * @return LoggerInterface
-     */
-    public function getLogger();
-
-    /**
-     * @param null|LoggerInterface $logger
-     *
-     * @return mixed
-     */
-    public function setLogger(LoggerInterface $logger);
 
     /**
      * Returns the resolved URI.
@@ -81,8 +68,6 @@ interface EndpointInterface extends SerializableInterface
 
     /**
      * @param Exchange $exchange
-     *
-     * @return bool
      */
     public function produce(Exchange $exchange);
 
