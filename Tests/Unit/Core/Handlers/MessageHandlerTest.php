@@ -102,7 +102,7 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     {        
         $contextArray = [
             'callback' => true,
-            'callbackMethod' => 'cbm',
+            'callback_method' => 'cbm',
         ];
 
         $newContext = new Context($contextArray);
