@@ -4,7 +4,6 @@ namespace Smartbox\FrameworkBundle\Tests\Command;
 
 use Smartbox\Integration\FrameworkBundle\Command\ConsumeCommand;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -15,9 +14,6 @@ class ConsumeCommandTest extends KernelTestCase
     const URI = 'queue://main/api';
 
     protected $mockConsumer;
-
-    /** @var EndpointFactory $endpointFactory */
-    protected $endpointFactory;
 
     public function setMockConsumer($expirationCount)
     {
@@ -35,7 +31,6 @@ class ConsumeCommandTest extends KernelTestCase
             ->willReturn(true);
 
         self::$kernel->getContainer()->set('smartesb.consumers.queue', $this->mockConsumer);
-        $this->endpointFactory = self::$kernel->getContainer()->get('smartesb.endpoint_factory');
     }
 
     public function testExecuteWithKillAfter()
@@ -43,7 +38,7 @@ class ConsumeCommandTest extends KernelTestCase
         $this->setMockConsumer(self::NB_MESSAGES);
 
         $application = new Application(self::$kernel);
-        $application->add(new ConsumeCommand($this->endpointFactory));
+        $application->add(new ConsumeCommand());
 
         $command = $application->find('smartesb:consumer:start');
 
@@ -64,7 +59,7 @@ class ConsumeCommandTest extends KernelTestCase
         $this->setMockConsumer(0);
 
         $application = new Application(self::$kernel);
-        $application->add(new ConsumeCommand($this->endpointFactory));
+        $application->add(new ConsumeCommand());
 
         $command = $application->find('smartesb:consumer:start');
         $commandTester = new CommandTester($command);

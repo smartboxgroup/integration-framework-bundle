@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Handlers;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;

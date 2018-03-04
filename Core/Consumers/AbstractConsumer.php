@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 
@@ -12,8 +13,9 @@ use Smartbox\Integration\FrameworkBundle\Service;
  */
 abstract class AbstractConsumer extends Service implements ConsumerInterface
 {
-    use UsesSmartesbHelper;
     use IsStopableConsumer;
+    use UsesLogger;
+    use UsesSmartesbHelper;
 
     /**
      * Initializes the consumer for a given endpoint.
@@ -91,8 +93,10 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
                     $this->process($endpoint, $message);
 
-                    $now = \DateTime::createFromFormat('U.u', microtime(true));
-                    $endpoint->getLogger()->info('A message was consumed on '.$now->format('Y-m-d H:i:s.u'));
+                    if ($this->logger) {
+                        $now = \DateTime::createFromFormat('U.u', microtime(true));
+                        $this->logger->info('A message was consumed on '.$now->format('Y-m-d H:i:s.u'));
+                    }
 
                     $this->confirmMessage($endpoint, $message);
                 }

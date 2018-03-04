@@ -25,8 +25,6 @@ parameters:
   smartesb.steps_provider.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLStepsProvider
   smartesb.steps_provider.csv.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableStepsProvider
 
-  smartesb.command.consumer.start.class: Smartbox\Integration\FrameworkBundle\Command\ConsumeCommand
-
 services:
   smartesb.serialization.handler.mongodate:
       class: '%smartesb.serialization.handler.mongodate.class%'
@@ -110,10 +108,3 @@ services:
 
   smartesb.handlers.async:
       class: '%smartesb.handlers.message_routing.class%'
-
-  # COMMANDS
-  smartesb.command.consumer.start:
-      class: '%smartesb.command.consumer.start.class%'
-      arguments: ['@smartesb.endpoint_factory']
-      tags:
-        -  { name: console.command }
