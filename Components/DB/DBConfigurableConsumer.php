@@ -107,8 +107,6 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
 
     /**
      * @param EndpointInterface $endpoint
-     *
-     * @return bool|void
      */
     public function consume(EndpointInterface $endpoint)
     {

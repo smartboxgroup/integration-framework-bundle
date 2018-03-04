@@ -26,7 +26,7 @@ class ConsumeCommand extends ContainerAwareCommand
     protected $input;
 
     /**
-     * @return mixed|\Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint
+     * @return \Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface
      */
     protected function getSourceEndpoint()
     {

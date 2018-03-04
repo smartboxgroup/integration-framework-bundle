@@ -147,8 +147,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $messages = [$message1];
         $queues = [self::QUEUE];
 
-        $loggerMock = $this->getMockBuilder(NullLogger::class)
-            ->getMock();
+        $loggerMock = $this->createMock(NullLogger::class);
         $loggerMock->expects($this->atLeastOnce())->method('info'); // We test that the logger will be used.
 
         $handlerMock = $this->createMock(MessageHandler::class);

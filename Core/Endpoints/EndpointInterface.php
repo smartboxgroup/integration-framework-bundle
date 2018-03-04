@@ -68,8 +68,6 @@ interface EndpointInterface extends SerializableInterface
 
     /**
      * @param Exchange $exchange
-     *
-     * @return bool
      */
     public function produce(Exchange $exchange);
 
