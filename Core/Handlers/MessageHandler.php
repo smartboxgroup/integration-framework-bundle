@@ -480,6 +480,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
      *
      * @param CallbackExchangeEnvelope $envelope
      * @param ProcessingException      $exception
+     * @param ProcessorInterface       $processor     
      */
     private function addCallbackHeadersToEnvelope(CallbackExchangeEnvelope $envelope, ProcessingException $exception, ProcessorInterface $processor)
     {
