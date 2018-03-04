@@ -328,6 +328,11 @@ class Configuration implements ConfigurationInterface
             ->isRequired()
             ->end()
 
+            ->scalarNode('callback_uri')
+            ->info('The URI where the callback messages will be delivered.')
+            ->defaultValue(null)
+            ->end()
+
             ->scalarNode('throw_exceptions')
             ->info('Throw exceptions on errors and break the process or not')
             ->isRequired()
@@ -443,7 +448,7 @@ class Configuration implements ConfigurationInterface
             ->defaultValue(null)
             ->validate()->ifTrue(
                 function ($value) {
-                    return !(is_array($value) || $value === null);
+                    return !(is_array($value) || null === $value);
                 })
             ->thenInvalid('Invalid connection options it should be an array or null')
             ->end()
