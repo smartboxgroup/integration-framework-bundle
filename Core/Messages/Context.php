@@ -15,7 +15,7 @@ class Context implements \ArrayAccess
     const FLOWS_VERSION = 'version';
     const TRANSACTION_ID = 'transaction_id';
     const CALLBACK = 'callback';
-    const CALLBACK_METHOD = 'callbackMethod';
+    const CALLBACK_METHOD = 'callback_method';
 
     /**
      * @JMS\Type("Smartbox\CoreBundle\Type\SerializableArray")
