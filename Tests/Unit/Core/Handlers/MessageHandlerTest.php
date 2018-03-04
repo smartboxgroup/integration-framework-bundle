@@ -99,31 +99,39 @@ class MessageHandlerTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testMessageHandlerPutsCallbackHeadersCallbackEnvelope()
-    {
+    {        
+        $contextArray = [
+            'callback' => true,
+            'callbackMethod' => 'cbm',
+        ];
+
+        $newContext = new Context($contextArray);
+        
+        $exception = new ProcessingException();
+        $exception->setOriginalException(new \Exception());
+        $exception->setProcessingContext(new SerializableArray($contextArray));
+        
+        $exchange = new Exchange(new Message(new TestEntity()));
+        $exchange->getIn()->setContext($newContext);
+        
+        $processor = new EndpointProcessor();
+        $processor->setId('id');
+
+        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
+        
         $messageHandlerMock = $this->getMockBuilder(MessageHandler::class)
             ->disableOriginalConstructor()
             ->setMethods(['deferExchangeMessage'])
             ->getMock();
-
         $messageHandlerMock->setCallbackURI('123');
-        $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $messageHandlerMock->setEventDispatcher($eventDispatcherMock);
-        $exception = new ProcessingException();
-        $exception->setOriginalException(new \Exception());
-        $contextArray = [];
-        $contextArray['callback'] = true;
-        $contextArray['callbackMethod'] = 'cbm';
-        $newContext = new Context($contextArray);
-        $exception->setProcessingContext(new SerializableArray($contextArray));
-        $exchange = new Exchange(new Message(new TestEntity()));
-        $exchange->getIn()->setContext($newContext);
-        $processor = new EndpointProcessor();
-        $processor->setId('id');
-
         $messageHandlerMock->expects($this->once())
             ->method('deferExchangeMessage')
-            ->with($this->isInstanceOf(CallbackExchangeEnvelope::class), '123');
-
+            ->with(
+                $this->isInstanceOf(CallbackExchangeEnvelope::class), 
+                $this->equalTo('123')
+            );
+        
         $messageHandlerMock->onHandleException($exception, $processor, $exchange, null, 1);
     }
 }
