@@ -18,10 +18,10 @@ class FakeSoapClient extends BasicAuthSoapClient
         if (isset($options['MockCacheDir'])) {
             $this->cacheDir = $options['MockCacheDir'];
         }
-        if (getenv('RECORD_RESPONSE') === 'true') {
+        if ('true' === getenv('RECORD_RESPONSE')) {
             $this->saveWsdlToCache($wsdl, $options);
         }
-        if (getenv('MOCKS_ENABLED') === 'true') {
+        if ('true' === getenv('MOCKS_ENABLED')) {
             $wsdl = $this->getWsdlPathFromCache($wsdl, $options);
             $options['resolve_wsdl_remote_includes'] = false;
         }
@@ -59,33 +59,48 @@ class FakeSoapClient extends BasicAuthSoapClient
         $this->checkInitialisation();
         $actionName = md5($location).'_'.$this->actionName;
 
-        if (getenv('MOCKS_ENABLED') === 'true') {
-            try {
-                $response = $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
-                $this->lastResponseCode = 200;
-                return $response;
-            } catch (\InvalidArgumentException $e) {
-                throw $e;
-            }
+        $mocksEnabled = getenv('MOCKS_ENABLED');
+        $displayRequest = getenv('DISPLAY_REQUEST');
+        $recordResponse = getenv('RECORD_RESPONSE');
+
+        if ('true' === $mocksEnabled) {
+            $mocksMessage = 'MOCKS/';
+        } else {
+            $mocksMessage = '';
         }
 
-        $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
-
-        if (getenv('DISPLAY_REQUEST') === 'true') {
-            echo "\nREQUEST for $location / $action / Version $version";
+        if ('true' === $displayRequest) {
+            echo "\nREQUEST (".$mocksMessage."SOAP) for $location / $action / Version $version";
             echo "\n=====================================================================================================";
             echo "\n".$request;
             echo "\n=====================================================================================================";
             echo "\n\n";
-            echo "\nRESPONSE";
+        }
+
+        if ('true' === $mocksEnabled) {
+            try {
+                $response = $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
+                $this->lastResponseCode = 200;
+            } catch (\InvalidArgumentException $e) {
+                if ('true' === $recordResponse) {  // If the mock does not exist but we want to record the response all the same, we make the real call to be able to record it
+                    $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
+                } else {
+                    throw $e;
+                }
+            }
+        } else {
+            $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
+        }
+
+        if ('true' === $displayRequest) {
+            echo "\nRESPONSE (".$mocksMessage."SOAP) for $location / $action / Version $version";
             echo "\n=====================================================================================================";
             echo "\n".$response;
-            echo "\n=====================================================================================================";
             echo "\n=====================================================================================================";
             echo "\n\n";
         }
 
-        if (getenv('RECORD_RESPONSE') === 'true') {
+        if ('true' === $recordResponse) {
             $this->setResponseInCache($actionName, $response, self::CACHE_SUFFIX);
         }
 
