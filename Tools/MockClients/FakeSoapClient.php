@@ -82,11 +82,7 @@ class FakeSoapClient extends BasicAuthSoapClient
                 $response = $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
                 $this->lastResponseCode = 200;
             } catch (\InvalidArgumentException $e) {
-                if ('true' === $recordResponse) {  // If the mock does not exist but we want to record the response all the same, we make the real call to be able to record it
-                    $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
-                } else {
-                    throw $e;
-                }
+                throw $e;
             }
         } else {
             $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
