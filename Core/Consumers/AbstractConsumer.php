@@ -93,7 +93,6 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
                     $this->process($endpoint, $message);
 
-
                     if ($this->logger) {
                         // Please refer to http://php.net/manual/en/datetime.createfromformat.php#119362 to understand why we number_format
                         $microTime = number_format(microtime(true), 6, '.', '');
