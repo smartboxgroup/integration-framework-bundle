@@ -39,20 +39,31 @@ class FakeRestClient extends Client
                 $requestUri .= '?'.$request->getUri()->getQuery();
             }
             $requestMethod = $request->getMethod();
-            $requestBody = $options['body'];
+
+            $requestBody = '';
+            if (isset($options['body'])) {
+                $requestBody = $options['body'];
+            }
+
             $requestHeaders = [];
-            foreach ($options['headers'] as $headerName => $headerValue) {
-                $requestHeaders[] = $headerName.' => '.$headerValue;
+            if (isset($options['headers']) && is_array($options['headers'])) {
+                foreach ($options['headers'] as $headerName => $headerValue) {
+                    $requestHeaders[] = $headerName.' => '.$headerValue;
+                }
             }
+
             $requestQuery = [];
-            foreach ($options['query'] as $queryName => $queryValue) {
-                $requestQuery[] = $queryName.' => '.$queryValue;
+            if (isset($options['query']) && is_array($options['query'])) {
+                foreach ($options['query'] as $queryName => $queryValue) {
+                    $requestQuery[] = $queryName.' => '.$queryValue;
+                }
             }
+
             echo "\nREQUEST (".$mocksMessage.'REST)  for '.$requestUri.' / '.$requestMethod;
             echo "\n=====================================================================================================";
-            echo "\nHEADERS:\n".implode($requestHeaders, "\n");
-            echo "\nQUERY:\n".implode($requestQuery, "\n");
-            echo "\n\nBODY:\n".$requestBody;
+            echo "\nHEADERS:\n".implode($requestHeaders, "  \n");
+            echo "\nQUERY:\n".implode($requestQuery, "  \n");
+            echo "\nBODY:\n".$requestBody;
             echo "\n=====================================================================================================";
             echo "\n\n";
         }
