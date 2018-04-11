@@ -72,7 +72,13 @@ class FakeSoapClient extends BasicAuthSoapClient
         if ('true' === $displayRequest) {
             echo "\nREQUEST (".$mocksMessage."SOAP) for $location / $action / Version $version";
             echo "\n=====================================================================================================";
+            echo "\nRAW REQUEST";
+            echo "\n=====================================================================================================";
             echo "\n".$request;
+            echo "\n=====================================================================================================";
+            echo "\nPRETTY SEXY REQUEST";
+            echo "\n=====================================================================================================";
+            echo "\n".$this->prettyXML($request);
             echo "\n=====================================================================================================";
             echo "\n\n";
         }
@@ -91,7 +97,13 @@ class FakeSoapClient extends BasicAuthSoapClient
         if ('true' === $displayRequest) {
             echo "\nRESPONSE (".$mocksMessage."SOAP) for $location / $action / Version $version";
             echo "\n=====================================================================================================";
+            echo "\nRAW RESPONSE";
+            echo "\n=====================================================================================================";
             echo "\n".$response;
+            echo "\n=====================================================================================================";
+            echo "\nPRETTY SEXY RESPONSE";
+            echo "\n=====================================================================================================";
+            echo "\n".$this->prettyXML($response);
             echo "\n=====================================================================================================";
             echo "\n\n";
         }
@@ -101,5 +113,21 @@ class FakeSoapClient extends BasicAuthSoapClient
         }
 
         return $response;
+    }
+
+    /** Return a much nicer XML string.
+     *
+     * @param $uglyXML
+     *
+     * @return string
+     */
+    private function prettyXML($uglyXML)
+    {
+        $doc = new \DOMDocument();
+        $doc->preserveWhiteSpace = false;
+        $doc->formatOutput = true;
+        $doc->loadXML($uglyXML);
+
+        return $doc->saveXML();
     }
 }
