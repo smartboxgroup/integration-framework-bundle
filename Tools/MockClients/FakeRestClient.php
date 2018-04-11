@@ -71,13 +71,23 @@ class FakeRestClient extends Client
 
         if ('true' === $mocksEnabled) {
             try {
-                return $this->getResponseFromCache($this->actionName, self::CACHE_SUFFIX);
+                $response = $this->getResponseFromCache($this->actionName, self::CACHE_SUFFIX);
             } catch (\InvalidArgumentException $e) {
                 throw $e;
             }
+        } else {
+            $response = parent::send($request, $options);
         }
 
-        $response = parent::send($request, $options);
+        if ('true' === $displayRequest) {
+            $content = $this->getResponseContent($response);
+            echo "\nRESPONSE (".$mocksMessage.'REST)  for '.$requestUri.' / '.$requestMethod;
+            echo "\n=====================================================================================================";
+            echo "\nRAW RESPONSE:\n".$content;
+            echo "\nPRETTY SEXY RESPONSE:\n".$this->prettyJson($content);
+            echo "\n=====================================================================================================";
+            echo "\n\n";
+        }
 
         if ('true' === $recordResponse) {
             $this->setResponseInCache($this->actionName, $response, self::CACHE_SUFFIX);
@@ -142,9 +152,31 @@ class FakeRestClient extends Client
         return new Psr7\Response($response['status'], $response['headers'], $response['body'], $response['version'], $response['reason']);
     }
 
+    /**
+     * @param $resource
+     * @param Psr7\Response $response
+     * @param null          $suffix
+     */
     protected function setResponseInCache($resource, $response, $suffix = null)
     {
-        /* @var Psr7\Response $response */
+        $prettyRecordedResponse = getenv('PRETTY_RECORDED_RESPONSE');
+
+        $content = $this->getResponseContent($response);
+
+        if ('true' === $prettyRecordedResponse) {
+            $content = $this->prettyJson($content);
+        }
+
+        $this->trait_setResponseInCache($resource, $content, $suffix);
+    }
+
+    /**
+     * @param Psr7\Response $response
+     *
+     * @return string
+     */
+    protected function getResponseContent($response)
+    {
         $content = json_encode(
             [
                 'status' => $response->getStatusCode(),
@@ -154,9 +186,8 @@ class FakeRestClient extends Client
                 'reason' => $response->getReasonPhrase(),
             ]
         );
-
         $response->getBody()->rewind();
 
-        $this->trait_setResponseInCache($resource, $content, $suffix);
+        return $content;
     }
 }
