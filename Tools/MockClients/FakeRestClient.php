@@ -63,7 +63,8 @@ class FakeRestClient extends Client
             echo "\n=====================================================================================================";
             echo "\nHEADERS:\n".implode($requestHeaders, "  \n");
             echo "\nQUERY:\n".implode($requestQuery, "  \n");
-            echo "\nBODY:\n".$requestBody;
+            echo "\nRAW BODY:\n".$requestBody;
+            echo "\nPRETTY SEXY BODY:\n".$this->prettyJson($requestBody);
             echo "\n=====================================================================================================";
             echo "\n\n";
         }
@@ -83,6 +84,19 @@ class FakeRestClient extends Client
         }
 
         return $response;
+    }
+
+    /** Return a much nicer json string.
+     *
+     * @param $uglyJson
+     *
+     * @return string
+     */
+    private function prettyJson($uglyJson)
+    {
+        $json = json_decode($uglyJson);
+
+        return json_encode($json, JSON_PRETTY_PRINT);
     }
 
     /**
