@@ -31,9 +31,11 @@ class ConfigurableServiceHelper
     const CONF_RECOVERABLE = 'recoverable';
 
     const CONF_NO_RESULTS = 'noResults';
-    const STEP_DEFINE = 'define';
 
+    const STEP_DEFINE = 'define';
     const STEP_VALIDATE = 'validate';
+    const STEP_DEBUG = 'debug';
+
     const OPTION_METHOD = 'method';
     const KEY_DESCRIPTION = 'description';
     const KEY_RESPONSE = 'response';
@@ -96,11 +98,13 @@ class ConfigurableServiceHelper
         return $context;
     }
 
-    public function resolveArray($input, &$context){
+    public function resolveArray($input, &$context)
+    {
         $output = [];
-        foreach($input as $key => $value){
-            $output[$key] = $this->resolve($value,$context);
+        foreach ($input as $key => $value) {
+            $output[$key] = $this->resolve($value, $context);
         }
+
         return $output;
     }
 
@@ -163,8 +167,13 @@ class ConfigurableServiceHelper
                 break;
             case self::STEP_VALIDATE:
                 $this->validate($stepActionParams, $context);
+
                 return true;
                 break;
+            case self::STEP_DEBUG:
+                $this->debug($stepActionParams, $context);
+
+                return true;
             default:
                 return false;
                 break;
@@ -196,7 +205,6 @@ class ConfigurableServiceHelper
 
     public function validate(array $stepConfig, array &$context)
     {
-
         $config = $this->validateResolver->resolve($stepConfig);
 
         $rule = $config[self::CONF_RULE];
@@ -206,7 +214,7 @@ class ConfigurableServiceHelper
         $display_message = $config[self::CONF_DISPLAY_MESSAGE];
 
         $evaluation = $this->resolve($rule, $context);
-        if ($evaluation !== true) {
+        if (true !== $evaluation) {
             $message = $this->resolve($message, $context);
             if ($no_results) {
                 throw new NoResultsException($message);
@@ -222,6 +230,24 @@ class ConfigurableServiceHelper
                 throw $exception;
             }
         }
+    }
+
+    /**
+     * Nasty hack to be able to easily display context variables in producers.
+     *
+     * @param array $variables
+     * @param $context
+     */
+    protected function debug($variables, &$context)
+    {
+        foreach ($variables as $var) {
+            echo "\n";
+            echo 'context'.$var.' => ';
+            $command = 'print_r($context'.$var.');';
+            eval($command);
+        }
+
+        return;
     }
 
     public function runValidations(array $validations, array &$context)
