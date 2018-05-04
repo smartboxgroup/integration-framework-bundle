@@ -235,16 +235,35 @@ class ConfigurableServiceHelper
     /**
      * Nasty hack to be able to easily display context variables in producers.
      *
-     * @param array $variables
+     * @param array $actions
      * @param $context
      */
-    protected function debug($variables, &$context)
+    protected function debug($actions, &$context)
     {
-        foreach ($variables as $var) {
-            echo "\n";
-            echo 'context'.$var.' => ';
-            $command = 'print_r($context'.$var.');';
-            eval($command);
+        if (!is_array($actions)) {
+            return;
+        }
+        foreach ($actions as $action => $parameters) {
+            if ('display' == $action) {
+                foreach ($parameters as $var) {
+                    echo "\n";
+                    echo 'context'.$var.' => ';
+                    $command = 'print_r($context'.$var.');';
+                    eval($command);
+                }
+                flush();
+                ob_flush();
+            }
+
+            if ('sleep' == $action) {
+                echo 'Sleeping for '.$parameters.' seconds due to sleep step...'."\n";
+                sleep($parameters);
+            }
+
+            if ('exit' == $action && false !== $parameters) {
+                echo 'Exit due to debug step'."\n";
+                exit;
+            }
         }
 
         return;
