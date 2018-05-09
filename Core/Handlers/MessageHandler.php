@@ -299,6 +299,17 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     /**
      * @param Exchange $exchange
      */
+    public function onFailedExchange(Exchange $exchange)
+    {
+        $beforeHandleEvent = new HandlerEvent(HandlerEvent::UNRECOVERABLE_FAILED_EXCHANGE_EVENT_NAME);
+        $beforeHandleEvent->setTimestampToCurrent();
+        $beforeHandleEvent->setExchange($exchange);
+        $this->eventDispatcher->dispatch(HandlerEvent::UNRECOVERABLE_FAILED_EXCHANGE_EVENT_NAME, $beforeHandleEvent);
+    }
+
+    /**
+     * @param Exchange $exchange
+     */
     public function onHandleSuccess(Exchange $exchange)
     {
         $afterHandleEvent = new HandlerEvent(HandlerEvent::AFTER_HANDLE_EVENT_NAME);
@@ -385,6 +396,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
                 $failedExchange = new Exchange($envelope);
                 $this->failedEndpoint->produce($failedExchange);
+                $this->onFailedExchange($failedExchange);
             }
         } catch (\Exception $exceptionHandlingException) {
             $wrapException = new \Exception('Error while trying to handle Exception in the MessageHandler'.$exceptionHandlingException->getMessage(), 0, $exceptionHandlingException);
