@@ -37,7 +37,7 @@ class MapperTest extends BaseTestCase
                         'x' => "obj.get('x') + 1",
                         'y' => "obj.get('x') + 2",
                         'z' => "obj.get('x') + 3",
-                        'array' => "obj.get('a')"
+                        'array' => "obj.get('a')",
                     ],
                 ],
                 'mapping_name' => 'x_to_xyz',
@@ -47,7 +47,7 @@ class MapperTest extends BaseTestCase
                     'x' => 11,
                     'y' => 12,
                     'z' => 13,
-                    'array' => []
+                    'array' => [],
                 ],
             ],
             'Test null values' => [
@@ -55,7 +55,7 @@ class MapperTest extends BaseTestCase
                     'mapping_name' => [
                         'x' => "obj.get('x') + 1",
                         'y' => "obj.get('y')",
-                        'z' => "obj.get('y').get('z')"
+                        'z' => "obj.get('y').get('z')",
                     ],
                 ],
                 'mapping_name' => 'mapping_name',
@@ -121,6 +121,49 @@ class MapperTest extends BaseTestCase
                     'date_1' => '2015-01-01 20:00:00',
                     'date_2' => '2015-01-01T20:00:00+0100',
                     'date_3' => '2015-01-01T20:00:00.000',
+                ],
+            ],
+            'Test stringToDate' => [
+                'mappings' => [
+                    'tests' => [
+                        'test_0' => "mapper.stringToDate('1971-03-23')",
+                        'test_1' => "mapper.stringToDate('1971-03-23 20:15:30')",
+                    ],
+                ],
+                'mapping_name' => 'tests',
+                'mapped_values' => new SerializableArray([]),
+                'context' => [],
+                'expected_value' => [
+                    'test_0' => \DateTime::createFromFormat(\DateTime::ISO8601, '1971-03-23T00:00:00+00:00'),
+                    'test_1' => \DateTime::createFromFormat(\DateTime::ISO8601, '1971-03-23T20:15:30+00:00'),
+                ],
+            ],
+            'Test timestampToDate' => [
+                'mappings' => [
+                    'tests' => [
+                        'test_0' => 'mapper.timestampToDate(1609428688)',
+                    ],
+                ],
+                'mapping_name' => 'tests',
+                'mapped_values' => new SerializableArray([]),
+                'context' => [],
+                'expected_value' => [
+                    'test_0' => \DateTime::createFromFormat(\DateTime::ISO8601, '2020-12-31T15:31:28+00:00'),
+                ],
+            ],
+            'Test dateFromFormat' => [
+                'mappings' => [
+                    'tests' => [
+                        'test_0' => "mapper.dateFromFormat('!d/m/Y', '23/03/2018')",
+                        'test_1' => "mapper.dateFromFormat('d/m/Y His', '23/03/2018 201530')",
+                    ],
+                ],
+                'mapping_name' => 'tests',
+                'mapped_values' => new SerializableArray([]),
+                'context' => [],
+                'expected_value' => [
+                    'test_0' => \DateTime::createFromFormat(\DateTime::ISO8601, '2018-03-23T00:00:00+00:00'),
+                    'test_1' => \DateTime::createFromFormat(\DateTime::ISO8601, '2018-03-23T20:15:30+00:00'),
                 ],
             ],
             'Test mapping getting information from the context' => [

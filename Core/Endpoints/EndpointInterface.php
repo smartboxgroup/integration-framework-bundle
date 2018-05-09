@@ -67,7 +67,7 @@ interface EndpointInterface extends SerializableInterface
     public function consume($maxAmount = 0);
 
     /**
-     * @return bool
+     * @param Exchange $exchange
      */
     public function produce(Exchange $exchange);
 

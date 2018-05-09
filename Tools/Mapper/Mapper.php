@@ -42,7 +42,7 @@ class Mapper implements MapperInterface
      */
     public function formatDate($format, \DateTime $date = null)
     {
-        if ($date === null) {
+        if (null === $date) {
             return null;
         }
 
@@ -87,7 +87,7 @@ class Mapper implements MapperInterface
             foreach ($mapping as $key => $value) {
                 $resolved = $this->resolve($value, $obj, $context);
 
-                if ($resolved !== null) {
+                if (null !== $resolved) {
                     $res[$key] = $resolved;
                 }
             }
@@ -173,7 +173,7 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Convert an string to date.
+     * Convert a string to date.
      *
      * @param string $date
      *
@@ -194,6 +194,29 @@ class Mapper implements MapperInterface
         return $date;
     }
 
+    /**
+     * Convert a formatted string to a date.
+     *
+     * The portions of the generated time not provided in format, will be set to corresponding values from the Unix epoch.
+     * Ex: dateFromFormat('d/m/Y', '23/03/2018').
+     *
+     * @param string $format
+     * @param string $date
+     *
+     * @return bool|\DateTime
+     */
+    public function dateFromFormat($format, $date)
+    {
+        if (!empty($format) && !empty($date)) {
+            return \DateTime::createFromFormat($format, $date);
+        }
+    }
+
+    /**
+     * @param $timestamp
+     *
+     * @return \DateTime
+     */
     public function timestampWithMsToDate($timestamp)
     {
         return DateTimeHelper::createDateTimeFromTimestampWithMilliseconds($timestamp);
@@ -302,11 +325,11 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Return the n-th section of the given string splitted by piece of the given length
+     * Return the n-th section of the given string splitted by piece of the given length.
      *
      * @param string $string
-     * @param int $length
-     * @param int $section
+     * @param int    $length
+     * @param int    $section
      *
      * @return string
      */
@@ -320,6 +343,7 @@ class Mapper implements MapperInterface
         if (isset($lines[$section])) {
             $result = $lines[$section];
         }
+
         return $result;
     }
 

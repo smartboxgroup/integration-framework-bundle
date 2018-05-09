@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 
 /**
  * Class ConsumeCommand.
@@ -42,14 +43,14 @@ class ConsumeCommand extends ContainerAwareCommand
         $this
             ->setName('smartesb:consumer:start')
             ->setDescription('Start a daemon consuming messages from a given URI')
-            ->setHelp("Run the consumer. You can kill the consumer after x messages by using the --killAfter option.
+            ->setHelp('Run the consumer. You can kill the consumer after x messages by using the --killAfter option. Use the -vv option to display extra information.
 Ex:
-Consume all the messages, and never die:
-app/console smartesb:consumer:start queue://api --killAfter -1
+Consume all the messages, never die and display an alert each time a message is consumed:
+app/console smartesb:consumer:start queue://api -vv --killAfter -1
 
 Consume the events and die after 10 messages:
 app/console smartesb:consumer:start queue://events --killAfter 10
-")
+')
         ;
 
         $this->addArgument(
@@ -64,7 +65,6 @@ app/console smartesb:consumer:start queue://events --killAfter 10
             'How many messages should be processed before the worker is killed? -1 for never, default value is '.self::OPTION_MAX_MESSAGES_DEFAULT_VALUE.'.',
             self::OPTION_MAX_MESSAGES_DEFAULT_VALUE
         );
-
     }
 
     /**
@@ -73,9 +73,15 @@ app/console smartesb:consumer:start queue://events --killAfter 10
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
-        $producer = null;
 
         $this->endpoint = $this->getSourceEndpoint();
+
+        $consumer = $this->endpoint->getConsumer();
+        if (method_exists($consumer, 'setLogger')) {
+            $logger = new ConsoleLogger($output);
+            $consumer->setLogger($logger);
+        }
+
         $message = '<info>Consuming from '.$this->endpoint->getURI();
         if ($input->getOption(self::OPTION_MAX_MESSAGES) > 0) {
             $message .= ' limited to '.$input->getOption(self::OPTION_MAX_MESSAGES).' messages';
@@ -85,6 +91,7 @@ app/console smartesb:consumer:start queue://events --killAfter 10
 
         pcntl_signal(SIGINT, [$this, 'handleSignal']);
         pcntl_signal(SIGTERM, [$this, 'handleSignal']);
+
         $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES));
 
         $output->writeln('<info>Consumer was gracefully stopped for: '.$this->endpoint->getURI().'</info>');

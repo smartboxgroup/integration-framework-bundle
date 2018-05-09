@@ -12,14 +12,16 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 class DBConfigurableConsumer extends Service implements ConfigurableConsumerInterface
 {
-    use IsStopableConsumer;
-    use UsesSmartesbHelper;
     use IsConfigurableService;
+    use IsStopableConsumer;
+    use UsesLogger;
+    use UsesSmartesbHelper;
 
     /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
@@ -70,7 +72,7 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
             }
         }
 
-        if ($result == null) {
+        if (null == $result) {
             return null;
         } elseif (is_array($result)) {
             $result = new SerializableArray($result);
@@ -103,6 +105,9 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
         $this->configurableStepsProvider->executeSteps($steps, $options, $context);
     }
 
+    /**
+     * @param EndpointInterface $endpoint
+     */
     public function consume(EndpointInterface $endpoint)
     {
         while (!$this->shouldStop()) {
@@ -114,6 +119,11 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
                 --$this->expirationCount;
 
                 $endpoint->handle($message);
+
+                if ($this->logger) {
+                    $now = \DateTime::createFromFormat('U.u', microtime(true));
+                    $this->logger->info('A message was consumed on '.$now->format('Y-m-d H:i:s.u'));
+                }
 
                 $this->onConsume($endpoint, $message);
             }

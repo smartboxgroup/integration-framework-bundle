@@ -12,16 +12,17 @@ php:
 
 env:
   - SYMFONY_VERSION=2.7.*
+  - SYMFONY_VERSION=2.8.*
 
 matrix:
   allow_failures:
     - php: 7.1
 
 before_install:
-  - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - phpenv config-add travis/z_php.ini
+  - bash travis/install-apcu-pecl.sh
 
 before_script:
-  - if [[ "$(php -v | grep 'PHP 7')" ]]; then yes | pecl install -f apcu; fi
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo service rabbitmq-server restart
   - composer self-update

@@ -2,7 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions;
 
-class RetryLaterException extends \RuntimeException
+class ThrottledException extends \RuntimeException
 {
     protected $delay;
 

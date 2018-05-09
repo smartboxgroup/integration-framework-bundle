@@ -179,7 +179,7 @@ class Endpoint implements EndpointInterface
      */
     public function isInOnly()
     {
-        return $this->getExchangePattern() == Protocol::EXCHANGE_PATTERN_IN_ONLY;
+        return Protocol::EXCHANGE_PATTERN_IN_ONLY == $this->getExchangePattern();
     }
 
     /**

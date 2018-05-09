@@ -40,10 +40,9 @@ class EndpointFactory extends Service
 
     /**
      * @param string $uri
+     * @param string $mode
      *
      * @return EndpointInterface
-     *
-     * @throws \Exception
      */
     public function createEndpoint($uri, $mode = self::MODE_PRODUCE)
     {
@@ -133,9 +132,10 @@ class EndpointFactory extends Service
 
     /**
      * @param $uri
-     * @param array $routeOptions
+     * @param array             $routeOptions
      * @param ProtocolInterface $protocol
-     * @param string $mode
+     * @param string            $mode
+     *
      * @return OptionsResolver
      */
     protected function getOptionsResolver($uri, array &$routeOptions, ProtocolInterface $protocol, $mode)
@@ -148,7 +148,7 @@ class EndpointFactory extends Service
         $handler = array_key_exists(Protocol::OPTION_HANDLER, $routeOptions) ? $routeOptions[Protocol::OPTION_HANDLER] : $protocol->getDefaultHandler();
 
         // Check Consumer
-        if ($mode == self::MODE_CONSUME && $consumer) {
+        if (self::MODE_CONSUME == $mode && $consumer) {
             if ($consumer instanceof ConsumerInterface) {
                 if ($consumer instanceof ConfigurableInterface) {
                     $consumer->configureOptionsResolver($optionsResolver);
@@ -163,7 +163,7 @@ class EndpointFactory extends Service
         }
 
         // Check Producer
-        if ($mode == self::MODE_PRODUCE && $producer) {
+        if (self::MODE_PRODUCE == $mode && $producer) {
             if ($producer instanceof ProducerInterface) {
                 if ($producer instanceof ConfigurableInterface) {
                     $producer->configureOptionsResolver($optionsResolver);
@@ -197,6 +197,12 @@ class EndpointFactory extends Service
         return $optionsResolver;
     }
 
+    /**
+     * @param Exchange $exchange
+     * @param string   $uri
+     *
+     * @return string
+     */
     public static function resolveURIParams(Exchange $exchange, $uri)
     {
         preg_match_all('/\\{([^{}]+)\\}/', $uri, $matches);

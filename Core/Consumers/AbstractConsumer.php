@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 
@@ -12,8 +13,9 @@ use Smartbox\Integration\FrameworkBundle\Service;
  */
 abstract class AbstractConsumer extends Service implements ConsumerInterface
 {
-    use UsesSmartesbHelper;
     use IsStopableConsumer;
+    use UsesLogger;
+    use UsesSmartesbHelper;
 
     /**
      * Initializes the consumer for a given endpoint.
@@ -64,6 +66,9 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
      * This function is called to confirm that a message was successfully handled. Until this point, the message should
      * not be removed from the source Endpoint, this is very important to ensure the Message delivery guarantee.
      *
+     * @param EndpointInterface $endpoint
+     * @param MessageInterface  $message
+     *
      * @return MessageInterface
      */
     abstract protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message);
@@ -87,6 +92,14 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
                     --$this->expirationCount;
 
                     $this->process($endpoint, $message);
+
+                    if ($this->logger) {
+                        // Please refer to http://php.net/manual/en/datetime.createfromformat.php#119362 to understand why we number_format
+                        $microTime = number_format(microtime(true), 6, '.', '');
+
+                        $now = \DateTime::createFromFormat('U.u', $microTime);
+                        $this->logger->info('A message was consumed on '.$now->format('Y-m-d H:i:s.u'));
+                    }
 
                     $this->confirmMessage($endpoint, $message);
                 }

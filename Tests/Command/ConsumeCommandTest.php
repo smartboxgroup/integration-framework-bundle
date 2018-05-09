@@ -30,7 +30,7 @@ class ConsumeCommandTest extends KernelTestCase
             ->method('consume')
             ->willReturn(true);
 
-        self::$kernel->getContainer()->set('smartesb.consumers.queue',$this->mockConsumer);
+        self::$kernel->getContainer()->set('smartesb.consumers.queue', $this->mockConsumer);
     }
 
     public function testExecuteWithKillAfter()
@@ -44,7 +44,7 @@ class ConsumeCommandTest extends KernelTestCase
 
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
-            'command'  => $command->getName(),
+            'command' => $command->getName(),
             'uri' => self::URI, // argument
             '--killAfter' => self::NB_MESSAGES, // option
         ));
@@ -64,7 +64,7 @@ class ConsumeCommandTest extends KernelTestCase
         $command = $application->find('smartesb:consumer:start');
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
-            'command'  => $command->getName(),
+            'command' => $command->getName(),
             'uri' => self::URI, // argument
         ));
 

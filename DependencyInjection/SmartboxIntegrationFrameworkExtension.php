@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
-use ComponentInstaller\Process\Process;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
@@ -81,7 +80,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $arguments = $call[1];
                     $resolvedArguments = [];
                     foreach ($arguments as $index => $arg) {
-                        if (strpos($arg, '@') === 0) {
+                        if (0 === strpos($arg, '@')) {
                             $resolvedArguments[$index] = new Reference(substr($arg, 1));
                         } else {
                             $resolvedArguments[$index] = $arg;
@@ -136,7 +135,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     foreach ($arguments as $index => $arg) {
                         $resolvedArguments[$index] = $arg;
 
-                        if (strpos($arg, '@') === 0) {
+                        if (0 === strpos($arg, '@')) {
                             $resolvedArguments[$index] = new Reference(substr($arg, 1));
                         }
                     }
@@ -189,7 +188,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             switch ($type) {
                 case 'rabbitmq':
                 case 'activemq':
-                    $urlEncodeDestination = ($type == 'rabbitmq');
+                    $urlEncodeDestination = ('rabbitmq' == $type);
 
                     $driverDef = new Definition(StompQueueDriver::class, []);
                     $driverDef->addMethodCall('setId', [$driverId]);
@@ -289,20 +288,32 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $handlerDef->addMethodCall('setId', [$handlerName]);
             $handlerDef->addMethodCall('setContainer', [new Reference('service_container')]);
             $handlerDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
-            $handlerDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
-            $handlerDef->addMethodCall('setRetryDelay', [$handlerConfig['retry_delay']]);
             $handlerDef->addMethodCall('setEndpointFactory', [new Reference('smartesb.endpoint_factory')]);
             $handlerDef->addMethodCall('setItineraryResolver', [new Reference('smartesb.itineray_resolver')]);
             $handlerDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
+            $handlerDef->addMethodCall('setCallbackURI', [$handlerConfig['callback_uri']]);
             $handlerDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+
+            // Settings for retry mechanism
+            $handlerDef->addMethodCall('setRetriesMax', [$handlerConfig['retries_max']]);
+            $handlerDef->addMethodCall('setRetryDelay', [$handlerConfig['retry_delay']]);
             $handlerDef->addMethodCall('setRetryStrategy', [$handlerConfig['retry_strategy']]);
             $handlerDef->addMethodCall('setRetryDelayFactor', [$handlerConfig['retry_delay_factor']]);
-
-            if ($handlerConfig['retry_uri'] != 'original') {
+            if ('original' != $handlerConfig['retry_uri']) {
                 $handlerDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
             } else {
                 $handlerDef->addMethodCall('setRetryURI', [false]);
             }
+
+            // Settings for throttle mechanism
+            $handlerDef->addMethodCall('setThrottleDelay', [$handlerConfig['throttle_delay']]);
+            $handlerDef->addMethodCall('setThrottleStrategy', [$handlerConfig['throttle_strategy']]);
+            $handlerDef->addMethodCall('setThrottleDelayFactor', [$handlerConfig['throttle_delay_factor']]);
+
+            // If there is no throttle_uri set, we need to set it with something, so we will use the retry uri.
+            // This will maintains the current behaviour, but allows us to explicitly set a throttle_uri
+            $throttleUri = isset($handlerConfig['throttle_uri']) ? $handlerConfig['throttle_uri'] : $handlerConfig['retry_uri'];
+            $handlerDef->addMethodCall('setThrottleURI', [$throttleUri]);
 
             $handlerDef->addMethodCall('setThrowExceptions', [$handlerConfig['throw_exceptions']]);
             $handlerDef->addMethodCall('setDeferNewExchanges', [$handlerConfig['defer_new_exchanges']]);
@@ -331,7 +342,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             'method' => 'onEvent',
         ]);
 
-            $def->addTag('kernel.event_listener', [
+        $def->addTag('kernel.event_listener', [
                 'event' => ProcessEvent::TYPE_BEFORE,
             'method' => 'onEvent',
         ]);
