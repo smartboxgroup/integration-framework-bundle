@@ -392,6 +392,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $callbackExchangeEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                 $this->addCallbackHeadersToEnvelope($callbackExchangeEnvelope, $exception, $processor);
                 $this->deferExchangeMessage($callbackExchangeEnvelope, $this->callbackURI);
+                $this->dispatchEvent($exchangeBackup, HandlerEvent::CALLBACK_HANDLE_EVENT_NAME);
             } else {
                 $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                 $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
