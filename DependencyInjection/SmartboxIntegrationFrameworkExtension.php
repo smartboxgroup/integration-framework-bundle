@@ -373,6 +373,16 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         ]);
 
         $def->addTag('kernel.event_listener', [
+            'event' => HandlerEvent::CALLBACK_HANDLE_EVENT_NAME,
+            'method' => 'onEvent',
+        ]);
+
+        $def->addTag('kernel.event_listener', [
+            'event' => HandlerEvent::THROTTLING_HANDLE_EVENT_NAME,
+            'method' => 'onEvent',
+        ]);
+
+        $def->addTag('kernel.event_listener', [
             'event' => HandlerErrorEvent::EVENT_NAME,
             'method' => 'onEvent',
         ]);
