@@ -71,7 +71,18 @@ class FakeSoapClient extends BasicAuthSoapClient
         }
 
         if ('true' === $displayRequest) {
+            $requestHeaders = [];
+            if (isset($this->requestHeaders) && is_array($this->requestHeaders)) {
+                foreach ($this->requestHeaders as $headerName => $headerValue) {
+                    $requestHeaders[] = $headerName.' => '.$headerValue;
+                }
+            }
+
             echo "\nREQUEST (".$mocksMessage."SOAP) for $location / $action / Version $version";
+            echo "\n=====================================================================================================";
+            echo "\nHEADERS";
+            echo "\n=====================================================================================================";
+            echo "\n  ".implode($requestHeaders, "\n  ");
             echo "\n=====================================================================================================";
             echo "\nRAW REQUEST";
             echo "\n=====================================================================================================";
