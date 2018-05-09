@@ -301,24 +301,14 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
     /**
      * @param Exchange $exchange
+     * @param $eventName
      */
-    public function onHandleStart(Exchange $exchange)
+    protected function dispatchEvent(Exchange $exchange, $eventName)
     {
-        $beforeHandleEvent = new HandlerEvent(HandlerEvent::BEFORE_HANDLE_EVENT_NAME);
+        $beforeHandleEvent = new HandlerEvent($eventName);
         $beforeHandleEvent->setTimestampToCurrent();
         $beforeHandleEvent->setExchange($exchange);
-        $this->eventDispatcher->dispatch(HandlerEvent::BEFORE_HANDLE_EVENT_NAME, $beforeHandleEvent);
-    }
-
-    /**
-     * @param Exchange $exchange
-     */
-    public function onHandleSuccess(Exchange $exchange)
-    {
-        $afterHandleEvent = new HandlerEvent(HandlerEvent::AFTER_HANDLE_EVENT_NAME);
-        $afterHandleEvent->setTimestampToCurrent();
-        $afterHandleEvent->setExchange($exchange);
-        $this->eventDispatcher->dispatch(HandlerEvent::AFTER_HANDLE_EVENT_NAME, $afterHandleEvent);
+        $this->eventDispatcher->dispatch($eventName, $beforeHandleEvent);
     }
 
     /**
@@ -390,10 +380,12 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $this->deferExchangeMessage($throttledExchangeEnvelope, $this->throttleURI);
             } // If it's an exchange that can be retried later but it's failing due to an error
             elseif ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
+
                 $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
 
                 $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
+                $this->dispatchEvent($exchangeBackup, HandlerEvent::RECOVERABLE_FAILED_EXCHANGE_EVENT_NAME);
             } elseif (null !== $this->callbackURI && true === $context->get(Context::CALLBACK) && $context->get(Context::CALLBACK_METHOD)) {
                 $callbackExchangeEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                 $this->addCallbackHeadersToEnvelope($callbackExchangeEnvelope, $exception, $processor);
@@ -403,6 +395,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
                 $failedExchange = new Exchange($envelope);
                 $this->failedEndpoint->produce($failedExchange);
+                $this->dispatchEvent($failedExchange, HandlerEvent::UNRECOVERABLE_FAILED_EXCHANGE_EVENT_NAME);
             }
         } catch (\Exception $exceptionHandlingException) {
             $wrapException = new \Exception('Error while trying to handle Exception in the MessageHandler'.$exceptionHandlingException->getMessage(), 0, $exceptionHandlingException);
@@ -480,7 +473,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
      *
      * @param CallbackExchangeEnvelope $envelope
      * @param ProcessingException      $exception
-     * @param ProcessorInterface       $processor     
+     * @param ProcessorInterface       $processor
      */
     private function addCallbackHeadersToEnvelope(CallbackExchangeEnvelope $envelope, ProcessingException $exception, ProcessorInterface $processor)
     {
@@ -529,9 +522,9 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
             $exchange = $this->createExchangeForMessageFromURI($message, $endpointFrom->getURI());
         }
 
-        $this->onHandleStart($exchange);
+        $this->dispatchEvent($exchange, HandlerEvent::BEFORE_HANDLE_EVENT_NAME);
         $result = $this->processExchange($exchange, $retries);
-        $this->onHandleSuccess($exchange);
+        $this->dispatchEvent($exchange, HandlerEvent::AFTER_HANDLE_EVENT_NAME);
 
         return $result;
     }
