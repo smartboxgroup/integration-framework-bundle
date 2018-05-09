@@ -159,11 +159,11 @@ class FakeRestClient extends Client
      */
     protected function setResponseInCache($resource, $response, $suffix = null)
     {
-        $prettyRecordedResponse = getenv('PRETTY_RECORDED_RESPONSE');
+        $rawRecordedResponse = getenv('RAW_RECORDED_RESPONSE');
 
         $content = $this->getResponseContent($response);
 
-        if ('true' === $prettyRecordedResponse) {
+        if ('true' !== $rawRecordedResponse) { // By default, we record a pretty response.
             $content = $this->prettyJson($content);
         }
 

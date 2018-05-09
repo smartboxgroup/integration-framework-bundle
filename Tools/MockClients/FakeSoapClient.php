@@ -62,7 +62,7 @@ class FakeSoapClient extends BasicAuthSoapClient
         $mocksEnabled = getenv('MOCKS_ENABLED');
         $displayRequest = getenv('DISPLAY_REQUEST');
         $recordResponse = getenv('RECORD_RESPONSE');
-        $prettyRecordedResponse = getenv('PRETTY_RECORDED_RESPONSE');
+        $rawRecordedResponse = getenv('RAW_RECORDED_RESPONSE');
 
         if ('true' === $mocksEnabled) {
             $mocksMessage = 'MOCKS/';
@@ -111,7 +111,7 @@ class FakeSoapClient extends BasicAuthSoapClient
 
         if ('true' === $recordResponse) {
             $recordedResponse = $response;
-            if ('true' === $prettyRecordedResponse) {
+            if ('true' !== $rawRecordedResponse) { // By default, we record a pretty response.
                 $recordedResponse = $this->prettyXML($response);
             }
             $this->setResponseInCache($actionName, $recordedResponse, self::CACHE_SUFFIX);
