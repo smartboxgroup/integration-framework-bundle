@@ -287,35 +287,14 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
     /**
      * @param Exchange $exchange
+     * @param $eventName
      */
-    public function onHandleStart(Exchange $exchange)
+    protected function dispatchEvent(Exchange $exchange, $eventName)
     {
-        $beforeHandleEvent = new HandlerEvent(HandlerEvent::BEFORE_HANDLE_EVENT_NAME);
+        $beforeHandleEvent = new HandlerEvent($eventName);
         $beforeHandleEvent->setTimestampToCurrent();
         $beforeHandleEvent->setExchange($exchange);
-        $this->eventDispatcher->dispatch(HandlerEvent::BEFORE_HANDLE_EVENT_NAME, $beforeHandleEvent);
-    }
-
-    /**
-     * @param Exchange $exchange
-     */
-    public function onFailedExchange(Exchange $exchange)
-    {
-        $beforeHandleEvent = new HandlerEvent(HandlerEvent::UNRECOVERABLE_FAILED_EXCHANGE_EVENT_NAME);
-        $beforeHandleEvent->setTimestampToCurrent();
-        $beforeHandleEvent->setExchange($exchange);
-        $this->eventDispatcher->dispatch(HandlerEvent::UNRECOVERABLE_FAILED_EXCHANGE_EVENT_NAME, $beforeHandleEvent);
-    }
-
-    /**
-     * @param Exchange $exchange
-     */
-    public function onHandleSuccess(Exchange $exchange)
-    {
-        $afterHandleEvent = new HandlerEvent(HandlerEvent::AFTER_HANDLE_EVENT_NAME);
-        $afterHandleEvent->setTimestampToCurrent();
-        $afterHandleEvent->setExchange($exchange);
-        $this->eventDispatcher->dispatch(HandlerEvent::AFTER_HANDLE_EVENT_NAME, $afterHandleEvent);
+        $this->eventDispatcher->dispatch($eventName, $beforeHandleEvent);
     }
 
     /**
@@ -385,10 +364,12 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $this->deferExchangeMessage($throttledExchangeEnvelope, $this->throttleURI);
             } // If it's an exchange that can be retried later but it's failing due to an error
             elseif ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
+
                 $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
 
                 $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
+                $this->dispatchEvent($exchangeBackup, HandlerEvent::RECOVERABLE_FAILED_EXCHANGE_EVENT_NAME);
             } // If it's an exchange that is failing and it should not be retried later
             else {
                 $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
@@ -396,7 +377,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
                 $failedExchange = new Exchange($envelope);
                 $this->failedEndpoint->produce($failedExchange);
-                $this->onFailedExchange($failedExchange);
+                $this->dispatchEvent($failedExchange, HandlerEvent::UNRECOVERABLE_FAILED_EXCHANGE_EVENT_NAME);
             }
         } catch (\Exception $exceptionHandlingException) {
             $wrapException = new \Exception('Error while trying to handle Exception in the MessageHandler'.$exceptionHandlingException->getMessage(), 0, $exceptionHandlingException);
@@ -501,9 +482,9 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
             $exchange = $this->createExchangeForMessageFromURI($message, $endpointFrom->getURI());
         }
 
-        $this->onHandleStart($exchange);
+        $this->dispatchEvent($exchange, HandlerEvent::BEFORE_HANDLE_EVENT_NAME);
         $result = $this->processExchange($exchange, $retries);
-        $this->onHandleSuccess($exchange);
+        $this->dispatchEvent($exchange, HandlerEvent::AFTER_HANDLE_EVENT_NAME);
 
         return $result;
     }

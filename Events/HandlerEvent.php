@@ -13,6 +13,7 @@ class HandlerEvent extends Event
     const BEFORE_HANDLE_EVENT_NAME = 'smartesb.handler.before_handle';
     const AFTER_HANDLE_EVENT_NAME = 'smartesb.handler.after_handle';
     const UNRECOVERABLE_FAILED_EXCHANGE_EVENT_NAME = 'smartesb.handler.failed_exchange.unrecoverable';
+    const RECOVERABLE_FAILED_EXCHANGE_EVENT_NAME = 'smartesb.handler.failed_exchange.recoverable';
 
     /**
      * @Assert\Type(type="Smartbox\Integration\FrameworkBundle\Core\Exchange")
