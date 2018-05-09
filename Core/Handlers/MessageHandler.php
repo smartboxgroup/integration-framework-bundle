@@ -362,6 +362,8 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $throttledExchangeEnvelope = new ThrottledExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
                 $this->addCommonErrorHeadersToEnvelope($throttledExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($throttledExchangeEnvelope, $this->throttleURI);
+                $this->dispatchEvent($exchangeBackup, HandlerEvent::THROTTLING_HANDLE_EVENT_NAME);
+
             } // If it's an exchange that can be retried later but it's failing due to an error
             elseif ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
 
