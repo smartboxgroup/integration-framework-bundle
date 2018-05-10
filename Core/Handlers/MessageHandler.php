@@ -285,16 +285,36 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
         }
     }
 
+
     /**
+     * Dispatch handler event depending
+     *
      * @param Exchange $exchange
      * @param $eventName
      */
     protected function dispatchEvent(Exchange $exchange, $eventName)
     {
-        $beforeHandleEvent = new HandlerEvent($eventName);
-        $beforeHandleEvent->setTimestampToCurrent();
-        $beforeHandleEvent->setExchange($exchange);
-        $this->eventDispatcher->dispatch($eventName, $beforeHandleEvent);
+        $event = new HandlerEvent($eventName);
+        $event->setTimestampToCurrent();
+        $event->setExchange($exchange);
+        $this->eventDispatcher->dispatch($eventName, $event);
+    }
+
+    /**
+     * @param Exchange $exchange
+     */
+    public function onHandleSuccess(Exchange $exchange)
+    {
+        $this->dispatchEvent($exchange, HandlerEvent::AFTER_HANDLE_EVENT_NAME);
+    }
+
+    /**
+     * @param Exchange $exchange
+     */
+    public function onHandleStart(Exchange $exchange)
+    {
+        $this->dispatchEvent($exchange, HandlerEvent::BEFORE_HANDLE_EVENT_NAME);
+
     }
 
     /**
@@ -484,10 +504,9 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
             $exchange = $this->createExchangeForMessageFromURI($message, $endpointFrom->getURI());
         }
 
-        $this->dispatchEvent($exchange, HandlerEvent::BEFORE_HANDLE_EVENT_NAME);
+        $this->onHandleStart($exchange);
         $result = $this->processExchange($exchange, $retries);
-        $this->dispatchEvent($exchange, HandlerEvent::AFTER_HANDLE_EVENT_NAME);
-
+        $this->onHandleSuccess($exchange);
         return $result;
     }
 
