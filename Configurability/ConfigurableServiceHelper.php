@@ -255,6 +255,12 @@ class ConfigurableServiceHelper
                 ob_flush();
             }
 
+            if ('break' == $action && false !== $parameters) {
+                if (function_exists('xdebug_break')) {
+                    xdebug_break();
+                }
+            }
+
             if ('sleep' == $action) {
                 echo 'Sleeping for '.$parameters.' seconds due to sleep step...'."\n";
                 sleep($parameters);
