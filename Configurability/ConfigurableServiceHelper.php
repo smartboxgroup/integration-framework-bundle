@@ -247,8 +247,8 @@ class ConfigurableServiceHelper
             if ('display' == $action) {
                 foreach ($parameters as $var) {
                     echo "\n";
-                    echo 'context'.$var.' => ';
-                    $command = 'print_r($context'.$var.');';
+                    echo $var.' => ';
+                    $command = 'print_r($'.$var.');';
                     eval($command);
                 }
                 flush();
