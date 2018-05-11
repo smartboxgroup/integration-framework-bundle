@@ -287,7 +287,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
 
     /**
-     * Dispatch handler event depending
+     * Dispatch handler event depending on an event name
      *
      * @param Exchange $exchange
      * @param $eventName
@@ -301,6 +301,8 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
+     * Dispatch an beforeHandle event
+     *
      * @param Exchange $exchange
      */
     public function onHandleSuccess(Exchange $exchange)
@@ -309,6 +311,8 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
+     * Dispatch an afterHandle event
+     *
      * @param Exchange $exchange
      */
     public function onHandleStart(Exchange $exchange)
