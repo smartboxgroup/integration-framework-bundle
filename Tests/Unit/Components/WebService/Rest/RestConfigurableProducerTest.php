@@ -86,6 +86,7 @@ class RestConfigurableProducerTest extends \PHPUnit_Framework_TestCase
             RestConfigurableProducer::REQUEST_HTTP_VERB => 'POST',
             RestConfigurableProducer::REQUEST_BODY => ['hello' => 'world'],
             RestConfigurableProducer::REQUEST_URI => 'something',
+            RestConfigurableProducer::RESPONSE_DISPLAY_ERROR => false,
         ];
 
         $options = [
