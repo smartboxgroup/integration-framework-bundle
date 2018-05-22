@@ -11,6 +11,16 @@ trait HasShowExternalSystemErrorMessage
     protected $showExternalSystemErrorMessage = false;
 
     /**
+     * @var
+     */
+    protected $originalMessage;
+
+    /**
+     * @var
+     */
+    protected $originalCode;
+
+    /**
      * @return bool
      */
     public function mustShowExternalSystemErrorMessage()
@@ -25,4 +35,21 @@ trait HasShowExternalSystemErrorMessage
     {
         $this->showExternalSystemErrorMessage = (bool) $showExternalSystemErrorMessage;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getOriginalMessage()
+    {
+        return $this->originalMessage;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOriginalCode()
+    {
+        return $this->originalCode;
+    }
+
 }

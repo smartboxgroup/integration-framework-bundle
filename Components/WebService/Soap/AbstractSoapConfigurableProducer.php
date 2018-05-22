@@ -30,9 +30,15 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     const VALIDATION_MESSAGE = 'message';
     const VALIDATION_DISPLAY_MESSAGE = 'display_message';
     const VALIDATION_RECOVERABLE = 'recoverable';
+    const RESPONSE_DISPLAY_ERROR = 'display_error';
 
     /** @var SoapClient */
     protected $soapClient;
+
+    /**
+     * @var
+     */
+    protected $hasToDisplayOriginalError = false;
 
     /**
      * @param $endpointOptions
@@ -59,13 +65,14 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     }
 
     /**
-     * @param string $methodName
-     * @param array  $params
-     * @param array  $endpointOptions
-     * @param array  $soapOptions
-     * @param array  $soapHeaders
-     *
-     * @return \stdClass
+     * @param $methodName
+     * @param $params
+     * @param array $endpointOptions
+     * @param array $soapOptions
+     * @param array $soapHeaders
+     * @param bool $displayError
+     * @return mixed|null
+     * @throws RecoverableSoapException
      */
     protected function performRequest($methodName, $params, array &$endpointOptions, array $soapOptions = [], array $soapHeaders = [])
     {
@@ -107,7 +114,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             }
 
         } catch (\Exception $ex) {
-            $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, false, $ex->getCode(), $ex);
+            $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, $this->hasToDisplayOriginalError, $ex->getCode(), $ex);
         }
 
         return $response;
@@ -132,12 +139,16 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             self::REQUEST_NAME,
         ]);
 
+        $paramsResolver->setDefault(self::RESPONSE_DISPLAY_ERROR, false);
+
         $paramsResolver->setDefined([
             self::SOAP_OPTIONS,
+            self::RESPONSE_DISPLAY_ERROR,
             self::SOAP_HEADERS,
             self::HTTP_HEADERS,
             self::VALIDATION,
         ]);
+
 
         $params = $paramsResolver->resolve($stepActionParams);
 
@@ -162,6 +173,8 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
                 $validationSteps[] = $validationParamsResolver->resolve($validation);
             }
         }
+
+        $this->hasToDisplayOriginalError = $this->confHelper->resolve($params[self::RESPONSE_DISPLAY_ERROR], $context);
 
         $requestName = $params[self::REQUEST_NAME];
         $soapMethodName = $this->confHelper->resolve($params[self::SOAP_METHOD_NAME], $context);
