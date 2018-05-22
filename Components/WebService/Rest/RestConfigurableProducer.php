@@ -41,6 +41,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
     const VALIDATION_DISPLAY_MESSAGE = 'display_message';
     const VALIDATION_RECOVERABLE = 'recoverable';
     const REQUEST_EXPECTED_RESPONSE_TYPE = 'response_type';
+    const RESPONSE_DISPLAY_ERROR = 'display_error';
 
     /**
      * @param       $options
@@ -115,6 +116,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             self::REQUEST_URI,
         ]);
 
+        $stepParamsResolver->setDefault(self::RESPONSE_DISPLAY_ERROR, false);
         $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_TYPE, 'array');
         $stepParamsResolver->setDefined([
             RestConfigurableProtocol::OPTION_HEADERS,
@@ -259,10 +261,19 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                 $statusCode = 0;
             }
 
+            //SIEAI-2089
+            $errorMessageResolver = new OptionsResolver();
+
+            $errorMessageResolver->setDefault(self::RESPONSE_DISPLAY_ERROR, false);
+
+            $params = $errorMessageResolver->resolve(array(self::RESPONSE_DISPLAY_ERROR => $stepActionParams[self::RESPONSE_DISPLAY_ERROR]));
+
+            $exposeErrorMessage = $this->confHelper->resolve($params[self::RESPONSE_DISPLAY_ERROR], $context);
+
             if ($statusCode >= 400 && $statusCode <= 499) {
-                $this->throwUnrecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $statusCode, false, $e->getCode(), $e);
+                $this->throwUnrecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $statusCode, $exposeErrorMessage, $e->getCode(), $e);
             } else {
-                $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $statusCode, false, $e->getCode(), $e);
+                $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $statusCode, $exposeErrorMessage, $e->getCode(), $e);
             }
         } catch (UnrecoverableRestException $e) {
             throw $e;
