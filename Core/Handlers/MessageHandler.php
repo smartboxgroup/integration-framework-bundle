@@ -28,6 +28,7 @@ use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEndpointFactory;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\CallbackExchangeEnvelope;
 
 /**
  * Class MessageHandler.
@@ -81,6 +82,11 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
     /** @var EndpointInterface */
     protected $failedEndpoint;
+
+    /**
+     * @var string The URI of the endpoint that messages for callback will be sent to
+     */
+    protected $callbackURI;
 
     /**
      * @return bool
@@ -258,6 +264,14 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
+     * @param string $retryURI
+     */
+    public function setCallbackURI($callbackURI)
+    {
+        $this->callbackURI = $callbackURI;
+    }
+
+    /**
      * @param string $throttleURI
      */
     public function setThrottleURI($throttleURI)
@@ -353,7 +367,8 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
      * We check the exception type to see what type of exception it was
      * - ThrottledException, here we will defer(deal with later) the message to the endpoint defined in the throttledURI
      * - RecoverableException, defer to the retryURI, only if we have not reached the max number of retires
-     * - otherwise we will deal with call the exchange a failed exchange and produce it to the failed endpoint
+     * - If the context has a callback we will put the failed message in a callback envelope and defer the exchange
+     * - Else it is a failed exchange and it will be produced to the failure endpoint
      *
      * @param ProcessingException $exception
      * @param Processor           $processor
@@ -372,6 +387,7 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
         $retries
     ) {
         $originalException = $exception->getOriginalException();
+        $context = $exchangeBackup->getIn()->getContext();
 
         try {
             // Dispatch event with error information
@@ -396,11 +412,15 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $this->addCommonErrorHeadersToEnvelope($retryExchangeEnvelope, $exception, $processor, $retries);
                 $this->deferExchangeMessage($retryExchangeEnvelope, $this->retryURI);
                 $this->dispatchEvent($exchangeBackup, HandlerEvent::RECOVERABLE_FAILED_EXCHANGE_EVENT_NAME);
-            } // If it's an exchange that is failing and it should not be retried later
-            else {
+            } elseif (null !== $this->callbackURI && true === $context->get(Context::CALLBACK) && $context->get(Context::CALLBACK_METHOD)) {
+                $callbackExchangeEnvelope = new CallbackExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
+                $this->addCallbackHeadersToEnvelope($callbackExchangeEnvelope, $exception, $processor);
+                $this->deferExchangeMessage($callbackExchangeEnvelope, $this->callbackURI);
+                $this->dispatchEvent($exchangeBackup, HandlerEvent::CALLBACK_HANDLE_EVENT_NAME);
+
+            } else {
                 $envelope = new FailedExchangeEnvelope($exchangeBackup, $exception->getProcessingContext());
                 $this->addCommonErrorHeadersToEnvelope($envelope, $exception, $processor, $retries);
-
                 $failedExchange = new Exchange($envelope);
                 $this->failedEndpoint->produce($failedExchange);
                 $this->dispatchEvent($failedExchange, HandlerEvent::UNRECOVERABLE_FAILED_EXCHANGE_EVENT_NAME);
@@ -473,6 +493,29 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     }
 
     /**
+     * This method adds headers to the Envelope that we put the Callback exchange into, this is so that the
+     * consumer of the has information to do deal with it.
+     *
+     * - add the last error message and the time the error happened
+     * - add information about the processor that was being used when the event occurred
+     *
+     * @param CallbackExchangeEnvelope $envelope
+     * @param ProcessingException      $exception
+     * @param ProcessorInterface       $processor
+     */
+    private function addCallbackHeadersToEnvelope(CallbackExchangeEnvelope $envelope, ProcessingException $exception, ProcessorInterface $processor)
+    {
+        $originalException = $exception->getOriginalException();
+        $errorDescription = $originalException ? $originalException->getMessage() : $exception->getMessage();
+
+        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_CREATED_AT, round(microtime(true) * 1000));
+        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_ERROR_MESSAGE, $errorDescription);
+        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_ERROR_PROCESSOR_ID, $processor->getId());
+        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_ERROR_PROCESSOR_DESCRIPTION, $processor->getDescription());
+        $envelope->setHeader(CallbackExchangeEnvelope::HEADER_STATUS_CODE, $originalException->getCode());
+    }
+
+    /**
      * Handle a message.
      *
      * If the message is a retryable message and the message is not ready to be processed yet, we will re-defer the message.
@@ -483,7 +526,6 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
     public function handle(MessageInterface $message, EndpointInterface $endpointFrom)
     {
         $retries = 0;
-
         // If this is an exchange envelope, we extract the old exchange and prepare the new one
         if ($message && $message instanceof ExchangeEnvelope) {
             $oldExchange = $message->getBody();

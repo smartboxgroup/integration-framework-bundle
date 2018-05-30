@@ -63,7 +63,7 @@ class Exchange implements SerializableInterface
      */
     public function __construct(MessageInterface $message = null, Itinerary $itinerary = null, array $headers = [])
     {
-        $this->id = uniqid("",true);
+        $this->id = uniqid('', true);
         $this->setIn($message);
         $this->itinerary = $itinerary;
         $this->headers = $headers;

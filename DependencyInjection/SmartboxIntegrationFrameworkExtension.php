@@ -80,7 +80,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $arguments = $call[1];
                     $resolvedArguments = [];
                     foreach ($arguments as $index => $arg) {
-                        if (strpos($arg, '@') === 0) {
+                        if (0 === strpos($arg, '@')) {
                             $resolvedArguments[$index] = new Reference(substr($arg, 1));
                         } else {
                             $resolvedArguments[$index] = $arg;
@@ -135,7 +135,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     foreach ($arguments as $index => $arg) {
                         $resolvedArguments[$index] = $arg;
 
-                        if (strpos($arg, '@') === 0) {
+                        if (0 === strpos($arg, '@')) {
                             $resolvedArguments[$index] = new Reference(substr($arg, 1));
                         }
                     }
@@ -188,7 +188,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             switch ($type) {
                 case 'rabbitmq':
                 case 'activemq':
-                    $urlEncodeDestination = ($type == 'rabbitmq');
+                    $urlEncodeDestination = ('rabbitmq' == $type);
 
                     $driverDef = new Definition(StompQueueDriver::class, []);
                     $driverDef->addMethodCall('setId', [$driverId]);
@@ -291,6 +291,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $handlerDef->addMethodCall('setEndpointFactory', [new Reference('smartesb.endpoint_factory')]);
             $handlerDef->addMethodCall('setItineraryResolver', [new Reference('smartesb.itineray_resolver')]);
             $handlerDef->addMethodCall('setFailedURI', [$handlerConfig['failed_uri']]);
+            $handlerDef->addMethodCall('setCallbackURI', [$handlerConfig['callback_uri']]);
             $handlerDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
             // Settings for retry mechanism
@@ -298,7 +299,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $handlerDef->addMethodCall('setRetryDelay', [$handlerConfig['retry_delay']]);
             $handlerDef->addMethodCall('setRetryStrategy', [$handlerConfig['retry_strategy']]);
             $handlerDef->addMethodCall('setRetryDelayFactor', [$handlerConfig['retry_delay_factor']]);
-            if ($handlerConfig['retry_uri'] != 'original') {
+            if ('original' != $handlerConfig['retry_uri']) {
                 $handlerDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
             } else {
                 $handlerDef->addMethodCall('setRetryURI', [false]);
