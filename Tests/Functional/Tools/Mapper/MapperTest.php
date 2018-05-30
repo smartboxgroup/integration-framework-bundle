@@ -109,6 +109,7 @@ class MapperTest extends BaseTestCase
                         'date_1' => "mapper.formatDate('Y-m-d H:i:s', obj.get('date'))",
                         'date_2' => "mapper.formatDate(ISO8601, obj.get('date'))",
                         'date_3' => "mapper.formatDate(ISO8601Micro, obj.get('date'))",
+                        'date_4' => "mapper.formatDateTimeUtc(obj.get('date'))",
                     ],
                 ],
                 'mapping_name' => 'mapping_name',
@@ -121,6 +122,7 @@ class MapperTest extends BaseTestCase
                     'date_1' => '2015-01-01 20:00:00',
                     'date_2' => '2015-01-01T20:00:00+0100',
                     'date_3' => '2015-01-01T20:00:00.000',
+                    'date_4' => '2015-01-01T19:00:00Z',
                 ],
             ],
             'Test stringToDate' => [
