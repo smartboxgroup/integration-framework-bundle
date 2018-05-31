@@ -81,10 +81,12 @@ class FakeRestClient extends Client
 
         if ('true' === $displayRequest) {
             $content = $this->getResponseContent($response);
+            $body = $this->getBodyContent($response);
             echo "\nRESPONSE (".$mocksMessage.'REST)  for '.$requestUri.' / '.$requestMethod;
             echo "\n=====================================================================================================";
             echo "\nRAW RESPONSE:\n".$content;
             echo "\nPRETTY SEXY RESPONSE:\n".$this->prettyJson($content);
+            echo "\nPRETTY SEXY BODY:\n".$this->prettyJson($body);
             echo "\n=====================================================================================================";
             echo "\n\n";
         }
@@ -189,5 +191,18 @@ class FakeRestClient extends Client
         $response->getBody()->rewind();
 
         return $content;
+    }
+
+    /**
+     * @param Psr7\Response $response
+     *
+     * @return string
+     */
+    protected function getBodyContent($response)
+    {
+        $body = $response->getBody()->getContents();
+        $response->getBody()->rewind();
+
+        return $body;
     }
 }
