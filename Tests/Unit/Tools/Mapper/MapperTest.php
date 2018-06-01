@@ -25,21 +25,21 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     public function wordWrapDataProvider()
     {
         return [
-            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 12, 1, "I'm a very" ],
-            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 12, 100, "" ],
-            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 12, 2, "long string," ],
-            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 109, 1, "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious" ],
-            [ "", 98, 1, "" ],
-            [ null, 109, 1, "" ],
-            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 11, "Supercalif" ],
-            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 12, "ragilistic" ],
-            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 13, "expialidoc" ],
-            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 14, "ious" ],
-            [ "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 1023, 1, "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", ],
-            [ "Supercalifragilisticexpialidocious", 1, 1, "S" ],
-            [ "Supercalifragilisticexpialidocious", 1, 34, "s" ],
-            [ "Supercalifragilisticexpialidocious", 17, 1, "Supercalifragilis" ],
-            [ "Supercalifragilisticexpialidocious", 17, 2, "ticexpialidocious" ],
+            ["I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 12, 1, "I'm a very"],
+            ["I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 12, 100, ''],
+            ["I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 12, 2, 'long string,'],
+            ["I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 109, 1, "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious"],
+            ['', 98, 1, ''],
+            [null, 109, 1, ''],
+            ["I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 11, 'Supercalif'],
+            ["I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 12, 'ragilistic'],
+            ["I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 13, 'expialidoc'],
+            ["I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 10, 14, 'ious'],
+            ["I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious", 1023, 1, "I'm a very long string, with words, numbers from 1 to 10 12334566 and long Supercalifragilisticexpialidocious"],
+            ['Supercalifragilisticexpialidocious', 1, 1, 'S'],
+            ['Supercalifragilisticexpialidocious', 1, 34, 's'],
+            ['Supercalifragilisticexpialidocious', 17, 1, 'Supercalifragilis'],
+            ['Supercalifragilisticexpialidocious', 17, 2, 'ticexpialidocious'],
         ];
     }
 
@@ -55,6 +55,15 @@ class MapperTest extends \PHPUnit_Framework_TestCase
         $date = $this->mapper->formatDate('Y-m-d', $dateTime);
 
         $this->assertSame('2012-07-08', $date);
+    }
+
+    public function testFormatDateTimeUtc()
+    {
+        $dateTime = new \DateTime('2016-04-20T20:00:00+0200');
+
+        $date = $this->mapper->formatDateTimeUtc($dateTime);
+
+        $this->assertSame('2016-04-20T18:00:00Z', $date);
     }
 
     public function testGetFirstElementArray()
@@ -153,7 +162,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
     {
         $value = 5;
         // Testing empty values, returning a non null value
-        $res = $this->mapper->emptyTo("", $value);
+        $res = $this->mapper->emptyTo('', $value);
         $this->assertSame($value, $res);
         $res = $this->mapper->emptyTo(0, $value);
         $this->assertSame($value, $res);
@@ -164,7 +173,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         // Testing empty values, returning a null value
         $value = null;
-        $res = $this->mapper->emptyTo("", $value);
+        $res = $this->mapper->emptyTo('', $value);
         $this->assertSame($value, $res);
         $res = $this->mapper->emptyTo(0, $value);
         $this->assertSame($value, $res);
@@ -175,28 +184,26 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 
         $value = 5;
         // Testing non empty values, returning a non null value
-        $input = "A";
+        $input = 'A';
         $res = $this->mapper->emptyTo($input, $value);
         $this->assertSame($input, $res);
         $input = 10;
         $res = $this->mapper->emptyTo($input, $value);
         $this->assertSame($input, $res);
-        $input = array(0 => "A");
+        $input = array(0 => 'A');
         $res = $this->mapper->emptyTo($input, $value);
         $this->assertSame($input, $res);
 
         $value = null;
         // Testing non empty values, returning a null value
-        $input = "A";
+        $input = 'A';
         $res = $this->mapper->emptyTo($input, $value);
         $this->assertSame($input, $res);
         $input = 10;
         $res = $this->mapper->emptyTo($input, $value);
         $this->assertSame($input, $res);
-        $input = array(0 => "A");
+        $input = array(0 => 'A');
         $res = $this->mapper->emptyTo($input, $value);
         $this->assertSame($input, $res);
     }
 }
-
-
