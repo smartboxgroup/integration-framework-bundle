@@ -50,6 +50,24 @@ class Mapper implements MapperInterface
     }
 
     /**
+     * Format the date to ISO8601 format "combined date and time in UTC". Ex: 2018-05-30T13:07:26Z.
+     *
+     * @param \DateTime|null $date
+     *
+     * @return null|string
+     */
+    public function formatDateTimeUtc(\DateTime $date = null)
+    {
+        if (null === $date) {
+            return null;
+        }
+
+        $date->setTimezone(new \DateTimeZone('UTC'));
+
+        return $date->format("Y-m-d\TH:i:s\Z");
+    }
+
+    /**
      * @param mixed  $obj
      * @param string $mappingName
      * @param mixed  $context
