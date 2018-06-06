@@ -52,4 +52,23 @@ trait HasShowExternalSystemErrorMessage
         return $this->originalCode;
     }
 
+    /**
+     * @param mixed $originalMessage
+     * @return HasShowExternalSystemErrorMessage
+     */
+    public function setOriginalMessage($originalMessage)
+    {
+        $this->originalMessage = $originalMessage;
+        return $this;
+    }
+
+    /**
+     * @param mixed $originalCode
+     * @return HasShowExternalSystemErrorMessage
+     */
+    public function setOriginalCode($originalCode)
+    {
+        $this->originalCode = $originalCode;
+        return $this;
+    }
 }

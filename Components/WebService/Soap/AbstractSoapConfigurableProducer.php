@@ -9,7 +9,6 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\AbstractWebServic
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\RecoverableSoapException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\UnrecoverableSoapException;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
@@ -30,15 +29,9 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     const VALIDATION_MESSAGE = 'message';
     const VALIDATION_DISPLAY_MESSAGE = 'display_message';
     const VALIDATION_RECOVERABLE = 'recoverable';
-    const RESPONSE_DISPLAY_ERROR = 'display_error';
 
     /** @var SoapClient */
     protected $soapClient;
-
-    /**
-     * @var
-     */
-    protected $hasToDisplayOriginalError = false;
 
     /**
      * @param $endpointOptions
@@ -70,8 +63,10 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
      * @param array $endpointOptions
      * @param array $soapOptions
      * @param array $soapHeaders
-     * @param bool $displayError
+     * @param bool  $displayError
+     *
      * @return mixed|null
+     *
      * @throws RecoverableSoapException
      */
     protected function performRequest($methodName, $params, array &$endpointOptions, array $soapOptions = [], array $soapHeaders = [])
@@ -84,7 +79,6 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         }
 
         try {
-
             // creates a proper set of SoapHeader objects
             $processedSoapHeaders = array_map(function ($header) {
                 if (is_array($header)) {
@@ -106,15 +100,13 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             $response = $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
 
             $lastResponseCode = $soapClient->__getLastResponseCode();
-            if ( $lastResponseCode >= 400 && $lastResponseCode <= 599) {
-                $this->throwUnrecoverableSoapProducerException("Unrecoverable error. SOAP HTTP Response code is ".$lastResponseCode.", 200 was expected.", $soapClient);
-
-            } elseif ($lastResponseCode != 200) {
-                $this->throwRecoverableSoapProducerException("Recoverable error. SOAP HTTP Response code is ".$lastResponseCode.", 200 was expected.", $soapClient);
+            if ($lastResponseCode >= 400 && $lastResponseCode <= 599) {
+                $this->throwUnrecoverableSoapProducerException('Unrecoverable error. SOAP HTTP Response code is '.$lastResponseCode.', 200 was expected.', $soapClient);
+            } elseif (200 != $lastResponseCode) {
+                $this->throwRecoverableSoapProducerException('Recoverable error. SOAP HTTP Response code is '.$lastResponseCode.', 200 was expected.', $soapClient);
             }
-
         } catch (\Exception $ex) {
-            $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, $this->hasToDisplayOriginalError, $ex->getCode(), $ex);
+            $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, $this->getDisplayResponseError(), $ex->getCode(), $ex);
         }
 
         return $response;
@@ -139,16 +131,15 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             self::REQUEST_NAME,
         ]);
 
-        $paramsResolver->setDefault(self::RESPONSE_DISPLAY_ERROR, false);
+        $paramsResolver->setDefault(self::DISPLAY_RESPONSE_ERROR, false);
 
         $paramsResolver->setDefined([
             self::SOAP_OPTIONS,
-            self::RESPONSE_DISPLAY_ERROR,
+            self::DISPLAY_RESPONSE_ERROR,
             self::SOAP_HEADERS,
             self::HTTP_HEADERS,
             self::VALIDATION,
         ]);
-
 
         $params = $paramsResolver->resolve($stepActionParams);
 
@@ -174,23 +165,23 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             }
         }
 
-        $this->hasToDisplayOriginalError = $this->confHelper->resolve($params[self::RESPONSE_DISPLAY_ERROR], $context);
+        $this->setDisplayResponseError($params, $context);
 
         $requestName = $params[self::REQUEST_NAME];
         $soapMethodName = $this->confHelper->resolve($params[self::SOAP_METHOD_NAME], $context);
         $soapMethodParams = $this->confHelper->resolve($params[self::REQUEST_PARAMETERS], $context);
         $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
-        $httpHeaders = isset($params[self::HTTP_HEADERS]) ? $this->confHelper->resolve($params[self::HTTP_HEADERS], $context): [];
+        $httpHeaders = isset($params[self::HTTP_HEADERS]) ? $this->confHelper->resolve($params[self::HTTP_HEADERS], $context) : [];
 
         $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
-        if($this->getSoapClient($endpointOptions)){
-            $httpHeaders[self::HTTP_HEADER_TRANSACTION_ID]=$context['msg']->getContext()['transaction_id'];
+        if ($this->getSoapClient($endpointOptions)) {
+            $httpHeaders[self::HTTP_HEADER_TRANSACTION_ID] = $context['msg']->getContext()['transaction_id'];
             $httpHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
             $this->getSoapClient($endpointOptions)->setRequestHeaders($httpHeaders);
         }
         $result = $this->performRequest($soapMethodName, $soapMethodParams, $endpointOptions, $soapOptions, $soapHeaders);
-        $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context,$endpointOptions));
+        $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context, $endpointOptions));
         $context[self::KEY_RESPONSES][$requestName] = $result;
 
         // Validates response (if needed)
@@ -309,25 +300,23 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     {
         // Dispatch event with error information
         $event = new ExternalSystemHTTPEvent();
-        $event->setEventDetails( 'HTTP SOAP Request/Response Event' );
+        $event->setEventDetails('HTTP SOAP Request/Response Event');
         $event->setTimestampToCurrent();
-        $event->setExchangeId( $context['exchange']->getId() );
+        $event->setExchangeId($context['exchange']->getId());
         $event->setTransactionId($context['msg']->getContext()['transaction_id']);
         $event->setFromUri($context['msg']->getContext()['from']);
-        $event->setHttpURI( $this->getSoapClient($endpointOptions)->__getLastRequestUri() );
-        $event->setRequestHttpHeaders( $this->getSoapClient($endpointOptions)->__getLastRequestHeaders() );
-        $event->setResponseHttpHeaders( $this->getSoapClient($endpointOptions)->__getLastResponseHeaders() );
-        $event->setRequestHttpBody( $this->getSoapClient($endpointOptions)->__getLastRequest() );
-        $event->setResponseHttpBody( $this->getSoapClient($endpointOptions)->__getLastResponse() );
+        $event->setHttpURI($this->getSoapClient($endpointOptions)->__getLastRequestUri());
+        $event->setRequestHttpHeaders($this->getSoapClient($endpointOptions)->__getLastRequestHeaders());
+        $event->setResponseHttpHeaders($this->getSoapClient($endpointOptions)->__getLastResponseHeaders());
+        $event->setRequestHttpBody($this->getSoapClient($endpointOptions)->__getLastRequest());
+        $event->setResponseHttpBody($this->getSoapClient($endpointOptions)->__getLastResponse());
 
-        if( $this->getSoapClient($endpointOptions)->__getLastResponseCode() === 200 )
-        {
+        if (200 === $this->getSoapClient($endpointOptions)->__getLastResponseCode()) {
             $event->setStatus('Success');
-        }else{
+        } else {
             $event->setStatus('Error');
         }
 
         return $event;
     }
-
 }

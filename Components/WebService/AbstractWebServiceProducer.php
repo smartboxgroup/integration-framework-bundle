@@ -18,8 +18,11 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
     const OUTPUT_OBJECT = 'object';
     const OUTPUT_GROUP = 'group';
     const OUTPUT_DISPLAY_ERROR = 'display_error';
-    const HTTP_HEADER_TRANSACTION_ID ='X-Transaction-Id';
-    const HTTP_HEADER_EAI_TIMESTAMP ='X-Eai-Timestamp';
+    const HTTP_HEADER_TRANSACTION_ID = 'X-Transaction-Id';
+    const HTTP_HEADER_EAI_TIMESTAMP = 'X-Eai-Timestamp';
+    const DISPLAY_RESPONSE_ERROR = 'display_error';
+
+    private $displayResponseError = false;
 
     /**
      * @param $stepActionParams
@@ -32,7 +35,7 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
     {
         if (!is_array($stepActionParams)) {
             throw new InvalidConfigurationException(
-                "Step '" . self::STEP_VALIDATE_OBJECT_OUTPUT . "' in AbstractConfigurableProducer expected an array as configuration"
+                "Step '".self::STEP_VALIDATE_OBJECT_OUTPUT."' in AbstractConfigurableProducer expected an array as configuration"
             );
         }
 
@@ -82,5 +85,21 @@ abstract class AbstractWebServiceProducer extends AbstractConfigurableProducer
         }
 
         return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getDisplayResponseError()
+    {
+        return $this->displayResponseError;
+    }
+
+    /**
+     * @param bool $displayResponseError
+     */
+    public function setDisplayResponseError($params, $context)
+    {
+        $this->displayResponseError = $this->confHelper->resolve($params[self::DISPLAY_RESPONSE_ERROR], $context);
     }
 }
