@@ -59,7 +59,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         ];
 
         $auth = $endpointOptions[RestConfigurableProtocol::OPTION_AUTH];
-        if (RestConfigurableProtocol::AUTH_BASIC === $auth) {
+        if ($auth === RestConfigurableProtocol::AUTH_BASIC) {
             $result['auth'] = [
                 $endpointOptions[Protocol::OPTION_USERNAME],
                 $endpointOptions[Protocol::OPTION_PASSWORD],
