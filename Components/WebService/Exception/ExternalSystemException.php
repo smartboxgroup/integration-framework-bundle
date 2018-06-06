@@ -26,10 +26,14 @@ class ExternalSystemException extends \Exception implements ExternalSystemExcept
     public static function createFromException(ExternalSystemExceptionInterface $originalException)
     {
         $message = sprintf(self::EXCEPTION_MESSAGE_TEMPLATE, $originalException->getExternalSystemName());
+        $code = $originalException->getCode();
         if ($originalException->mustShowExternalSystemErrorMessage()) {
-            $message .= ': '.$originalException->getMessage();
+            $message = $originalException->getOriginalMessage();
+            $code = $originalException->getOriginalCode();
         }
-        $exception = new self($message);
+
+        $exception = new self($message, $code);
+
         $exception->setOriginalException($originalException);
 
         return $exception;

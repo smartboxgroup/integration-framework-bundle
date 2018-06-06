@@ -16,7 +16,6 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebse
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\RecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGuzzleHttpClient;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -115,11 +114,12 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             self::REQUEST_URI,
         ]);
 
+        $stepParamsResolver->setDefault(self::DISPLAY_RESPONSE_ERROR, false);
         $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_TYPE, 'array');
         $stepParamsResolver->setDefined([
             RestConfigurableProtocol::OPTION_HEADERS,
             self::VALIDATION,
-            self::REQUEST_QUERY_PARAMETERS
+            self::REQUEST_QUERY_PARAMETERS,
         ]);
 
         $stepParamsResolver->setAllowedValues(self::REQUEST_HTTP_VERB, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
@@ -158,7 +158,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $endpointOptions = $this->confHelper->resolve($endpointOptions, $context);
 
         $requestHeaders = isset($params[RestConfigurableProtocol::OPTION_HEADERS]) ?
-            $this->confHelper->resolve($params[RestConfigurableProtocol::OPTION_HEADERS], $context):
+            $this->confHelper->resolve($params[RestConfigurableProtocol::OPTION_HEADERS], $context) :
             []
         ;
 
@@ -169,13 +169,13 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $encoding = $endpointOptions[RestConfigurableProtocol::OPTION_ENCODING];
 
         $body = $this->confHelper->resolve($params[self::REQUEST_BODY], $context);
-        $requestBody = "";
+        $requestBody = '';
         if ($body) {
             $requestBody = $this->encodeRequestBody($encoding, $body);
         }
         $restOptions['body'] = $requestBody;
 
-        if ($httpMethod == "GET") {
+        if ('GET' == $httpMethod) {
             $queryParameters = $this->confHelper->resolve($params[self::REQUEST_QUERY_PARAMETERS], $context);
             if (!$queryParameters) {
                 throw new InvalidConfigurationException(
@@ -189,7 +189,6 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             $requestHeaders[self::HTTP_HEADER_TRANSACTION_ID] = $context['msg']->getContext()['transaction_id'];
             $requestHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
         } catch (\Exception $e) {
-
         }
         /* @var Response $response */
         $request = new Request($httpMethod, $resolvedURI, $requestHeaders);
@@ -197,7 +196,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         try {
             $response = $client->send($request, $restOptions);
             $responseContent = $response->getBody()->getContents();
-            $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context,$request,$requestBody,$response,$responseContent,$endpointOptions));
+            $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context, $request, $requestBody, $response, $responseContent, $endpointOptions));
             // Tries to parse the body and convert it into an object
             $responseBody = null;
             if ($responseContent) {
@@ -230,9 +229,9 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                         true === $validationStep[self::VALIDATION_DISPLAY_MESSAGE]
                     );
                     if ($recoverable) {
-                        $this->throwRecoverableRestProducerException($message, $request->getHeaders(),$requestBody, $response->getHeaders(), $responseBody, $response->getStatusCode(), $showMessage);
+                        $this->throwRecoverableRestProducerException($message, $request->getHeaders(), $requestBody, $response->getHeaders(), $responseBody, $response->getStatusCode(), $showMessage);
                     } else {
-                        $this->throwUnrecoverableRestProducerException($message, $request->getHeaders(),$requestBody, $response->getHeaders(), $responseBody, $response->getStatusCode(), $showMessage);
+                        $this->throwUnrecoverableRestProducerException($message, $request->getHeaders(), $requestBody, $response->getHeaders(), $responseBody, $response->getStatusCode(), $showMessage);
                     }
                 }
             }
@@ -253,16 +252,18 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                 $responseBody = $response->getBody()->getContents();
                 $responseHeaders = $response->getHeaders();
                 $statusCode = $response->getStatusCode();
-            }else{
+            } else {
                 $responseBody = 'No response found';
                 $responseHeaders = [];
                 $statusCode = 0;
             }
 
+            $this->setDisplayResponseError($params, $context);
+
             if ($statusCode >= 400 && $statusCode <= 499) {
-                $this->throwUnrecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $statusCode, false, $e->getCode(), $e);
+                $this->throwUnrecoverableRestProducerException($e->getMessage(), $request->getHeaders(), $requestBody, $responseHeaders, $responseBody, $statusCode, $this->getDisplayResponseError(), $e->getCode(), $e);
             } else {
-                $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $statusCode, false, $e->getCode(), $e);
+                $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(), $requestBody, $responseHeaders, $responseBody, $statusCode, $this->getDisplayResponseError(), $e->getCode(), $e);
             }
         } catch (UnrecoverableRestException $e) {
             throw $e;
@@ -271,12 +272,12 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                 $response->getBody()->rewind();
                 $responseBody = $response->getBody()->getContents();
                 $responseHeaders = $response->getHeaders();
-            }else{
+            } else {
                 $responseBody = 'No response found';
                 $responseHeaders = [];
             }
             $showMessage = ($e instanceof ExternalSystemExceptionInterface && $e->mustShowExternalSystemErrorMessage());
-            $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(),$requestBody, $responseHeaders, $responseBody, $response ? $response->getStatusCode() : 0, $showMessage ,$e->getCode(), $e);
+            $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(), $requestBody, $responseHeaders, $responseBody, $response ? $response->getStatusCode() : 0, $showMessage, $e->getCode(), $e);
         }
     }
 
@@ -293,14 +294,15 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
 
     /**
      * @param $message
-     * @param array $requestHeaders
-     * @param string $requestBody
-     * @param array $responseHeaders
-     * @param string $responseBody
-     * @param int $responseStatusCode
-     * @param boolean $showMessage
-     * @param int $code
+     * @param array      $requestHeaders
+     * @param string     $requestBody
+     * @param array      $responseHeaders
+     * @param string     $responseBody
+     * @param int        $responseStatusCode
+     * @param bool       $showMessage
+     * @param int        $code
      * @param \Exception $previous
+     *
      * @throws RecoverableRestException
      */
     public function throwRecoverableRestProducerException(
@@ -322,14 +324,15 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
 
     /**
      * @param $message
-     * @param array $requestHeaders
-     * @param string $requestBody
-     * @param array $responseHeaders
-     * @param string $responseBody
-     * @param int $responseStatusCode
-     * @param boolean $showMessage
-     * @param int $code
+     * @param array      $requestHeaders
+     * @param string     $requestBody
+     * @param array      $responseHeaders
+     * @param string     $responseBody
+     * @param int        $responseStatusCode
+     * @param bool       $showMessage
+     * @param int        $code
      * @param \Exception $previous
+     *
      * @throws UnrecoverableRestException
      */
     public function throwUnrecoverableRestProducerException(
@@ -349,24 +352,23 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         throw $exception;
     }
 
-    public function getExternalSystemHTTPEvent($context, RequestInterface $request,$requestBody,ResponseInterface $response, $restClientResponse,$endpointOptions)
+    public function getExternalSystemHTTPEvent($context, RequestInterface $request, $requestBody, ResponseInterface $response, $restClientResponse, $endpointOptions)
     {
         $event = new ExternalSystemHTTPEvent();
-        $event->setEventDetails( 'HTTP REST Request/Response Event' );
+        $event->setEventDetails('HTTP REST Request/Response Event');
         $event->setTimestampToCurrent();
         $event->setHttpURI($request->getUri()->__toString());
-        $event->setRequestHttpHeaders( $request->getHeaders() );
-        $event->setResponseHttpHeaders( $response->getHeaders() );
+        $event->setRequestHttpHeaders($request->getHeaders());
+        $event->setResponseHttpHeaders($response->getHeaders());
         $event->setFromUri($context['msg']->getContext()['from']);
-        $event->setExchangeId( $context['exchange']->getId() );
+        $event->setExchangeId($context['exchange']->getId());
         $event->setTransactionId($context['msg']->getContext()['transaction_id']);
         $event->setResponseHttpBody($restClientResponse);
         $event->setRequestHttpBody($requestBody);
 
-        if( $response->getStatusCode() === 200 )
-        {
-            $event->setStatus( 'Success' );
-        }else{
+        if (200 === $response->getStatusCode()) {
+            $event->setStatus('Success');
+        } else {
             $event->setStatus('Error');
         }
 

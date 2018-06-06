@@ -20,4 +20,14 @@ interface ExternalSystemExceptionInterface
      * @return bool
      */
     public function mustShowExternalSystemErrorMessage();
+
+    /**
+     * @return mixed
+     */
+    public function getOriginalMessage();
+
+    /**
+     * @return mixed
+     */
+    public function getOriginalCode();
 }

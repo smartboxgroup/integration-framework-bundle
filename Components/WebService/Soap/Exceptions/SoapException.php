@@ -79,6 +79,8 @@ class SoapException extends \Exception implements SerializableInterface, Externa
         $this->request = $request;
         $this->responseHeaders = $responseHeaders;
         $this->response = $response;
+        $this->originalMessage = $previous->faultstring;
+        $this->originalCode = $previous->faultcode;
     }
 
     /**
