@@ -31,9 +31,11 @@ class ConfigurableServiceHelper
     const CONF_RECOVERABLE = 'recoverable';
 
     const CONF_NO_RESULTS = 'noResults';
-    const STEP_DEFINE = 'define';
 
+    const STEP_DEFINE = 'define';
     const STEP_VALIDATE = 'validate';
+    const STEP_DEBUG = 'debug';
+
     const OPTION_METHOD = 'method';
     const KEY_DESCRIPTION = 'description';
     const KEY_RESPONSE = 'response';
@@ -168,6 +170,10 @@ class ConfigurableServiceHelper
 
                 return true;
                 break;
+            case self::STEP_DEBUG:
+                $this->debug($stepActionParams, $context);
+
+                return true;
             default:
                 return false;
                 break;
@@ -224,6 +230,49 @@ class ConfigurableServiceHelper
                 throw $exception;
             }
         }
+    }
+
+    /**
+     * Nasty hack to be able to easily display context variables in producers.
+     *
+     * @param array $actions
+     * @param $context
+     */
+    protected function debug($actions, &$context)
+    {
+        if (!is_array($actions)) {
+            return;
+        }
+        foreach ($actions as $action => $parameters) {
+            if ('display' == $action) {
+                foreach ($parameters as $var) {
+                    echo "\n";
+                    echo $var.' => ';
+                    $command = 'print_r($'.$var.');';
+                    eval($command);
+                }
+                flush();
+                ob_flush();
+            }
+
+            if ('break' == $action && false !== $parameters) {
+                if (function_exists('xdebug_break')) {
+                    xdebug_break();
+                }
+            }
+
+            if ('sleep' == $action) {
+                echo 'Sleeping for '.$parameters.' seconds due to sleep step...'."\n";
+                sleep($parameters);
+            }
+
+            if ('exit' == $action && false !== $parameters) {
+                echo 'Exit due to debug step'."\n";
+                exit;
+            }
+        }
+
+        return;
     }
 
     public function runValidations(array $validations, array &$context)
