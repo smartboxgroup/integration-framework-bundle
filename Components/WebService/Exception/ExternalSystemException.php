@@ -11,6 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\HasShowExternalSy
 class ExternalSystemException extends \Exception implements ExternalSystemExceptionInterface
 {
     const EXCEPTION_MESSAGE_TEMPLATE = 'Target system "%s" failed to process the request';
+    const EXTERNAL_EXCEPTION_CODE = 520;
 
     use HasExternalSystemName;
     use HasShowExternalSystemErrorMessage;
@@ -26,7 +27,7 @@ class ExternalSystemException extends \Exception implements ExternalSystemExcept
     public static function createFromException(ExternalSystemExceptionInterface $originalException)
     {
         $message = sprintf(self::EXCEPTION_MESSAGE_TEMPLATE, $originalException->getExternalSystemName());
-        $code = $originalException->getCode();
+        $code = self::EXTERNAL_EXCEPTION_CODE;
         if ($originalException->mustShowExternalSystemErrorMessage()) {
             $message = $originalException->getOriginalMessage();
             $code = $originalException->getOriginalCode();
