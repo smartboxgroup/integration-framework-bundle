@@ -2,17 +2,24 @@ parameters:
   smartesb.smoke_test.check_queue_driver_connection.class: Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\QueueDriverConnectionSmokeTest
   smartesb.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\FilePermissionsSmokeTest
   smartesb.smoke_test.connectivity_check.class:  Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\ConnectivityCheckSmokeTest
+  smartesb.smoke_test.database.class:  Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\DatabaseSmokeTest
 
 services:
   ## SMOKE TESTS ##
   smartesb.smoke_test.check_queue_driver_connection:
-      class: %smartesb.smoke_test.check_queue_driver_connection.class%
-      arguments: [@smartesb.default_queue_driver]
+      class: "%smartesb.smoke_test.check_queue_driver_connection.class%"
+      arguments: ["@smartesb.default_queue_driver"]
       tags:
           - { name: smartcore.smoke_test, labels: "critical" }
 
   smartesb.smoke_test.file_permissions:
-      class: %smartesb.smoke_test.file_permissions.class%
+      class: "%smartesb.smoke_test.file_permissions.class%"
       arguments: [ '%kernel.root_dir%/cache' ]
       tags:
           - { name: smartcore.smoke_test, labels: "important" }
+
+  smartesb.smoke_test.database:
+      class: "%smartesb.smoke_test.database.class%"
+      arguments: ["@doctrine"]
+      tags:
+          - { name: smartcore.smoke_test, labels: "critical" }
