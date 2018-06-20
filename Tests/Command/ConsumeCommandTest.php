@@ -4,6 +4,7 @@ namespace Smartbox\FrameworkBundle\Tests\Command;
 
 use Smartbox\Integration\FrameworkBundle\Command\ConsumeCommand;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
+use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -31,6 +32,7 @@ class ConsumeCommandTest extends KernelTestCase
             ->willReturn(true);
 
         self::$kernel->getContainer()->set('smartesb.consumers.queue', $this->mockConsumer);
+        self::$kernel->getContainer()->set('doctrine', $this->createMock(RegistryInterface::class));
     }
 
     public function testExecuteWithKillAfter()
