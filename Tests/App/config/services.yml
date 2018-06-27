@@ -1,0 +1,4 @@
+services:
+    doctrine:
+      class: Symfony\Bridge\Doctrine\RegistryInterface
+      synthetic: true
