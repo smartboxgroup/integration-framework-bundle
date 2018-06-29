@@ -381,16 +381,4 @@ class Mapper implements MapperInterface
             return $value;
         }
     }
-
-    /**
-     * Returns the uppercased string.
-     *
-     * @param $string
-     *
-     * @return string
-     */
-    public function strtoupper($string)
-    {
-        return strtoupper($string);
-    }
 }
