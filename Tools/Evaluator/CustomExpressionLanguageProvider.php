@@ -26,6 +26,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createImplodeFunction(),
             $this->createRemoveNewLinesFunction(),
             $this->createStrtoupperFunction(),
+            $this->createSplitSentenceFunction()
         ];
     }
 
@@ -311,6 +312,37 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             },
             function ($arguments, $string) {
                 return strtoupper($string);
+            }
+        );
+    }
+
+    /**
+     * Returns the uppercased string.
+     *
+     * @return ExpressionFunction
+     */
+    protected function createSplitSentenceFunction()
+    {
+        return new ExpressionFunction(
+            'splitSentence',
+            function ($string, $start, $length) {
+                return sprintf('splitSentence(%s, %s, %s)', $string, $start, $length);
+            },
+            function ($arguments, $string, $start, $length) {
+
+                $currentStringToArray = explode(" ", substr($string, $start, $length));
+                $stringToArray = explode(" ", $string);
+
+                $splitted = \array_intersect($currentStringToArray, $stringToArray);
+
+                if(!\count($splitted) && !empty($currentString)) {
+                    $originalItem = end($stringToArray);
+                    if(false !== \strpos($originalItem, $currentStringToArray[0])) {
+                        $splitted[] = $originalItem;
+                    }
+                }
+
+                return trim(implode(' ', $splitted));
             }
         );
     }
