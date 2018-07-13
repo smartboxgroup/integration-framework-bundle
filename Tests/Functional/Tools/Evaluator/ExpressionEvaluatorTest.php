@@ -151,6 +151,31 @@ class ExpressionEvaluatorTest extends KernelTestCase
                 'expression' => 'strtoupper("SUPER AWESOME")',
                 'vars' => [],
             ],
+            'Check splitSentence returns only the first matched words when the next one is not full and separated by space' => [
+                'expected' => 'Perico de los Palotes Moreno',
+                'expression' => 'splitSentence("Perico de los Palotes Moreno Martinez", 0, 30)',
+                'vars' => [],
+            ],
+            'Check splitSentence returns only the first match words when the full length does not match the whole next word' => [
+                'expected' => 'Test',
+                'expression' => 'splitSentence("Test Superhipermegalonglastname", 0, 30)',
+                'vars' => [],
+            ],
+            'Check splitSentence return all the strings starting from the last match word based on start/length ' => [
+                'expected' => 'Superhipermegalonglastname',
+                'expression' => 'splitSentence("Test Superhipermegalonglastname", 30, 60)',
+                'vars' => [],
+            ],
+            'Check splitSentence retrieve the full name when its strlength is less than the requested' => [
+                'expected' => 'Maria Leon',
+                'expression' => 'splitSentence("Maria Leon", 0, 30)',
+                'vars' => [],
+            ],
+            'Check splitSentence returns empty when the start/length does not match' => [
+                'expected' => '',
+                'expression' => 'splitSentence("Maria Leon", 30, 60)',
+                'vars' => [],
+            ],
         ];
     }
 
