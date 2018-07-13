@@ -151,29 +151,29 @@ class ExpressionEvaluatorTest extends KernelTestCase
                 'expression' => 'strtoupper("SUPER AWESOME")',
                 'vars' => [],
             ],
-            'Check stripSentence returns only the first matched words when the next one is not full and separated by space' => [
+            'Check splitSentence returns only the first matched words when the next one is not full and separated by space' => [
                 'expected' => 'Perico de los Palotes Moreno',
-                'expression' => 'stripSentence("Perico de los Palotes Moreno Martinez", 0, 30)',
+                'expression' => 'splitSentence("Perico de los Palotes Moreno Martinez", 0, 30)',
                 'vars' => [],
             ],
-            'Check stripSentence returns only the first match words when the full length does not match the whole next word' => [
+            'Check splitSentence returns only the first match words when the full length does not match the whole next word' => [
                 'expected' => 'Test',
-                'expression' => 'stripSentence("Test Superhipermegalonglastname", 0, 30)',
+                'expression' => 'splitSentence("Test Superhipermegalonglastname", 0, 30)',
                 'vars' => [],
             ],
-            'Check stripSentence return all the strings starting from the last match word based on start/length ' => [
+            'Check splitSentence return all the strings starting from the last match word based on start/length ' => [
                 'expected' => 'Superhipermegalonglastname',
-                'expression' => 'stripSentence("Test Superhipermegalonglastname", 30, 60)',
+                'expression' => 'splitSentence("Test Superhipermegalonglastname", 30, 60)',
                 'vars' => [],
             ],
-            'Check stripSentence retrieve the full name when its strlength is less than the requested' => [
+            'Check splitSentence retrieve the full name when its strlength is less than the requested' => [
                 'expected' => 'Maria Leon',
-                'expression' => 'stripSentence("Maria Leon", 0, 30)',
+                'expression' => 'splitSentence("Maria Leon", 0, 30)',
                 'vars' => [],
             ],
-            'Check stripSentence returns empty when the start/length does not match' => [
+            'Check splitSentence returns empty when the start/length does not match' => [
                 'expected' => '',
-                'expression' => 'stripSentence("Maria Leon", 30, 60)',
+                'expression' => 'splitSentence("Maria Leon", 30, 60)',
                 'vars' => [],
             ],
         ];

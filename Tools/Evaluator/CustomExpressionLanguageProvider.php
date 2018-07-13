@@ -330,7 +330,8 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             },
             function ($arguments, $string, $start, $length) {
 
-                $currentStringToArray = explode(" ", substr($string, $start, $length));
+                $currentString = substr($string, $start, $length);
+                $currentStringToArray = explode(" ", $currentString);
                 $stringToArray = explode(" ", $string);
 
                 $splitted = \array_intersect($currentStringToArray, $stringToArray);
