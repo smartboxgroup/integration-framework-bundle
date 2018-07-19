@@ -296,27 +296,56 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         return '';
     }
 
+    /**
+     * @param $context
+     * @param $endpointOptions
+     * @return ExternalSystemHTTPEvent
+     */
     public function getExternalSystemHTTPEvent(&$context, &$endpointOptions)
     {
         // Dispatch event with error information
+
+        $client = $this->getSoapClient($endpointOptions);
+
         $event = new ExternalSystemHTTPEvent();
         $event->setEventDetails('HTTP SOAP Request/Response Event');
         $event->setTimestampToCurrent();
         $event->setExchangeId($context['exchange']->getId());
         $event->setTransactionId($context['msg']->getContext()['transaction_id']);
         $event->setFromUri($context['msg']->getContext()['from']);
-        $event->setHttpURI($this->getSoapClient($endpointOptions)->__getLastRequestUri());
-        $event->setRequestHttpHeaders($this->getSoapClient($endpointOptions)->__getLastRequestHeaders());
-        $event->setResponseHttpHeaders($this->getSoapClient($endpointOptions)->__getLastResponseHeaders());
-        $event->setRequestHttpBody($this->getSoapClient($endpointOptions)->__getLastRequest());
-        $event->setResponseHttpBody($this->getSoapClient($endpointOptions)->__getLastResponse());
+        $event->setHttpURI($client->__getLastRequestUri());
+        $event->setRequestHttpHeaders($this->getHeaderLines($client->__getLastRequestHeaders()));
+        $event->setResponseHttpHeaders($this->getHeaderLines($client->__getLastResponseHeaders()));
+        $event->setRequestHttpBody($client->__getLastRequest());
+        $event->setResponseHttpBody($client->__getLastResponse());
 
-        if (200 === $this->getSoapClient($endpointOptions)->__getLastResponseCode()) {
+        if (200 === $client->__getLastResponseCode()) {
             $event->setStatus('Success');
         } else {
             $event->setStatus('Error');
         }
 
         return $event;
+    }
+
+    /**
+     * @param $headerContent
+     * @return array
+     */
+    private function getHeaderLines($headerContent)
+    {
+        $headerLines = [];
+        $headers = array_filter(preg_split("(\r\n|\r|\n)", $headerContent));
+
+        foreach($headers as $line) {
+            if(false === strpos($line, 'POST')) {
+                $values = explode(':', $line, 2);
+
+                if(!is_null($values[1]))
+                    $headerLines[$values[0]] = trim(str_replace('"', '', $values[1]));
+            }
+        }
+
+        return $headerLines;
     }
 }
