@@ -23,9 +23,6 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
     use UsesLogger;
     use UsesSmartesbHelper;
 
-    const SLEEP_TIME = 100; // Duration of the pause made in the consume loop, when nothing to do (slow mode), in milliseconds.
-    const INACTIVITY_TRIGGER = 10; // Inactivity duration before switching to slow mode, in seconds.
-
     /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
 
@@ -113,8 +110,9 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
      */
     public function consume(EndpointInterface $endpoint)
     {
-        $iFeelAsleep = false;
-        $wakeup = microtime();
+        $sleepTime = (int) $endpoint->getOption(ConfigurableDbalProtocol::OPTION_SLEEP_TIME) * 1000;
+        $inactivityTrigger = (int) $endpoint->getOption(ConfigurableDbalProtocol::OPTION_INACTIVITY_TRIGGER);
+        $wakeup = microtime(true);
 
         while (!$this->shouldStop()) {
             // Receive
@@ -122,25 +120,20 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
 
             // Process
             if ($message) {
-                $iFeelAsleep = false;
-                $wakeup = microtime();
                 --$this->expirationCount;
 
                 $endpoint->handle($message);
 
                 if ($this->logger) {
-                    $now = \DateTime::createFromFormat('U.u', microtime(true));
-                    $this->logger->info('A message was consumed on '.$now->format('Y-m-d H:i:s.u'));
+                    $this->logger->info('A message was consumed on {date}', ['date' => date('Y-m-d H:i:s.u')]);
                 }
 
                 $this->onConsume($endpoint, $message);
-            }
-            if ($iFeelAsleep) {
-                usleep(self::SLEEP_TIME * 1000); // 100 ms
+                $wakeup = microtime(true);
             }
 
-            if ((microtime() - $wakeup) > self::INACTIVITY_TRIGGER) { // I did nothing since the last x seconds, so I enter the slow mode...
-                $iFeelAsleep = true;
+            if ((microtime(true) - $wakeup) > $inactivityTrigger) { // I did nothing since the last x seconds, so little nap...
+                usleep($sleepTime);
             }
         }
     }
