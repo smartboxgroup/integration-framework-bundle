@@ -125,7 +125,10 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
                 $endpoint->handle($message);
 
                 if ($this->logger) {
-                    $this->logger->info('A message was consumed on {date}', ['date' => date('Y-m-d H:i:s.u')]);
+                    $this->logger->info(
+                        'A message was consumed on {date}',
+                        ['date' => \DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u')]
+                    );
                 }
 
                 $this->onConsume($endpoint, $message);
