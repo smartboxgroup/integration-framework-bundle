@@ -7,7 +7,7 @@ services:
       class: %smartesb.handlers.events_deferring.class%
       calls:
         - [setId, ['smartesb.handlers.events']]
-        - [setEventDispatcher, [@event_dispatcher]]
+        - [setEventDispatcher, ['@event_dispatcher']]
         - [setFlowsVersion, [%smartesb.flows_version%]]
 
   smartesb.registry.event_filters:

@@ -12,26 +12,26 @@ services:
       class: %smartesb.producers.direct.class%
       calls:
         - [setId, ['smartesb.producer.direct']]
-        - [setItineraryResolver, [@smartesb.itineray_resolver]]
+        - [setItineraryResolver, ['@smartesb.itineray_resolver']]
 
   smartesb.producers.json_file:
       class: %smartesb.producers.json_file.class%
       calls:
         - [setId, ['smartesb.producers.json_file']]
-        - [setSerializer, [@serializer]]
+        - [setSerializer, ['@serializer']]
 
   # STOMP
   smartesb.producers.queue:
       class: %smartesb.producers.queue.class%
       calls:
         - [setId, ['smartesb.producers.queue']]
-        - [setSerializer, [@serializer]]
-        - [setDriverRegistry, [@smartesb.drivers.queue._registry]]
+        - [setSerializer, ['@serializer']]
+        - [setDriverRegistry, ['@smartesb.drivers.queue._registry']]
 
   # NoSQL
   smartesb.producers.service:
       class: %smartesb.producers.service.class%
       calls:
         - [setId, ['smartesb.producers.service']]
-        - [setContainer, [@service_container]]
+        - [setContainer, ['@service_container']]
 
