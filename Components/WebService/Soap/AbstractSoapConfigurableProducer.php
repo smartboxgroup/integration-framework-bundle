@@ -9,7 +9,6 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\AbstractWebServic
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\RecoverableSoapException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\UnrecoverableSoapException;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
@@ -59,13 +58,16 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     }
 
     /**
-     * @param string $methodName
-     * @param array  $params
-     * @param array  $endpointOptions
-     * @param array  $soapOptions
-     * @param array  $soapHeaders
+     * @param $methodName
+     * @param $params
+     * @param array $endpointOptions
+     * @param array $soapOptions
+     * @param array $soapHeaders
+     * @param bool  $displayError
      *
-     * @return \stdClass
+     * @return mixed|null
+     *
+     * @throws RecoverableSoapException
      */
     protected function performRequest($methodName, $params, array &$endpointOptions, array $soapOptions = [], array $soapHeaders = [])
     {
@@ -77,7 +79,6 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         }
 
         try {
-
             // creates a proper set of SoapHeader objects
             $processedSoapHeaders = array_map(function ($header) {
                 if (is_array($header)) {
@@ -99,15 +100,13 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             $response = $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
 
             $lastResponseCode = $soapClient->__getLastResponseCode();
-            if ( $lastResponseCode >= 400 && $lastResponseCode <= 599) {
-                $this->throwUnrecoverableSoapProducerException("Unrecoverable error. SOAP HTTP Response code is ".$lastResponseCode.", 200 was expected.", $soapClient);
-
-            } elseif ($lastResponseCode != 200) {
-                $this->throwRecoverableSoapProducerException("Recoverable error. SOAP HTTP Response code is ".$lastResponseCode.", 200 was expected.", $soapClient);
+            if ($lastResponseCode >= 400 && $lastResponseCode <= 599) {
+                $this->throwUnrecoverableSoapProducerException('Unrecoverable error. SOAP HTTP Response code is '.$lastResponseCode.', 200 was expected.', $soapClient);
+            } elseif (200 != $lastResponseCode) {
+                $this->throwRecoverableSoapProducerException('Recoverable error. SOAP HTTP Response code is '.$lastResponseCode.', 200 was expected.', $soapClient);
             }
-
         } catch (\Exception $ex) {
-            $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, false, $ex->getCode(), $ex);
+            $this->throwRecoverableSoapProducerException($ex->getMessage(), $soapClient, $this->getDisplayResponseError(), $ex->getCode(), $ex);
         }
 
         return $response;
@@ -132,8 +131,11 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             self::REQUEST_NAME,
         ]);
 
+        $paramsResolver->setDefault(self::DISPLAY_RESPONSE_ERROR, false);
+
         $paramsResolver->setDefined([
             self::SOAP_OPTIONS,
+            self::DISPLAY_RESPONSE_ERROR,
             self::SOAP_HEADERS,
             self::HTTP_HEADERS,
             self::VALIDATION,
@@ -163,21 +165,23 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             }
         }
 
+        $this->setDisplayResponseError($params, $context);
+
         $requestName = $params[self::REQUEST_NAME];
         $soapMethodName = $this->confHelper->resolve($params[self::SOAP_METHOD_NAME], $context);
         $soapMethodParams = $this->confHelper->resolve($params[self::REQUEST_PARAMETERS], $context);
-        $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $params[self::SOAP_OPTIONS] : [];
+        $soapOptions = isset($params[self::SOAP_OPTIONS]) ? $this->confHelper->resolve($params[self::SOAP_OPTIONS], $context) : [];
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
-        $httpHeaders = isset($params[self::HTTP_HEADERS]) ? $this->confHelper->resolve($params[self::HTTP_HEADERS], $context): [];
+        $httpHeaders = isset($params[self::HTTP_HEADERS]) ? $this->confHelper->resolve($params[self::HTTP_HEADERS], $context) : [];
 
         $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
-        if($this->getSoapClient($endpointOptions)){
-            $httpHeaders[self::HTTP_HEADER_TRANSACTION_ID]=$context['msg']->getContext()['transaction_id'];
+        if ($this->getSoapClient($endpointOptions)) {
+            $httpHeaders[self::HTTP_HEADER_TRANSACTION_ID] = $context['msg']->getContext()['transaction_id'];
             $httpHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
             $this->getSoapClient($endpointOptions)->setRequestHeaders($httpHeaders);
         }
         $result = $this->performRequest($soapMethodName, $soapMethodParams, $endpointOptions, $soapOptions, $soapHeaders);
-        $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context,$endpointOptions));
+        $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context, $endpointOptions));
         $context[self::KEY_RESPONSES][$requestName] = $result;
 
         // Validates response (if needed)
@@ -292,29 +296,56 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         return '';
     }
 
+    /**
+     * @param $context
+     * @param $endpointOptions
+     * @return ExternalSystemHTTPEvent
+     */
     public function getExternalSystemHTTPEvent(&$context, &$endpointOptions)
     {
         // Dispatch event with error information
+
+        $client = $this->getSoapClient($endpointOptions);
+
         $event = new ExternalSystemHTTPEvent();
-        $event->setEventDetails( 'HTTP SOAP Request/Response Event' );
+        $event->setEventDetails('HTTP SOAP Request/Response Event');
         $event->setTimestampToCurrent();
-        $event->setExchangeId( $context['exchange']->getId() );
+        $event->setExchangeId($context['exchange']->getId());
         $event->setTransactionId($context['msg']->getContext()['transaction_id']);
         $event->setFromUri($context['msg']->getContext()['from']);
-        $event->setHttpURI( $this->getSoapClient($endpointOptions)->__getLastRequestUri() );
-        $event->setRequestHttpHeaders( $this->getSoapClient($endpointOptions)->__getLastRequestHeaders() );
-        $event->setResponseHttpHeaders( $this->getSoapClient($endpointOptions)->__getLastResponseHeaders() );
-        $event->setRequestHttpBody( $this->getSoapClient($endpointOptions)->__getLastRequest() );
-        $event->setResponseHttpBody( $this->getSoapClient($endpointOptions)->__getLastResponse() );
+        $event->setHttpURI($client->__getLastRequestUri());
+        $event->setRequestHttpHeaders($this->getHeaderLines($client->__getLastRequestHeaders()));
+        $event->setResponseHttpHeaders($this->getHeaderLines($client->__getLastResponseHeaders()));
+        $event->setRequestHttpBody($client->__getLastRequest());
+        $event->setResponseHttpBody($client->__getLastResponse());
 
-        if( $this->getSoapClient($endpointOptions)->__getLastResponseCode() === 200 )
-        {
+        if (200 === $client->__getLastResponseCode()) {
             $event->setStatus('Success');
-        }else{
+        } else {
             $event->setStatus('Error');
         }
 
         return $event;
     }
 
+    /**
+     * @param $headerContent
+     * @return array
+     */
+    private function getHeaderLines($headerContent)
+    {
+        $headerLines = [];
+        $headers = array_filter(preg_split("(\r\n|\r|\n)", $headerContent));
+
+        foreach($headers as $line) {
+            if(false === strpos($line, 'POST')) {
+                $values = explode(':', $line, 2);
+
+                if(!is_null($values[1]))
+                    $headerLines[$values[0]] = trim(str_replace('"', '', $values[1]));
+            }
+        }
+
+        return $headerLines;
+    }
 }

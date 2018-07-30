@@ -91,6 +91,10 @@ class RestException extends \Exception implements SerializableInterface, Externa
         $this->responseHttpHeaders = $responseHeaders;
         $this->responseHttpBody = $responseBody;
         $this->responseStatusCode = $responseStatusCode;
+
+        $this->originalCode = $code;
+        $originalMessage = json_decode($this->responseHttpBody, true);
+        $this->originalMessage = isset($originalMessage['message']) ? $originalMessage['message'] : $message;
     }
 
     /**
