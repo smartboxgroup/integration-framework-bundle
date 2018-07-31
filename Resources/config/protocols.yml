@@ -23,35 +23,35 @@ services:
   smartesb.protocols.direct:
       class: %smartesb.protocols.direct.class%
       calls:
-        - [setDefaultProducer, [@smartesb.producer.direct]]
-        - [setDefaultHandler, [@smartesb.handlers.sync]]
+        - [setDefaultProducer, ['@smartesb.producer.direct']]
+        - [setDefaultHandler, ['@smartesb.handlers.sync']]
 
   # JSON FILE
   smartesb.protocols.json_file:
       class: %smartesb.protocols.json_file.class%
       calls:
-        - [setDefaultProducer, [@smartesb.producers.json_file]]
+        - [setDefaultProducer, ['@smartesb.producers.json_file']]
 
   # Queues
   smartesb.protocols.service:
       class: %smartesb.protocols.service.class%
       calls:
-        - [setDefaultProducer, [@smartesb.producers.service]]
-        - [setDefaultHandler, [@smartesb.handlers.async]]
+        - [setDefaultProducer, ['@smartesb.producers.service']]
+        - [setDefaultHandler, ['@smartesb.handlers.async']]
 
   # Queues
   smartesb.protocols.queue:
       class: %smartesb.protocols.queue.class%
       calls:
-        - [setDefaultProducer, [@smartesb.producers.queue]]
-        - [setDefaultConsumer, [@smartesb.consumers.queue]]
-        - [setDefaultHandler, [@smartesb.handlers.async]]
+        - [setDefaultProducer, ['@smartesb.producers.queue']]
+        - [setDefaultConsumer, ['@smartesb.consumers.queue']]
+        - [setDefaultHandler, ['@smartesb.handlers.async']]
 
   #NoSQL
   smartesb.protocols.configurable.nosql:
       class: %smartesb.protocols.configurable.nosql.class%
       calls:
-       - [setDefaultHandler, [@smartesb.handlers.async]]
+       - [setDefaultHandler, ['@smartesb.handlers.async']]
 
   smartesb.protocols.configurable.webservice:
       class: %smartesb.protocols.configurable.webservice.class%
@@ -65,10 +65,10 @@ services:
   smartesb.protocols.configurable.dbal:
       class: %smartesb.protocols.configurable.dbal.class%
       calls:
-        - [setDefaultHandler, [@smartesb.handlers.async]]
+        - [setDefaultHandler, ['@smartesb.handlers.async']]
 
   # Csv File
   smartesb.protocols.configurable.csv_file:
       class: "%smartesb.protocols.csv_file.class%"
       calls:
-        - [setDefaultHandler, [@smartesb.handlers.async]]
+        - [setDefaultHandler, ['@smartesb.handlers.async']]
