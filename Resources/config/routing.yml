@@ -36,8 +36,8 @@ services:
   smartesb.router.itineraries:
       class: %smartesb.internal_router.class%
       arguments:
-        - @service_container
-        - @@SmartboxIntegrationFrameworkBundle/Resources/config/default_routing_itineraries.yml
+        - '@service_container'
+        - '@@SmartboxIntegrationFrameworkBundle/Resources/config/default_routing_itineraries.yml'
         - %smartesb.router.itineraries.options%
       tags:
         - { name: monolog.logger, channel: "router.itineraries" }
@@ -45,7 +45,7 @@ services:
   smartesb.router.endpoints:
       class: %smartesb.internal_router.class%
       arguments:
-        - @service_container
+        - '@service_container'
         - "%kernel.root_dir%/config/routing_endpoints_%kernel.environment%.yml"
         - %smartesb.router.endpoints.options%
       tags:
@@ -54,14 +54,14 @@ services:
   smartesb.router.itineraries.cache_warmer:
     class: %router.cache_warmer.class%
     arguments:
-      - @smartesb.router.itineraries
+      - '@smartesb.router.itineraries'
     tags:
       - { name: "kernel.cache_warmer" }
 
   smartesb.router.endpoints.cache_warmer:
     class: %router.cache_warmer.class%
     arguments:
-      - @smartesb.router.endpoints
+      - '@smartesb.router.endpoints'
     tags:
       - { name: "kernel.cache_warmer" }
 
@@ -71,6 +71,6 @@ services:
   smartesb.routing.itineraries_routes_loader:
       class: Smartbox\Integration\FrameworkBundle\Configurability\Routing\ItinerariesRoutesLoader
       calls:
-          - [ setContainer, [ @service_container ] ]
+          - [ setContainer, [ '@service_container' ] ]
       tags:
           - { name: routing.loader }

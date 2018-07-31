@@ -110,6 +110,10 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
      */
     public function consume(EndpointInterface $endpoint)
     {
+        $sleepTime = (int) $endpoint->getOption(ConfigurableDbalProtocol::OPTION_SLEEP_TIME) * 1000;
+        $inactivityTrigger = (int) $endpoint->getOption(ConfigurableDbalProtocol::OPTION_INACTIVITY_TRIGGER);
+        $wakeup = microtime(true);
+
         while (!$this->shouldStop()) {
             // Receive
             $message = $this->readMessage($endpoint);
@@ -121,11 +125,18 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
                 $endpoint->handle($message);
 
                 if ($this->logger) {
-                    $now = \DateTime::createFromFormat('U.u', microtime(true));
-                    $this->logger->info('A message was consumed on '.$now->format('Y-m-d H:i:s.u'));
+                    $this->logger->info(
+                        'A message was consumed on {date}',
+                        ['date' => \DateTime::createFromFormat('U.u', microtime(true))->format('Y-m-d H:i:s.u')]
+                    );
                 }
 
                 $this->onConsume($endpoint, $message);
+                $wakeup = microtime(true);
+            }
+
+            if ((microtime(true) - $wakeup) > $inactivityTrigger) { // I did nothing since the last x seconds, so little nap...
+                usleep($sleepTime);
             }
         }
     }
