@@ -89,6 +89,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
                 // Process
                 if ($message) {
+                    $startTimestamp = microtime(true);
                     --$this->expirationCount;
 
                     $this->process($endpoint, $message);
@@ -102,6 +103,11 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
                     }
 
                     $this->confirmMessage($endpoint, $message);
+                    $finishTimestamp = microtime(true);
+
+                    if ($this->logger) {
+                        $this->logger->debug('This message was processed in '.round(($finishTimestamp - $startTimestamp) * 1000, 0).' ms.');
+                    }
                 }
             } catch (\Exception $ex) {
                 if (!$this->stop) {
