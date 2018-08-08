@@ -21,7 +21,6 @@ abstract class Processor extends Service implements ProcessorInterface
     const CONTEXT_PROCESSOR_DESCRIPTION = 'processor_description';
 
     use UsesValidator;
-    use UsesEventDispatcher;
 
     /**
      * @var string
