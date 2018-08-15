@@ -105,4 +105,9 @@ interface QueueDriverInterface extends SerializableInterface
      * Clean all the opened resources, must be called just before terminating the current request.
      */
     public function doDestroy();
+
+    /**
+     * @return int The time it took in ms to deque and deserialize the message
+     */
+    public function getDeQueueingTimeMs();
 }

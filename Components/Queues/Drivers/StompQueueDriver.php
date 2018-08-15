@@ -56,6 +56,11 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     protected $subscriptionId = false;
 
     /**
+     * @var int The time it took in ms to deserialize the message
+     */
+    protected $deQueueingTimeMs = 0;
+
+    /**
      * @return bool
      */
     public function isUrlEncodeDestination()
@@ -149,6 +154,14 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     public function setFormat($format)
     {
         $this->format = $format;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDeQueueingTimeMs()
+    {
+        return $this->deQueueingTimeMs;
     }
 
     /** {@inheritdoc} */
@@ -269,6 +282,8 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             );
         }
 
+        $this->deQueueingTimeMs = 0;
+
         $this->currentFrame = $this->statefulStomp->read();
 
         while ($this->currentFrame && !$this->isFrameFromSubscription($this->currentFrame)) {
@@ -278,6 +293,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $msg = null;
 
         if ($this->currentFrame) {
+            $start = microtime(true);
             $deserializationContext = new DeserializationContext();
             if (!empty($version)) {
                 $deserializationContext->setVersion($version);
@@ -293,6 +309,9 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             foreach ($this->currentFrame->getHeaders() as $header => $value) {
                 $msg->setHeader($header, $this->unescape($value));
             }
+
+            // Calculate how long it took to deserilize the message
+            $this->deQueueingTimeMs = (int) ((microtime(true) - $start) * 1000);
         }
 
         return $msg;

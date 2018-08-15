@@ -19,6 +19,14 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
     protected $unacknowledgedFrame = null;
 
     /**
+     * @return int
+     */
+    public function getDeQueueingTimeMs()
+    {
+        return 0;
+    }
+
+    /**
      * @return array
      */
     public function getArrayForQueue($queue)
