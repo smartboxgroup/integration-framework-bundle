@@ -131,10 +131,11 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     }
 
     /**
-     * This function dispatchs a timing event with the amount of time it took to consume a message
+     * This function dispatchs a timing event with the amount of time it took to consume a message.
      *
      * @param $intervalMs int the timing interval that we would like to emanate
      * @param MessageInterface $message
+     *
      * @return mixed
      */
     protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)

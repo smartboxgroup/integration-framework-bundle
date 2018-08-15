@@ -2,13 +2,12 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Events;
 
-
 class TimingEvent extends Event
 {
     const CONSUMER_TIMING = 'smartesb.consumer.timing';
 
     /**
-     * @var integer
+     * @var int
      */
     private $intervalMs;
 
@@ -18,7 +17,7 @@ class TimingEvent extends Event
     protected $message;
 
     /**
-     * @return integer
+     * @return int
      */
     public function getIntervalMs()
     {
@@ -26,7 +25,7 @@ class TimingEvent extends Event
     }
 
     /**
-     * @param integer $intervalMs
+     * @param int $intervalMs
      */
     public function setIntervalMs($intervalMs)
     {

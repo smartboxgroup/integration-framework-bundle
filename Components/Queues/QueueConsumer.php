@@ -8,14 +8,12 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Events\TimingEvent;
 
 /**
  * Class QueueConsumer.
  */
 class QueueConsumer extends AbstractConsumer implements ConsumerInterface
 {
-
     /**
      * @var int The time it took in ms to deserialize the message
      */
@@ -98,9 +96,10 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      *
      * @param $intervalMs int the timing interval that we would like to emanate
+     *
      * @return mixed
      */
     protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)

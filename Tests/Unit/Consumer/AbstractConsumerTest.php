@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumer;
 
-
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
@@ -36,19 +35,17 @@ class AbstractConsumerTest extends \PHPUnit\Framework\TestCase
             ->expects($this->exactly(2))
             ->method('shouldStop')
             ->willReturnOnConsecutiveCalls(false, true);
-        ;
 
         $consumer
             ->expects($this->once())
             ->method('readMessage')
             ->willReturn(new Message());
-        ;
 
         $eventDispatcher = $this->getMockForAbstractClass(EventDispatcherInterface::class);
 
         $eventDispatcher->expects($this->once())
             ->method('dispatch')
-            ->with($this->equalTo('smartesb.consumer.timing'), $this->callback(function($event) use ($lowerBoundMs, $upperBoundMs){
+            ->with($this->equalTo('smartesb.consumer.timing'), $this->callback(function ($event) use ($lowerBoundMs, $upperBoundMs) {
                 $this->assertInstanceOf(TimingEvent::class, $event);
                 $interval = $event->getIntervalMs();
 
@@ -63,7 +60,7 @@ class AbstractConsumerTest extends \PHPUnit\Framework\TestCase
         $endpoint->expects($this->once())
             ->method('handle')
             ->will(
-                $this->returnCallback(function() use ($handleTimeUs) {
+                $this->returnCallback(function () use ($handleTimeUs) {
                     usleep($handleTimeUs);
                 })
             )
