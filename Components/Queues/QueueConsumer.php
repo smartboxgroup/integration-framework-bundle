@@ -103,10 +103,10 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
      * @param $intervalMs int the timing interval that we would like to emanate
      * @return mixed
      */
-    protected function dispatchConsumerTimingEvent($intervalMs)
+    protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
     {
         $intervalMs = $intervalMs + $this->deQueueingTimeMs;
 
-        parent::dispatchConsumerTimingEvent($intervalMs);
+        parent::dispatchConsumerTimingEvent($intervalMs, $message);
     }
 }

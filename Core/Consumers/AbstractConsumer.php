@@ -109,7 +109,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
                     $this->confirmMessage($endpoint, $message);
 
                     $endConsumeTime = microtime(true);
-                    $this->dispatchConsumerTimingEvent((int) (($endConsumeTime - $startConsumeTime) * 1000));
+                    $this->dispatchConsumerTimingEvent((int) (($endConsumeTime - $startConsumeTime) * 1000), $message);
                 }
             } catch (\Exception $ex) {
                 if (!$this->stop) {
@@ -134,12 +134,14 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
      * This function dispatchs a timing event with the amount of time it took to consume a message
      *
      * @param $intervalMs int the timing interval that we would like to emanate
+     * @param MessageInterface $message
      * @return mixed
      */
-    protected function dispatchConsumerTimingEvent($intervalMs)
+    protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
     {
         $event = new TimingEvent(TimingEvent::CONSUMER_TIMING);
         $event->setIntervalMs($intervalMs);
+        $event->setMessage($message);
         $this->getEventDispatcher()->dispatch(TimingEvent::CONSUMER_TIMING, $event);
     }
 }

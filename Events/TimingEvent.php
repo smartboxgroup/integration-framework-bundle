@@ -13,6 +13,11 @@ class TimingEvent extends Event
     private $intervalMs;
 
     /**
+     * @var \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface
+     */
+    protected $message;
+
+    /**
      * @return integer
      */
     public function getIntervalMs()
@@ -26,5 +31,21 @@ class TimingEvent extends Event
     public function setIntervalMs($intervalMs)
     {
         $this->intervalMs = $intervalMs;
+    }
+
+    /**
+     * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface
+     */
+    public function getMessage()
+    {
+        return $this->message;
+    }
+
+    /**
+     * @param \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface $message
+     */
+    public function setMessage($message)
+    {
+        $this->message = $message;
     }
 }
