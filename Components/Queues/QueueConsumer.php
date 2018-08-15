@@ -17,7 +17,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     /**
      * @var int The time it took in ms to deserialize the message
      */
-    protected $deQueueingTimeMs = 0;
+    protected $dequeueingTimeMs = 0;
 
     /**
      * {@inheritdoc}
@@ -67,7 +67,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     protected function readMessage(EndpointInterface $endpoint)
     {
         $driver = $this->getQueueDriver($endpoint);
-        $this->deQueueingTimeMs = $driver->getDeQueueingTimeMs();
+        $this->dequeueingTimeMs = $driver->getDequeueingTimeMs();
 
         return $driver->receive();
     }
@@ -104,7 +104,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
      */
     protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
     {
-        $intervalMs = $intervalMs + $this->deQueueingTimeMs;
+        $intervalMs = $intervalMs + $this->dequeueingTimeMs;
 
         parent::dispatchConsumerTimingEvent($intervalMs, $message);
     }

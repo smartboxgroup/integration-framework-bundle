@@ -142,6 +142,9 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
         $event = new TimingEvent(TimingEvent::CONSUMER_TIMING);
         $event->setIntervalMs($intervalMs);
         $event->setMessage($message);
-        $this->getEventDispatcher()->dispatch(TimingEvent::CONSUMER_TIMING, $event);
+
+        if (null !== ($dispatcher = $this->getEventDispatcher())) {
+            $dispatcher->dispatch(TimingEvent::CONSUMER_TIMING, $event);
+        }
     }
 }

@@ -16,7 +16,6 @@ class AbstractConsumerTest extends \PHPUnit\Framework\TestCase
         $lowerBoundMs = 9;
         $upperBoundMs = 30;
 
-        /** @var $messageInterface $messageInterface */
         $consumer = $this->getMockForAbstractClass(AbstractConsumer::class,
             ['initialize', 'readMessage'],
             '',
@@ -67,5 +66,17 @@ class AbstractConsumerTest extends \PHPUnit\Framework\TestCase
         ;
 
         $consumer->consume($endpoint);
+    }
+
+
+    public function testDoesNotFailWhenNoDispatcher()
+    {
+        $consumer = $this->getMockForAbstractClass(AbstractConsumer::class);
+
+        $class = new \ReflectionClass($consumer);
+        $method = $class->getMethod('dispatchConsumerTimingEvent');
+        $method->setAccessible(true);
+
+        $method->invokeArgs($consumer, [1, new Message()]);
     }
 }

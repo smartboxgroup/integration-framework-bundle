@@ -58,7 +58,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /**
      * @var int The time it took in ms to deserialize the message
      */
-    protected $deQueueingTimeMs = 0;
+    protected $dequeueingTimeMs = 0;
 
     /**
      * @return bool
@@ -159,9 +159,9 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /**
      * @return int
      */
-    public function getDeQueueingTimeMs()
+    public function getDequeueingTimeMs()
     {
-        return $this->deQueueingTimeMs;
+        return $this->dequeueingTimeMs;
     }
 
     /** {@inheritdoc} */
@@ -282,7 +282,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             );
         }
 
-        $this->deQueueingTimeMs = 0;
+        $this->dequeueingTimeMs = 0;
 
         $this->currentFrame = $this->statefulStomp->read();
 
@@ -311,7 +311,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             }
 
             // Calculate how long it took to deserilize the message
-            $this->deQueueingTimeMs = (int) ((microtime(true) - $start) * 1000);
+            $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
         }
 
         return $msg;

@@ -106,7 +106,7 @@ interface QueueDriverInterface extends SerializableInterface
     public function doDestroy();
 
     /**
-     * @return int The time it took in ms to deque and deserialize the message
+     * @return int The time it took in ms to de-queue and deserialize the message
      */
-    public function getDeQueueingTimeMs();
+    public function getDequeueingTimeMs();
 }
