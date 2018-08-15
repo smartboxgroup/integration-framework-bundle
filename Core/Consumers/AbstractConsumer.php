@@ -18,7 +18,6 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     use IsStopableConsumer;
     use UsesLogger;
     use UsesSmartesbHelper;
-    use UsesEventDispatcher;
 
     /**
      * Initializes the consumer for a given endpoint.
