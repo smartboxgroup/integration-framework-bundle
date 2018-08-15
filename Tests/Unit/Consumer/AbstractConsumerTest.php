@@ -14,7 +14,7 @@ class AbstractConsumerTest extends \PHPUnit\Framework\TestCase
     {
         $handleTimeUs = 9.99 * 1000;
         $lowerBoundMs = 9;
-        $upperBoundMs = 13;
+        $upperBoundMs = 20;
 
         /** @var $messageInterface $messageInterface */
         $consumer = $this->getMockForAbstractClass(AbstractConsumer::class,
