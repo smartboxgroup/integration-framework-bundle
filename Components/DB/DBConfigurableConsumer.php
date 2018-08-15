@@ -140,7 +140,7 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
                     );
                 }
 
-                $this->onConsume($endpoint, $message);
+                $this->confirmMessage($endpoint, $message);
                 $endConsumeTime = $wakeup = microtime(true);
                 $this->dispatchConsumerTimingEvent((int) (($endConsumeTime - $startConsumeTime) * 1000), $message);
             }
@@ -149,6 +149,8 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
                 usleep($sleepTime);
             }
         }
+
+        $this->cleanUp($endpoint);
     }
 
     /**
@@ -164,6 +166,7 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
      */
     protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message)
     {
+        $this->onConsume($endpoint, $message);
         return $message;
     }
 }
