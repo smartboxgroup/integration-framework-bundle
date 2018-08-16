@@ -4,8 +4,10 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
+use Smartbox\Integration\FrameworkBundle\Events\TimingEvent;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
@@ -89,6 +91,8 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
                 // Process
                 if ($message) {
+                    $startConsumeTime = microtime(true);
+
                     --$this->expirationCount;
 
                     $this->process($endpoint, $message);
@@ -102,6 +106,9 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
                     }
 
                     $this->confirmMessage($endpoint, $message);
+
+                    $endConsumeTime = microtime(true);
+                    $this->dispatchConsumerTimingEvent((int) (($endConsumeTime - $startConsumeTime) * 1000), $message);
                 }
             } catch (\Exception $ex) {
                 if (!$this->stop) {
@@ -120,5 +127,24 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
         $name = $reflection->getShortName();
 
         return basename($name, 'Consumer');
+    }
+
+    /**
+     * This function dispatchs a timing event with the amount of time it took to consume a message.
+     *
+     * @param $intervalMs int the timing interval that we would like to emanate
+     * @param MessageInterface $message
+     *
+     * @return mixed
+     */
+    protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
+    {
+        $event = new TimingEvent(TimingEvent::CONSUMER_TIMING);
+        $event->setIntervalMs($intervalMs);
+        $event->setMessage($message);
+
+        if (null !== ($dispatcher = $this->getEventDispatcher())) {
+            $dispatcher->dispatch(TimingEvent::CONSUMER_TIMING, $event);
+        }
     }
 }

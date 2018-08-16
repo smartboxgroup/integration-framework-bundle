@@ -6,6 +6,7 @@ use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\ConfigurableDbalProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLConfigurableProtocol;
 use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
@@ -16,15 +17,19 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Service;
 
-class DBConfigurableConsumer extends Service implements ConfigurableConsumerInterface
+class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableConsumerInterface
 {
     use IsConfigurableService;
-    use IsStopableConsumer;
-    use UsesLogger;
-    use UsesSmartesbHelper;
 
     /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function initialize(EndpointInterface $endpoint)
+    {
+    }
 
     /**
      * @return ConfigurableStepsProviderInterface
@@ -116,6 +121,7 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
 
         while (!$this->shouldStop()) {
             // Receive
+            $startConsumeTime = microtime(true);
             $message = $this->readMessage($endpoint);
 
             // Process
@@ -131,13 +137,33 @@ class DBConfigurableConsumer extends Service implements ConfigurableConsumerInte
                     );
                 }
 
-                $this->onConsume($endpoint, $message);
-                $wakeup = microtime(true);
+                $this->confirmMessage($endpoint, $message);
+                $endConsumeTime = $wakeup = microtime(true);
+                $this->dispatchConsumerTimingEvent((int) (($endConsumeTime - $startConsumeTime) * 1000), $message);
             }
 
             if ((microtime(true) - $wakeup) > $inactivityTrigger) { // I did nothing since the last x seconds, so little nap...
                 usleep($sleepTime);
             }
         }
+
+        $this->cleanUp($endpoint);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function cleanUp(EndpointInterface $endpoint)
+    {
+        //TODO: Connect to the steps provider and ask it to shut down its connection
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message)
+    {
+        $this->onConsume($endpoint, $message);
+        return $message;
     }
 }

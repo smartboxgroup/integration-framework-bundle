@@ -15,6 +15,11 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 class QueueConsumer extends AbstractConsumer implements ConsumerInterface
 {
     /**
+     * @var int The time it took in ms to deserialize the message
+     */
+    protected $dequeueingTimeMs = 0;
+
+    /**
      * {@inheritdoc}
      */
     protected function initialize(EndpointInterface $endpoint)
@@ -62,6 +67,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     protected function readMessage(EndpointInterface $endpoint)
     {
         $driver = $this->getQueueDriver($endpoint);
+        $this->dequeueingTimeMs = $driver->getDequeueingTimeMs();
 
         return $driver->receive();
     }
@@ -87,5 +93,19 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     {
         $driver = $this->getQueueDriver($endpoint);
         $driver->ack();
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param $intervalMs int the timing interval that we would like to emanate
+     *
+     * @return mixed
+     */
+    protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
+    {
+        $intervalMs = $intervalMs + $this->dequeueingTimeMs;
+
+        parent::dispatchConsumerTimingEvent($intervalMs, $message);
     }
 }

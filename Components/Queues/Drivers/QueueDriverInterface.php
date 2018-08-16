@@ -76,10 +76,9 @@ interface QueueDriverInterface extends SerializableInterface
      */
     public function nack();
 
-
     /**
      * @param QueueMessageInterface $message
-     * @param string|null $destination
+     * @param string|null           $destination
      *
      * @return bool
      */
@@ -105,4 +104,9 @@ interface QueueDriverInterface extends SerializableInterface
      * Clean all the opened resources, must be called just before terminating the current request.
      */
     public function doDestroy();
+
+    /**
+     * @return int The time it took in ms to de-queue and deserialize the message
+     */
+    public function getDequeueingTimeMs();
 }

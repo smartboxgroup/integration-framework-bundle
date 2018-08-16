@@ -56,6 +56,11 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     protected $subscriptionId = false;
 
     /**
+     * @var int The time it took in ms to deserialize the message
+     */
+    protected $dequeueingTimeMs = 0;
+
+    /**
      * @return bool
      */
     public function isUrlEncodeDestination()
@@ -151,8 +156,16 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $this->format = $format;
     }
 
+    /**
+     * @return int
+     */
+    public function getDequeueingTimeMs()
+    {
+        return $this->dequeueingTimeMs;
+    }
+
     /** {@inheritdoc} */
-    public function configure($host, $username, $password,  $format = QueueDriverInterface::FORMAT_JSON, $version = self::STOMP_VERSION, $vhost = null, $timeout = 3, $sync = true)
+    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $version = self::STOMP_VERSION, $vhost = null, $timeout = 3, $sync = true)
     {
         $this->format = $format;
         $this->host = $host;
@@ -269,6 +282,8 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             );
         }
 
+        $this->dequeueingTimeMs = 0;
+
         $this->currentFrame = $this->statefulStomp->read();
 
         while ($this->currentFrame && !$this->isFrameFromSubscription($this->currentFrame)) {
@@ -278,6 +293,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $msg = null;
 
         if ($this->currentFrame) {
+            $start = microtime(true);
             $deserializationContext = new DeserializationContext();
             if (!empty($version)) {
                 $deserializationContext->setVersion($version);
@@ -293,6 +309,9 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             foreach ($this->currentFrame->getHeaders() as $header => $value) {
                 $msg->setHeader($header, $this->unescape($value));
             }
+
+            // Calculate how long it took to deserilize the message
+            $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
         }
 
         return $msg;
