@@ -20,9 +20,6 @@ use Smartbox\Integration\FrameworkBundle\Service;
 class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableConsumerInterface
 {
     use IsConfigurableService;
-    use IsStopableConsumer;
-    use UsesLogger;
-    use UsesSmartesbHelper;
 
     /** @var ConfigurableStepsProviderInterface */
     protected $configurableStepsProvider;
