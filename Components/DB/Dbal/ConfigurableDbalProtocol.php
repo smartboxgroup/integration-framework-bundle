@@ -48,7 +48,7 @@ class ConfigurableDbalProtocol extends Protocol implements DescriptableInterface
         ]);
 
         $resolver->setAllowedTypes(self::OPTION_METHOD, ['string']);
-        $resolver->setAllowedTypes(self::OPTION_STOP_ON_NO_RESULTS, ['bool']);
+        $resolver->setAllowedTypes(self::OPTION_STOP_ON_NO_RESULTS, ['bool', 'numeric']);
         $resolver->setAllowedTypes(self::OPTION_DB_CONNECTION_NAME, 'string');
         $resolver->setAllowedTypes(self::OPTION_SLEEP_TIME, 'numeric');
         $resolver->setAllowedTypes(self::OPTION_INACTIVITY_TRIGGER, 'numeric');
