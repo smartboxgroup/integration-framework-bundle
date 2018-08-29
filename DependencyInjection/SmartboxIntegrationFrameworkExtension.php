@@ -80,7 +80,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $arguments = $call[1];
                     $resolvedArguments = [];
                     foreach ($arguments as $index => $arg) {
-                        if (0 === strpos($arg, '@')) {
+                        if (is_string($arg) && 0 === strpos($arg, '@')) {
                             $resolvedArguments[$index] = new Reference(substr($arg, 1));
                         } else {
                             $resolvedArguments[$index] = $arg;
