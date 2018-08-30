@@ -341,7 +341,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
             if(false === strpos($line, 'POST')) {
                 $values = explode(':', $line, 2);
 
-                if(!is_null($values[1]))
+                if(isset($values[1]) && isset($values[0]) && !empty($values[0] && !empty($values[1])))
                     $headerLines[$values[0]] = trim(str_replace('"', '', $values[1]));
             }
         }
