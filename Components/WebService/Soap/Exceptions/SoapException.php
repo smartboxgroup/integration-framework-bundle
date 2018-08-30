@@ -80,7 +80,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
         $this->responseHeaders = $responseHeaders;
         $this->response = $response;
 
-        if(is_object($previous) && $previous instanceof \SoapFault) {
+        if (is_object($previous) && $previous instanceof \SoapFault) {
             $this->originalMessage = $previous->faultstring;
             $this->originalCode = $previous->faultcode;
         }
