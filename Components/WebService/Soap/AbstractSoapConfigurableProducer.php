@@ -299,6 +299,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     /**
      * @param $context
      * @param $endpointOptions
+     *
      * @return ExternalSystemHTTPEvent
      */
     public function getExternalSystemHTTPEvent(&$context, &$endpointOptions)
@@ -330,6 +331,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
 
     /**
      * @param $headerContent
+     *
      * @return array
      */
     private function getHeaderLines($headerContent)
@@ -337,12 +339,13 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         $headerLines = [];
         $headers = array_filter(preg_split("(\r\n|\r|\n)", $headerContent));
 
-        foreach($headers as $line) {
-            if(false === strpos($line, 'POST')) {
+        foreach ($headers as $line) {
+            if (false === strpos($line, 'POST')) {
                 $values = explode(':', $line, 2);
 
-                if(!is_null($values[1]))
+                if (isset($values[1]) && isset($values[0]) && !empty($values[0] && !empty($values[1]))) {
                     $headerLines[$values[0]] = trim(str_replace('"', '', $values[1]));
+                }
             }
         }
 
