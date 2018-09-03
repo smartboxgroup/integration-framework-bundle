@@ -38,12 +38,13 @@ class ParseHeadersTraitTest extends TestCase
      * @group parseSoapHeaders
      * @dataProvider provideParseableData
      */
-    public function testParseHeadersToArray($data)
+    public function testParseHeadersToArray($header, $expected)
     {
-        $result = $this->parseTrait->parseHeadersToArray($data);
+        $result = $this->parseTrait->parseHeadersToArray($header);
 
         $this->assertTrue(is_array($result), 'The parser should return an array');
         $this->assertTrue(count($result) > 0, 'The parser should not return an empty array');
+        $this->assertEquals($expected, $result, 'The parser did not returned the same as expected.');
     }
 
     /**
@@ -65,7 +66,11 @@ class ParseHeadersTraitTest extends TestCase
     {
         return [
             [
-                'parse_all' => 'SOAPAction: urn:Mage_Api_Model_Server_V2_HandlerAction\r\nSOAPVersion: 1',
+                "SOAPAction: urn:Mage_Api_Model_Server_V2_HandlerAction\r\nSOAPVersion: 1",
+                [
+                    'SOAPAction' => 'urn:Mage_Api_Model_Server_V2_HandlerAction',
+                    'SOAPVersion' => 1,
+                ],
             ],
         ];
     }
