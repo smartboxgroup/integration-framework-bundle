@@ -18,6 +18,8 @@ use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
  */
 abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProducer implements CanCheckConnectivityInterface
 {
+    use ParseHeadersTrait;
+
     const REQUEST_PARAMETERS = 'parameters';
     const REQUEST_NAME = 'name';
     const SOAP_METHOD_NAME = 'soap_method';
@@ -315,8 +317,8 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         $event->setTransactionId($context['msg']->getContext()['transaction_id']);
         $event->setFromUri($context['msg']->getContext()['from']);
         $event->setHttpURI($client->__getLastRequestUri());
-        $event->setRequestHttpHeaders($this->getHeaderLines($client->__getLastRequestHeaders()));
-        $event->setResponseHttpHeaders($this->getHeaderLines($client->__getLastResponseHeaders()));
+        $event->setRequestHttpHeaders($this->parseHeadersToArray($client->__getLastRequestHeaders()));
+        $event->setResponseHttpHeaders($this->parseHeadersToArray($client->__getLastResponseHeaders()));
         $event->setRequestHttpBody($client->__getLastRequest());
         $event->setResponseHttpBody($client->__getLastResponse());
 
@@ -327,28 +329,5 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         }
 
         return $event;
-    }
-
-    /**
-     * @param $headerContent
-     *
-     * @return array
-     */
-    private function getHeaderLines($headerContent)
-    {
-        $headerLines = [];
-        $headers = array_filter(preg_split("(\r\n|\r|\n)", $headerContent));
-
-        foreach ($headers as $line) {
-            if (false === strpos($line, 'POST')) {
-                $values = explode(':', $line, 2);
-
-                if (isset($values[1]) && isset($values[0]) && !empty($values[0] && !empty($values[1]))) {
-                    $headerLines[$values[0]] = trim(str_replace('"', '', $values[1]));
-                }
-            }
-        }
-
-        return $headerLines;
     }
 }
