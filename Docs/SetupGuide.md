@@ -25,7 +25,6 @@ The Smartbox Integration Framework comprises of the following components:
 
 ![image](images/structure.png)
 
-    
 It is not the purpose of this document to fully explain integration patterns or how an ESB works, but instead to get you up and running quickly.
 For further reading on Enterprise Integration Patterns please visit <https://www.enterpriseintegrationpatterns.com/>.
 
@@ -37,8 +36,6 @@ To get the framework up and running we will make the following assumptions regar
 * Database: MySql
 * Process Control: Supervisor
 * WebServer: Apache + PHP 7.0
-
-
 
 ### Composer Dependencies
 To simplify our setup we will install all the related Smartbox bundles
@@ -147,7 +144,6 @@ parameters:
 
 ```
 
-
 ### Required Parameters
 
 Add the following to your ``` app/config/parameters.yml.dist```
@@ -240,7 +236,9 @@ remote_system_api:
     _producer: @smartesb.producers.remote_system_api
 
 ```
+
 This would define routing for a rest producer that will route via matching against: ```rest://remote_system_api/{method}```
+
 This is referenced in the ``` app/config/routing_endpoints_*.yml``` files, see above for example.
 
 ### Example flow
@@ -320,7 +318,6 @@ smartbox_integration_framework:
 
 ```
 
-
 You will need to import this in your ``` app/config/config.yml ```
 ```yaml
 
@@ -365,15 +362,11 @@ class RemoteSystemApiProducer extends RestConfigurableProducer implements CanChe
         return 'important';
     }
 
-
 }
 
 ```
 
-
-
 ## Sample Setup for System
-
 
 ### Webserver Setup
 
@@ -386,8 +379,6 @@ sudo apt-get install -y php7.0 libapache2-mod-php7.0 php7.0-cli php7.0-common ph
 sudo apt-get install -y php7.0-curl php7.0-xml php7.0-soap php-apcu php-apcu-bc
 
 ```
-
-
 
 ### RabbitMQ
 
@@ -412,8 +403,6 @@ echo "[{rabbit, [{loopback_users, []}]}]." | sudo tee /etc/rabbitmq/rabbitmq.con
 echo -e "\n127.0.0.1	rabbitmq.local" | sudo tee -a /etc/hosts
 
 ```
-
-
 
 ### Adding Workers with Supervisor
 
@@ -441,14 +430,3 @@ startretries = 10
 user = mel
  ```
 Note that the value ```numprocs=10``` means that supervisor will attempt to always run 10 instances/processes of the program.
-
-
-
-
-
-
-
-
-
-
-

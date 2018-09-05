@@ -16,7 +16,6 @@ We are currently working on creating a detailed documentation that will be publi
 
 To get started using the Integration Framework bundle please read our [setup guide](./Docs/SetupGuide.md). 
 
-
 If you are interested in knowing more you can have a first look at the code and contact the [Integration team](mailto:si-integration@smartbox.com) at Smartbox.
 
 
