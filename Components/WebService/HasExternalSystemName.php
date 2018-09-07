@@ -13,7 +13,7 @@ trait HasExternalSystemName
      * @var string
      * @JMS\Expose
      * @JMS\Type("string")
-     * @JMS\SerializedName("requestHeaders")
+     * @JMS\SerializedName("externalSystemName")
      * @JMS\Groups({"logs"})
      */
     protected $externalSystemName;
