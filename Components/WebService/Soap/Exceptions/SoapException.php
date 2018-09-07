@@ -21,9 +21,9 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     use ParseHeadersTrait;
 
     /**
-     * @var string
+     * @var array
      * @JMS\Expose
-     * @JMS\Type("string")
+     * @JMS\Type("array")
      * @JMS\SerializedName("requestHeaders")
      * @JMS\Groups({"logs"})
      */
@@ -39,9 +39,9 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     protected $request;
 
     /**
-     * @var string
+     * @var array
      * @JMS\Expose
-     * @JMS\Type("string")
+     * @JMS\Type("array")
      * @JMS\SerializedName("responseHeaders")
      * @JMS\Groups({"logs"})
      */
@@ -101,7 +101,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getRequestHeaders()
     {
@@ -141,7 +141,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getResponseHeaders()
     {
