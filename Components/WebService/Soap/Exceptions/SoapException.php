@@ -101,7 +101,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getRequestHeaders()
     {
@@ -141,7 +141,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getResponseHeaders()
     {
