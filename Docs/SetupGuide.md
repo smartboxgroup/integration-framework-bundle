@@ -109,10 +109,6 @@ smartbox_integration_framework:
             retry_uri: original
             throw_exceptions: false
             defer_new_exchanges: true
-            throttle_delay: 1
-            throttle_delay_factor: 1
-            throttle_strategy: fixed
-            throttle_uri: queue://main/throttlerAsync
 
     flows_version: 0
     queues_default_persistence: false
