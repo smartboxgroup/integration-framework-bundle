@@ -42,8 +42,8 @@ class ParseHeadersTraitTest extends TestCase
     {
         $result = $this->parseTrait->parseHeadersToArray($header);
 
-        $this->assertTrue(is_array($result), 'The parser should return an array');
-        $this->assertTrue(count($result) > 0, 'The parser should not return an empty array');
+        $this->assertInternalType('array', $result, 'The parser should return an array');
+        $this->assertNotEmpty($result, 'The parser should not return an empty array');
         $this->assertEquals($expected, $result, 'The parser did not returned the same as expected.');
     }
 
@@ -55,8 +55,9 @@ class ParseHeadersTraitTest extends TestCase
     {
         $result = $this->parseTrait->parseHeadersToArray($data);
 
+        $this->assertInternalType('array', $result, 'The parser should return an array');
         $this->assertTrue(is_array($result), 'The parser should return an array');
-        $this->assertTrue(0 == count($result), 'The parser should return an empty array');
+        $this->assertCount(0, $result, 'The parser should return an empty array');
     }
 
     /**
@@ -66,10 +67,10 @@ class ParseHeadersTraitTest extends TestCase
     {
         return [
             [
-                "SOAPAction: urn:Mage_Api_Model_Server_V2_HandlerAction\r\nSOAPVersion: 1",
+                "Content-Type: text/html; charset=utf-8;\r\nAccept: */*",
                 [
-                    'SOAPAction' => 'urn:Mage_Api_Model_Server_V2_HandlerAction',
-                    'SOAPVersion' => 1,
+                    'Content-Type' => 'text/html; charset=utf-8;',
+                    'Accept' => '*/*',
                 ],
             ],
         ];
@@ -83,7 +84,7 @@ class ParseHeadersTraitTest extends TestCase
         $methods = [];
 
         foreach ($this->httpMethods as $method) {
-            $methods['do_not_parse_'.$method] = "$method http://middle-t-u3.sandbox.local/es/index.php/api/v2_soap/index/";
+            $methods['do_not_parse_'.$method] = "$method http://any.url.com/with/random/method";
         }
 
         return [$methods];
