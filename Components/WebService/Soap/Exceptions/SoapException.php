@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions;
 
 use JMS\Serializer\Annotation as JMS;
+use JMS\Serializer\Annotation\Accessor;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
@@ -25,6 +26,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
      * @JMS\Expose
      * @JMS\Type("array")
      * @JMS\SerializedName("requestHeaders")
+     * @Accessor(getter="getResponseHeaders",setter="setsRequestHeadersTypeUnknown")
      * @JMS\Groups({"logs"})
      */
     protected $requestHeaders;
@@ -159,6 +161,23 @@ class SoapException extends \Exception implements SerializableInterface, Externa
 
         return $this;
     }
+
+    /**
+     *
+     * @return SoapException
+     */
+    public function setsRequestHeadersTypeUnknown($responseHeaders)
+    {
+        if(is_string($responseHeaders)){
+            $this->responseHeaders = array($responseHeaders);
+        }elseif(is_array($responseHeaders)){
+            $this->responseHeaders = $responseHeaders;
+        }else{
+            $this->responseHeaders = array();
+        }
+        return $this;
+    }
+
 
     /**
      * @return string
