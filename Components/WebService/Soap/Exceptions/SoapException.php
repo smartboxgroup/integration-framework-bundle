@@ -166,14 +166,14 @@ class SoapException extends \Exception implements SerializableInterface, Externa
      *
      * @return SoapException
      */
-    public function setsRequestHeadersTypeUnknown($responseHeaders)
+    public function setsRequestHeadersTypeUnknown($requestHeaders)
     {
-        if(is_string($responseHeaders)){
-            $this->responseHeaders = array($responseHeaders);
-        }elseif(is_array($responseHeaders)){
-            $this->responseHeaders = $responseHeaders;
+        if(is_string($requestHeaders)){
+            $this->requestHeaders = array($requestHeaders);
+        }elseif(is_array($requestHeaders)){
+            $this->requestHeaders = $requestHeaders;
         }else{
-            $this->responseHeaders = array();
+            $this->requestHeaders = array();
         }
         return $this;
     }
