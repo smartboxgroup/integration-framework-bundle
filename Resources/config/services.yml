@@ -24,6 +24,7 @@ parameters:
   smartesb.steps_provider.dbal.class: Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\DbalStepsProvider
   smartesb.steps_provider.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLStepsProvider
   smartesb.steps_provider.csv.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableStepsProvider
+  smartesb.serialization.handler.starray.class: Smartbox\Integration\FrameworkBundle\Events\StarrayHandler
 
 services:
   smartesb.serialization.handler.mongodate:
@@ -108,3 +109,8 @@ services:
 
   smartesb.handlers.async:
       class: '%smartesb.handlers.message_routing.class%'
+
+  smartesb.serialization.handler.starray:
+      class: '%smartesb.serialization.handler.starray.class%'
+      tags:
+          - { name: jms_serializer.subscribing_handler }

@@ -24,9 +24,8 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     /**
      * @var array
      * @JMS\Expose
-     * @JMS\Type("array")
+     * @JMS\Type("starray")
      * @JMS\SerializedName("requestHeaders")
-     * @Accessor(getter="getResponseHeaders",setter="setsRequestHeadersTypeUnknown")
      * @JMS\Groups({"logs"})
      */
     protected $requestHeaders;
@@ -43,7 +42,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     /**
      * @var array
      * @JMS\Expose
-     * @JMS\Type("array")
+     * @JMS\Type("starray")
      * @JMS\SerializedName("responseHeaders")
      * @JMS\Groups({"logs"})
      */
@@ -161,23 +160,6 @@ class SoapException extends \Exception implements SerializableInterface, Externa
 
         return $this;
     }
-
-    /**
-     *
-     * @return SoapException
-     */
-    public function setsRequestHeadersTypeUnknown($requestHeaders)
-    {
-        if(is_string($requestHeaders)){
-            $this->requestHeaders = array($requestHeaders);
-        }elseif(is_array($requestHeaders)){
-            $this->requestHeaders = $requestHeaders;
-        }else{
-            $this->requestHeaders = array();
-        }
-        return $this;
-    }
-
 
     /**
      * @return string
