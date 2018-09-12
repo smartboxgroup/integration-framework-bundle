@@ -108,4 +108,3 @@ services:
 
   smartesb.handlers.async:
       class: '%smartesb.handlers.message_routing.class%'
-
