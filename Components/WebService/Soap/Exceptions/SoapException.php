@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions;
 
 use JMS\Serializer\Annotation as JMS;
-use JMS\Serializer\Annotation\Accessor;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\ExternalSystemExceptionInterface;
