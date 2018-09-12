@@ -76,12 +76,12 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
             $this->openFileHandles[$key] = $handle;
         }
 
-        if (get_resource_type($handle) !== 'stream') {
+        if ('stream' !== get_resource_type($handle)) {
             throw new \Exception('The file handle is not a file stream!');
         }
 
-        if (strpos($mode, 'w') !== false) {
-            if (!is_writeable($fullPath) === 'stream') {
+        if (false !== strpos($mode, 'w')) {
+            if ('stream' === !is_writeable($fullPath)) {
                 throw new \Exception('The file handle in the context is not writeable!');
             }
         }
@@ -292,7 +292,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
 
         $rows = [];
 
-        while (($row = fgetcsv($fileHandle, $maxLineLength, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER])) !== false) {
+        while (false !== ($row = fgetcsv($fileHandle, $maxLineLength, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER]))) {
             $rows[] = $row;
         }
 
@@ -328,8 +328,8 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         $params = $stepParamsResolver->resolve($stepActionParams);
 
         $fullPath = $this->getRootPath($endpointOptions);
-        if ($params[self::PARAM_FILE_NAME] !== null) {
-            if (substr($fullPath, -1) !== DIRECTORY_SEPARATOR) {
+        if (null !== $params[self::PARAM_FILE_NAME]) {
+            if (DIRECTORY_SEPARATOR !== substr($fullPath, -1)) {
                 $fullPath .= DIRECTORY_SEPARATOR;
             }
             $fullPath .= $params[self::PARAM_FILE_NAME];
@@ -347,7 +347,7 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
         while ($i < $maxLines) {
             $row = fgetcsv($fileHandle, $maxLineLength, $endpointOptions[CsvConfigurableProtocol::OPTION_DELIMITER]);
 
-            if ($row === false) {
+            if (false === $row) {
                 break;
             }
 
@@ -355,8 +355,8 @@ class CsvConfigurableStepsProvider extends Service implements ConfigurableStepsP
             ++$i;
         }
 
-        if (count($rows) === 0) {
-            throw new NoResultsException("No more results from $$fullPath");
+        if (0 === count($rows)) {
+            throw new NoResultsException("No more results from $fullPath");
         }
 
         $context[self::KEY_RESULTS][$contextResultName] = $rows;
