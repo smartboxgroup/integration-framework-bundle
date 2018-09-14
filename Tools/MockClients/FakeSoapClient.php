@@ -18,10 +18,10 @@ class FakeSoapClient extends BasicAuthSoapClient
         if (isset($options['MockCacheDir'])) {
             $this->cacheDir = $options['MockCacheDir'];
         }
-        if (getenv('RECORD_RESPONSE') === 'true') {
+        if ('true' === getenv('RECORD_RESPONSE')) {
             $this->saveWsdlToCache($wsdl, $options);
         }
-        if (getenv('MOCKS_ENABLED') === 'true') {
+        if ('true' === getenv('MOCKS_ENABLED')) {
             $wsdl = $this->getWsdlPathFromCache($wsdl, $options);
             $options['resolve_wsdl_remote_includes'] = false;
         }
@@ -59,36 +59,91 @@ class FakeSoapClient extends BasicAuthSoapClient
         $this->checkInitialisation();
         $actionName = md5($location).'_'.$this->actionName;
 
-        if (getenv('MOCKS_ENABLED') === 'true') {
-            try {
-                $response = $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
-                $this->lastResponseCode = 200;
-                return $response;
-            } catch (\InvalidArgumentException $e) {
-                throw $e;
-            }
+        $mocksEnabled = getenv('MOCKS_ENABLED');
+        $displayRequest = getenv('DISPLAY_REQUEST');
+        $recordResponse = getenv('RECORD_RESPONSE');
+        $rawRecordedResponse = getenv('RAW_RECORDED_RESPONSE');
+
+        if ('true' === $mocksEnabled) {
+            $mocksMessage = 'MOCKS/';
+        } else {
+            $mocksMessage = '';
         }
 
-        $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
+        if ('true' === $displayRequest) {
+            $requestHeaders = [];
+            if (isset($this->requestHeaders) && is_array($this->requestHeaders)) {
+                foreach ($this->requestHeaders as $headerName => $headerValue) {
+                    $requestHeaders[] = $headerName.' => '.$headerValue;
+                }
+            }
 
-        if (getenv('DISPLAY_REQUEST') === 'true') {
-            echo "\nREQUEST for $location / $action / Version $version";
+            echo "\nREQUEST (".$mocksMessage."SOAP) for $location / $action / Version $version";
+            echo "\n=====================================================================================================";
+            echo "\nHEADERS";
+            echo "\n=====================================================================================================";
+            echo "\n  ".implode($requestHeaders, "\n  ");
+            echo "\n=====================================================================================================";
+            echo "\nRAW REQUEST";
             echo "\n=====================================================================================================";
             echo "\n".$request;
             echo "\n=====================================================================================================";
+            echo "\nPRETTY SEXY REQUEST";
+            echo "\n=====================================================================================================";
+            echo "\n".$this->prettyXML($request);
+            echo "\n=====================================================================================================";
             echo "\n\n";
-            echo "\nRESPONSE";
+        }
+
+        if ('true' === $mocksEnabled) {
+            try {
+                $response = $this->getResponseFromCache($actionName, self::CACHE_SUFFIX);
+                $this->lastResponseCode = 200;
+            } catch (\InvalidArgumentException $e) {
+                throw $e;
+            }
+        } else {
+            $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
+        }
+
+        if ('true' === $displayRequest) {
+            echo "\nRESPONSE (".$mocksMessage."SOAP) for $location / $action / Version $version";
+            echo "\n=====================================================================================================";
+            echo "\nRAW RESPONSE";
             echo "\n=====================================================================================================";
             echo "\n".$response;
             echo "\n=====================================================================================================";
+            echo "\nPRETTY SEXY RESPONSE";
+            echo "\n=====================================================================================================";
+            echo "\n".$this->prettyXML($response);
             echo "\n=====================================================================================================";
             echo "\n\n";
         }
 
-        if (getenv('RECORD_RESPONSE') === 'true') {
-            $this->setResponseInCache($actionName, $response, self::CACHE_SUFFIX);
+        if ('true' === $recordResponse) {
+            $recordedResponse = $response;
+            if ('true' !== $rawRecordedResponse) { // By default, we record a pretty response.
+                $recordedResponse = $this->prettyXML($response);
+            }
+            $this->setResponseInCache($actionName, $recordedResponse, self::CACHE_SUFFIX);
         }
 
         return $response;
+    }
+
+    /** Return a much nicer XML string.
+     *
+     * @param $uglyXML
+     *
+     * @return string
+     */
+    private function prettyXML($uglyXML)
+    {
+        $doc = new \DOMDocument();
+        $doc->preserveWhiteSpace = false;
+        $doc->formatOutput = true;
+        $doc->loadXML($uglyXML);
+
+        return $doc->saveXML();
     }
 }

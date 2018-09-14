@@ -4,7 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Events\TimingEvent;
@@ -109,6 +108,10 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
                     $endConsumeTime = microtime(true);
                     $this->dispatchConsumerTimingEvent((int) (($endConsumeTime - $startConsumeTime) * 1000), $message);
+
+                    if ($this->logger) {
+                        $this->logger->debug('This message was processed in '.round(($endConsumeTime - $startConsumeTime) * 1000, 0).' ms.');
+                    }
                 }
             } catch (\Exception $ex) {
                 if (!$this->stop) {

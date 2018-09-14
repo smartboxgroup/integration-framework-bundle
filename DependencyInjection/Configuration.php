@@ -216,6 +216,11 @@ class Configuration implements ConfigurationInterface
             ->isRequired()
             ->end()
 
+            ->arrayNode('flows')
+            ->info('List of flows that are using this method')
+            ->prototype('variable')->end()
+            ->end()
+
             ->arrayNode(ConfigurableProducerInterface::CONF_STEPS)
             ->info('This are the steps to execute as part of this method')
             ->prototype('variable')->end()
