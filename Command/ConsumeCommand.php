@@ -82,7 +82,8 @@ app/console smartesb:consumer:start queue://events --killAfter 10
             $consumer->setLogger($logger);
         }
 
-        $message = '<info>Consuming from '.$this->endpoint->getURI();
+        $now = \DateTime::createFromFormat('U.u', microtime(true));
+        $message = '<info>'.$now->format('Y-m-d H:i:s.u').' Consuming from '.$this->endpoint->getURI();
         if ($input->getOption(self::OPTION_MAX_MESSAGES) > 0) {
             $message .= ' limited to '.$input->getOption(self::OPTION_MAX_MESSAGES).' messages';
         }
@@ -94,7 +95,8 @@ app/console smartesb:consumer:start queue://events --killAfter 10
 
         $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES));
 
-        $output->writeln('<info>Consumer was gracefully stopped for: '.$this->endpoint->getURI().'</info>');
+        $now = \DateTime::createFromFormat('U.u', microtime(true));
+        $output->writeln('<info>'.$now->format('Y-m-d H:i:s.u').' Consumer was gracefully stopped for '.$this->endpoint->getURI().'</info>');
     }
 
     /**
