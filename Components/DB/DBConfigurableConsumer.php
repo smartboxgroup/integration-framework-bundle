@@ -9,13 +9,9 @@ use Smartbox\Integration\FrameworkBundle\Configurability\IsConfigurableService;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\NoResultsException;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
-use Smartbox\Integration\FrameworkBundle\Service;
 
 class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableConsumerInterface
 {
@@ -135,8 +131,9 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
                     $now = \DateTime::createFromFormat('U.u', $microTime);
 
                     $this->logger->info(
-                        'A message was consumed on {date}',
-                        ['date' => \DateTime::createFromFormat('U.u', $now->format('Y-m-d H:i:s.u')]
+                        'A message was consumed on {date}', [
+                            'date' => \DateTime::createFromFormat('U.u', $now->format('Y-m-d H:i:s.u')),
+                        ]
                     );
                 }
 
@@ -167,6 +164,7 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
     protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message)
     {
         $this->onConsume($endpoint, $message);
+
         return $message;
     }
 }
