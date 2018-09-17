@@ -126,16 +126,7 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
 
                 $endpoint->handle($message);
 
-                if ($this->logger) {
-                    $microTime = number_format(microtime(true), 6, '.', '');
-                    $now = \DateTime::createFromFormat('U.u', $microTime);
-
-                    $this->logger->info(
-                        'A message was consumed on {date}', [
-                            'date' => \DateTime::createFromFormat('U.u', $now->format('Y-m-d H:i:s.u')),
-                        ]
-                    );
-                }
+                $this->consumeLogMessage();
 
                 $this->confirmMessage($endpoint, $message);
                 $endConsumeTime = $wakeup = microtime(true);

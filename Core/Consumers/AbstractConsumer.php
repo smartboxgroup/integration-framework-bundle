@@ -97,13 +97,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
                     $this->process($endpoint, $message);
 
-                    if ($this->logger) {
-                        // Please refer to http://php.net/manual/en/datetime.createfromformat.php#119362 to understand why we number_format
-                        $microTime = number_format(microtime(true), 6, '.', '');
-
-                        $now = \DateTime::createFromFormat('U.u', $microTime);
-                        $this->logger->info('A message was consumed on '.$now->format('Y-m-d H:i:s.u'));
-                    }
+                    $this->consumeLogMessage();
 
                     $this->confirmMessage($endpoint, $message);
 
@@ -147,4 +141,22 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
             $dispatcher->dispatch(TimingEvent::CONSUMER_TIMING, $event);
         }
     }
+
+    /**
+     * Log the moment a message was consumed.
+     */
+    protected function consumeLogMessage()
+    {
+        if ($this->logger) {
+            $microTime = number_format(microtime(true), 6, '.', '');
+            $now = \DateTime::createFromFormat('U.u', $microTime);
+
+            $this->logger->info(
+            'A message was consumed on {date}', [
+            'date' => \DateTime::createFromFormat('U.u', $now->format('Y-m-d H:i:s.u')),
+            ]
+        );
+    }
+}
+
 }
