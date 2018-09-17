@@ -97,7 +97,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
                     $this->process($endpoint, $message);
 
-                    $this->consumeLogMessage();
+                    $this->logConsumeMessage();
 
                     $this->confirmMessage($endpoint, $message);
 
@@ -145,7 +145,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     /**
      * Log the moment a message was consumed.
      */
-    protected function consumeLogMessage()
+    protected function logConsumeMessage()
     {
         if ($this->logger) {
             $microTime = number_format(microtime(true), 6, '.', '');

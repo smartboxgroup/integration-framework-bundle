@@ -126,7 +126,7 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
 
                 $endpoint->handle($message);
 
-                $this->consumeLogMessage();
+                $this->logConsumeMessage();
 
                 $this->confirmMessage($endpoint, $message);
                 $endConsumeTime = $wakeup = microtime(true);
