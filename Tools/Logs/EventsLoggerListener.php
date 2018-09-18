@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
+use Smartbox\Integration\FrameworkBundle\Events\MalformedInputEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
@@ -209,7 +210,7 @@ class EventsLoggerListener
             $context['exchange']['detail'] = $event->getExchange();
         }
 
-        if ($event instanceof ProcessingErrorEvent || $event instanceof HandlerErrorEvent) {
+        if ($event instanceof ProcessingErrorEvent || $event instanceof HandlerErrorEvent || $event instanceof MalformedInputEvent) {
             $context['exception'] = $event->getException();
         }
 

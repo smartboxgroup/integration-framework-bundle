@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
+use Smartbox\Integration\FrameworkBundle\Events\MalformedInputEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
@@ -389,6 +390,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         $def->addTag('kernel.event_listener', [
             'event' => ExternalSystemHTTPEvent::EVENT_NAME,
+            'method' => 'onEvent',
+        ]);
+
+        $def->addTag('kernel.event_listener', [
+            'event' => MalformedInputEvent::EVENT_NAME,
             'method' => 'onEvent',
         ]);
 
