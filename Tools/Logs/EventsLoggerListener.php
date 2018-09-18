@@ -4,8 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\Logs;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\EndpointProcessor;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\Events\Event;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
@@ -127,10 +125,11 @@ class EventsLoggerListener
         $this->errorsLogLevel = $errorsLogLevel;
     }
 
-    public function getLogLevelForEvent(Event $event){
-        if($event instanceof ProcessingErrorEvent || $event instanceof HandlerErrorEvent){
+    public function getLogLevelForEvent(Event $event)
+    {
+        if ($event instanceof ProcessingErrorEvent || $event instanceof HandlerErrorEvent) {
             return $this->errorsLogLevel;
-        }else{
+        } else {
             return $this->eventsLogLevel;
         }
     }
@@ -174,11 +173,11 @@ class EventsLoggerListener
             $context['response_headers'] = $event->getResponseHttpHeaders();
             $context['status'] = $event->getStatus();
             $context['exchange'] = [
-                'id' => $event->getExchangeId()
+                'id' => $event->getExchangeId(),
             ];
             $context['transaction'] = [
                 'id' => $event->getTransactionId(),
-                'uri' => $event->getFromUri()
+                'uri' => $event->getFromUri(),
             ];
         } elseif (
             $event instanceof HandlerEvent ||
@@ -188,7 +187,7 @@ class EventsLoggerListener
             $context['exchange'] = [
                 'id' => $contextExchangeDetails->getId(),
                 'uri' => $contextExchangeDetails->getHeader('from'),
-                'type' => ($contextExchangeDetails->getHeader('async') === true) ? 'async' : 'sync',
+                'type' => (true === $contextExchangeDetails->getHeader('async')) ? 'async' : 'sync',
             ];
         }
 

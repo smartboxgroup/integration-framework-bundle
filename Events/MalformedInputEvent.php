@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Events;
 
 use JMS\Serializer\Annotation as JMS;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -14,7 +13,7 @@ class MalformedInputEvent extends Event
     const EVENT_NAME = 'smartesb.event.malformed_input_event';
 
     /**
-     * MalformedInputEvent Constructor
+     * MalformedInputEvent Constructor.
      */
     public function __construct()
     {
@@ -94,7 +93,4 @@ class MalformedInputEvent extends Event
     {
         $this->exception = $exception;
     }
-
-
-
 }
