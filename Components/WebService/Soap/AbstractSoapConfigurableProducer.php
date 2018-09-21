@@ -12,6 +12,7 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\U
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class AbstractSoapConfigurableProducer.
@@ -180,7 +181,13 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         if ($this->getSoapClient($endpointOptions)) {
             $httpHeaders[self::HTTP_HEADER_TRANSACTION_ID] = $context['msg']->getContext()['transaction_id'];
             $httpHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
-            $this->getSoapClient($endpointOptions)->setRequestHeaders($httpHeaders);
+            $soapClient = $this->getSoapClient($endpointOptions);
+
+            try{
+                $soapClient->setRequestHeaders($httpHeaders);
+            }catch (\SoapFault $exception){
+                $this->throwRecoverableSoapFaultException($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $exception);
+            }
         }
         $result = $this->performRequest($soapMethodName, $soapMethodParams, $endpointOptions, $soapOptions, $soapHeaders);
         $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context, $endpointOptions));
@@ -207,6 +214,33 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         }
 
         return $result;
+    }
+
+    /**
+     * Throw a RecoverableSoapFault when SoapClient construct failed
+     *
+     * @param \SoapClient $soapClient
+     * @param int         $code
+     * @param null        $previousException
+     *
+     * @throws \Smartbox\Integration\FrameworkBundle\Components\WebService\Soap\Exceptions\RecoverableSoapException
+     */
+    protected function throwRecoverableSoapFaultException($message, $code = 0, $previousException = null)
+    {
+        /* @var \SoapClient $soapClient */
+        $exception = new RecoverableSoapException(
+            $message,
+            null,
+            null,
+            null,
+            null,
+            $code,
+            $previousException
+        );
+        $exception->setShowExternalSystemErrorMessage(true);
+        $exception->setExternalSystemName($this->getName());
+
+        throw $exception;
     }
 
     /**
