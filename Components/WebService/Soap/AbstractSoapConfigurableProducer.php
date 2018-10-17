@@ -177,18 +177,20 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
         $soapHeaders = isset($params[self::SOAP_HEADERS]) ? $params[self::SOAP_HEADERS] : [];
         $httpHeaders = isset($params[self::HTTP_HEADERS]) ? $this->confHelper->resolve($params[self::HTTP_HEADERS], $context) : [];
 
-        $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
-        if ($this->getSoapClient($endpointOptions)) {
-            $httpHeaders[self::HTTP_HEADER_TRANSACTION_ID] = $context['msg']->getContext()['transaction_id'];
-            $httpHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
-            $soapClient = $this->getSoapClient($endpointOptions);
-
-            try{
+        try {
+            $soapOptions['connection_timeout'] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
+            if ($this->getSoapClient($endpointOptions)) {
+                $httpHeaders[self::HTTP_HEADER_TRANSACTION_ID] = $context['msg']->getContext()['transaction_id'];
+                $httpHeaders[self::HTTP_HEADER_EAI_TIMESTAMP] = $context['msg']->getContext()['timestamp'];
+                $soapClient = $this->getSoapClient($endpointOptions);
                 $soapClient->setRequestHeaders($httpHeaders);
-            }catch (\SoapFault $exception){
-                $this->throwRecoverableSoapFaultException($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $exception);
             }
+        } catch (\ErrorException $exception) {
+            $this->throwRecoverableSoapFaultException($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $exception);
+        } catch (\SoapFault $exception) {
+            $this->throwRecoverableSoapFaultException($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR, $exception);
         }
+
         $result = $this->performRequest($soapMethodName, $soapMethodParams, $endpointOptions, $soapOptions, $soapHeaders);
         $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context, $endpointOptions));
         $context[self::KEY_RESPONSES][$requestName] = $result;
@@ -217,7 +219,7 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
     }
 
     /**
-     * Throw a RecoverableSoapFault when SoapClient construct failed
+     * Throw a RecoverableSoapFault when SoapClient construct failed.
      *
      * @param \SoapClient $soapClient
      * @param int         $code
