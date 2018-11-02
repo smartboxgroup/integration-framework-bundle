@@ -291,4 +291,12 @@ class DbalStepsProvider extends Service implements ConfigurableStepsProviderInte
 
         return $this->doctrine->getConnection($connectionName);
     }
+
+    /**
+     * @param $context
+     */
+    protected function rollback(&$context)
+    {
+        $this->getConnection($context)->executeQuery('ROLLBACK', [], []);
+    }
 }
