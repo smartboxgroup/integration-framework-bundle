@@ -152,8 +152,8 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
             $now = \DateTime::createFromFormat('U.u', $microTime);
 
             $this->logger->info(
-            'A message was consumed on {date}', [
-            'date' => \DateTime::createFromFormat('U.u', $now->format('Y-m-d H:i:s.u')),
+                'A message was consumed on {date}', [
+                'date' => $now->format('Y-m-d H:i:s.u'),
             ]
         );
     }
