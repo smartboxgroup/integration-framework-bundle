@@ -51,16 +51,16 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
      */
     protected function getBasicHTTPOptions($options, array &$endpointOptions)
     {
-        $result =$this->initializeBasicHTTPOptions();
-        $result [RequestOptions::CONNECT_TIMEOUT] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
-        $result [RequestOptions::TIMEOUT] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT];
-        $result [RequestOptions::HEADERS] = array_merge(
+        $result = $this->initializeBasicHTTPOptions();
+        $result[RequestOptions::CONNECT_TIMEOUT] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
+        $result[RequestOptions::TIMEOUT] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT];
+        $result[RequestOptions::HEADERS] = array_merge(
             $endpointOptions[RestConfigurableProtocol::OPTION_HEADERS],
             array_key_exists(RestConfigurableProtocol::OPTION_HEADERS, $options) ? $options[RestConfigurableProtocol::OPTION_HEADERS] : []
         );
 
         $auth = $endpointOptions[RestConfigurableProtocol::OPTION_AUTH];
-        if ($auth === RestConfigurableProtocol::AUTH_BASIC) {
+        if (RestConfigurableProtocol::AUTH_BASIC === $auth) {
             $result['auth'] = [
                 $endpointOptions[Protocol::OPTION_USERNAME],
                 $endpointOptions[Protocol::OPTION_PASSWORD],
@@ -70,14 +70,15 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         return $result;
     }
 
-    protected function initializeBasicHTTPOptions(){
+    protected function initializeBasicHTTPOptions()
+    {
         $result = [];
-        $result [RequestOptions::CONNECT_TIMEOUT] = self::BASIC_HTTP_OPTIONS_CONNECT_TIMEOUT;
-        $result [RequestOptions::TIMEOUT] = self::BASIC_HTTP_OPTIONS_TIMEOUT;
-        $result [RequestOptions::HEADERS]  = [];
+        $result[RequestOptions::CONNECT_TIMEOUT] = self::BASIC_HTTP_OPTIONS_CONNECT_TIMEOUT;
+        $result[RequestOptions::TIMEOUT] = self::BASIC_HTTP_OPTIONS_TIMEOUT;
+        $result[RequestOptions::HEADERS] = [];
+
         return $result;
     }
-
 
     /**
      * {@inheritdoc}
