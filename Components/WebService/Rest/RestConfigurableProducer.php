@@ -229,9 +229,9 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                         true === $validationStep[self::VALIDATION_DISPLAY_MESSAGE]
                     );
                     if ($recoverable) {
-                        $this->throwRecoverableRestProducerException($message, $request->getHeaders(), $requestBody, $response->getHeaders(), $responseBody, $response->getStatusCode(), $showMessage);
+                        $this->throwRecoverableRestProducerException($message, $request->getHeaders(), $requestBody, $response->getHeaders(), $responseContent, $response->getStatusCode(), $showMessage);
                     } else {
-                        $this->throwUnrecoverableRestProducerException($message, $request->getHeaders(), $requestBody, $response->getHeaders(), $responseBody, $response->getStatusCode(), $showMessage);
+                        $this->throwUnrecoverableRestProducerException($message, $request->getHeaders(), $requestBody, $response->getHeaders(), $responseContent, $response->getStatusCode(), $showMessage);
                     }
                 }
             }
