@@ -19,17 +19,17 @@
         "sensio/distribution-bundle": "^4.0.0",
         "sensio/framework-extra-bundle": "^3.0.0",
         "incenteev/composer-parameter-handler": "~2.0",
-        "jms/serializer-bundle": "^0.13.0",
         "ocramius/proxy-manager": "~1.0",
         "stomp-php/stomp-php": "4.*",
         "doctrine/doctrine-bundle": "^1.6",
         "smartbox/besimple-soap": "^1.0.0",
-        "smartbox/core-bundle": "^1.0.0"
+        "smartbox/core-bundle": "dev-feature/update_jms_serializer as 1.0.0"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "*",
         "sensio/generator-bundle": "~2.3",
-        "mongodb/mongodb": "~1.0"
+        "mongodb/mongodb": "~1.0",
+        "jms/serializer-bundle": "^2.0.0"
     },
     "scripts": {
         "post-install-cmd": [
