@@ -23,7 +23,7 @@
         "stomp-php/stomp-php": "4.*",
         "doctrine/doctrine-bundle": "^1.6",
         "smartbox/besimple-soap": "^1.0.0",
-        "smartbox/core-bundle": "dev-feature/update_jms_serializer as 1.0.0"
+        "smartbox/core-bundle": "dev-feature/update_jms_serializer2 as 1.0.0"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "*",
