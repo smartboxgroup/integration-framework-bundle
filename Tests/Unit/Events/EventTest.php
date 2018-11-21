@@ -7,7 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Events\Event;
 /**
  * Class EventTest.
  */
-class EventTest extends \PHPUnit_Framework_TestCase
+class EventTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Event|\PHPUnit_Framework_MockObject_MockObject */
     private $event;

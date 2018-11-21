@@ -7,9 +7,9 @@ use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 /**
  * Class ItineraryTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
  */
-class ItineraryTest extends \PHPUnit_Framework_TestCase
+class ItineraryTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Itinerary */
     private $itinerary;
@@ -188,7 +188,7 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
         $this->itinerary->setProcessorIds($processorIds);
 
         $this->assertEquals($processorIds[0], $this->itinerary->shiftProcessorId());
-        $this->assertSame(array_slice($processorIds, 1, count($processorIds) - 1), $this->itinerary->getProcessorIds());
+        $this->assertSame(\array_slice($processorIds, 1, \count($processorIds) - 1), $this->itinerary->getProcessorIds());
     }
 
     /**
@@ -204,7 +204,7 @@ class ItineraryTest extends \PHPUnit_Framework_TestCase
         $this->itinerary->setProcessorIds($processorIds);
 
         $this->itinerary->unShiftProcessorId('new_processor');
-        $this->assertSame(array_merge(['new_processor'], $processorIds), $this->itinerary->getProcessorIds());
+        $this->assertSame(\array_merge(['new_processor'], $processorIds), $this->itinerary->getProcessorIds());
     }
 
     public function testUnShiftProcessorIdWhenItIsNotString()

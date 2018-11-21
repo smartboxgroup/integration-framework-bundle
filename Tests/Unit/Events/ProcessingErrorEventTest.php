@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * Class ProcessingErrorEventTest.
  */
-class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
+class ProcessingErrorEventTest extends \PHPUnit\Framework\TestCase
 {
     /** @var \Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent */
     private $event;
@@ -35,7 +35,7 @@ class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
         $this->name = 'some_name';
 
         $this->event = new ProcessingErrorEvent($this->processor, $this->exchange, $this->exception, $this->name);
-        $this->event->setId(uniqid('', true));
+        $this->event->setId(\uniqid('', true));
         $this->event->setTimestampToCurrent();
     }
 

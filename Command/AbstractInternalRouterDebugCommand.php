@@ -104,7 +104,7 @@ EOF
 
     private function convertItinerary(Route $route)
     {
-        $serializer = $this->getContainer()->get('serializer');
+        $serializer = $this->getContainer()->get('jms_serializer');
 
         if ($route->hasDefault(InternalRouter::KEY_ITINERARY)) {
             $serviceName = str_replace('@', '', $route->getDefault(InternalRouter::KEY_ITINERARY));

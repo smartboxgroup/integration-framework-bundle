@@ -7,9 +7,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * Class UsesEventDispatcherTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher
  */
-class UsesEventDispatcherTest extends \PHPUnit_Framework_TestCase
+class UsesEventDispatcherTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var FakeTraitsUsage

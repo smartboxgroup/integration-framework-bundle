@@ -7,7 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 /**
  * Class DateTimeHelperTest.
  */
-class DateTimeHelperTest extends \PHPUnit_Framework_TestCase
+class DateTimeHelperTest extends \PHPUnit\Framework\TestCase
 {
     public function timestampCaseProvider()
     {

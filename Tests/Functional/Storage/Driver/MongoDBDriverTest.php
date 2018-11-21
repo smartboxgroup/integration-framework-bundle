@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Class MongoDBDriverTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver
  */
 class MongoDBDriverTest extends KernelTestCase
 {
@@ -35,10 +35,11 @@ class MongoDBDriverTest extends KernelTestCase
 
     public static function setUpBeforeClass()
     {
-        if (!extension_loaded('mongodb')) {
+        if (!\extension_loaded('mongodb')) {
             self::markTestSkipped(
                 'The MongoDB extension is not available.'
             );
+
             return;
         }
 
@@ -46,7 +47,7 @@ class MongoDBDriverTest extends KernelTestCase
         $kernel->boot();
 
         self::$container = $kernel->getContainer();
-        self::$serializer = $kernel->getContainer()->get('serializer');
+        self::$serializer = $kernel->getContainer()->get('jms_serializer');
 
         self::$storageDriver = new MongoDBDriver();
         self::$storageDriver->configure(['host' => 'mongodb://localhost:27017', 'database' => self::MONGO_DATABASE]);
@@ -154,6 +155,7 @@ class MongoDBDriverTest extends KernelTestCase
             [000000000000],
         ];
     }
+
     /**
      * @param SerializableInterface $data
      *
@@ -164,7 +166,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testSaveAndFind(SerializableInterface $data)
     {
-        $data = self::$serializer->serialize($data,'array');
+        $data = self::$serializer->serialize($data, 'array');
         $id = self::$storageDriver->insertOne(self::MONGO_COLLECTION, $data);
 
         $queryOptions = new QueryOptions();
@@ -174,7 +176,7 @@ class MongoDBDriverTest extends KernelTestCase
 
         $restoredData = self::$storageDriver->find(self::MONGO_COLLECTION, $queryOptions);
 
-        $restoredData = reset($restoredData);
+        $restoredData = \reset($restoredData);
         unset($restoredData['_id']);
         $this->assertEquals($data, $restoredData);
     }
@@ -201,7 +203,7 @@ class MongoDBDriverTest extends KernelTestCase
 
         $restoredData = self::$storageDriver->find(self::MONGO_COLLECTION, $queryOptions);
 
-        $this->assertEquals(0, count($restoredData));
+        $this->assertEquals(0, \count($restoredData));
     }
 
     /**
@@ -213,7 +215,7 @@ class MongoDBDriverTest extends KernelTestCase
      */
     public function testUpdate(SerializableInterface $data)
     {
-        $data = self::$serializer->serialize($data,'array');
+        $data = self::$serializer->serialize($data, 'array');
         $id = self::$storageDriver->insertOne(self::MONGO_COLLECTION, $data);
 
         $queryOptions = new QueryOptions();
@@ -229,7 +231,7 @@ class MongoDBDriverTest extends KernelTestCase
 
         $data['name'] = $updateName;
 
-        $restoredData = reset($restoredData);
+        $restoredData = \reset($restoredData);
         unset($restoredData['_id']);
         $this->assertEquals($data, $restoredData);
     }

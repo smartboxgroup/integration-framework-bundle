@@ -8,7 +8,7 @@ use Doctrine\DBAL\Driver\Statement;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\DbalStepsProvider;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 
-class DbalStepsProviderTest extends \PHPUnit_Framework_TestCase
+class DbalStepsProviderTest extends \PHPUnit\Framework\TestCase
 {
     private $dbalStepsProvider;
 

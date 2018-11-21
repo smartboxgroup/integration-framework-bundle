@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
 /**
  * Class HandlerEventTest.
  */
-class HandlerEventTest extends \PHPUnit_Framework_TestCase
+class HandlerEventTest extends \PHPUnit\Framework\TestCase
 {
     /** @var HandlerEvent|\PHPUnit_Framework_MockObject_MockObject */
     private $event;

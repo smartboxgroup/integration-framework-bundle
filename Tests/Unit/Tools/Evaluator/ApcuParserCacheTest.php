@@ -9,7 +9,7 @@ use Symfony\Component\ExpressionLanguage\ParsedExpression;
 /**
  * Class ApcuParserCacheTest.
  */
-class ApcuParserCacheTest extends \PHPUnit_Framework_TestCase
+class ApcuParserCacheTest extends \PHPUnit\Framework\TestCase
 {
     private $cache_key = 'apcu_key_for_testing_purposes';
 
@@ -23,7 +23,7 @@ class ApcuParserCacheTest extends \PHPUnit_Framework_TestCase
     protected function tearDown()
     {
         if ($this->apcuEnabled()) {
-            apcu_delete($this->cache_key);
+            \apcu_delete($this->cache_key);
         }
     }
 
@@ -35,9 +35,9 @@ class ApcuParserCacheTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull(
             $notExistingData,
-            sprintf(
+            \sprintf(
                 'ApcuParserCache should return null value for not existing key, hence %s given for the key "%s".',
-                var_export($notExistingData, true),
+                \var_export($notExistingData, true),
                 $this->cache_key
             )
         );
@@ -59,6 +59,6 @@ class ApcuParserCacheTest extends \PHPUnit_Framework_TestCase
 
     private function apcuEnabled()
     {
-        return extension_loaded('apcu');
+        return \extension_loaded('apcu');
     }
 }

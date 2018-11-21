@@ -20,7 +20,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 /**
  * Class RestConfigurableProducerTest.
  */
-class RestConfigurableProducerTest extends \PHPUnit_Framework_TestCase
+class RestConfigurableProducerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var ClientInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $client;
@@ -49,7 +49,7 @@ class RestConfigurableProducerTest extends \PHPUnit_Framework_TestCase
         $this->serializer->method('serialize')
             ->with($this->anything(), RestConfigurableProtocol::ENCODING_JSON, $this->anything())
             ->willReturnCallback(function ($data) {
-                return json_encode($data);
+                return \json_encode($data);
             })
         ;
 

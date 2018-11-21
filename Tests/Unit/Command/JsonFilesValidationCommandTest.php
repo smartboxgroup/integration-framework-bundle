@@ -42,7 +42,7 @@ class JsonFilesValidationCommandTest extends BaseKernelTestCase
         ]);
 
         $this->assertRegExp(
-            sprintf(
+            \sprintf(
                 '/Some fixture files in "%s" directory have invalid format./',
                 '@SmartboxIntegrationFrameworkBundle\/Tests\/Unit\/Command\/fixtures\/failure'
             ),

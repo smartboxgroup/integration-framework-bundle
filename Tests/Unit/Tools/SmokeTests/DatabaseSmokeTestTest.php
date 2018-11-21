@@ -68,7 +68,7 @@ class DatabaseSmokeTestTest extends TestCase
         $this->assertInstanceOf(SmokeTestOutputInterface::class, $output);
         $this->assertFalse($output->isOK(), 'Output shouldn\'t be OK.');
 
-        $messages = array_map('strval', $output->getMessages());
+        $messages = \array_map('strval', $output->getMessages());
 
         $this->assertCount(3, $messages);
         $this->assertEquals(

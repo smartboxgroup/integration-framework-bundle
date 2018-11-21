@@ -7,9 +7,9 @@ use JMS\Serializer\SerializerInterface;
 /**
  * Class UsesSerializerTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer
  */
-class UsesSerializerTest extends \PHPUnit_Framework_TestCase
+class UsesSerializerTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var FakeTraitsUsage

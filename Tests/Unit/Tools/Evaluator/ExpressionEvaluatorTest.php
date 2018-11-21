@@ -14,7 +14,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 class ExpressionEvaluatorTest extends TestCase
 {
     /**
-     * Test that evaluteWithVars method adds a the failed expression to the thrown error message
+     * Test that evaluteWithVars method adds a the failed expression to the thrown error message.
      *
      * @covers ::evaluateWithVars
      */

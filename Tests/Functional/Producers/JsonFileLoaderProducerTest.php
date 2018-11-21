@@ -18,18 +18,18 @@ class JsonFileLoaderProducerTest extends BaseTestCase
     {
         parent::setUp();
         $this->producer = new JsonFileLoaderProducer();
-        $this->producer->setSerializer(self::getContainer()->get('serializer'));
+        $this->producer->setSerializer(self::getContainer()->get('jms_serializer'));
     }
 
     public function testSendShouldWork()
     {
-        $pathFixtures = realpath(__DIR__.'/../../Fixtures');
+        $pathFixtures = \realpath(__DIR__.'/../../Fixtures');
         $exchange = new Exchange($this->createMessage(new EntityX(1)));
 
         $opts = [
             JsonFileLoaderProtocol::OPTION_BASE_PATH => $pathFixtures,
             JsonFileLoaderProtocol::OPTION_FILENAME => 'entity_x.json',
-            JsonFileLoaderProtocol::OPTION_TYPE => JsonFileLoaderProtocol::OPTION_TYPE_VALUE_BODY
+            JsonFileLoaderProtocol::OPTION_TYPE => JsonFileLoaderProtocol::OPTION_TYPE_VALUE_BODY,
         ];
 
         $this->producer->send($exchange, new Endpoint('xxx', $opts, new JsonFileLoaderProtocol()));
@@ -44,20 +44,20 @@ class JsonFileLoaderProducerTest extends BaseTestCase
 
     public function testSendShouldWorkForHeader()
     {
-        $pathFixtures = realpath(__DIR__.'/../../Fixtures');
+        $pathFixtures = \realpath(__DIR__.'/../../Fixtures');
         $exchange = new Exchange($this->createMessage(new EntityX(1)));
 
         $opts = [
             JsonFileLoaderProtocol::OPTION_BASE_PATH => $pathFixtures,
             JsonFileLoaderProtocol::OPTION_FILENAME => 'headers.json',
-            JsonFileLoaderProtocol::OPTION_TYPE => JsonFileLoaderProtocol::OPTION_TYPE_VALUE_HEADERS
+            JsonFileLoaderProtocol::OPTION_TYPE => JsonFileLoaderProtocol::OPTION_TYPE_VALUE_HEADERS,
         ];
 
         $this->producer->send($exchange, new Endpoint('xxx', $opts, new JsonFileLoaderProtocol()));
 
         $sample = [
-            "header1" => "test",
-            "header2" => "test2"
+            'header1' => 'test',
+            'header2' => 'test2',
         ];
 
         $content = $exchange->getResult()->getHeaders();

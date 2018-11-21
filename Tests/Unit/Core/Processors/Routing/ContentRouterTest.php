@@ -12,9 +12,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * Class ContentRouterTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ContentRouter
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ContentRouter
  */
-class ContentRouterTest extends \PHPUnit_Framework_TestCase
+class ContentRouterTest extends \PHPUnit\Framework\TestCase
 {
     /** @var ContentRouter */
     private $contentRouter;
@@ -109,7 +109,6 @@ class ContentRouterTest extends \PHPUnit_Framework_TestCase
                         case 'condition_which_passes_2':
                             return true;
                             break;
-
                     }
                 })
             )

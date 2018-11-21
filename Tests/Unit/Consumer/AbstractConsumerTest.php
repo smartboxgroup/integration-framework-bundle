@@ -60,14 +60,13 @@ class AbstractConsumerTest extends \PHPUnit\Framework\TestCase
             ->method('handle')
             ->will(
                 $this->returnCallback(function () use ($handleTimeUs) {
-                    usleep($handleTimeUs);
+                    \usleep($handleTimeUs);
                 })
             )
         ;
 
         $consumer->consume($endpoint);
     }
-
 
     public function testDoesNotFailWhenNoDispatcher()
     {

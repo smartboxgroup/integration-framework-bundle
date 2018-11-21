@@ -91,8 +91,8 @@ class DBConfigurableConsumerTest extends \PHPUnit\Framework\TestCase
             ->method('createMessage')
             ->willReturn($this->createMock(MessageInterface::class));
 
-        $start = microtime(true);
+        $start = \microtime(true);
         $this->consumer->consume($endpoint);
-        $this->assertLessThan(10, microtime(true) - $start, 'Execution should no last more than 10s');
+        $this->assertLessThan(10, \microtime(true) - $start, 'Execution should no last more than 10s');
     }
 }
