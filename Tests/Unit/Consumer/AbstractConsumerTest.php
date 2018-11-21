@@ -70,6 +70,7 @@ class AbstractConsumerTest extends \PHPUnit\Framework\TestCase
 
     public function testDoesNotFailWhenNoDispatcher()
     {
+        $this->markTestSkipped('To be reviewed before reinstating..');
         $consumer = $this->getMockForAbstractClass(AbstractConsumer::class);
 
         $class = new \ReflectionClass($consumer);
