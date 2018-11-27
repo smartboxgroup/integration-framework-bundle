@@ -1,0 +1,17 @@
+steps:
+  - {type: configureHandler, name: async, retryDelay: 0 }
+
+  - {type: handle, from: test://queues/tryAsync, in: 1, out: 1}
+  - {type: consume, uri: queue://main/tryAsync, amount: 1 }
+
+  # Check that the message was partially processed
+  - { type: checkSpy, path: try/async/before_first_error, values: [6]}
+  - { type: checkSpy, path: try/async/after_first_error, values: []}
+  - { type: checkSpy, path: try/async/after_all, values: []}
+
+  # Check that we can recover, that previous steps are not repeated and that the try/catch still works
+  - {type: consume, uri: queue://main/tryAsync, amount: 1 }
+
+  - { type: checkSpy, path: try/async/before_first_error, values: [6]}
+  - { type: checkSpy, path: try/async/after_first_error, values: [11]}
+  - { type: checkSpy, path: try/async/after_all, values: [61]}

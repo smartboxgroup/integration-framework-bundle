@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * Class ProcessingErrorEventTest.
  */
-class ProcessingErrorEventTest extends \PHPUnit_Framework_TestCase
+class ProcessingErrorEventTest extends \PHPUnit\Framework\TestCase
 {
     /** @var \Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent */
     private $event;

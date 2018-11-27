@@ -18,7 +18,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingEx
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottledException;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher;
 
-class MessageHandlerTest extends \PHPUnit_Framework_TestCase
+class MessageHandlerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var MessageHandler */
     private $messageHandler;

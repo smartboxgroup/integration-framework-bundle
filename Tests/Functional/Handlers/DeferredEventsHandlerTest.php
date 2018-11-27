@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler
  */
-class DeferredEventsHandlerTest extends \PHPUnit_Framework_TestCase
+class DeferredEventsHandlerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var DeferredEventsHandler */
     public $handler;

@@ -9,7 +9,7 @@ use Symfony\Component\ExpressionLanguage\ParsedExpression;
 /**
  * Class ApcuParserCacheTest.
  */
-class ApcuParserCacheTest extends \PHPUnit_Framework_TestCase
+class ApcuParserCacheTest extends \PHPUnit\Framework\TestCase
 {
     private $cache_key = 'apcu_key_for_testing_purposes';
 

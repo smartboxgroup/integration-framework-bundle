@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary
  */
-class ItineraryTest extends \PHPUnit_Framework_TestCase
+class ItineraryTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Itinerary */
     private $itinerary;

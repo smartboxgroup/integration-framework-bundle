@@ -8,7 +8,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class RestConfigurableProducerTest.
  */
-class ConfigurableDbalProtocolTest extends \PHPUnit_Framework_TestCase
+class ConfigurableDbalProtocolTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var ConfigurableDbalProtocol

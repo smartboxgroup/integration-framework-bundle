@@ -30,7 +30,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler
  */
-class MessageHandlerTest extends \PHPUnit_Framework_TestCase
+class MessageHandlerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var MessageHandler */
     public $handler;

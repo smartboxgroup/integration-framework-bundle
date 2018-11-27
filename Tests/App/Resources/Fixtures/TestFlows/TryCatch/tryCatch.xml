@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <camelContext trace="false" xmlns="http://camel.apache.org/schema/spring">
+    <route>
+        <from uri="test://try1"/>
+        <to uri="helper://add/5"/>
+        <doTry>
+            <description>try/catch description</description>
+            <to uri="helper://add/5"/>
+            <to uri="helper://add/10"/>
+            <doCatch>
+                <handled>
+                    <simple>1 == 2</simple>
+                </handled>
+                <to uri="helper://add/20"/>
+            </doCatch>
+            <doCatch>
+                <handled>
+                    <simple>true</simple>
+                </handled>
+                <to uri="helper://add/30"/>
+            </doCatch>
+            <doFinally>
+                <to uri="helper://add/1"/>
+            </doFinally>
+        </doTry>
+    </route>
+    <route>
+      <from uri="test://try2"/>
+      <to uri="helper://add/5"/>
+      <doTry>
+          <to uri="helper://add/5"/>
+          <to uri="error://recoverable"/>
+          <to uri="helper://add/10"/>
+          <doCatch>
+              <handled>
+                  <simple>1 == 2</simple>
+              </handled>
+              <to uri="helper://add/20"/>
+          </doCatch>
+          <doCatch>
+              <handled>
+                  <simple>true</simple>
+              </handled>
+              <to uri="helper://add/30"/>
+          </doCatch>
+          <doFinally>
+              <to uri="helper://add/1"/>
+          </doFinally>
+      </doTry>
+    </route>
+
+    <route>
+      <from uri="test://try3"/>
+      <to uri="helper://add/5"/>
+      <doTry>
+          <to uri="helper://add/5"/>
+          <to uri="error://recoverable"/>
+          <to uri="helper://add/10"/>
+          <doCatch>
+              <handled>
+                  <simple>1 == 2</simple>
+              </handled>
+              <to uri="helper://add/20"/>
+          </doCatch>
+          <doFinally>
+              <to uri="helper://add/1"/>
+          </doFinally>
+      </doTry>
+    </route>
+
+    <route>
+        <from uri="queue://main/tryAsync"/>
+        <doTry>
+            <to uri="helper://add/5"/>
+            <to uri="spy://try/async/before_first_error"/>
+            <to uri="error://recoverable"/>
+            <to uri="helper://add/5"/>
+            <to uri="spy://try/async/after_first_error"/>
+            <to uri="error://unrecoverable?force=1"/> <!-- This will make sure that we always throw the exception -->
+            <to uri="helper://add/10"/>
+            <doCatch>
+                <handled>
+                    <simple>not isRecoverable(exception)</simple>
+                </handled>
+                <to uri="helper://add/50"/>
+            </doCatch>
+            <doFinally>
+                <to uri="spy://try/async/after_all"/>
+            </doFinally>
+        </doTry>
+    </route>
+</camelContext>
+
+</beans>

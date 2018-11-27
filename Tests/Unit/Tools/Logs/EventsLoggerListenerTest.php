@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * Class EventsLoggerListenerTest.
  */
-class EventsLoggerListenerTest extends \PHPUnit_Framework_TestCase
+class EventsLoggerListenerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var EventsLoggerListener */
     private $listener;

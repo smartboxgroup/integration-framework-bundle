@@ -30,8 +30,6 @@
         "symfony/phpunit-bridge": "*",
         "sensio/generator-bundle": "~2.3",
         "mongodb/mongodb": "~1.0",
-        "doctrine/doctrine-bundle": "^1.6",
-        "doctrine/orm": "^2.5",
         "smartbox/camel-config-bundle": "dev-tidy/move-tests as v1.0.0"
     },
     "scripts": {

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <camelContext trace="false" xmlns="http://camel.apache.org/schema/spring">
+    <route>
+        <from uri="test://throttlerAsync"/>
+        <throttle timePeriodMillis="60000" asyncDelayed="true">
+            <simple>1+0</simple>
+            <to uri="helper://multiply/5"/>
+        </throttle>
+    </route>
+    <route>
+      <from uri="queue://main/throttlerAsync"/>
+      <to uri="spy://throttlerAsync/before"/>
+      <throttle timePeriodMillis="2500" asyncDelayed="true">
+          <simple>1+0</simple>
+          <to uri="helper://multiply/5"/>
+          <to uri="spy://throttlerAsync/after"/>
+      </throttle>
+    </route>
+</camelContext>
+
+</beans>

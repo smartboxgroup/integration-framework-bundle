@@ -9,7 +9,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher
  */
-class UsesEventDispatcherTest extends \PHPUnit_Framework_TestCase
+class UsesEventDispatcherTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var FakeTraitsUsage

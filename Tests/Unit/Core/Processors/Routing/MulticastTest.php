@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Class MulticastTest.
  */
-class MulticastTest extends \PHPUnit_Framework_TestCase
+class MulticastTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Multicast */
     private $multicast;

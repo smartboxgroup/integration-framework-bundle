@@ -11,7 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\FakeProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ProcessTest extends \PHPUnit_Framework_TestCase
+class ProcessTest extends \PHPUnit\Framework\TestCase
 {
     /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject */
     private $eventDispatcherMock;

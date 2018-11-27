@@ -10,3 +10,4 @@ parameters:
     rabbitmq.password: guest
     rabbitmq.vhost: /
     rabbitmq.timeout: 15
+    logging_exception_test.class: \Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Exceptions\TestException

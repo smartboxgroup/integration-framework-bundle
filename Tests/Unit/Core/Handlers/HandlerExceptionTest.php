@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Handlers;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\HandlerException;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
-class HandlerExceptionTest extends \PHPUnit_Framework_TestCase
+class HandlerExceptionTest extends \PHPUnit\Framework\TestCase
 {
     public function testConstruct()
     {

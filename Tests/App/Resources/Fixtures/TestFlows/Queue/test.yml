@@ -1,0 +1,10 @@
+steps:
+  - { type: handle, from: "test://queues/simple", in: 1, out: in }
+  - { type: consume, uri: "queue://main/simple", amount: 1}
+  - { type: checkSpy, path: "queue/simple/result", values: [1+10] }
+  
+  - { type: handle, from: "test://queues/multicast", in: 2, out: in } # Enqueue the message
+  - { type: consume, uri: "queue://main/multicast", amount: 3}  # ...we need to consume also the 2 child exchanges
+  - { type: checkSpy, path: "queue/multicast/result", values: [2] }
+  - { type: checkSpy, path: "multicast/a", values: [2*5] }
+  - { type: checkSpy, path: "multicast/b", values: [2*2] }

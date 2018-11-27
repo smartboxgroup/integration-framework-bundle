@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ContentRouter
  */
-class ContentRouterTest extends \PHPUnit_Framework_TestCase
+class ContentRouterTest extends \PHPUnit\Framework\TestCase
 {
     /** @var ContentRouter */
     private $contentRouter;

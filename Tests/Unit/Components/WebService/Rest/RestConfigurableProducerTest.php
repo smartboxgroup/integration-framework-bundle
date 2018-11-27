@@ -20,7 +20,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 /**
  * Class RestConfigurableProducerTest.
  */
-class RestConfigurableProducerTest extends \PHPUnit_Framework_TestCase
+class RestConfigurableProducerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var ClientInterface|\PHPUnit_Framework_MockObject_MockObject */
     protected $client;

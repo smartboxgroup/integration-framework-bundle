@@ -1,0 +1,4 @@
+steps:
+  - { type: handle, from: "test://multicast", in: 1, out: 1} # We perform no aggregation, so the main exchange doesn't change
+  - { type: checkSpy, path: "multicast/a", values: [5]}
+  - { type: checkSpy, path: "multicast/b", values: [2]}

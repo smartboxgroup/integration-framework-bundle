@@ -11,7 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 /**
  * Class MongoDBDateHandlerTest.
  */
-class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
+class MongoDBDateHandlerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var MongoDBDateHandler */
     private $handler;

@@ -1,0 +1,10 @@
+steps:
+  - { type: handle, from: "test://subroutines/simple", in: 1, out: 1 + 10}
+
+  - { type: handle, from: "test://subroutines/router", in: 1, out: (1*2)+10 }
+  - { type: handle, from: "test://subroutines/router", in: 2, out: (2*5)+10 }
+
+
+  - { type: handle, from: "test://subroutines/multicast", in: 1, out: 1+10 }
+  - { type: checkSpy, path: "multicast/a", values: [1*5] }
+  - { type: checkSpy, path: "multicast/b", values: [1*2] }

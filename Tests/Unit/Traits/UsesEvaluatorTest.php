@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator
  */
-class UsesEvaluatorTest extends \PHPUnit_Framework_TestCase
+class UsesEvaluatorTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var FakeTraitsUsage

@@ -8,7 +8,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\ExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
-class ExchangeEnvelopeTest extends \PHPUnit_Framework_TestCase
+class ExchangeEnvelopeTest extends \PHPUnit\Framework\TestCase
 {
     /** @var ExchangeEnvelope */
     private $exchangeEnvelope;

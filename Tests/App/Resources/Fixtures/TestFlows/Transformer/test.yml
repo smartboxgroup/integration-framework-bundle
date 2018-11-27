@@ -1,0 +1,2 @@
+steps:
+  - { type: handle, from: "test://transformer", in: 1, out: 11}

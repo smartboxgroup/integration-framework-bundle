@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesValidator
  */
-class UsesValidatorTest extends \PHPUnit_Framework_TestCase
+class UsesValidatorTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var FakeTraitsUsage

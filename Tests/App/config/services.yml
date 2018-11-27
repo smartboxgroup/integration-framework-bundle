@@ -1,4 +1,11 @@
 services:
-    doctrine:
-      class: Symfony\Bridge\Doctrine\RegistryInterface
-      synthetic: true
+    producer.error.triggerer:
+      class: Smartbox\Integration\FrameworkBundle\Tests\App\Producers\ErrorTriggerProducer
+
+    producer.helper:
+      class: Smartbox\Integration\FrameworkBundle\Tests\App\Producers\HelperProducer
+      calls:
+      - [setMessageFactory, ['@smartesb.message_factory']]
+
+    producer.spy:
+      class: Smartbox\Integration\FrameworkBundle\Tests\App\Producers\SpyProducer

@@ -20,7 +20,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EventDispatcherTest extends \PHPUnit_Framework_TestCase
+class EventDispatcherTest extends \PHPUnit\Framework\TestCase
 {
     public function testShouldDeferEvent()
     {
