@@ -23,7 +23,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     /**
      * @var array
      * @JMS\Expose
-     * @JMS\Type("array")
+     * @JMS\Type("starray")
      * @JMS\SerializedName("requestHeaders")
      * @JMS\Groups({"logs"})
      */
@@ -41,7 +41,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     /**
      * @var array
      * @JMS\Expose
-     * @JMS\Type("array")
+     * @JMS\Type("starray")
      * @JMS\SerializedName("responseHeaders")
      * @JMS\Groups({"logs"})
      */
@@ -115,7 +115,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
      */
     public function setRequestHeaders($requestHeaders)
     {
-        $this->requestHeaders = $this->parseHeadersToArray($requestHeaders);
+        $this->requestHeaders = (object)$this->parseHeadersToArray($requestHeaders);
 
         return $this;
     }
@@ -155,7 +155,7 @@ class SoapException extends \Exception implements SerializableInterface, Externa
      */
     public function setResponseHeaders($responseHeaders)
     {
-        $this->responseHeaders = $this->parseHeadersToArray($responseHeaders);
+        $this->responseHeaders = (object)$this->parseHeadersToArray($responseHeaders);
 
         return $this;
     }
