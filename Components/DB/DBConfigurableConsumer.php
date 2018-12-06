@@ -113,6 +113,7 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
     {
         $sleepTime = (int) $endpoint->getOption(ConfigurableDbalProtocol::OPTION_SLEEP_TIME) * 1000;
         $inactivityTrigger = (int) $endpoint->getOption(ConfigurableDbalProtocol::OPTION_INACTIVITY_TRIGGER);
+        $alwaysSleep = (bool) $endpoint->getOption(ConfigurableDbalProtocol::OPTION_ALWAYS_SLEEP);
         $wakeup = microtime(true);
 
         while (!$this->shouldStop()) {
@@ -133,7 +134,7 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
                 $this->dispatchConsumerTimingEvent((int) (($endConsumeTime - $startConsumeTime) * 1000), $message);
             }
 
-            if ((microtime(true) - $wakeup) > $inactivityTrigger) { // I did nothing since the last x seconds, so little nap...
+            if ((microtime(true) - $wakeup) > $inactivityTrigger || $alwaysSleep) { // I did nothing since the last x seconds, so little nap...
                 usleep($sleepTime);
             }
         }
