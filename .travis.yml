@@ -23,7 +23,7 @@ before_install:
   - bash travis/install-apcu-pecl.sh
 
 before_script:
-  - php --ini
+  - php -i | grep memory
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo service rabbitmq-server restart
   - composer self-update
