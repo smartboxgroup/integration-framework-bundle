@@ -6,9 +6,9 @@ addons:
 language: php
 
 php:
-  - 5.6
   - 7.0
   - 7.1
+  - 7.2
 
 env:
   - SYMFONY_VERSION=2.7.*
@@ -23,7 +23,6 @@ before_install:
   - bash travis/install-apcu-pecl.sh
 
 before_script:
-  - php -i | grep memory
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo service rabbitmq-server restart
   - composer self-update
