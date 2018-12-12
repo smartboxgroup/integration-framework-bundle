@@ -358,11 +358,11 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             },
             function ($arguments, $array) {
                 if (!is_array($array)) {
-                    throw new \RuntimeException('Argument passed to "getKey" should be an array.');
+                    throw new \RuntimeException('Argument passed to "getValue" should be an array.');
                 }
 
                 if (!isset($array['value'])) {
-                    throw new \RuntimeException('The argument passed to "getKey" should have a index called "value"');
+                    throw new \RuntimeException('The argument passed to "getValue" should have a index called "value"');
                 }
 
                 return $array['value'];
