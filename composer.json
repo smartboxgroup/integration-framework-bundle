@@ -24,7 +24,7 @@
         "stomp-php/stomp-php": "4.*",
         "doctrine/doctrine-bundle": "^1.6",
         "smartbox/besimple-soap": "^1.0.0",
-        "smartbox/core-bundle": "dev-feature/datetime-creator as v1.0.0"
+        "smartbox/core-bundle": "^1.3.0"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "*",
