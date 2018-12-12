@@ -26,6 +26,8 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createImplodeFunction(),
             $this->createRemoveNewLinesFunction(),
             $this->createStrtoupperFunction(),
+            $this->createGetKeyFunction(),
+            $this->createGetValueFunction(),
         ];
     }
 
@@ -311,6 +313,59 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             },
             function ($arguments, $string) {
                 return strtoupper($string);
+            }
+        );
+    }
+
+    /**
+     * Returns the keys from an array.
+     *
+     * @return ExpressionFunction
+     */
+    protected function createGetKeyFunction()
+    {
+        return new ExpressionFunction(
+            'getKey',
+            function ($array) {
+                return sprintf('getKey(%s)', $array);
+            },
+            function ($arguments, $array) {
+                if (!is_array($array)) {
+                    throw new \RuntimeException('Argument passed to "getKey" should be an array.');
+                }
+
+                if (!isset($array['key'])) {
+                    throw new \RuntimeException('The argument passed to "getKey" should have a index called "key"');
+                }
+
+                return $array['key'];
+            }
+        );
+    }
+
+    /**
+     * Returns the key value from a disassociate array.
+     * $array should be as ['key' => 123, 'value' => 222].
+     *
+     * @return ExpressionFunction
+     */
+    protected function createGetValueFunction()
+    {
+        return new ExpressionFunction(
+            'getValue',
+            function ($array) {
+                return sprintf('getValue(%s)', $array);
+            },
+            function ($arguments, $array) {
+                if (!is_array($array)) {
+                    throw new \RuntimeException('Argument passed to "getValue" should be an array.');
+                }
+
+                if (!isset($array['value'])) {
+                    throw new \RuntimeException('The argument passed to "getValue" should have a index called "value"');
+                }
+
+                return $array['value'];
             }
         );
     }
