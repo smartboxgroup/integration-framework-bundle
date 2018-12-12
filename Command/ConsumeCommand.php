@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
+use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -82,7 +83,7 @@ app/console smartesb:consumer:start queue://events --killAfter 10
             $consumer->setLogger($logger);
         }
 
-        $now = \DateTime::createFromFormat('U.u', microtime(true));
+        $now = DateTimeCreator::getNowDateTime();
         $message = '<info>'.$now->format('Y-m-d H:i:s.u').' Consuming from '.$this->endpoint->getURI();
         if ($input->getOption(self::OPTION_MAX_MESSAGES) > 0) {
             $message .= ' limited to '.$input->getOption(self::OPTION_MAX_MESSAGES).' messages';
@@ -95,7 +96,7 @@ app/console smartesb:consumer:start queue://events --killAfter 10
 
         $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES));
 
-        $now = \DateTime::createFromFormat('U.u', microtime(true));
+        $now = DateTimeCreator::getNowDateTime();
         $output->writeln('<info>'.$now->format('Y-m-d H:i:s.u').' Consumer was gracefully stopped for '.$this->endpoint->getURI().'</info>');
     }
 
