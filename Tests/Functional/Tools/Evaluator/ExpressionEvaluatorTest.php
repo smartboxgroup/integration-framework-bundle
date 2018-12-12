@@ -151,6 +151,34 @@ class ExpressionEvaluatorTest extends KernelTestCase
                 'expression' => 'strtoupper("SUPER AWESOME")',
                 'vars' => [],
             ],
+            'Checking getKey expression for not existing KEY index' => [
+                'expected' => false,
+                'expression' => 'getKey(array)',
+                'vars' => [
+                    'array' => ['VALUE_WITH_NO_KEY'],
+                ],
+            ],
+            'Checking getKey expression for existing KEY index' => [
+                'expected' => 'VALUE_WITH_KEY',
+                'expression' => 'getKey(array)',
+                'vars' => [
+                    'array' => ['key' => 'VALUE_WITH_KEY'],
+                ],
+            ],
+            'Checking getValue expression for existing VALUE index' => [
+                'expected' => 'VALUE_WITH_VALUE_KEY',
+                'expression' => 'getValue(array)',
+                'vars' => [
+                    'array' => ['value' => 'VALUE_WITH_VALUE_KEY'],
+                ],
+            ],
+            'Checking getValue expression for existing VALUE index' => [
+                'expected' => false,
+                'expression' => 'getValue(array)',
+                'vars' => [
+                    'array' => ['VALUE_WITH_NO_VALUE_KEY'],
+                ],
+            ],
         ];
     }
 
@@ -161,6 +189,8 @@ class ExpressionEvaluatorTest extends KernelTestCase
      * @param $expected
      * @param $expression
      * @param array $vars
+     *
+     * @throws \Exception
      */
     public function testEvaluateWithVars($expected, $expression, array $vars)
     {
