@@ -211,16 +211,18 @@ class ExpressionEvaluatorTest extends KernelTestCase
      * @dataProvider dataProviderForFailedExpressionsEvaluatedWithVars
      *
      * @param $exception
-     * @param $exception
+     * @param $message
      * @param $expression
      * @param array $vars
+     *
+     * @throws \Exception
      */
     public function testFailedEvaluateWithVars($exception, $message, $expression, array $vars)
     {
-        $this->evaluator->evaluateWithVars($expression, $vars);
-
         $this->expectException($exception);
         $this->expectExceptionMessage($message);
+
+        $this->evaluator->evaluateWithVars($expression, $vars);
     }
 
     /**
