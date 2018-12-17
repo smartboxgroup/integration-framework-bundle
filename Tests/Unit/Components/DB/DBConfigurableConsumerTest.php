@@ -12,6 +12,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 class DBConfigurableConsumerTest extends \PHPUnit\Framework\TestCase
 {
@@ -74,8 +75,9 @@ class DBConfigurableConsumerTest extends \PHPUnit\Framework\TestCase
         $options = [
             ConfigurableDbalProtocol::OPTION_METHOD => 'myMethod',
             ConfigurableDbalProtocol::OPTION_STOP_ON_NO_RESULTS => true,
-            ConfigurableDbalProtocol::OPTION_SLEEP_TIME => 10000,
+            ConfigurableDbalProtocol::OPTION_SLEEP_TIME => 20000,
             ConfigurableDbalProtocol::OPTION_INACTIVITY_TRIGGER => 1,
+            ConfigurableDbalProtocol::OPTION_ALWAYS_SLEEP => false,
         ];
 
         /** @var EndpointInterface|\PHPUnit_Framework_MockObject_MockObject $endpoint */
@@ -91,8 +93,45 @@ class DBConfigurableConsumerTest extends \PHPUnit\Framework\TestCase
             ->method('createMessage')
             ->willReturn($this->createMock(MessageInterface::class));
 
-        $start = \microtime(true);
+        $stopwatch = new Stopwatch();
+        $stopwatch->start('consume-time');
         $this->consumer->consume($endpoint);
-        $this->assertLessThan(10, \microtime(true) - $start, 'Execution should no last more than 10s');
+        $duration = $stopwatch->stop('consume-time')->getDuration();
+
+        $this->assertLessThan(10000, $duration, 'Execution should not last more than 10s');
+    }
+
+    /**
+     * @group time-sensitive
+     */
+    public function testConsumeAlways()
+    {
+        $options = [
+            ConfigurableDbalProtocol::OPTION_METHOD => 'myMethod',
+            ConfigurableDbalProtocol::OPTION_STOP_ON_NO_RESULTS => true,
+            ConfigurableDbalProtocol::OPTION_SLEEP_TIME => 1000,
+            ConfigurableDbalProtocol::OPTION_INACTIVITY_TRIGGER => 1,
+            ConfigurableDbalProtocol::OPTION_ALWAYS_SLEEP => true,
+        ];
+
+        /** @var EndpointInterface|\PHPUnit_Framework_MockObject_MockObject $endpoint */
+        $endpoint = $this->createMock(EndpointInterface::class);
+        $endpoint->expects($this->any())->method('getOptions')->willReturn($options);
+        $endpoint->expects($this->any())
+            ->method('getOption')
+            ->willReturnCallback(function ($key) use ($options) {
+                return $options[$key];
+            });
+
+        $this->messageFactory->expects($this->exactly(2))
+            ->method('createMessage')
+            ->willReturn($this->createMock(MessageInterface::class));
+
+        $stopwatch = new Stopwatch();
+        $stopwatch->start('consume-time');
+        $this->consumer->consume($endpoint);
+        $duration = $stopwatch->stop('consume-time')->getDuration();
+
+        $this->assertGreaterThan(1, $duration, 'Execution should not last more than 10s');
     }
 }

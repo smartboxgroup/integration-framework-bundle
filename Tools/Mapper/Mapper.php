@@ -94,7 +94,9 @@ class Mapper implements MapperInterface
      * @param $obj
      * @param $context
      *
-     * @return array|null|string
+     * @return array|string|null
+     *
+     * @throws \Exception
      */
     public function resolve(&$mapping, &$obj, &$context)
     {
@@ -130,13 +132,14 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * @param mixed  $elements
+     * @param array  $elements
      * @param string $mappingName
-     * @param mixed  $context
+     * @param array  $context
+     * @param bool   $disassociate
      *
-     * @return array
+     * @return array|mixed
      */
-    public function mapAll($elements, $mappingName, $context = [])
+    public function mapAll($elements, $mappingName, $context = [], $disassociate = false)
     {
         if (!is_array($elements)) {
             throw new \RuntimeException('MapAll expected an array');
@@ -148,6 +151,7 @@ class Mapper implements MapperInterface
 
         $res = [];
         foreach ($elements as $key => $element) {
+            $element = ($disassociate) ? ['key' => $key, 'value' => $element] : $element;
             $res[$key] = $this->map($element, $mappingName, $context);
         }
 
