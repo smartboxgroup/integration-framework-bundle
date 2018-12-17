@@ -15,12 +15,10 @@ env:
 
 before_install:
   - phpenv config-add travis/z_php.ini
-#  - bash travis/install-apcu-pecl.sh
 
 before_script:
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo service rabbitmq-server restart
-#  - composer self-update
   - composer install --no-interaction
 
 script:
