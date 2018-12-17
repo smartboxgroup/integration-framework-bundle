@@ -207,7 +207,7 @@ class ExpressionEvaluatorTest extends KernelTestCase
     }
 
     /**
-     * @covers ::failedEvaluateWithVars
+     * @covers ::evaluateWithVars
      * @dataProvider dataProviderForFailedExpressionsEvaluatedWithVars
      *
      * @param $exception
