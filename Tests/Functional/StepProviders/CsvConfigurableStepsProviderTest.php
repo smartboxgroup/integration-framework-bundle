@@ -257,8 +257,8 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         //The original file should be there
         $this->assertFileExists(self::TMP_FOLDER.$fileName);
         $lines = \file(self::TMP_FOLDER.$fileName);
-        $this->assertEquals(\count($lines), 7); //should be 7 rows
-        $this->assertEquals(\count(\explode('|', $lines[0])), 3); //should be 3 cols
+        $this->assertCount(7, $lines); //should be 7 rows
+        $this->assertCount(3, \explode('|', $lines[0])); //should be 3 cols
 
         //Tidy up
         @\unlink(self::TMP_FOLDER.$fileName);
@@ -299,8 +299,8 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         //The original file should be there
         $this->assertFileExists(self::TMP_FOLDER.$fileName);
         $lines = \file(self::TMP_FOLDER.$fileName);
-        $this->assertEquals(\count($lines), 7); //should be 7 rows
-        $this->assertEquals(\count(\explode('|', $lines[0])), 3); //should be 3 cols
+        $this->assertCount(7, $lines); //should be 7 rows
+        $this->assertCount(3, \explode('|', $lines[0])); //should be 3 cols
 
         //Tidy up
         \fclose($handle);
@@ -336,7 +336,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertFileExists(self::TMP_FOLDER.$fileName);
         $lines = \file(self::TMP_FOLDER.$fileName);
         $this->assertEquals(2, \count($lines)); //should be 7 rows
-        $this->assertEquals(\count(\explode('|', $lines[0])), 3); //should be 3 cols
+        $this->assertCount(3, \explode('|', $lines[0])); //should be 3 cols
 
         //Tidy up
         @\unlink(self::TMP_FOLDER.$fileName);
