@@ -29,6 +29,7 @@ class ConfigurableDbalProtocolTest extends \PHPUnit\Framework\TestCase
             ConfigurableDbalProtocol::OPTION_DB_CONNECTION_NAME,
             ConfigurableDbalProtocol::OPTION_SLEEP_TIME,
             ConfigurableDbalProtocol::OPTION_INACTIVITY_TRIGGER,
+            ConfigurableDbalProtocol::OPTION_ALWAYS_SLEEP,
         ];
     }
 
