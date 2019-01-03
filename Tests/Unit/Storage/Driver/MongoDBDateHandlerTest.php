@@ -11,17 +11,18 @@ use Smartbox\Integration\FrameworkBundle\Tools\Helper\DateTimeHelper;
 /**
  * Class MongoDBDateHandlerTest.
  */
-class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
+class MongoDBDateHandlerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var MongoDBDateHandler */
     private $handler;
 
     public function setup()
     {
-        if (!extension_loaded('mongodb')) {
+        if (!\extension_loaded('mongodb')) {
             $this->markTestSkipped(
                 'The MongoDB extension is not available.'
             );
+
             return;
         }
         $this->handler = new MongoDBDateHandler();
@@ -73,7 +74,7 @@ class MongoDBDateHandlerTest extends \PHPUnit_Framework_TestCase
         // after conversion of \DateTime with microseconds we lost some microseconds
         // so we have to replace 'xxx' with '000' in 2016-04-13T15:25:39.565xxx+00:00
         // bug is explained in MongoDBDateHandler::convertDateTimeToMongoFormat method
-        $expectedDateTimeFormatted = substr_replace($expectedDateTime->format('Y-m-d\TH:i:s.uP'), '000', 23, 3);
+        $expectedDateTimeFormatted = \substr_replace($expectedDateTime->format('Y-m-d\TH:i:s.uP'), '000', 23, 3);
         $this->assertEquals($expectedDateTimeFormatted, $convertedDateTime->format('Y-m-d\TH:i:s.uP'));
     }
 }

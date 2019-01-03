@@ -10,7 +10,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Class PipelineTest.
  */
-class PipelineTest extends \PHPUnit_Framework_TestCase
+class PipelineTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Pipeline */
     private $pipeline;

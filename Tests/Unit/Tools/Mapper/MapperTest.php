@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Tools\Mapper;
 
 use Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper;
 
-class MapperTest extends \PHPUnit_Framework_TestCase
+class MapperTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Mapper */
     private $mapper;

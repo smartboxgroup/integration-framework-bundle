@@ -88,7 +88,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $handlerMock->expects($this->exactly(3))->method('handle')
             ->with($this->callback(
                 function ($message) use ($messages) {
-                    $res = array_search($message, $messages);
+                    $res = \array_search($message, $messages);
                     if (false !== $res) {
                         unset($messages[$res]);
 
@@ -118,10 +118,10 @@ class QueueConsumerTest extends BaseKernelTestCase
         $consumer->setExpirationCount(3);   // This will make the consumer stop after reading 3 messages
 
         declare(ticks=1);
-        pcntl_signal(SIGALRM, [$this, 'handleSignal']);
-        pcntl_alarm(30);
+        \pcntl_signal(SIGALRM, [$this, 'handleSignal']);
+        \pcntl_alarm(30);
         $consumer->consume($endpoint);
-        pcntl_alarm(0);
+        \pcntl_alarm(0);
 
         $output = $this->getActualOutput();
         $this->assertNotContains('A message was consumed', $output); // The consumer should not display message information if no logger
@@ -154,7 +154,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $handlerMock->expects($this->exactly(1))->method('handle')
             ->with($this->callback(
                 function ($message) use ($messages) {
-                    $res = array_search($message, $messages);
+                    $res = \array_search($message, $messages);
                     if (false !== $res) {
                         unset($messages[$res]);
 
@@ -184,11 +184,11 @@ class QueueConsumerTest extends BaseKernelTestCase
         $consumer->setExpirationCount(1);   // This will make the consumer stop after reading 1 message
 
         declare(ticks=1);
-        pcntl_signal(SIGALRM, [$this, 'handleSignal']);
-        pcntl_alarm(30);
+        \pcntl_signal(SIGALRM, [$this, 'handleSignal']);
+        \pcntl_alarm(30);
         $consumer->setLogger($loggerMock);
         $consumer->consume($endpoint);
-        pcntl_alarm(0);
+        \pcntl_alarm(0);
 
         $output = $this->getActualOutput();
         $this->assertNotContains('A message was consumed', $output); // The consumer should not display message information with NullLogger

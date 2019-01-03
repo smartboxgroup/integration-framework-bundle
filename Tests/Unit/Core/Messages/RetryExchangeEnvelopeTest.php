@@ -9,7 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\RetryExchangeEnvelope;
 
-class RetryExchangeEnvelopeTest extends \PHPUnit_Framework_TestCase
+class RetryExchangeEnvelopeTest extends \PHPUnit\Framework\TestCase
 {
     /** @var RetryExchangeEnvelope */
     private $retryExchangeEnvelope;

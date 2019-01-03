@@ -99,7 +99,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setConfHelper', [new Reference('smartesb.configurable_service_helper')]);
             $definition->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
-            $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
+            $definition->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
             $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $definition->addMethodCall('setName', [$producerName]);
             $container->setDefinition($producerId, $definition);
@@ -152,7 +152,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setConfHelper', [new Reference('smartesb.configurable_service_helper')]);
             $definition->addMethodCall('setOptions', [$options]);
             $definition->addMethodCall('setEvaluator', [new Reference('smartesb.util.evaluator')]);
-            $definition->addMethodCall('setSerializer', [new Reference('serializer')]);
+            $definition->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
             $definition->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
             $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $definition->addMethodCall('setName', [$consumerName]);
@@ -205,7 +205,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         $driverConfig['sync'],
                     ]);
 
-                    $driverDef->addMethodCall('setSerializer', [new Reference('serializer')]);
+                    $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
                     $driverDef->addMethodCall('setUrlEncodeDestination', [$urlEncodeDestination]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);

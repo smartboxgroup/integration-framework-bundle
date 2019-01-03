@@ -15,9 +15,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Class ThrowExceptionTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrowException
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrowException
  */
-class ThrowExceptionTest extends \PHPUnit_Framework_TestCase
+class ThrowExceptionTest extends \PHPUnit\Framework\TestCase
 {
     /** @var ThrowException */
     private $throwException;

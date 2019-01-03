@@ -8,9 +8,9 @@ use Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClau
 /**
  * Class ConditionalClauseTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Core\Processors\Routing\ConditionalClause
  */
-class ConditionalClauseTest extends \PHPUnit_Framework_TestCase
+class ConditionalClauseTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Itinerary */
     private $itinerary;

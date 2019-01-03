@@ -56,7 +56,7 @@ class ParseHeadersTraitTest extends TestCase
         $result = $this->parseTrait->parseHeadersToArray($data);
 
         $this->assertInternalType('array', $result, 'The parser should return an array');
-        $this->assertTrue(is_array($result), 'The parser should return an array');
+        $this->assertTrue(\is_array($result), 'The parser should return an array');
         $this->assertCount(0, $result, 'The parser should return an empty array');
     }
 

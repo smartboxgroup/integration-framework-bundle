@@ -7,7 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Producers\DirectProducer;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ProducerUnrecoverableException;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 
-class DirectProducerTest extends \PHPUnit_Framework_TestCase
+class DirectProducerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var DirectProducer */
     private $directProducer;

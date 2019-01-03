@@ -7,7 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouterR
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\Itinerary;
 use Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItineraryResolver;
 
-class ItineraryResolverTest extends \PHPUnit_Framework_TestCase
+class ItineraryResolverTest extends \PHPUnit\Framework\TestCase
 {
     /** @var ItineraryResolver */
     private $itineraryResolver;

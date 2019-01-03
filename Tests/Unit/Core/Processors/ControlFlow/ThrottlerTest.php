@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  *
  * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\ThrottleTest
  */
-class ThrottleTest extends \PHPUnit_Framework_TestCase
+class ThrottleTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * A delay used for testing.
