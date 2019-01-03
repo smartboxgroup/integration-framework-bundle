@@ -49,7 +49,7 @@ class RestConfigurableProducerTest extends \PHPUnit\Framework\TestCase
         $this->serializer->method('serialize')
             ->with($this->anything(), RestConfigurableProtocol::ENCODING_JSON, $this->anything())
             ->willReturnCallback(function ($data) {
-                return json_encode($data);
+                return \json_encode($data);
             })
         ;
 

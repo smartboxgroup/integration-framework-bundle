@@ -151,6 +151,45 @@ class ExpressionEvaluatorTest extends KernelTestCase
                 'expression' => 'strtoupper("SUPER AWESOME")',
                 'vars' => [],
             ],
+            'Checking getKey expression for existing KEY index' => [
+                'expected' => 'VALUE_WITH_KEY',
+                'expression' => 'getKey(array)',
+                'vars' => [
+                    'array' => ['key' => 'VALUE_WITH_KEY'],
+                ],
+            ],
+            'Checking getValue expression for existing VALUE index' => [
+                'expected' => 'VALUE_WITH_VALUE_KEY',
+                'expression' => 'getValue(array)',
+                'vars' => [
+                    'array' => ['value' => 'VALUE_WITH_VALUE_KEY'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function dataProviderForFailedExpressionsEvaluatedWithVars()
+    {
+        return [
+            'Checking getKey expression for not existing KEY index' => [
+                'exception' => \RuntimeException::class,
+                'message' => 'The argument passed to "getKey" should have a index called "key"',
+                'expression' => 'getKey(array)',
+                'vars' => [
+                    'array' => ['VALUE_WITH_NO_KEY'],
+                ],
+            ],
+            'Checking getValue expression for existing VALUE index' => [
+                'exception' => \RuntimeException::class,
+                'message' => 'The argument passed to "getValue" should have a index called "value"',
+                'expression' => 'getValue(array)',
+                'vars' => [
+                    'array' => ['VALUE_WITH_NO_VALUE_KEY'],
+                ],
+            ],
         ];
     }
 
@@ -165,6 +204,25 @@ class ExpressionEvaluatorTest extends KernelTestCase
     public function testEvaluateWithVars($expected, $expression, array $vars)
     {
         $this->assertEquals($expected, $this->evaluator->evaluateWithVars($expression, $vars));
+    }
+
+    /**
+     * @covers ::evaluateWithVars
+     * @dataProvider dataProviderForFailedExpressionsEvaluatedWithVars
+     *
+     * @param $exception
+     * @param $message
+     * @param $expression
+     * @param array $vars
+     *
+     * @throws \Exception
+     */
+    public function testFailedEvaluateWithVars($exception, $message, $expression, array $vars)
+    {
+        $this->expectException($exception);
+        $this->expectExceptionMessage($message);
+
+        $this->evaluator->evaluateWithVars($expression, $vars);
     }
 
     /**

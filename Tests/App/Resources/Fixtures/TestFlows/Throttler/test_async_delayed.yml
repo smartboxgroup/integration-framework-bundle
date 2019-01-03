@@ -9,7 +9,7 @@ steps:
   - { type: checkSpy, path: "throttlerAsync/before", values: [1,1] }
   - { type: checkSpy, path: "throttlerAsync/after", values: [5] } # spy contains only one result (second message is throttled)
 
-  - { type: wait, delay: 3 } # Wait until the end of the reset, then consume again and check that the message passes
+  - { type: wait, delay: 4 } # Wait until the end of the reset, then consume again and check that the message passes
 
   - { type: consume, uri: "queue://main/throttle", amount: 1} # When a message gets throttled it will be put in the uri defined in smartesb.handlers.async
   - { type: checkSpy, path: "throttlerAsync/before", values: [1,1] }

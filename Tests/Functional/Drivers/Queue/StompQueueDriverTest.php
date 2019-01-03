@@ -61,7 +61,7 @@ class StompQueueDriverTest extends BaseTestCase
      */
     public function testSendShouldNotChangeMessage(MessageInterface $msg)
     {
-        $clone = unserialize(serialize($msg));
+        $clone = \unserialize(\serialize($msg));
 
         $this->driver->send($this->createQueueMessage($msg));
 
@@ -86,7 +86,7 @@ class StompQueueDriverTest extends BaseTestCase
 
         $this->driver->ack();
 
-        sleep(1);
+        \sleep(1);
 
         $msgOut = $this->driver->receive();
 
@@ -111,7 +111,7 @@ class StompQueueDriverTest extends BaseTestCase
 
         $this->driver->nack();
 
-        sleep(1);
+        \sleep(1);
 
         $msgOut = $this->driver->receive();
         $this->assertEquals($msg, $msgOut->getBody());
@@ -122,7 +122,7 @@ class StompQueueDriverTest extends BaseTestCase
 
     /**
      * maximumRedeliveries is not support by RabbitMQ - Skipped
-     * (CF : http://activemq.apache.org/redelivery-policy.html - /opt/apache-activemq-5.12.0/conf/activemq.xml)
+     * (CF : http://activemq.apache.org/redelivery-policy.html - /opt/apache-activemq-5.12.0/conf/activemq.xml).
      *
      * @dataProvider getMessages
      *
@@ -146,7 +146,7 @@ class StompQueueDriverTest extends BaseTestCase
                 $this->driver->nack();
             }
             $msgOut = $this->driver->receive();
-            sleep(1);
+            \sleep(1);
         }
 
         $msgOut = $this->driver->receive();
@@ -160,7 +160,7 @@ class StompQueueDriverTest extends BaseTestCase
 
     /**
      * The "expires" header is not supported by RabbitMQ - Skipped
-     * (CF: https://www.rabbitmq.com/stomp.html)
+     * (CF: https://www.rabbitmq.com/stomp.html).
      *
      * @dataProvider getMessages
      *
@@ -173,13 +173,13 @@ class StompQueueDriverTest extends BaseTestCase
         $ttlSeconds = 2;
 
         $msgIn = $this->createQueueMessage($msg);
-        $msgIn->setExpires((time() + $ttlSeconds) * 1000);
+        $msgIn->setExpires((\time() + $ttlSeconds) * 1000);
 
         $this->driver->send($msgIn);
         $this->driver->subscribe($this->queueName);
 
         // After 1 second, the message is still there
-        sleep(1);
+        \sleep(1);
         $msgOut = $this->driver->receive();
         $this->assertEquals($msg, $msgOut->getBody());
         if ($msgOut) {
@@ -188,7 +188,7 @@ class StompQueueDriverTest extends BaseTestCase
         $this->driver->unSubscribe();
 
         // After >2 seconds, the message is not there
-        sleep(3);
+        \sleep(3);
         $this->driver->subscribe($this->queueName);
         $msgOut = $this->driver->receive();
         $this->assertNull($msgOut);
@@ -212,7 +212,7 @@ class StompQueueDriverTest extends BaseTestCase
         $this->driver->subscribe($this->queueName);
 
         // After 1 second, the message is still there
-        sleep(1);
+        \sleep(1);
         $msgOut = $this->driver->receive();
         $this->assertNotNull($msgOut);
 
@@ -223,7 +223,7 @@ class StompQueueDriverTest extends BaseTestCase
         $this->driver->unSubscribe();
 
         // After > 2 seconds, the message is not there
-        sleep(3);
+        \sleep(3);
         $this->driver->subscribe($this->queueName);
         $msgOut = $this->driver->receive();
         $this->assertNull($msgOut);
@@ -258,7 +258,7 @@ class StompQueueDriverTest extends BaseTestCase
 
     /**
      * Subscribe by selector is a feature not supported by RabbitMQ - Skipped
-     * (CF: http://rabbitmq.1065348.n5.nabble.com/STOMP-amp-selector-td35518.html)
+     * (CF: http://rabbitmq.1065348.n5.nabble.com/STOMP-amp-selector-td35518.html).
      *
      * @dataProvider getMessages
      *
@@ -303,8 +303,8 @@ class StompQueueDriverTest extends BaseTestCase
         }
 
         $this->assertEquals(
-            array_map('self::mapTitle', $sentMessages),
-            array_map('self::mapTitle', $receivedMessages)
+            \array_map('self::mapTitle', $sentMessages),
+            \array_map('self::mapTitle', $receivedMessages)
         );
     }
 
@@ -340,8 +340,8 @@ class StompQueueDriverTest extends BaseTestCase
         }
 
         $this->assertEquals(
-            array_map('self::mapTitle', $sentMessages),
-            array_map('self::mapTitle', $receivedMessages)
+            \array_map('self::mapTitle', $sentMessages),
+            \array_map('self::mapTitle', $receivedMessages)
         );
     }
 
@@ -356,9 +356,9 @@ class StompQueueDriverTest extends BaseTestCase
 
         $complex = new Message(new SerializableArray(['x' => $x1, 'item' => $item, 'item2' => $item, 'item3' => $item]));
 
-        $complex->setHeader('tracking-test-id', uniqid());
-        $x1->setHeader('tracking-test-id', uniqid());
-        $item->setHeader('tracking-test-id', uniqid());
+        $complex->setHeader('tracking-test-id', \uniqid());
+        $x1->setHeader('tracking-test-id', \uniqid());
+        $item->setHeader('tracking-test-id', \uniqid());
 
         return [
             [$complex],

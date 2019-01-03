@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
+use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
@@ -148,12 +149,11 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     protected function logConsumeMessage()
     {
         if ($this->logger) {
-            $microTime = number_format(microtime(true), 6, '.', '');
-            $now = \DateTime::createFromFormat('U.u', $microTime);
+            $now = DateTimeCreator::getNowDateTime();
 
             $this->logger->info(
             'A message was consumed on {date}', [
-            'date' => \DateTime::createFromFormat('U.u', $now->format('Y-m-d H:i:s.u')),
+            'date' => $now->format('Y-m-d H:i:s.u'),
             ]
         );
     }

@@ -99,26 +99,26 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
     }
 
     public function testMessageHandlerPutsCallbackHeadersCallbackEnvelope()
-    {        
+    {
         $contextArray = [
             'callback' => true,
             'callback_method' => 'cbm',
         ];
 
         $newContext = new Context($contextArray);
-        
+
         $exception = new ProcessingException();
         $exception->setOriginalException(new \Exception());
         $exception->setProcessingContext(new SerializableArray($contextArray));
-        
+
         $exchange = new Exchange(new Message(new TestEntity()));
         $exchange->getIn()->setContext($newContext);
-        
+
         $processor = new EndpointProcessor();
         $processor->setId('id');
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        
+
         $messageHandlerMock = $this->getMockBuilder(MessageHandler::class)
             ->disableOriginalConstructor()
             ->setMethods(['deferExchangeMessage'])
@@ -128,10 +128,10 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
         $messageHandlerMock->expects($this->once())
             ->method('deferExchangeMessage')
             ->with(
-                $this->isInstanceOf(CallbackExchangeEnvelope::class), 
+                $this->isInstanceOf(CallbackExchangeEnvelope::class),
                 $this->equalTo('123')
             );
-        
+
         $messageHandlerMock->onHandleException($exception, $processor, $exchange, null, 1);
     }
 }

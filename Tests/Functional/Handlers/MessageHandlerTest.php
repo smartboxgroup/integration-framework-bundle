@@ -28,7 +28,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class AsyncHandlerTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler
  */
 class MessageHandlerTest extends \PHPUnit\Framework\TestCase
 {
@@ -89,7 +89,7 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
         $this->handler->setItineraryResolver($itineraryResolverMock);
 
         /** @var Exchange $exchangeProcessedManually */
-        $exchangeProcessedManually = new Exchange(unserialize(serialize($message)));
+        $exchangeProcessedManually = new Exchange(\unserialize(\serialize($message)));
         $exchangeProcessedManually->setItinerary(new Itinerary());
         for ($i = 1; $i <= $numberOfProcessors; ++$i) {
             $processor = new FakeProcessor($i);
@@ -218,7 +218,7 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
             ->method('dispatch')
             ->will($this->returnCallback(
                 function ($eventType, $eventObject) use (&$dispatchedErrors) {
-                    if ($eventType === ProcessingErrorEvent::EVENT_NAME) {
+                    if (ProcessingErrorEvent::EVENT_NAME === $eventType) {
                         $dispatchedErrors[] = $eventObject;
                     }
 

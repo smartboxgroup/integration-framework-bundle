@@ -18,14 +18,14 @@ services:
       class: %smartesb.producers.json_file.class%
       calls:
         - [setId, ['smartesb.producers.json_file']]
-        - [setSerializer, ['@serializer']]
+        - [setSerializer, ['@jms_serializer']]
 
   # STOMP
   smartesb.producers.queue:
       class: %smartesb.producers.queue.class%
       calls:
         - [setId, ['smartesb.producers.queue']]
-        - [setSerializer, ['@serializer']]
+        - [setSerializer, ['@jms_serializer']]
         - [setDriverRegistry, ['@smartesb.drivers.queue._registry']]
 
   # NoSQL

@@ -87,7 +87,7 @@ class MulticastTest extends \PHPUnit\Framework\TestCase
             ->expects($this->any())
             ->method('dispatch')
             ->with($this->callback(function ($eventName) use (&$dispatchedEventsCounter) {
-                if ($eventName === NewExchangeEvent::TYPE_NEW_EXCHANGE_EVENT) {
+                if (NewExchangeEvent::TYPE_NEW_EXCHANGE_EVENT === $eventName) {
                     ++$dispatchedEventsCounter;
                 }
 

@@ -52,7 +52,7 @@ class BasicResponse extends ApiEntity
      */
     public function setCode($code)
     {
-        if (!empty($code) && !is_numeric($code)) {
+        if (!empty($code) && !\is_numeric($code)) {
             throw new \InvalidArgumentException('Expected null or numeric value in method setCode');
         }
 
@@ -72,7 +72,7 @@ class BasicResponse extends ApiEntity
      */
     public function setMessage($message)
     {
-        if (!empty($message) && !is_string($message)) {
+        if (!empty($message) && !\is_string($message)) {
             throw new \InvalidArgumentException('Expected null or string in method setMessage');
         }
 

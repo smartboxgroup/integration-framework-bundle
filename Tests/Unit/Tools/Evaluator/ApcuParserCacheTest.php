@@ -23,7 +23,7 @@ class ApcuParserCacheTest extends \PHPUnit\Framework\TestCase
     protected function tearDown()
     {
         if ($this->apcuEnabled()) {
-            apcu_delete($this->cache_key);
+            \apcu_delete($this->cache_key);
         }
     }
 
@@ -35,9 +35,9 @@ class ApcuParserCacheTest extends \PHPUnit\Framework\TestCase
 
         $this->assertNull(
             $notExistingData,
-            sprintf(
+            \sprintf(
                 'ApcuParserCache should return null value for not existing key, hence %s given for the key "%s".',
-                var_export($notExistingData, true),
+                \var_export($notExistingData, true),
                 $this->cache_key
             )
         );
@@ -45,6 +45,7 @@ class ApcuParserCacheTest extends \PHPUnit\Framework\TestCase
 
     public function testSaveAndFetch()
     {
+
         $apcuParserCache = new ApcuParserCache();
 
         $data = new ParsedExpression('a', new Node(['a' => 'test']));
@@ -59,6 +60,6 @@ class ApcuParserCacheTest extends \PHPUnit\Framework\TestCase
 
     private function apcuEnabled()
     {
-        return extension_loaded('apcu');
+        return \extension_loaded('apcu');
     }
 }

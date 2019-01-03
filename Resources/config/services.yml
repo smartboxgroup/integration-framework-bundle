@@ -65,7 +65,7 @@ services:
       class: '%smartesb.util.evaluator.class%'
       arguments: ['@smartesb.util.expression_language']
       calls:
-        - [setSerializer, ['@serializer']]
+        - [setSerializer, ['@jms_serializer']]
         - [setMapper, ['@smartesb.util.mapper']]
 
   smartesb.util.mapper:
@@ -90,7 +90,7 @@ services:
       class: Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper
       calls:
           - [ setEvaluator, [ '@smartesb.util.evaluator' ] ]
-          - [ setSerializer, [ '@jms_serializer.serializer' ] ]
+          - [ setSerializer, [ '@jms_serializer' ] ]
 
   smartesb.helper:
       class: '%smartesb.helper.class%'

@@ -17,7 +17,7 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\Recover
 
 class ConfigurableProducerTest extends BaseTestCase
 {
-    /** @var  AbstractConfigurableProducer|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var AbstractConfigurableProducer|\PHPUnit_Framework_MockObject_MockObject */
     protected $configurableProducer;
 
     /** @var OptionsResolver */
@@ -74,12 +74,12 @@ class ConfigurableProducerTest extends BaseTestCase
         $this->configurableProducer = $this->getMockBuilder(AbstractConfigurableProducer::class)->setMethods(null)->getMock();
 
         $confHelper = new ConfigurableServiceHelper();
-        $confHelper->setSerializer($this->getContainer()->get('serializer'));
+        $confHelper->setSerializer($this->getContainer()->get('jms_serializer'));
         $confHelper->setEvaluator($this->getContainer()->get('smartesb.util.evaluator'));
 
         $this->configurableProducer->setConfHelper($confHelper);
         $this->configurableProducer->setEvaluator($this->getContainer()->get('smartesb.util.evaluator'));
-        $this->configurableProducer->setSerializer($this->getContainer()->get('serializer'));
+        $this->configurableProducer->setSerializer($this->getContainer()->get('jms_serializer'));
         $this->configurableProducer->setOptions($this->defaultOptions);
 
         $this->configurableProducer->setMethodsConfiguration($this->simpleMethodsConfig);

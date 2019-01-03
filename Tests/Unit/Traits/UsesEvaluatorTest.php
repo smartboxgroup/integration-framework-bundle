@@ -7,7 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 /**
  * Class UsesEvaluatorTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator
  */
 class UsesEvaluatorTest extends \PHPUnit\Framework\TestCase
 {

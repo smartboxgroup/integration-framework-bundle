@@ -30,13 +30,13 @@ abstract class BaseTestCase extends BaseKernelTestCase
     {
         $traits = [];
         do {
-            $traits = array_merge(class_uses($class, $autoload), $traits);
-        } while ($class = get_parent_class($class));
+            $traits = \array_merge(\class_uses($class, $autoload), $traits);
+        } while ($class = \get_parent_class($class));
         foreach ($traits as $trait => $same) {
-            $traits = array_merge(class_uses($trait, $autoload), $traits);
+            $traits = \array_merge(\class_uses($trait, $autoload), $traits);
         }
 
-        return array_unique($traits);
+        return \array_unique($traits);
     }
 
     /**
@@ -55,17 +55,17 @@ abstract class BaseTestCase extends BaseKernelTestCase
      */
     public function createBasicService($class)
     {
-        if (!class_exists($class)) {
+        if (!\class_exists($class)) {
             throw new \InvalidArgumentException("$class is not a valid class name");
         }
 
-        if (!is_subclass_of($class, 'Smartbox\Integration\FrameworkBundle\Service')) {
+        if (!\is_subclass_of($class, 'Smartbox\Integration\FrameworkBundle\Service')) {
             throw new \InvalidArgumentException($class.' does not extend Smartbox\Integration\FrameworkBundle\Service');
         }
 
         /** @var Service $instance */
         $instance = new $class();
-        $id = 'mock.service.'.uniqid();
+        $id = 'mock.service.'.\uniqid();
         $instance->setId($id);
 
         $traits = $this->class_uses_deep($class);
@@ -76,7 +76,7 @@ abstract class BaseTestCase extends BaseKernelTestCase
                     break;
 
                 case UsesSerializer::class:
-                    $instance->setSerializer($this->getContainer()->get('serializer'));
+                    $instance->setSerializer($this->getContainer()->get('jms_serializer'));
                     break;
 
                 case UsesValidator::class:

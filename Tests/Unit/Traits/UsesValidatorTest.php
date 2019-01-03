@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Class UsesValidatorTest.
  *
- * @coversDefaultClass Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesValidator
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesValidator
  */
 class UsesValidatorTest extends \PHPUnit\Framework\TestCase
 {
