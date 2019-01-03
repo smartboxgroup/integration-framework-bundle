@@ -21,7 +21,7 @@
         "ocramius/proxy-manager": "~1.0",
         "stomp-php/stomp-php": "4.*",
         "smartbox/besimple-soap": "^1.0.0",
-        "smartbox/core-bundle": "dev-feature/update_jms_serializer"
+        "smartbox/core-bundle": "~1.4"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "*",
