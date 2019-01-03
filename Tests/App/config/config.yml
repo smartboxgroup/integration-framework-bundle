@@ -26,8 +26,8 @@ monolog:
 
 smartbox_core:
     cache_drivers:
-        null:
-            service: ~
+        array:
+            service: "@array_cache_service"
     fixtures_path: "%kernel.root_dir%/JsonFixtures"
     entities_namespaces:
         - 'Smartbox\Integration\Framework\Entity'
@@ -73,7 +73,7 @@ smartbox_integration_framework:
             description: Message hanlder to handle messages comming from a queue
             retries_max: 5
             retry_delay: 0
-            failed_uri: queue://main/async/failed
+            failed_uri: queue://main/failed/async
             retry_uri: original
             throw_exceptions: false
             defer_new_exchanges: true

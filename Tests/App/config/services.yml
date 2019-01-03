@@ -9,3 +9,6 @@ services:
 
     producer.spy:
       class: Smartbox\Integration\FrameworkBundle\Tests\App\Producers\SpyProducer
+
+    array_cache_service:
+      class: Smartbox\Integration\CamelConfigBundle\Tests\App\ArrayCacheService

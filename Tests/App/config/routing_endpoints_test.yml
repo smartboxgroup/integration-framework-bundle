@@ -6,7 +6,7 @@ queues.generic:
     pattern: "queue://{queue_driver}/{queue}"
     defaults:
         _protocol: "@smartesb.protocols.queue"
-        prefix: "test/thing/"
+        prefix: "test/"
         persistent: false    # For the tests we don't really want to persist our messages
 
     requirements:
