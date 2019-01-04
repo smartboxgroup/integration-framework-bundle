@@ -19,7 +19,7 @@ steps:
   - {type: checkSpy, path: after_error/recoverableDelayProgressive, values: []}
 
   # Wait until the end of the delay
-  - {type: wait, delay: 1}
+  - {type: wait, delay: 5}
 
   # Check that we can recover and that previous steps are not repeated
   - {type: consume, uri: queue://main/delayRecoveryAsyncRecoverableWithDelayProgressive, amount: 1}
@@ -28,7 +28,7 @@ steps:
 
   - {type: checkSpy, path: after_error/recoverableDelayProgressive, values: []}
 
-  - {type: wait, delay: 1}
+  - {type: wait, delay: 5}
 
   # Check that we can the delay is still not finished
   - {type: consume, uri: queue://main/delayRecoveryAsyncRecoverableWithDelayProgressive, amount: 1}
@@ -37,7 +37,7 @@ steps:
 
   - {type: checkSpy, path: after_error/recoverableDelayProgressive, values: []}
 
-  - {type: wait, delay: 1}
+  - {type: wait, delay: 5}
 
   # Check that we can recover and that previous steps are not repeated
   - {type: consume, uri: queue://main/delayRecoveryAsyncRecoverableWithDelayProgressive, amount: 1}
