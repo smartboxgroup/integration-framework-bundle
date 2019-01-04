@@ -3,7 +3,7 @@ smartbox_integration_platform:
     prefix:   /
 
 queues.generic:
-    pattern: "queue://{queue_driver}/{queue}"
+    path: "queue://{queue_driver}/{queue}"
     defaults:
         _protocol: "@smartesb.protocols.queue"
         prefix: "test/"
@@ -21,7 +21,7 @@ nosql.configurable:
         prefix: ""
         nosql_driver: main
     requirements:
-        collection: "[_\-a-zA-Z0-9/]+"
+        collection: "[_-a-zA-Z0-9]+"
         nosql_driver: "[a-zA-Z0-9]+"
 
 ## For testing purposes
@@ -30,7 +30,7 @@ test:
     defaults:
         _protocol: "@smartesb.protocols.direct"
     requirements:
-        path: "[a-zA-Z0-9/_\-]+"
+        path: "[a-zA-Z0-9/_-]+"
 
 helper:
     path: "helper://{operation}/{operand}"
@@ -47,7 +47,7 @@ spy:
         path: "[a-zA-Z0-9/_-]+"
 
 error.triggerer.recoverable:
-    pattern: "error://recoverable/{nb_errors}"
+    path: "error://recoverable/{nb_errors}"
     defaults:
         _protocol: "@smartesb.protocols.base"
         _producer: "@producer.error.triggerer"

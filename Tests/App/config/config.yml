@@ -28,7 +28,7 @@ smartbox_core:
     cache_drivers:
         array:
             service: "@array_cache_service"
-    fixtures_path: "%kernel.root_dir%/JsonFixtures"
+    fixtures_path: '%kernel.root_dir%/JsonFixtures'
     entities_namespaces:
         - 'Smartbox\Integration\Framework\Entity'
 
