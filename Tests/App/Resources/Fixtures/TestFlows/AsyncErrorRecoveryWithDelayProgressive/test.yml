@@ -2,7 +2,7 @@ steps:
   - {type: handle, from: test://queues/delayRecoveryAsyncRecoverableWithDelayProgressive, in: 1, out: 1}
 
   # Configure the handler with a 5 second delay
-  - {type: configureHandler, name: async, retryDelay: 6, retryStrategy: progressive, retryDelayFactor: 2}
+  - {type: configureHandler, name: async, retryDelay: 5, retryStrategy: progressive, retryDelayFactor: 2}
 
   # Consume a first time
   - {type: consume, uri: queue://main/delayRecoveryAsyncRecoverableWithDelayProgressive, amount: 1}
