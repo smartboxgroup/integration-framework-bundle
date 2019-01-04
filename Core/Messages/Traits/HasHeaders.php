@@ -78,6 +78,15 @@ trait HasHeaders
     }
 
     /**
+     * @param string $key
+     * @return bool
+     */
+    public function hasHeader($key)
+    {
+        return \array_key_exists($key, $this->headers);
+    }
+
+    /**
      * @param array $headers
      *
      * @throws \Exception
