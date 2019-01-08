@@ -1,0 +1,5 @@
+steps:
+  - { type: handle, from: "test://simple1", in: 1, out: 5}
+  - { type: handle, from: "test://simple2", in: 1, out: 2}
+  - { type: handle, from: "test://simple3", in: 1, out: 6}
+  - { type: handle, from: "test://simple4", in: 1, out: 12}

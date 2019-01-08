@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <camelContext trace="false" xmlns="http://camel.apache.org/schema/spring">
+        <route>
+            <from uri="csv://test/consumer_2/read_happy"/>
+            <to uri="spy://csv/read_file2"/>
+            <to uri="csv://test/producer/write_happy/happy-pipe.csv" customId="true" id="csv_producer_test_write_happy_2"/>
+        </route>
+    </camelContext>
+
+</beans>

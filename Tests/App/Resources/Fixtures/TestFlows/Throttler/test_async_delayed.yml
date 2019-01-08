@@ -1,0 +1,23 @@
+steps:
+#Async
+
+# Send 2 messages, consume 2 messages, first one should pass, second one not
+  - { type: handle, from: "test://queues/throttlerAsync", in: 1, out: in } # Enqueue the message
+  - { type: handle, from: "test://queues/throttlerAsync", in: 1, out: in } # Enqueue the message
+
+  - { type: consume, uri: "queue://main/throttlerAsync", amount: 2} # Consume the two messages
+  - { type: checkSpy, path: "throttlerAsync/before", values: [1,1] }
+  - { type: checkSpy, path: "throttlerAsync/after", values: [5] } # spy contains only one result (second message is throttled)
+
+  - { type: wait, delay: 4 } # Wait until the end of the reset, then consume again and check that the message passes
+
+  - { type: consume, uri: "queue://main/throttle", amount: 1} # When a message gets throttled it will be put in the uri defined in smartesb.handlers.async
+  - { type: checkSpy, path: "throttlerAsync/before", values: [1,1] }
+  - { type: checkSpy, path: "throttlerAsync/after", values: [5,5] } # spy now contains both results
+
+# First message should pass
+  - { type: handle, from: "test://throttlerAsync", in: 1, out: 5}
+
+# Second message should throw an exception
+  - { type: expectedException, class: 'Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottledException'}
+  - { type: handle, from: "test://throttlerAsync", in: 1, out: 1}

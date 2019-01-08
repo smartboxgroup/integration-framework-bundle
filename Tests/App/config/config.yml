@@ -1,6 +1,8 @@
 imports:
     - { resource: parameters.yml }
     - { resource: services.yml }
+    - { resource: "@SmartboxIntegrationFrameworkBundle/Resources/config/default_configured_consumers.yml" }
+    - { resource: "@SmartboxIntegrationFrameworkBundle/Resources/config/default_configured_producers.yml" }
 
 framework:
     secret: "5yg6u543wrftg34"
@@ -24,11 +26,16 @@ monolog:
 
 smartbox_core:
     cache_drivers:
-        null:
-            service: ~
-    fixtures_path: "%kernel.root_dir%/JsonFixtures"
+        array:
+            service: "@array_cache_service"
+    fixtures_path: '%kernel.root_dir%/JsonFixtures'
     entities_namespaces:
         - 'Smartbox\Integration\Framework\Entity'
+
+smartbox_integration_camel_config:
+    flows_directories:
+    - "%kernel.root_dir%/Resources/Fixtures/TestFlows"
+    frozen_flows_directory: "%kernel.root_dir%/Resources/Fixtures/FrozenFlows"
 
 smartbox_integration_framework:
     defer_events_to_uri: queue://events
@@ -57,18 +64,104 @@ smartbox_integration_framework:
             retry_uri: queue://main/sync/retry
             throw_exceptions: true
             defer_new_exchanges: false
+            throttle_delay: 1
+            throttle_delay_factor: 1
+            throttle_strategy: fixed
+            throttle_uri: queue://main/throttle
 
         async:
             description: Message hanlder to handle messages comming from a queue
             retries_max: 5
             retry_delay: 0
-            failed_uri: queue://main/async/failed
+            failed_uri: queue://main/failed/async
             retry_uri: original
             throw_exceptions: false
             defer_new_exchanges: true
             throttle_delay: 1
             throttle_delay_factor: 1
             throttle_strategy: fixed
-            throttle_uri: queue://main/throttlerAsync
+            throttle_uri: queue://main/throttle
 
     flows_version: 0
+
+    consumers:
+        test_csv:
+            class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableConsumer
+            description: Consume from csv file
+            calls:
+            - [setConfigurableStepsProvider,['@smartesb.steps_provider.csv_file']]
+            options:
+                delimiter: '|'
+                enclosure: '"'
+                escape_char: '\'
+                stop_on_eof: true
+            methods:
+                read_happy:
+                    description: Read out some | csv file, 3 lines at a time
+                    query_steps:
+                    - read_lines:
+                          result_name: xyxx
+                          max_lines: 3
+                          filename: happy.csv
+                    query_result:
+                        lines: "eval: results['xyxx']"
+                    on_consume: ~
+
+        test_csv_2:
+            class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableConsumer
+            description: Consume from csv file
+            calls:
+            - [setConfigurableStepsProvider,['@smartesb.steps_provider.csv_file']]
+            options:
+                delimiter: ','
+                enclosure: '"'
+                escape_char: '\'
+                stop_on_eof: true
+            methods:
+                read_happy:
+                    description: Read from a , csv file, 2 lines at a time
+                    # The path to where our write flow test should have written
+                    query_steps:
+                    - read_lines:
+                          result_name: xyxx
+                          max_lines: 2
+                          filename: happy-comma.csv
+                    query_result:
+                        lines: "eval: results['xyxx']"
+                    on_consume: ~
+
+    producers:
+        test_csv:
+            class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableProducer
+            description: Producer to write out csv files
+            calls:
+            - [setConfigurableStepsProvider,["@smartesb.steps_provider.csv_file"]]
+            options:
+                delimiter: ','
+                enclosure: '"'
+                escape_char: '\'
+            methods:
+                write_happy:
+                    description: Append lines to the csv file
+                    steps:
+                    - append_lines:
+                          rows: "eval: body['lines']"
+                    response: []
+        mongo:
+            class: Smartbox\Integration\FrameworkBundle\Components\DB\DBConfigurableProducer
+            description: Producer to send messages to mongo
+            calls:
+            - [setConfigurableStepsProvider, ["@smartesb.steps_provider.nosql"]]
+            options: ~
+
+            methods:
+                insert:
+                    description: Inserts a message in a mongo collection
+                    steps:
+                    - insertOne:
+                          data: "eval: msg"
+
+
+doctrine:
+    dbal:
+        default_connection: default

@@ -1,0 +1,6 @@
+<camelContext trace="false" xmlns="http://camel.apache.org/schema/spring">
+    <route>
+        <from uri="direct://demo/getBox"/>
+        to uri="custom://business_demo/getBoxInTransit"/>
+    </route>
+</camelContext>  

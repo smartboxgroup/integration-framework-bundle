@@ -1,3 +1,88 @@
 smartbox_integration_platform:
     resource: "@SmartboxIntegrationFrameworkBundle/Resources/config/default_endpoint_routes.yml"
     prefix:   /
+
+queues.generic:
+    path: "queue://{queue_driver}/{queue}"
+    defaults:
+        _protocol: "@smartesb.protocols.queue"
+        prefix: "test/"
+        persistent: false    # For the tests we don't really want to persist our messages
+
+    requirements:
+        queue: "[a-zA-Z0-9/]+"
+
+nosql.configurable:
+    path: "nosql://{nosql_driver}/{method}/{collection}"
+    defaults:
+        _protocol: "@smartesb.protocols.configurable.nosql"
+        _producer: "@smartesb.producers.mongo"
+        _handler: "@smartesb.handlers.sync"
+        prefix: ""
+        nosql_driver: main
+    requirements:
+        collection: "[_-a-zA-Z0-9]+"
+        nosql_driver: "[a-zA-Z0-9]+"
+
+## For testing purposes
+test:
+    path: "test://{path}"
+    defaults:
+        _protocol: "@smartesb.protocols.direct"
+    requirements:
+        path: "[a-zA-Z0-9/_-]+"
+
+helper:
+    path: "helper://{operation}/{operand}"
+    defaults:
+        _protocol: "@smartesb.protocols.base"
+        _producer: "@producer.helper"
+
+spy:
+    path: "spy://{path}"
+    defaults:
+        _protocol: "@smartesb.protocols.base"
+        _producer: "@producer.spy"
+    requirements:
+        path: "[a-zA-Z0-9/_-]+"
+
+error.triggerer.recoverable:
+    path: "error://recoverable/{nb_errors}"
+    defaults:
+        _protocol: "@smartesb.protocols.base"
+        _producer: "@producer.error.triggerer"
+        recoverable: true
+        nb_errors: 1
+
+error.triggerer.unrecoverable:
+    path: "error://unrecoverable"
+    defaults:
+        _protocol: "@smartesb.protocols.base"
+        _producer: "@producer.error.triggerer"
+        recoverable: false
+
+csv.test.consumer.read:
+    path: "csv://test/consumer/{method}"
+    defaults:
+        _protocol: "@smartesb.protocols.configurable.csv_file"
+        _consumer: "@smartesb.consumers.test_csv"
+        _handler: "@smartesb.handlers.async"
+        path: "%kernel.root_dir%/Resources/Fixtures/Csv/"
+
+csv.test.consumer.read_2:
+    path: "csv://test/consumer_2/{method}"
+    defaults:
+        _protocol: "@smartesb.protocols.configurable.csv_file"
+        _consumer: "@smartesb.consumers.test_csv_2"
+        _handler: "@smartesb.handlers.async"
+        path: "/tmp/integration-framework-test"
+
+csv.test.producer.write:
+    path: "csv://test/producer/{method}/{default_path}"
+    defaults:
+        _protocol: "@smartesb.protocols.configurable.csv_file"
+        _producer: "@smartesb.producers.test_csv"
+        root_path: "/tmp/integration-framework-test"
+        delimiter: ","
+    requirements:
+        default_path: ".*"

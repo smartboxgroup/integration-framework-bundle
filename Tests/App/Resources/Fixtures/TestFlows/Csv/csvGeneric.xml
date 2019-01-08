@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <camelContext trace="false" xmlns="http://camel.apache.org/schema/spring">
+        <route>
+            <!-- Test from the generic csv consumer setup in the framework bundle -->
+            <from uri="csv://generic//tmp/integration-framework-test/happy-comma.csv"/> <!-- Another test will have left this behind for us -->
+            <to uri="spy://csv/read_file3"/>
+            <to uri="csv://generic/tmp/happy-pipe-2.csv"/>
+        </route>
+    </camelContext>
+
+</beans>

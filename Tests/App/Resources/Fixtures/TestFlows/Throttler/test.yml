@@ -1,0 +1,27 @@
+steps:
+
+# Send 2 messages, consume 2 messages, first one should pass, second one not
+  - { type: handle, from: "test://queues/throttler", in: 1, out: in } # Enqueue the message
+  - { type: handle, from: "test://queues/throttler", in: 1, out: in } # Enqueue the message
+
+  - { type: consume, uri: "queue://main/throttler", amount: 2} # Consume the two messages
+  - { type: checkSpy, path: "throttler/before", values: [1,1] }
+  - { type: checkSpy, path: "throttler/after", values: [5] } # spy contains only one result (second message is moved to the failed transactions)
+
+  - { type: wait, delay: 3 } # Wait until the end of the reset, then consume again and check that the message passes
+
+  - { type: handle, from: "test://queues/throttler", in: 2, out: in } # The queue will be empty so we enqueue a new message
+  - { type: consume, uri: "queue://main/throttler", amount: 1} # we consume the new message
+
+  - { type: checkSpy, path: "throttler/before", values: [1,1,2] } # We check the inputs of the three consumed messages
+  - { type: checkSpy, path: "throttler/after", values: [5,10] } # only the first and the last produced an output (the second was moved to the failed transactions)
+
+
+## Sync
+
+# First message should pass
+  - { type: handle, from: "test://throttler", in: 1, out: 5}
+
+# Second message should fail
+  - { type: expectedException, class: 'Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottlingLimitReachedException'}
+  - { type: handle, from: "test://throttler", in: 1, out: 1}

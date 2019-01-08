@@ -1,0 +1,8 @@
+steps:
+  - {type: expectedException, class: 'Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Exceptions\TestException'}
+  - {type: handle, from: test://logging/exceptionWithMessage, in: 1}
+  - {type: checkLogs, message: 'Event "smartesb.handler.before_handle" occurred', level: 'Debug'}
+  - {type: checkLogs, message: 'Event "smartesb.handler.before_process" occurred', level: 'Debug'}
+  - {type: checkLogs, message: 'Event "smartesb.handler.after_process" occurred', level: 'Debug'}
+  - {type: checkLogs, message: 'Event "smartesb.handler.after_handle" occurred', level: 'Debug'}
+  - {type: checkLogs, message: 'This is a custom message', level: 'Error'}

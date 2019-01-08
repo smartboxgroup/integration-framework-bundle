@@ -8,7 +8,7 @@ smartbox_integration_framework:
             class: "%smartesb.producers.csv.class%"
             description: Producer to write out csv files
             calls:
-                - [ setId, ['smartesb.producers.generic_csv']]
+                - [ setId, ["smartesb.producers.generic_csv"]]
                 - [setConfigurableStepsProvider,["@smartesb.steps_provider.csv_file"]]
 
             options:
@@ -22,5 +22,5 @@ smartbox_integration_framework:
                     description: Append lines to the csv file
                     steps:
                         - append_lines:
-                            rows: eval: body['lines']
+                            rows: "eval: body['lines']"
                     response: []

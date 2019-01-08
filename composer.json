@@ -28,7 +28,9 @@
         "doctrine/doctrine-bundle": "^1.6",
         "sensio/generator-bundle": "~2.3",
         "mongodb/mongodb": "~1.0",
-        "jms/serializer-bundle": "*"
+        "jms/serializer-bundle": "*",
+        "smartbox/camel-config-bundle": "dev-tidy/move-tests as v1.0.0",
+        "ext-mongodb": "*"
     },
     "scripts": {
         "post-install-cmd": [

@@ -1,0 +1,34 @@
+steps:
+  - {type: handle, from: test://queues/delayRecoveryAsyncRecoverableWithDelay, in: 1, out: 1 }
+
+  # Configure the handler with a 5 second delay
+  - {type: configureHandler, name: async, retryDelay: 5 }
+
+  # Consume a first time
+  - {type: consume, uri: queue://main/delayRecoveryAsyncRecoverableWithDelay, amount: 1 }
+
+  # Check that the message was partially processed
+  - { type: checkSpy, path: before_error/recoverableDelay, values: [6]}
+
+  # Try to consume the message again
+  - {type: consume, uri: queue://main/delayRecoveryAsyncRecoverableWithDelay, amount: 1 }
+
+  # Check that the message has still the same value
+  - { type: checkSpy, path: before_error/recoverableDelay, values: [6] }
+
+  # Check that the message still didn't succeed
+  - { type: checkSpy, path: after_error/recoverableDelay, values: [] }
+
+  # Wait until the end of the delay
+  - {type: wait, delay: 5 }
+
+  # Check that we can recover and that previous steps are not repeated
+  - {type: consume, uri: queue://main/delayRecoveryAsyncRecoverableWithDelay, amount: 1 }
+
+  - { type: checkSpy, path: before_error/recoverableDelay, values: [6] }
+
+  # Check the final value
+  - { type: checkSpy, path: after_error/recoverableDelay, values: [11] }
+
+  # Reset the handler
+  - {type: configureHandler, name: async, retryDelay: 0 }
