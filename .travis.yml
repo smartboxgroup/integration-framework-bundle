@@ -17,6 +17,7 @@ matrix:
 
 env:
   - SYMFONY_VERSION=2.8.* SYMFONY_PHPUNIT_VERSION=6.5
+  - COMPOSER_ROOT_VERSION=v1.26.0
 
 before_install:
   - phpenv config-add travis/z_php.ini
