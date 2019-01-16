@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
+use Interop\Amqp\AmqpConnectionFactory;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AmqpQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
@@ -218,23 +219,25 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     break;
 
                 case 'amqp':
-                    $driverDef = new Definition(AmqpQueueDriver::class, []);
-                    $driverDef->addMethodCall('setId', [$driverId]);
+                    if (class_exists(AmqpConnectionFactory::class)) {
+                        $driverDef = new Definition(AmqpQueueDriver::class, []);
+                        $driverDef->addMethodCall('setId', [$driverId]);
 
-                    $driverDef->addMethodCall('configure', [
-                        $driverConfig['host'],
-                        $driverConfig['username'],
-                        $driverConfig['password'],
-                        $driverConfig['format'],
-                        $driverConfig['port'],
-                        $driverConfig['vhost'],
-                    ]);
+                        $driverDef->addMethodCall('configure', [
+                            $driverConfig['host'],
+                            $driverConfig['username'],
+                            $driverConfig['password'],
+                            $driverConfig['format'],
+                            $driverConfig['port'],
+                            $driverConfig['vhost'],
+                        ]);
 
-                    $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
-                    $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
-                    $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
+                        $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
+                        $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+                        $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 
-                    $container->setDefinition($driverId, $driverDef);
+                        $container->setDefinition($driverId, $driverDef);
+                    }
 
                     break;
 
