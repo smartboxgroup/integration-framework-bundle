@@ -23,9 +23,9 @@ before_install:
 
 before_script:
   - echo $TRAVIS_PHP_VERSION
-  - sudo pecl install amqp
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo service rabbitmq-server restart
+  - if [ "7.0" != "${TRAVIS_PHP_VERSION}" ]; then composer remove --dev enqueue/amqp-ext; fi
   - composer install --no-interaction
 
 script:
