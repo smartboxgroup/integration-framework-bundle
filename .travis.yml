@@ -24,9 +24,10 @@ before_install:
 before_script:
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo service rabbitmq-server restart
-  - composer install --no-interaction --ignore-platform-reqs
+  - composer install --no-interaction
 
 script:
+  - echo $TRAVIS_PHP_VERSION
   - bin/simple-phpunit --coverage-text
 
 notifications:
