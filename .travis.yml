@@ -22,12 +22,13 @@ before_install:
   - phpenv config-add travis/z_php.ini
 
 before_script:
+  - echo $TRAVIS_PHP_VERSION
+  - sudo pecl install amqp
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo service rabbitmq-server restart
   - composer install --no-interaction
 
 script:
-  - echo $TRAVIS_PHP_VERSION
   - bin/simple-phpunit --coverage-text
 
 notifications:
