@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AmqpQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -211,6 +212,27 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
                     $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
                     $driverDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
+
+                    $container->setDefinition($driverId, $driverDef);
+
+                    break;
+
+                case 'amqp':
+                    $driverDef = new Definition(AmqpQueueDriver::class, []);
+                    $driverDef->addMethodCall('setId', [$driverId]);
+
+                    $driverDef->addMethodCall('configure', [
+                        $driverConfig['host'],
+                        $driverConfig['username'],
+                        $driverConfig['password'],
+                        $driverConfig['format'],
+                        $driverConfig['port'],
+                        $driverConfig['vhost'],
+                    ]);
+
+                    $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
+                    $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+                    $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 
                     $container->setDefinition($driverId, $driverDef);
 

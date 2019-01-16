@@ -403,6 +403,10 @@ class Configuration implements ConfigurationInterface
             ->defaultValue(null)
             ->end()
 
+            ->scalarNode('port')
+            ->defaultValue(5672)
+            ->end()
+
             ->scalarNode('sync')
             ->info('This parameter define if the stomp driver will be synchronous or not')
             ->defaultValue(true)
