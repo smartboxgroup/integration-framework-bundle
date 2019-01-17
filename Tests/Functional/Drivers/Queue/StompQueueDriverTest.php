@@ -30,7 +30,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
             $this->driver->ack();
         }
 
-        $this->assertSame($msg, $msgOut->getBody());
+        $this->assertSame(serialize($msg), serialize($msgOut->getBody()));
         $this->driver->unSubscribe();
     }
 
