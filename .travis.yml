@@ -4,7 +4,6 @@ addons:
     - database.local
   apt_packages:
     - librabbitmq-dev
-    - pecl
 language: php
 
 php:
