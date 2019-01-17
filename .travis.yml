@@ -4,6 +4,7 @@ addons:
     - database.local
   apt_packages:
     - librabbitmq-dev
+    - pecl
 language: php
 
 php:
@@ -20,6 +21,7 @@ env:
   - SYMFONY_VERSION=2.8.* SYMFONY_PHPUNIT_VERSION=6.5
 
 before_install:
+  - sudo pecl install amqp
   - phpenv config-add travis/z_php.ini
 
 before_script:
