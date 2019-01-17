@@ -70,6 +70,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function connect()
     {
+        return $this->connectionContext->getExtChannel()->getConnection()->connect();
     }
 
     /**
@@ -205,13 +206,6 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
 
         $start = microtime(true);
         $deserializationContext = new DeserializationContext();
-        if (!empty($version)) {
-            $deserializationContext->setVersion($version);
-        }
-
-        if (!empty($group)) {
-            $deserializationContext->setGroups([$group]);
-        }
 
         /** @var QueueMessageInterface $msg */
         $msg = $this->getSerializer()->deserialize($this->currentEnvelope->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
