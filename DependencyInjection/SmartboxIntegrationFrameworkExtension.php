@@ -219,7 +219,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     break;
 
                 case 'amqp':
-                    if (class_exists(AmqpConnectionFactory::class)) {
+                    if (class_exists('Enqueue\AmqpExt\AmqpConnectionFactory')) {
                         $driverDef = new Definition(AmqpQueueDriver::class, []);
                         $driverDef->addMethodCall('setId', [$driverId]);
 
