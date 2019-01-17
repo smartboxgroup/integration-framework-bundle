@@ -78,7 +78,7 @@ before_install:
     wget http://ftp.debian.org/debian/pool/main/libr/librabbitmq/librabbitmq-dev_0.5.2-2_amd64.deb
     wget http://ftp.debian.org/debian/pool/main/libr/librabbitmq/librabbitmq1_0.5.2-2_amd64.deb
     sudo dpkg -i librabbitmq1_0.5.2-2_amd64.deb librabbitmq-dev_0.5.2-2_amd64.deb
-  - tfold ext.amqp tpecl amqp-1.9.4 amqp.so "~/.phpenv/versions/${TRAVIS_PHP_VERSION}/etc/conf.d/travis.ini"
+  - tfold ext.amqp tpecl amqp-1.9.3 amqp.so "~/.phpenv/versions/${TRAVIS_PHP_VERSION}/etc/conf.d/travis.ini"
   - phpenv config-add travis/z_php.ini
 
 before_script:
