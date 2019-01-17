@@ -2,7 +2,8 @@ addons:
   hosts:
     - rabbit.local
     - database.local
-
+  apt_packages:
+    - librabbitmq-dev
 language: php
 
 php:
