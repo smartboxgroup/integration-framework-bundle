@@ -25,4 +25,12 @@ class AppKernel extends Kernel
     {
         $loader->load(__DIR__.'/config/config.yml');
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCacheDir()
+    {
+        return sys_get_temp_dir().'/sbx_integration_bundle_tests';
+    }
 }
