@@ -15,9 +15,9 @@
         "smartbox/besimple-soap": "^1.0.0",
         "smartbox/core-bundle": "~1.4",
         "symfony/expression-language": "^2.8|^3.0",
-        "symfony/framework-bundle": "^2.8|^3.0|^4.0",
-        "symfony/options-resolver": "^2.8|^3.0|^4.0",
-        "symfony/validator": "^2.8|^3.0|^4.0"
+        "symfony/framework-bundle": "^2.8|^3.0",
+        "symfony/options-resolver": "^2.8|^3.0",
+        "symfony/validator": "^2.8|^3.0"
     },
     "require-dev": {
         "doctrine/doctrine-bundle": "^1.6",
