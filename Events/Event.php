@@ -43,7 +43,6 @@ abstract class Event extends BaseEvent implements SerializableInterface
      */
     public function __construct($eventName = null)
     {
-        $this->setName($eventName);
         $this->eventName = $eventName;
     }
 
