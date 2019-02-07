@@ -34,6 +34,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
     const REQUEST_NAME = 'name';
     const REQUEST_HTTP_VERB = 'http_method';
     const REQUEST_URI = 'uri';
+    const REQUEST_BASE_URI = 'base_uri';
     const VALIDATION = 'validations';
     const VALIDATION_RULE = 'rule';
     const VALIDATION_MESSAGE = 'message';
@@ -120,6 +121,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             RestConfigurableProtocol::OPTION_HEADERS,
             self::VALIDATION,
             self::REQUEST_QUERY_PARAMETERS,
+            self::REQUEST_BASE_URI,
         ]);
 
         $stepParamsResolver->setAllowedValues(self::REQUEST_HTTP_VERB, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
@@ -152,10 +154,12 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $httpMethod = $this->confHelper->resolve($params[self::REQUEST_HTTP_VERB], $context);
         $httpMethod = strtoupper($httpMethod);
 
-        $resolvedURI = $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
-        $resolvedURI .= $this->confHelper->resolve($params[self::REQUEST_URI], $context);
-
         $endpointOptions = $this->confHelper->resolve($endpointOptions, $context);
+
+        $baseURI = !empty($params[self::REQUEST_BASE_URI])
+            ? $this->confHelper->resolve($params[self::REQUEST_BASE_URI], $context)
+            : $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
+        $resolvedURI = $baseURI.$this->confHelper->resolve($params[self::REQUEST_URI], $context);
 
         $requestHeaders = isset($params[RestConfigurableProtocol::OPTION_HEADERS]) ?
             $this->confHelper->resolve($params[RestConfigurableProtocol::OPTION_HEADERS], $context) :
