@@ -91,7 +91,7 @@ class MapperTest extends \PHPUnit\Framework\TestCase
         $this->assertNull($formattedDate);
     }
 
-    public function testToSoapVarObj()
+    public function testArrayToSoapVars()
     {
         $soapVar = $this->mapper->toSoapVarObj(['a' => 'b'], SOAP_ENC_OBJECT, 'Account');
 
@@ -99,6 +99,31 @@ class MapperTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(SOAP_ENC_OBJECT, $soapVar->enc_type);
         $this->assertEquals(['a' => 'b'], $soapVar->enc_value);
         $this->assertEquals('Account', $soapVar->enc_stype);
+    }
+
+    public function testTransformToSoapVar()
+    {
+        $data = [
+            'boolean_test' => true,
+            'string_test' => 'some_string',
+            "array_test"=>[
+                'string_test_2'=> 'some_other_string'
+            ]
+        ];
+        $data = $this->mapper->arrayToSoapVars($data);
+
+        $this->assertNotInstanceOf(\SoapVar::class, $data['boolean_test']);
+        $this->assertNotInstanceOf(\SoapVar::class, $data["array_test"]);
+
+        $this->assertFalse(is_string($data['string_test']));
+        $this->assertFalse(is_string($data["array_test"]['string_test_2']));
+
+        $this->assertTrue($data['boolean_test']);
+        $this->assertInstanceOf(\SoapVar::class, $data['string_test']);
+        $this->assertInstanceOf(\SoapVar::class, $data["array_test"]['string_test_2']);
+
+        $this->assertEquals('some_string', $data['string_test']->enc_value);
+        $this->assertEquals('some_other_string', $data["array_test"]['string_test_2']->enc_value);
     }
 
     public function testConvertListToString()
