@@ -218,7 +218,7 @@ class RestConfigurableProducerTest extends \PHPUnit\Framework\TestCase
         }
 
         $response = $producer->executeStep(RestConfigurableProducer::STEP_REQUEST, $actionParams, $options, $context);
-        $this->assertTrue($response);
+        $this->assertTrue($response, 'The producer should return true to say it has completed the Request Step');
 
         /** @var Request $request */
         $request = $container[0]['request'];
