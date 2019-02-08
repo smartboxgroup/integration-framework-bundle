@@ -101,6 +101,31 @@ class MapperTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('Account', $soapVar->enc_stype);
     }
 
+    public function testTransformToSoapVar()
+    {
+        $data = [
+            'boolean_test' => true,
+            'string_test' => 'some_string',
+            'array_test'=>[
+                'string_test_2'=> 'some_other_string'
+            ]
+        ];
+        $data = $this->mapper->arrayToSoapVars($data);
+
+        $this->assertNotInstanceOf(\SoapVar::class, $data['boolean_test'], 'Failed to assert that $data[\'boolean_test\'] is not a \SoapVar.');
+        $this->assertNotInstanceOf(\SoapVar::class, $data["array_test"],'Failed to assert that $data["array_test"] is not a \SoapVar.');
+
+        $this->assertFalse(is_string($data['string_test']), 'Failed to assert that our test_string is no longer a string. Should have become a \SoapVar.');
+        $this->assertFalse(is_string($data['array_test']['string_test_2']),'Failed to assert that "test_string => string_test_2" is no longer a string. Should have become a \SoapVar.');
+
+        $this->assertTrue($data['boolean_test']);
+        $this->assertInstanceOf(\SoapVar::class, $data['string_test'], 'Failed to assert that $data[\'string_test\'] was converted to a \SoapVar.');
+        $this->assertInstanceOf(\SoapVar::class, $data['array_test']['string_test_2'],'Failed to assert that $data[\'array_test\'][\'string_test_2\'] was converted to a \SoapVar.');
+
+        $this->assertEquals('some_string', $data['string_test']->enc_value, 'Failed to assert that the content(enc_value) of the \SoapVar for $data[\'string_test\'] is equal to \'some_string\'.');
+        $this->assertEquals('some_other_string', $data['array_test']['string_test_2']->enc_value,'Failed to assert that the content(enc_value) of the \SoapVar for $data[\'array_test\'][\'string_test_2\'] is equal to \'some_string\'.');
+    }
+
     public function testConvertListToString()
     {
         $list = [

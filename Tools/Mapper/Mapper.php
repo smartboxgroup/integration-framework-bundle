@@ -259,6 +259,33 @@ class Mapper implements MapperInterface
     }
 
     /**
+     * Transform string only to \SoapVar
+     *
+     * @param $item
+     * @param $key
+     */
+    protected function transformToSoapVar(&$item, $key)
+    {
+        if (is_string($item)) {
+            $item = static::toSoapVarObj($item, constant('XSD_STRING'));
+        }
+    }
+
+    /**
+     * Traverse array and convert all string data to \SoapVar so we ensure we escape special characters.
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    public function arrayToSoapVars(array $data)
+    {
+        array_walk_recursive($data, [$this, 'transformToSoapVar']);
+        
+        return $data;
+    }
+
+    /**
      * Convert an array into string.
      *
      * @param string $glue The string to use to glue the elements of the array
