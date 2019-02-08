@@ -281,6 +281,7 @@ class Mapper implements MapperInterface
     public function arrayToSoapVars(array $data)
     {
         array_walk_recursive($data, [$this, 'transformToSoapVar']);
+        
         return $data;
     }
 
