@@ -418,7 +418,6 @@ class Mapper implements MapperInterface
      * - `allow_empty_string => true` will allow ''
      * - `allow_empty_numeric => true` will allow 0
      *
-     *
      * @param array $context
      * @param mixed $obj
      *
