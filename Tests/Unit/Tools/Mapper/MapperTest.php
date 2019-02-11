@@ -2,12 +2,14 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Tools\Mapper;
 
+use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 use Smartbox\Integration\FrameworkBundle\Tools\Mapper\Mapper;
 
 class MapperTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Mapper */
     private $mapper;
+
 
     protected function setUp()
     {
@@ -230,5 +232,41 @@ class MapperTest extends \PHPUnit\Framework\TestCase
         $input = array(0 => 'A');
         $res = $this->mapper->emptyTo($input, $value);
         $this->assertSame($input, $res);
+    }
+
+    /**
+     * @param mixed $expected
+     * @param mixed $obj
+     * @param array $context
+     *
+     * @dataProvider provideEmptyValues
+     * @group zboob
+     */
+    public function testShouldAcceptEmptyValues($expected, $obj, $context = [])
+    {
+        $this->mapper->addMappings(['foo' => 'My Awesome mapping']);
+        /** @var ExpressionEvaluator|\PHPUnit_Framework_MockObject_MockObject $evaluator */
+        $evaluator = $this->createMock(ExpressionEvaluator::class);
+        $evaluator->expects($this->any())
+            ->method('evaluateWithVars')
+            ->willReturnCallback(function ($mapping, $dictionary) {
+                return ['name' => $dictionary['obj']];
+            });
+        $this->mapper->setEvaluator($evaluator);
+
+        $this->assertSame($expected, $this->mapper->map($obj, 'foo', $context));
+    }
+
+    public function provideEmptyValues()
+    {
+        yield 'No option' => ['', ''];
+
+        $ctx = ['allow_empty_string' => false];
+        yield 'Empty forbidden option' => ['', '', $ctx];
+
+        $ctx['allow_empty_string'] = true;
+
+        yield 'Empty allowed option' => [['name' => ''], '', $ctx];
+        yield 'Wrong type' => [null, null, $ctx];
     }
 }
