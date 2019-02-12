@@ -80,7 +80,7 @@ class Mapper implements MapperInterface
             throw new \InvalidArgumentException(sprintf('Invalid mapping name "%s"', $mappingName));
         }
 
-        if (empty($obj) && !$this->shouldAcceptEmptyValues($context, $obj)) {
+        if (empty($obj) || $this->shouldAcceptEmptyValues($context, $obj)) {
             return $obj;
         }
 
@@ -414,7 +414,7 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Will check if a value match a specific type, adn if so will still map it. Ex:
+     * Will check if a value match a specific type, and if so will still map it. Ex:
      * - `allow_empty_string => true` will allow ''
      * - `allow_empty_numeric => true` will allow 0
      *
