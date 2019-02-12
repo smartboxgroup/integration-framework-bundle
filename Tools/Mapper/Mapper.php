@@ -80,7 +80,7 @@ class Mapper implements MapperInterface
             throw new \InvalidArgumentException(sprintf('Invalid mapping name "%s"', $mappingName));
         }
 
-        if (empty($obj) || $this->shouldAcceptEmptyValues($context, $obj)) {
+        if (empty($obj) && !$this->shouldAcceptEmptyValues($context, $obj)) {
             return $obj;
         }
 
