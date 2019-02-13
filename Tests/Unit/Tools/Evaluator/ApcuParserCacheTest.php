@@ -7,7 +7,7 @@ use Symfony\Component\ExpressionLanguage\Node\Node;
 use Symfony\Component\ExpressionLanguage\ParsedExpression;
 
 /**
- * Class ApcuParserCacheTest.
+ * @group legacy
  */
 class ApcuParserCacheTest extends \PHPUnit\Framework\TestCase
 {
