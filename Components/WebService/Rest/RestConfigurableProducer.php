@@ -160,7 +160,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             ? $this->confHelper->resolve($params[self::REQUEST_BASE_URI], $context)
             : null;
 
-        $baseURI = $overrideBaseUri ? $overrideBaseUri : $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
+        $baseURI = $overrideBaseUri ?? $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
 
         $resolvedURI = $baseURI.$this->confHelper->resolve($params[self::REQUEST_URI], $context);
 
