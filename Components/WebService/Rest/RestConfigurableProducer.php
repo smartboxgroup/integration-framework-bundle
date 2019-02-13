@@ -156,9 +156,12 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
 
         $endpointOptions = $this->confHelper->resolve($endpointOptions, $context);
 
-        $baseURI = !empty($params[self::REQUEST_BASE_URI])
+        $overrideBaseUri = !empty($params[self::REQUEST_BASE_URI])
             ? $this->confHelper->resolve($params[self::REQUEST_BASE_URI], $context)
-            : $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
+            : null;
+
+        $baseURI = $overrideBaseUri ? $overrideBaseUri : $endpointOptions[RestConfigurableProtocol::OPTION_BASE_URI];
+
         $resolvedURI = $baseURI.$this->confHelper->resolve($params[self::REQUEST_URI], $context);
 
         $requestHeaders = isset($params[RestConfigurableProtocol::OPTION_HEADERS]) ?
