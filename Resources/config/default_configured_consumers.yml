@@ -9,7 +9,7 @@ smartbox_integration_framework:
             description: A Generic Consumer for csv files
             calls:
                 - [ setId, ['smartesb.consumers.generic_csv']]
-                - [setConfigurableStepsProvider,[@smartesb.steps_provider.csv_file]]
+                - [setConfigurableStepsProvider, ['@smartesb.steps_provider.csv_file']]
 
             options:
                 stop_on_eof: true

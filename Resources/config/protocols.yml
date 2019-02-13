@@ -17,31 +17,31 @@ services:
 
   # Base
   smartesb.protocols.base:
-      class: %smartesb.protocols.base.class%
+      class: "%smartesb.protocols.base.class%"
 
   # Direct
   smartesb.protocols.direct:
-      class: %smartesb.protocols.direct.class%
+      class: "%smartesb.protocols.direct.class%"
       calls:
         - [setDefaultProducer, ['@smartesb.producer.direct']]
         - [setDefaultHandler, ['@smartesb.handlers.sync']]
 
   # JSON FILE
   smartesb.protocols.json_file:
-      class: %smartesb.protocols.json_file.class%
+      class: "%smartesb.protocols.json_file.class%"
       calls:
         - [setDefaultProducer, ['@smartesb.producers.json_file']]
 
   # Queues
   smartesb.protocols.service:
-      class: %smartesb.protocols.service.class%
+      class: "%smartesb.protocols.service.class%"
       calls:
         - [setDefaultProducer, ['@smartesb.producers.service']]
         - [setDefaultHandler, ['@smartesb.handlers.async']]
 
   # Queues
   smartesb.protocols.queue:
-      class: %smartesb.protocols.queue.class%
+      class: "%smartesb.protocols.queue.class%"
       calls:
         - [setDefaultProducer, ['@smartesb.producers.queue']]
         - [setDefaultConsumer, ['@smartesb.consumers.queue']]
@@ -49,21 +49,21 @@ services:
 
   #NoSQL
   smartesb.protocols.configurable.nosql:
-      class: %smartesb.protocols.configurable.nosql.class%
+      class: "%smartesb.protocols.configurable.nosql.class%"
       calls:
        - [setDefaultHandler, ['@smartesb.handlers.async']]
 
   smartesb.protocols.configurable.webservice:
-      class: %smartesb.protocols.configurable.webservice.class%
+      class: "%smartesb.protocols.configurable.webservice.class%"
 
   smartesb.protocols.configurable.rest:
-      class: %smartesb.protocols.configurable.rest.class%
+      class: "%smartesb.protocols.configurable.rest.class%"
 
   smartesb.protocols.configurable.soap:
-      class: %smartesb.protocols.configurable.soap.class%
+      class: "%smartesb.protocols.configurable.soap.class%"
 
   smartesb.protocols.configurable.dbal:
-      class: %smartesb.protocols.configurable.dbal.class%
+      class: "%smartesb.protocols.configurable.dbal.class%"
       calls:
         - [setDefaultHandler, ['@smartesb.handlers.async']]
 
