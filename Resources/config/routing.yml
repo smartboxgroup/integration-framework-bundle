@@ -4,62 +4,62 @@ parameters:
 
   # ROUTERS OPTIONS
   smartesb.router.itineraries.options:
-      cache_dir: "%kernel.cache_dir%"
-      debug: "%kernel.debug%"
+      cache_dir: %kernel.cache_dir%
+      debug: %kernel.debug%
 
-      generator_class: "%router.options.generator_class%"
-      generator_base_class: "%router.options.generator_base_class%"
-      generator_dumper_class: "%router.options.generator_dumper_class%"
+      generator_class: %router.options.generator_class%
+      generator_base_class: %router.options.generator_base_class%
+      generator_dumper_class: %router.options.generator_dumper_class%
       generator_cache_class: 'SmartesbItinerariesUrlMatcher'
 
-      matcher_class: "%router.options.matcher_class%"
-      matcher_base_class: "%router.options.matcher_base_class%"
-      matcher_dumper_class: "%router.options.matcher_dumper_class%"
+      matcher_class: %router.options.matcher_class%
+      matcher_base_class: %router.options.matcher_base_class%
+      matcher_dumper_class: %router.options.matcher_dumper_class%
       matcher_cache_class: 'SmartesbItinerariesUrlMatcher'
 
   smartesb.router.endpoints.options:
-      cache_dir: "%kernel.cache_dir%"
-      debug: "%kernel.debug%"
+      cache_dir: %kernel.cache_dir%
+      debug: %kernel.debug%
 
-      generator_class: "%router.options.generator_class%"
-      generator_base_class: "%router.options.generator_base_class%"
-      generator_dumper_class: "%router.options.generator_dumper_class%"
+      generator_class: %router.options.generator_class%
+      generator_base_class: %router.options.generator_base_class%
+      generator_dumper_class: %router.options.generator_dumper_class%
       generator_cache_class: 'SmartesbEndpointsUrlGenerator'
 
-      matcher_class: "%router.options.matcher_class%"
-      matcher_base_class: "%router.options.matcher_base_class%"
-      matcher_dumper_class: "%router.options.matcher_dumper_class%"
+      matcher_class: %router.options.matcher_class%
+      matcher_base_class: %router.options.matcher_base_class%
+      matcher_dumper_class: %router.options.matcher_dumper_class%
       matcher_cache_class: 'SmartesbEndpointsUrlMatcher'
 
 services:
   # ROUTERS
   smartesb.router.itineraries:
-      class: "%smartesb.internal_router.class%"
+      class: %smartesb.internal_router.class%
       arguments:
         - '@service_container'
         - '@@SmartboxIntegrationFrameworkBundle/Resources/config/default_routing_itineraries.yml'
-        - "%smartesb.router.itineraries.options%"
+        - %smartesb.router.itineraries.options%
       tags:
         - { name: monolog.logger, channel: "router.itineraries" }
 
   smartesb.router.endpoints:
-      class: "%smartesb.internal_router.class%"
+      class: %smartesb.internal_router.class%
       arguments:
         - '@service_container'
         - "%kernel.root_dir%/config/routing_endpoints_%kernel.environment%.yml"
-        - "%smartesb.router.endpoints.options%"
+        - %smartesb.router.endpoints.options%
       tags:
         - { name: monolog.logger, channel: "router.endpoints" }
 
   smartesb.router.itineraries.cache_warmer:
-    class: "%router.cache_warmer.class%"
+    class: %router.cache_warmer.class%
     arguments:
       - '@smartesb.router.itineraries'
     tags:
       - { name: "kernel.cache_warmer" }
 
   smartesb.router.endpoints.cache_warmer:
-    class: "%router.cache_warmer.class%"
+    class: %router.cache_warmer.class%
     arguments:
       - '@smartesb.router.endpoints'
     tags:

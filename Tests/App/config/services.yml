@@ -2,8 +2,3 @@ services:
     doctrine:
       class: Symfony\Bridge\Doctrine\RegistryInterface
       synthetic: true
-
-    cache.app:
-      class: Symfony\Component\Cache\Adapter\ArrayAdapter
-      calls:
-        - [setLogger, ['@logger']]
