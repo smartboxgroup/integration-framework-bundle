@@ -43,28 +43,28 @@ class RestConfigurableProducerTest extends BaseTestCase
             'default' => [
                 'base_uri' => 'http://someservice.com/api/',
                 'uri' => 'v0/put/cats',
-                'overRideBaseUri' => false,
+                'overrideBaseUri' => false,
                 'expectedHost' => 'someservice.com',
                 'expectedPath' => '/api/v0/put/cats',
             ],
             'override' => [
                 'base_uri' => 'http://someservice.com/api/',
                 'uri' => 'v0/put/cats',
-                'overRideBaseUri' => 'http://dev.machine/api/',
+                'overrideBaseUri' => 'http://dev.machine/api/',
                 'expectedHost' => 'dev.machine',
                 'expectedPath' => '/api/v0/put/cats',
             ],
             'override but ignore null' => [
                 'base_uri' => 'http://someservice.com/api/',
                 'uri' => 'v0/put/cats',
-                'overRideBaseUri' => null,
+                'overrideBaseUri' => null,
                 'expectedHost' => 'someservice.com',
                 'expectedPath' => '/api/v0/put/cats',
             ],
             'override but ignore evaluate to null' => [
                 'base_uri' => 'http://someservice.com/api/',
                 'uri' => 'v0/put/cats',
-                'overRideBaseUri' => "eval: null",
+                'overrideBaseUri' => "eval: null",
                 'expectedHost' => 'someservice.com',
                 'expectedPath' => '/api/v0/put/cats',
             ],
@@ -74,12 +74,12 @@ class RestConfigurableProducerTest extends BaseTestCase
     /**
      * @param $baseUri
      * @param $requestUri
-     * @param $overRideBaseUri
+     * @param $overrideBaseUri
      * @param $expectedHost
      * @param $expectedPath
      * @dataProvider getCasesForBaseUri
      */
-    public function testCanOverrideBaseUrI($baseUri, $requestUri, $overRideBaseUri, $expectedHost, $expectedPath)
+    public function testCanOverrideBaseUrI($baseUri, $requestUri, $overrideBaseUri, $expectedHost, $expectedPath)
     {
         $mockHandler = new MockHandler([
             new Response(200, ['X-Foo' => 'Bar']),
@@ -118,8 +118,8 @@ class RestConfigurableProducerTest extends BaseTestCase
         ];
 
         //Decide to override the base_uri or not
-        if (false !== $overRideBaseUri) {
-            $actionParams['base_uri'] = $overRideBaseUri;
+        if (false !== $overrideBaseUri) {
+            $actionParams['base_uri'] = $overrideBaseUri;
         }
 
         $response = $producer->executeStep(RestConfigurableProducer::STEP_REQUEST, $actionParams, $options, $context);
