@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle;
 
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\CompilerPasses\EventDeferringCompilerPass;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\CompilerPasses\ExpressionLanguageCachePass;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\CompilerPasses\MockWebserviceClientsCompilerPass;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\CompilerPasses\SmokeTestConnectivityCompilerPass;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
@@ -18,7 +17,6 @@ class SmartboxIntegrationFrameworkBundle extends Bundle
 
         $container->addCompilerPass(new EventDeferringCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
         $container->addCompilerPass(new SmokeTestConnectivityCompilerPass());
-        $container->addCompilerPass(new ExpressionLanguageCachePass());
 
         if ($container->getParameter('kernel.environment') == 'test') {
             $container->addCompilerPass(new MockWebserviceClientsCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);

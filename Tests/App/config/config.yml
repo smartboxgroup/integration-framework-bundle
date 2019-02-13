@@ -24,7 +24,7 @@ monolog:
 
 smartbox_core:
     cache_drivers:
-        'null':
+        null:
             service: ~
     fixtures_path: "%kernel.root_dir%/JsonFixtures"
     entities_namespaces:

@@ -9,20 +9,20 @@ parameters:
 services:
   ########## PRODUCERS  ##########
   smartesb.producer.direct:
-      class: "%smartesb.producers.direct.class%"
+      class: %smartesb.producers.direct.class%
       calls:
         - [setId, ['smartesb.producer.direct']]
         - [setItineraryResolver, ['@smartesb.itineray_resolver']]
 
   smartesb.producers.json_file:
-      class: "%smartesb.producers.json_file.class%"
+      class: %smartesb.producers.json_file.class%
       calls:
         - [setId, ['smartesb.producers.json_file']]
         - [setSerializer, ['@jms_serializer']]
 
   # STOMP
   smartesb.producers.queue:
-      class: "%smartesb.producers.queue.class%"
+      class: %smartesb.producers.queue.class%
       calls:
         - [setId, ['smartesb.producers.queue']]
         - [setSerializer, ['@jms_serializer']]
@@ -30,7 +30,7 @@ services:
 
   # NoSQL
   smartesb.producers.service:
-      class: "%smartesb.producers.service.class%"
+      class: %smartesb.producers.service.class%
       calls:
         - [setId, ['smartesb.producers.service']]
         - [setContainer, ['@service_container']]
