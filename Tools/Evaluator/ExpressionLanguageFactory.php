@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\Evaluator;
 
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 /**
@@ -9,9 +10,9 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
  */
 class ExpressionLanguageFactory
 {
-    public static function createExpressionLanguage()
+    public static function createExpressionLanguage(CacheItemPoolInterface $cache = null)
     {
-        $language = new ExpressionLanguage(new ApcuParserCache());
+        $language = new ExpressionLanguage($cache ?? new ApcuParserCache());
         $language->registerProvider(new CustomExpressionLanguageProvider());
 
         return $language;
