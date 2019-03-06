@@ -41,6 +41,15 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
 
     private $dequeueingTimeMs = 0;
 
+    public function __destruct()
+    {
+        if ($this->currentEnvelope) {
+            trigger_error('AmqpQueueDriver: A message was left unacknowledged.');
+        }
+
+        $this->doDestroy();
+    }
+
     /**
      * Configures the driver.
      *
@@ -70,7 +79,6 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function connect()
     {
-        return $this->connectionContext->getExtChannel()->getConnection()->connect();
     }
 
     /**
@@ -78,7 +86,9 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function disconnect()
     {
-        $this->connectionContext->close();
+        if ($this->currentEnvelope) {
+            throw new \RuntimeException('Trying to disconnect with an unacknoleged message.');
+        }
     }
 
     /**
@@ -88,7 +98,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function isConnected()
     {
-        return $this->connectionContext->getExtChannel()->isConnected();
+        return true;
     }
 
     /**
@@ -108,9 +118,11 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function subscribe($queue)
     {
-        $this->queue = $this->connectionContext->createQueue($queue);
-        $this->queue->addFlag(AmqpQueue::FLAG_DURABLE);
-        $this->connectionContext->declareQueue($this->queue);
+        if ($this->currentEnvelope) {
+            throw new \RuntimeException('Don\'t be greedy and process the message you already have!');
+        }
+
+        $this->queue = $this->getQueue((string) $queue);
     }
 
     /**
@@ -118,6 +130,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function unSubscribe()
     {
+        $this->disconnect();
         $this->queue = $this->currentEnvelope = null;
     }
 
@@ -168,11 +181,9 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function send(QueueMessageInterface $message, $destination = null)
     {
-        $this->subscribe($destination ?? $message->getQueue());
+        $msg = $this->connectionContext->createMessage($this->getSerializer()->serialize($message, $this->format), $message->getHeaders(), $message->getHeaders());
 
-        $msg = $this->connectionContext->createMessage($this->getSerializer()->serialize($message, $this->format), [], $message->getHeaders());
-
-        $this->connectionContext->createProducer()->send($this->queue, $msg);
+        $this->connectionContext->createProducer()->send($this->getQueue($destination ?? $message->getQueue()), $msg);
 
         return true;
     }
@@ -237,14 +248,6 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
-     * @return \Enqueue\AmqpExt\AmqpConsumer|\Interop\Queue\Consumer
-     */
-    private function getConsumer()
-    {
-        return $this->connectionContext->createConsumer($this->queue);
-    }
-
-    /**
      * Remove every messages in the defined queue.
      *
      * @param string $queue The queue name
@@ -254,5 +257,27 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
     public function purge(string $queue)
     {
         $this->connectionContext->purgeQueue($this->connectionContext->createQueue($queue));
+    }
+
+    /**
+     * @return \Enqueue\AmqpExt\AmqpConsumer|\Interop\Queue\Consumer
+     */
+    private function getConsumer()
+    {
+        return $this->connectionContext->createConsumer($this->queue);
+    }
+
+    /**
+     * @param string $queueName
+     *
+     * @return AmqpQueue|\Interop\Queue\Queue
+     */
+    private function getQueue(string $queueName): AmqpQueue
+    {
+        $queue = $this->connectionContext->createQueue($queueName);
+        $queue->addFlag(AmqpQueue::FLAG_DURABLE);
+        $this->connectionContext->declareQueue($queue);
+
+        return $queue;
     }
 }
