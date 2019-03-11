@@ -118,22 +118,14 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
     {
         $queueMessage = $this->createQueueMessage($msg);
         $queueMessage->setTTL(2);
-        $this->driver->send($queueMessage);
         $this->driver->subscribe($this->queueName);
-
-        // After 1 second, the message is still there
-        \sleep(1);
-        $this->assertNotNull($this->driver->receive(), 'Should receive a message');
-
-        $this->driver->nack();
-        $this->driver->unSubscribe();
+        $this->driver->send($queueMessage);
 
         // After > 2 seconds, the message is not there
         \sleep(3);
-        $this->driver->subscribe($this->queueName);
         $msgOut = $this->driver->receive();
         if ($msgOut) {
-            $this->driver->nack();
+            $this->driver->ack();
         }
         $this->assertNull($msgOut);
 

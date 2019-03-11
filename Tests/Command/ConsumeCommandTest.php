@@ -32,6 +32,7 @@ class ConsumeCommandTest extends KernelTestCase
             ->willReturn(true);
 
         self::$kernel->getContainer()->set('smartesb.consumers.queue', $this->mockConsumer);
+        self::$kernel->getContainer()->set('smartesb.consumers.async_queue', $this->mockConsumer);
         self::$kernel->getContainer()->set('doctrine', $this->createMock(RegistryInterface::class));
     }
 

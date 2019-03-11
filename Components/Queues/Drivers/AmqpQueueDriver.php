@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use Enqueue\AmqpExt\AmqpConnectionFactory;
-use Interop\Amqp\AmqpQueue;
-use Interop\Queue\Context as ConnectionContext;
 use JMS\Serializer\DeserializationContext;
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueManager;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
@@ -20,26 +18,42 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
     use UsesSerializer;
 
     /**
-     * @var \Enqueue\AmqpExt\AmqpContext|ConnectionContext
+     * Maximum amount of time (in seconds) to wait for a message.
      */
-    private $connectionContext;
+    const WAIT_TIMEOUT = 10;
+    const WAIT_PERIOD = 0.2;
+
+    /**
+     * @var \AMQPQueue
+     */
+    private $queue;
+
+    /**
+     * @var \AMQPEnvelope
+     */
+    private $currentEnvelope;
+
+    private $dequeueingTimeMs = 0;
 
     /**
      * @var string
      */
     private $format;
+    /**
+     * @var QueueManager
+     */
+    private $manager;
 
     /**
-     * @var \Interop\Queue\Queue
+     * AmqpQueueDriver constructor.
+     *
+     * @param QueueManager $manager
      */
-    private $queue;
-
-    /**
-     * @var \Interop\Queue\Message
-     */
-    private $currentEnvelope;
-
-    private $dequeueingTimeMs = 0;
+    public function __construct(QueueManager $manager)
+    {
+        parent::__construct();
+        $this->manager = $manager;
+    }
 
     public function __destruct()
     {
@@ -51,27 +65,11 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
-     * Configures the driver.
-     *
-     * @param string $host
-     * @param string $username
-     * @param string $password Password to connect to the queuing system
-     * @param string $format
-     * @param int    $port
-     * @param string $vhost
+     * {@inheritdoc}
      */
-    public function configure($host, $username, $password, $format = self::FORMAT_JSON, $port = 5672, $vhost = '/')
+    public function configure($host, $username, $password, $format = self::FORMAT_JSON)
     {
         $this->format = $format;
-        $factory = new AmqpConnectionFactory([
-            'host' => $host,
-            'port' => $port,
-            'vhost' => $vhost,
-            'user' => $username,
-            'pass' => $password,
-        ]);
-
-        $this->connectionContext = $factory->createContext();
     }
 
     /**
@@ -79,6 +77,9 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function connect()
     {
+        if (!$this->isConnected()) {
+            $this->manager->connect();
+        }
     }
 
     /**
@@ -89,6 +90,8 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
         if ($this->currentEnvelope) {
             throw new \RuntimeException('Trying to disconnect with an unacknoleged message.');
         }
+
+        $this->manager->disconnect();
     }
 
     /**
@@ -98,7 +101,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function isConnected()
     {
-        return true;
+        return $this->manager->isConnected();
     }
 
     /**
@@ -122,7 +125,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
             throw new \RuntimeException('Don\'t be greedy and process the message you already have!');
         }
 
-        $this->queue = $this->getQueue((string) $queue);
+        $this->queue = $this->manager->getQueue((string) $queue);
     }
 
     /**
@@ -143,7 +146,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
             throw new \RuntimeException('You must first receive a message, before acking it');
         }
 
-        $this->getConsumer()->acknowledge($this->currentEnvelope);
+        $this->queue->ack($this->currentEnvelope->getDeliveryTag());
         $this->currentEnvelope = null;
     }
 
@@ -156,7 +159,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
             throw new \RuntimeException('You must first receive a message, before nacking it');
         }
 
-        $this->getConsumer()->reject($this->currentEnvelope, true);
+        $this->queue->nack($this->currentEnvelope->getDeliveryTag(), AMQP_REQUEUE);
         $this->currentEnvelope = null;
     }
 
@@ -181,11 +184,28 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function send(QueueMessageInterface $message, $destination = null)
     {
-        $msg = $this->connectionContext->createMessage($this->getSerializer()->serialize($message, $this->format), $message->getHeaders(), $message->getHeaders());
-
-        $this->connectionContext->createProducer()->send($this->getQueue($destination ?? $message->getQueue()), $msg);
+        $this->manager->send(
+            $destination ?? $message->getQueue(),
+            $this->getSerializer()->serialize($message, $this->format),
+            $message->getHeaders()
+        );
 
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function receive()
+    {
+        $waited = 0;
+
+        while (null === ($msg = $this->receiveNoWait()) && static::WAIT_TIMEOUT > $waited) {
+            $this->sleep(static::WAIT_PERIOD);
+            $waited += static::WAIT_PERIOD;
+        }
+
+        return $msg;
     }
 
     /**
@@ -197,7 +217,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      *
      * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface|null
      */
-    public function receive()
+    public function receiveNoWait()
     {
         if ($this->currentEnvelope) {
             throw new \RuntimeException(
@@ -207,7 +227,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
 
         $this->dequeueingTimeMs = 0;
 
-        $this->currentEnvelope = $this->getConsumer()->receiveNoWait();
+        $this->currentEnvelope = $this->queue->get();
 
         $msg = null;
 
@@ -240,44 +260,24 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
-     * @param ConnectionContext $connectionContext
-     */
-    public function setConnectionContext(ConnectionContext $connectionContext)
-    {
-        $this->connectionContext = $connectionContext;
-    }
-
-    /**
-     * Remove every messages in the defined queue.
-     *
-     * @param string $queue The queue name
-     *
-     * @throws \Interop\Queue\Exception\PurgeQueueNotSupportedException
+     * {@inheritdoc}
      */
     public function purge(string $queue)
     {
-        $this->connectionContext->purgeQueue($this->connectionContext->createQueue($queue));
+        $this->manager->getQueue($queue)->purge();
     }
 
     /**
-     * @return \Enqueue\AmqpExt\AmqpConsumer|\Interop\Queue\Consumer
-     */
-    private function getConsumer()
-    {
-        return $this->connectionContext->createConsumer($this->queue);
-    }
-
-    /**
-     * @param string $queueName
+     * Sleep the script for a given number of seconds.
      *
-     * @return AmqpQueue|\Interop\Queue\Queue
+     * @param int|float $seconds
      */
-    private function getQueue(string $queueName): AmqpQueue
+    public function sleep($seconds)
     {
-        $queue = $this->connectionContext->createQueue($queueName);
-        $queue->addFlag(AmqpQueue::FLAG_DURABLE);
-        $this->connectionContext->declareQueue($queue);
-
-        return $queue;
+        if ($seconds < 1) {
+            usleep((int) $seconds * 1000000);
+        } else {
+            sleep((int) $seconds);
+        }
     }
 }
