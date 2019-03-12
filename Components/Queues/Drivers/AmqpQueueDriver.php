@@ -198,6 +198,9 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function receive()
     {
+        if ($this->currentEnvelope) {
+            throw new \LogicException('AmqpQueueDriver: You have to subscribe before receiving.');
+        }
         $waited = 0;
 
         while (null === ($msg = $this->receiveNoWait()) && static::WAIT_TIMEOUT > $waited) {
