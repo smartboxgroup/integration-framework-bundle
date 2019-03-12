@@ -16,3 +16,4 @@ services:
           - [ setId, ['smartesb.consumers.async_queue']]
           - [ setSmartesbHelper, ['@smartesb.helper']]
           - [ setEventDispatcher, ['@event_dispatcher']]
+          - [ setSerializer, ['@jms_serializer']]
