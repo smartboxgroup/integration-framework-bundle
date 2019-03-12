@@ -45,6 +45,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const AMQP_SERVICES = [
         'smartesb.amqp.connection',
         'smartesb.amqp.queue_manager',
+        'smartesb.consumers.async_queue',
         'smartesb.drivers.queue.amqp',
     ];
 
