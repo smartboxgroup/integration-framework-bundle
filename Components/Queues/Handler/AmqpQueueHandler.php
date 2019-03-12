@@ -66,6 +66,7 @@ class AmqpQueueHandler implements LoggerAwareInterface
 
             return false;
         }
+
         $this->log('A message was received on {time}');
 
         /** @var \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface|QueueMessageInterface $message */
@@ -81,6 +82,12 @@ class AmqpQueueHandler implements LoggerAwareInterface
         $queue->ack($envelope->getDeliveryTag());
         $this->log('A message was consumed on {time}');
         --$this->max;
+
+        if ($this->shouldStop()) {
+            $this->log('Handler stopped on {time}');
+
+            return false;
+        }
     }
 
     /**
