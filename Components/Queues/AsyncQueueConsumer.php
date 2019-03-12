@@ -55,7 +55,7 @@ class AsyncQueueConsumer extends Service implements ConsumerInterface, LoggerAwa
      */
     public function consume(EndpointInterface $endpoint)
     {
-        $handler = new AmqpQueueHandler($endpoint, $this->expirationCount, $this->format, $this->serializer);
+        $handler = new AmqpQueueHandler($endpoint, (int) $this->expirationCount, $this->format, $this->serializer);
 
         if ($this->smartesbHelper) {
             $handler->setSmartesbHelper($this->smartesbHelper);
