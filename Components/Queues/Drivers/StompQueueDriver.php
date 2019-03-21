@@ -263,7 +263,13 @@ class StompQueueDriver extends Service implements QueueDriverInterface
 
         $serializedMsg = $this->getSerializer()->serialize($message, $this->format);
 
-        return $this->statefulStomp->send($destinationUri, new Message($serializedMsg, $message->getHeaders()));
+        try {
+            return $this->statefulStomp->send($destinationUri, new Message($serializedMsg, $message->getHeaders()));
+        } catch (ConnectionException $e) {
+            $this->statefulStomp->getClient()->getConnection()->disconnect();
+
+            throw $e;
+        }
     }
 
     protected function isFrameFromSubscription(Frame $frame)
