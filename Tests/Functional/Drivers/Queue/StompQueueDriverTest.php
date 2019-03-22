@@ -4,8 +4,14 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
+use PHPUnit\Framework\MockObject\MockBuilder;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\FakeTcpStream;
+use Stomp\Client;
+use Stomp\Exception\ConnectionException;
+use Stomp\Network\Connection;
+use Stomp\StatefulStomp;
 
 /**
  * @internal
@@ -36,5 +42,38 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
     protected function createDriver(): QueueDriverInterface
     {
         return $this->getContainer()->get('smartesb.drivers.queue.main');
+    }
+
+    /**
+     * Test that in case we catch an exception during send(), the connection gets dropped to avoid interfering
+     * with the following messages.
+     *
+     * @runInSeparateProcess
+     */
+    public function testConnectionGetsDroppedOnException()
+    {
+        $this->expectException(ConnectionException::class);
+        $this->overrideFwrite();
+
+        $msg = $this->createQueueMessage($this->createSimpleEntity());
+        $this->driver->send($msg);
+
+        $this->assertFalse($this->driver->isConnected(), 'Driver still connected after exception.');
+    }
+
+    /*
+     * Override native fwrite function. Test should be run in separate process (@runInSeparateProcess) to avoid
+     * overriding it for every other test.
+     */
+    protected function overrideFwrite()
+    {
+        eval('
+                namespace Stomp\Network;
+
+                function fwrite()
+                {
+                    return 0;
+                }
+            ');
     }
 }
