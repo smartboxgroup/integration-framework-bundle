@@ -67,13 +67,15 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
      */
     protected function overrideFwrite()
     {
-        eval('
+        $function = '
                 namespace Stomp\Network;
 
                 function fwrite()
                 {
                     return 0;
                 }
-            ');
+            ';
+
+        eval($function);
     }
 }
