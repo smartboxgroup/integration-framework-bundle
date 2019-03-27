@@ -223,14 +223,6 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         }
     }
 
-    /**
-     * Kill the TCP connection directly
-     */
-    public function dropConnection()
-    {
-        $this->statefulStomp->getClient()->getConnection()->disconnect();
-    }
-
     public function isSubscribed()
     {
         return $this->subscriptionId !== false;
@@ -393,5 +385,13 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     public function onConsoleTerminate(ConsoleTerminateEvent $event)
     {
         $this->disconnect();
+    }
+    
+    /**
+     * Kill the TCP connection directly
+     */
+    protected function dropConnection()
+    {
+        $this->statefulStomp->getClient()->getConnection()->disconnect();
     }
 }
