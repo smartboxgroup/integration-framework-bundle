@@ -13,6 +13,7 @@ use Stomp\Client;
 use Stomp\StatefulStomp;
 use Stomp\Transport\Frame;
 use Stomp\Transport\Message;
+use Stomp\Exception\ConnectionException;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 
@@ -263,7 +264,13 @@ class StompQueueDriver extends Service implements QueueDriverInterface
 
         $serializedMsg = $this->getSerializer()->serialize($message, $this->format);
 
-        return $this->statefulStomp->send($destinationUri, new Message($serializedMsg, $message->getHeaders()));
+        try {
+            return $this->statefulStomp->send($destinationUri, new Message($serializedMsg, $message->getHeaders()));
+        } catch (ConnectionException $e) {
+            $this->dropConnection();
+
+            throw $e;
+        }
     }
 
     protected function isFrameFromSubscription(Frame $frame)
@@ -378,5 +385,13 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     public function onConsoleTerminate(ConsoleTerminateEvent $event)
     {
         $this->disconnect();
+    }
+    
+    /**
+     * Kill the TCP connection directly
+     */
+    protected function dropConnection()
+    {
+        $this->statefulStomp->getClient()->getConnection()->disconnect();
     }
 }
