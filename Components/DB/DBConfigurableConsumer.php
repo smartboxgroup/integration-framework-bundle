@@ -111,6 +111,7 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
      */
     public function consume(EndpointInterface $endpoint)
     {
+        $this->stop = false;
         $sleepTime = (int) $endpoint->getOption(ConfigurableDbalProtocol::OPTION_SLEEP_TIME) * 1000;
         $inactivityTrigger = (int) $endpoint->getOption(ConfigurableDbalProtocol::OPTION_INACTIVITY_TRIGGER);
         $alwaysSleep = (bool) $endpoint->getOption(ConfigurableDbalProtocol::OPTION_ALWAYS_SLEEP);
