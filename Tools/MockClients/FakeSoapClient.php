@@ -115,11 +115,10 @@ class FakeSoapClient extends SoapClient
     {
         return $this->authType;
     }
-
-
+    
     public function setAuthType($authType)
     {
         $this->authType = $authType;
     }
-    
+
 }
