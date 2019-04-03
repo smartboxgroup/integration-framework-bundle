@@ -7,6 +7,13 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 class QueueManager
 {
     /**
+     * One or more AMQP connections. If one of the connection fail, the manager will try the next one.
+     *
+     * @var \AMQPConnection[]
+     */
+    private $connections = [];
+
+    /**
      * @var \AMQPConnection
      */
     private $connection;
@@ -21,9 +28,15 @@ class QueueManager
      */
     private $exchange;
 
-    public function __construct(\AMQPConnection $connection)
+    /**
+     * QueueManager constructor.
+     *
+     * @param \AMQPConnection[] $connections
+     */
+    public function __construct(array $connections = [])
     {
-        $this->connection = $connection;
+        $this->connections = $connections;
+
     }
 
     public function __destruct()
@@ -37,7 +50,26 @@ class QueueManager
     public function connect()
     {
         if (!$this->isConnected()) {
-            $this->connection->connect();
+            if (empty($this->connections)) {
+                throw new \InvalidArgumentException('You have to specify at least one connection.');
+            }
+
+            $this->connection = null;
+            $tested = [];
+
+            foreach ($this->connections as $connection) {
+                try {
+                    $connection->connect();
+                    $this->connection = $connection;
+                    break;
+                } catch (\AMQPConnectionException $e) {
+                    $tested[] = "{$connection->getHost()}: {$e->getMessage()}";
+                }
+            }
+
+            if (!$this->connection) {
+                throw new \RuntimeException(sprintf('Unable to connect to any of the following hosts:%s%s', PHP_EOL, implode(PHP_EOL, $tested)));
+            }
 
             //Create and declare channel
             $this->channel = new \AMQPChannel($this->connection);
@@ -51,17 +83,20 @@ class QueueManager
      */
     public function disconnect()
     {
-        $this->connection->disconnect();
+        if ($this->connection) {
+            $this->connection->disconnect();
+        }
+        $this->connection = null;
     }
 
     /**
-     * Returns true if a connection already exists with the queing system, false otherwise.
+     * Returns true if a connection already exists with the queueing system, false otherwise.
      *
      * @return bool
      */
     public function isConnected(): bool
     {
-        return $this->connection->isConnected();
+        return $this->connection && $this->connection->isConnected();
     }
 
     /**
@@ -88,5 +123,12 @@ class QueueManager
         $this->getQueue($queueName);
 
         return $this->exchange->publish($message, $queueName, AMQP_NOPARAM, $headers);
+    }
+
+    public function addConnection(\AMQPConnection $connection)
+    {
+        $this->connections[] = $connection;
+
+        return $this;
     }
 }

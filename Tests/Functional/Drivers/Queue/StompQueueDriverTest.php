@@ -9,6 +9,8 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
 /**
  * @internal
+ *
+ * @group stomp
  */
 class StompQueueDriverTest extends AbstractQueueDriverTest
 {

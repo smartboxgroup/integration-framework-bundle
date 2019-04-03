@@ -109,13 +109,8 @@ services:
   smartesb.handlers.async:
       class: '%smartesb.handlers.message_routing.class%'
 
-  smartesb.amqp.connection:
-    class: AMQPConnection
-    public: false
-
   smartesb.amqp.queue_manager:
     class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueManager
-    arguments: ['@smartesb.amqp.connection']
     public: false
 
   smartesb.drivers.queue.amqp:
