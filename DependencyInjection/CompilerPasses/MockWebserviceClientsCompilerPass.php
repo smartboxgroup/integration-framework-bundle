@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\CompilerPasses;
 
+use BeSimple\SoapClient\Curl;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -29,6 +30,12 @@ class MockWebserviceClientsCompilerPass implements CompilerPassInterface
             $serviceDef->addMethodCall('init', [new Reference('file_locator'), $mockLocation, []]);
             $soapClientOptions = $serviceDef->getArgument(1);
             $soapClientOptions['MockCacheDir'] = $mockLocation;
+            if( array_key_exists('login', $soapClientOptions) && array_key_exists('password',$soapClientOptions)){
+                if(!array_key_exists('auth_type',$soapClientOptions) || $soapClientOptions['auth_type'] !== Curl::AUTH_TYPE_NTLM ) {
+                    $soapClientOptions['auth_type'] = Curl::AUTH_TYPE_BASIC;
+                }
+            }
+            $serviceDef->addMethodCall('setAuthType', [$soapClientOptions['auth_type'] ?? Curl::AUTH_TYPE_NONE]);
             $serviceDef->replaceArgument(1,$soapClientOptions);
         }
 

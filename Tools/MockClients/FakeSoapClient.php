@@ -2,13 +2,17 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\MockClients;
 
-use BeSimple\SoapClient\BasicAuthSoapClient;
+use BeSimple\SoapClient\SoapClient;
+use BeSimple\SoapClient\Curl;
+use BeSimple\SoapClient\SoapRequest;
 
-class FakeSoapClient extends BasicAuthSoapClient
+class FakeSoapClient extends SoapClient
 {
     use FakeClientTrait;
 
     const CACHE_SUFFIX = 'xml';
+
+    protected $authType = Curl::AUTH_TYPE_NONE;
 
     /**
      * {@inheritdoc}
@@ -27,6 +31,21 @@ class FakeSoapClient extends BasicAuthSoapClient
         }
 
         return parent::__construct($wsdl, $options);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function filterRequestHeaders(SoapRequest $soapRequest, array $headers)
+    {
+        if (isset($this->_login) && isset($this->_password) && $this->authType !== Curl::AUTH_TYPE_NONE) {
+            if($this->authType === Curl::AUTH_TYPE_BASIC) {
+                $authToken = base64_encode(sprintf('%s:%s', $this->_login, $this->_password));
+                $headers[] = sprintf('Authorization: Basic %s', $authToken);
+            }
+        }
+
+        return parent::filterRequestHeaders($soapRequest, $headers);
     }
 
     /**
@@ -91,4 +110,15 @@ class FakeSoapClient extends BasicAuthSoapClient
 
         return $response;
     }
+
+    public function getAuthType()
+    {
+        return $this->authType;
+    }
+    
+    public function setAuthType($authType)
+    {
+        $this->authType = $authType;
+    }
+
 }
