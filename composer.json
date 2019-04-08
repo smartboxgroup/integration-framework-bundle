@@ -12,7 +12,7 @@
         "php": ">=7.0",
         "ext-pcntl": "*",
         "guzzlehttp/guzzle": "^6.0",
-        "smartbox/besimple-soap": "v1.2.0",
+        "smartbox/besimple-soap": "^1.2",
         "smartbox/core-bundle": "~1.4",
         "symfony/expression-language": "^2.8|^3.0",
         "symfony/framework-bundle": "^2.8|^3.0",
