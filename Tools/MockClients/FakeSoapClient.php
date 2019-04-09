@@ -12,8 +12,6 @@ class FakeSoapClient extends SoapClient
 
     const CACHE_SUFFIX = 'xml';
 
-    protected $authType = Curl::AUTH_TYPE_NONE;
-
     /**
      * {@inheritdoc}
      */
@@ -109,16 +107,6 @@ class FakeSoapClient extends SoapClient
         }
 
         return $response;
-    }
-
-    public function getAuthType()
-    {
-        return $this->authType;
-    }
-    
-    public function setAuthType($authType)
-    {
-        $this->authType = $authType;
     }
 
 }
