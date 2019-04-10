@@ -36,7 +36,6 @@ class QueueManager
     public function __construct(array $connections = [])
     {
         $this->connections = $connections;
-
     }
 
     public function __destruct()
@@ -73,6 +72,8 @@ class QueueManager
 
             //Create and declare channel
             $this->channel = new \AMQPChannel($this->connection);
+            $this->channel->setPrefetchCount(1);
+
             //AMQPC Exchange is the publishing mechanism
             $this->exchange = new \AMQPExchange($this->channel);
         }
@@ -100,17 +101,23 @@ class QueueManager
     }
 
     /**
-     * @param string $name
-     * @param int    $flag
+     * @param string $name      The name of the que
+     * @param int    $flag      See AMQPQueue::setFlags()
+     * @param array  $arguments See AMQPQueue::setArguments()
      *
      * @return \AMQPQueue
+     *
+     * @throws \AMQPChannelException
+     * @throws \AMQPConnectionException
+     * @throws \AMQPQueueException
      */
-    public function getQueue(string $name, int $flag = AMQP_NOPARAM): \AMQPQueue
+    public function getQueue(string $name, int $flag = AMQP_DURABLE, array $arguments = []): \AMQPQueue
     {
         $this->connect();
         $queue = new \AMQPQueue($this->channel);
         $queue->setName($name);
         $queue->setFlags($flag);
+        $queue->setArguments($arguments);
         $queue->declareQueue();
 
         return $queue;
@@ -120,7 +127,14 @@ class QueueManager
     {
         $this->connect();
 
-        $this->getQueue($queueName);
+        $arguments = [];
+        foreach ($headers as $key => $value) {
+            if (0 === strpos(strtolower($key), 'x-')) {
+                $arguments[$key] = $value;
+            }
+        }
+
+        $this->getQueue($queueName, AMQP_DURABLE, $arguments);
 
         return $this->exchange->publish($message, $queueName, AMQP_NOPARAM, $headers);
     }

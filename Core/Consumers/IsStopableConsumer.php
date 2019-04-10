@@ -33,11 +33,6 @@ trait IsStopableConsumer {
      */
     protected function shouldStop()
     {
-        pcntl_signal_dispatch();
-        pcntl_signal(SIGTERM, function () {
-            $this->stop();
-        });
-
         return $this->stop || 0 === $this->expirationCount;
     }
 }
