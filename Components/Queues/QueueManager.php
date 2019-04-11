@@ -45,12 +45,20 @@ class QueueManager
 
     /**
      * Opens a connection with a queuing system.
+     *
+     * @param bool $shuffle Shuffle connections to avoid connecting to the seame endpoint everytime
+     *
+     * @throws \AMQPException
      */
-    public function connect()
+    public function connect(bool $shuffle = true)
     {
         if (!$this->isConnected()) {
             if (empty($this->connections)) {
                 throw new \InvalidArgumentException('You have to specify at least one connection.');
+            }
+
+            if ($shuffle) {
+                shuffle($this->connections);
             }
 
             $this->connection = null;

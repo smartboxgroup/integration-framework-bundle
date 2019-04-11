@@ -44,6 +44,6 @@ EOL;
         }
 
         $manager = new QueueManager($connections);
-        $manager->connect();
+        $manager->connect(false);
     }
 }
