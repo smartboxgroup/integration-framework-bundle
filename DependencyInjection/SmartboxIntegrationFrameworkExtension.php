@@ -2,9 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
-use Interop\Amqp\AmqpConnectionFactory;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AmqpQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -44,8 +42,14 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const PRODUCER_PREFIX = 'smartesb.producers.';
     const CONSUMER_PREFIX = 'smartesb.consumers.';
     const PARAM_DEFERRED_EVENTS_URI = 'smartesb.uris.deferred_events';
+    const AMQP_SERVICES = [
+        'smartesb.amqp.queue_manager',
+        'smartesb.consumers.async_queue',
+        'smartesb.drivers.queue.amqp',
+    ];
 
     protected $config;
+    protected $useAmqp = false;
 
     public function getFlowsVersion()
     {
@@ -219,25 +223,40 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     break;
 
                 case 'amqp':
-                    if (class_exists('Enqueue\AmqpExt\AmqpConnectionFactory')) {
-                        $driverDef = new Definition(AmqpQueueDriver::class, []);
-                        $driverDef->addMethodCall('setId', [$driverId]);
-
-                        $driverDef->addMethodCall('configure', [
-                            $driverConfig['host'],
-                            $driverConfig['username'],
-                            $driverConfig['password'],
-                            $driverConfig['format'],
-                            $driverConfig['port'],
-                            $driverConfig['vhost'],
-                        ]);
-
-                        $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
-                        $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
-                        $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
-
-                        $container->setDefinition($driverId, $driverDef);
+                    if (!class_exists('AMQPConnection')) {
+                        throw new \RuntimeException('You need the amqp extension to use AMQP driver.');
                     }
+
+                    if (empty($driverConfig['connections'] ?? [])) {
+                        throw new \InvalidArgumentException('You need to define at least one connection to use the AMQP driver.');
+                    }
+
+                    $queueManager = $container->findDefinition('smartesb.amqp.queue_manager');
+                    foreach ($driverConfig['connections'] as $index => $uri) {
+                        $connection = parse_url($uri);
+                        $connectionId = "$driverId.connection.$index";
+
+                        $container->register($connectionId, 'AMQPConnection')->setArguments([[
+                            'host' => $connection['host'],
+                            'port' => $connection['port'] ?? 5672,
+                            'vhost' => trim($connection['path'] ?? '', '/'),
+                            'login' => $connection['user'],
+                            'password' => $connection['pass'],
+                        ]]);
+
+                        $queueManager->addMethodCall('addConnection', [new Reference($connectionId)]);
+                    }
+                    $this->useAmqp = true;
+
+                    $driverDef = $container->findDefinition('smartesb.drivers.queue.amqp');
+                    $driverDef->addMethodCall('setId', [$driverId]);
+                    $driverDef->addMethodCall('configure', [null, null, null, $driverConfig['format']]);
+
+                    $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
+
+                    $container->setDefinition($driverId, $driverDef);
+                    $container->findDefinition('smartesb.protocols.queue')
+                        ->addMethodCall('setDefaultConsumer', [new Reference('smartesb.consumers.async_queue')]);
 
                     break;
 
@@ -250,6 +269,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         // set default queue driver alias
         $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$this->config['default_queue_driver']);
         $container->setAlias('smartesb.default_queue_driver', $defaultQueueDriverAlias);
+
+        if (!$this->useAmqp) {
+            foreach (static::AMQP_SERVICES as $id) {
+                $container->removeDefinition($id);
+            }
+        }
     }
 
     protected function loadNoSQLDrivers(ContainerBuilder $container)

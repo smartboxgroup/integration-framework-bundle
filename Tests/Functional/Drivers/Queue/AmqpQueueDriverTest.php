@@ -13,8 +13,8 @@ class AmqpQueueDriverTest extends AbstractQueueDriverTest
 {
     protected function setUp()
     {
-        if (version_compare(PHP_VERSION, '7.1.3', '<')) {
-            $this->markTestSkipped('AMQP Driver need PHP version >= 7.1.3');
+        if (!\extension_loaded('amqp')) {
+            $this->markTestSkipped('AMQP extension is need for that test');
         }
 
         parent::setUp();

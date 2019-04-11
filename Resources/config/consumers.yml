@@ -1,5 +1,6 @@
 parameters:
   smartesb.consumers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer
+  smartesb.consumers.async_queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer
 
 services:
   smartesb.consumers.queue:
@@ -8,3 +9,11 @@ services:
           - [ setId, ['smartesb.consumers.queue']]
           - [ setSmartesbHelper, ['@smartesb.helper']]
           - [ setEventDispatcher, ['@event_dispatcher']]
+  smartesb.consumers.async_queue:
+      class: "%smartesb.consumers.async_queue.class%"
+      arguments: ['@smartesb.amqp.queue_manager']
+      calls:
+          - [ setId, ['smartesb.consumers.async_queue']]
+          - [ setSmartesbHelper, ['@smartesb.helper']]
+          - [ setEventDispatcher, ['@event_dispatcher']]
+          - [ setSerializer, ['@jms_serializer']]
