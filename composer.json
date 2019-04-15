@@ -20,8 +20,8 @@
         "symfony/validator": "^2.8|^3.0"
     },
     "require-dev": {
+        "ext-amqp": "*",
         "doctrine/doctrine-bundle": "^1.6",
-        "enqueue/amqp-ext": "^0.9.2",
         "incenteev/composer-parameter-handler": "^2.1",
         "jms/serializer-bundle": "*",
         "mongodb/mongodb": "~1.0",

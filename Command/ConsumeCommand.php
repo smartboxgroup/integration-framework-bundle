@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
 use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -91,9 +92,12 @@ app/console smartesb:consumer:start queue://events --killAfter 10
         $message .= '.</info>';
         $output->writeln($message);
 
-        pcntl_signal(SIGINT, [$this, 'handleSignal']);
-        pcntl_signal(SIGTERM, [$this, 'handleSignal']);
-        pcntl_signal(SIGUSR2, [$this, 'handleSignal']);
+        // AsyncQueueConsumer is immortal apart from Ctrl+C
+        if (!$this->endpoint->getConsumer() instanceof AsyncQueueConsumer) {
+            pcntl_signal(SIGINT, [$this, 'handleSignal']);
+            pcntl_signal(SIGTERM, [$this, 'handleSignal']);
+            pcntl_signal(SIGUSR2, [$this, 'handleSignal']);
+        }
 
         $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES));
 

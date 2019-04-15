@@ -103,7 +103,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
         $msgOut = $this->driver->receive();
 
         $this->assertNotNull($msgOut, 'Message should be available');
-//        $this->assertSame($msg, $msgOut->getBody());
         $this->driver->ack();
 
         $this->driver->unSubscribe();
@@ -117,27 +116,21 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
     public function testAfterTtlShouldDiscard(MessageInterface $msg)
     {
         $queueMessage = $this->createQueueMessage($msg);
-        $queueMessage->setTTL(2);
-        $this->driver->send($queueMessage);
+        $queueMessage->setTTL(1);
         $this->driver->subscribe($this->queueName);
-
-        // After 1 second, the message is still there
-        \sleep(1);
-        $this->assertNotNull($this->driver->receive(), 'Should receive a message');
-
-        $this->driver->nack();
+        $this->driver->send($queueMessage);
         $this->driver->unSubscribe();
 
         // After > 2 seconds, the message is not there
-        \sleep(3);
+        \sleep(2);
         $this->driver->subscribe($this->queueName);
         $msgOut = $this->driver->receive();
         if ($msgOut) {
-            $this->driver->nack();
+            $this->driver->ack();
         }
         $this->assertNull($msgOut);
 
-        $this->driver->unSubscribe();
+        $this->driver->disconnect();
     }
 
     public function testItShouldGetManyMessagesAtOnceUsingPrefetchSize()

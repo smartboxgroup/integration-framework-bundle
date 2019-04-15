@@ -15,6 +15,8 @@ use Stomp\StatefulStomp;
 
 /**
  * @internal
+ *
+ * @group stomp
  */
 class StompQueueDriverTest extends AbstractQueueDriverTest
 {
