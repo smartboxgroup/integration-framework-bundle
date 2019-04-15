@@ -96,6 +96,7 @@ app/console smartesb:consumer:start queue://events --killAfter 10
         if (!$this->endpoint->getConsumer() instanceof AsyncQueueConsumer) {
             pcntl_signal(SIGINT, [$this, 'handleSignal']);
             pcntl_signal(SIGTERM, [$this, 'handleSignal']);
+            pcntl_signal(SIGUSR2, [$this, 'handleSignal']);
         }
 
         $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES));
