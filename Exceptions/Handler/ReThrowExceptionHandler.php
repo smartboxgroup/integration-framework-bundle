@@ -6,6 +6,7 @@ final class ReThrowExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * @param \Exception $exception
+     *
      * @throws \Exception
      */
     public function __invoke(\Exception $exception)
