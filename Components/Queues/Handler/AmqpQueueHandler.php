@@ -14,6 +14,7 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
+use Smartbox\Integration\FrameworkBundle\Exceptions\DeserializationException;
 
 class AmqpQueueHandler implements LoggerAwareInterface
 {
@@ -69,8 +70,16 @@ class AmqpQueueHandler implements LoggerAwareInterface
 
         $this->log('A message was received on {time}');
 
-        /** @var \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface|QueueMessageInterface $message */
-        $message = $this->serializer->deserialize($envelope->getBody(), SerializableInterface::class, $this->format);
+        try {
+            /** @var \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface|QueueMessageInterface $message */
+            $message = $this->serializer->deserialize($envelope->getBody(), SerializableInterface::class, $this->format);
+        } catch (\Exception $originalException) {
+            throw (new DeserializationException(
+                $originalException->getMessage(),
+                $originalException->getCode(),
+                $originalException)
+            )->setBody($envelope->getBody());
+        }
 
         if ($this->isQueueMessage($message) && null !== $this->smartesbHelper) {
             $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI(), EndpointFactory::MODE_CONSUME);

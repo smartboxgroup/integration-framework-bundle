@@ -7,6 +7,7 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
+use Smartbox\Integration\FrameworkBundle\Exceptions\DeserializationException;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Stomp\Client;
@@ -225,7 +226,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
 
     public function isSubscribed()
     {
-        return $this->subscriptionId !== false;
+        return false !== $this->subscriptionId;
     }
 
     /** {@inheritdoc} */
@@ -309,9 +310,16 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             if (!empty($group)) {
                 $deserializationContext->setGroups([$group]);
             }
-
-            /** @var QueueMessageInterface $msg */
-            $msg = $this->getSerializer()->deserialize($this->currentFrame->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
+            try {
+                /** @var QueueMessageInterface $msg */
+                $msg = $this->getSerializer()->deserialize($this->currentFrame->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
+            } catch (\Exception $originalException) {
+                throw (new DeserializationException(
+                    $originalException->getMessage(),
+                    $originalException->getCode(),
+                    $originalException)
+                )->setBody($this->currentFrame->getBody());
+            }
 
             foreach ($this->currentFrame->getHeaders() as $header => $value) {
                 $msg->setHeader($header, $this->unescape($value));
@@ -386,9 +394,9 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     {
         $this->disconnect();
     }
-    
+
     /**
-     * Kill the TCP connection directly
+     * Kill the TCP connection directly.
      */
     protected function dropConnection()
     {
