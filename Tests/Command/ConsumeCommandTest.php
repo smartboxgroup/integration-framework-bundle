@@ -2,8 +2,10 @@
 
 namespace Smartbox\FrameworkBundle\Tests\Command;
 
+use JMS\Serializer\Exception\RuntimeException;
 use Smartbox\Integration\FrameworkBundle\Command\ConsumeCommand;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
+use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\ClosureExceptionHandler;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -75,4 +77,59 @@ class ConsumeCommandTest extends KernelTestCase
         $this->assertNotContains('limited to', $output);
         $this->assertContains('Consumer was gracefully stopped', $output);
     }
+
+    public function testUsesReThrowExceptionHandlerByDefault()
+    {
+        $this->expectException(RuntimeException::class);
+
+        $this->setMockConsumer(0);
+        $this->mockConsumer
+            ->method('consume')
+            ->will($this->throwException(new RuntimeException()));
+
+        $application = new Application(self::$kernel);
+        $application->add(new ConsumeCommand());
+
+        $command = $application->find('smartesb:consumer:start');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'uri' => self::URI, // argument
+        ));
+
+    }
+
+    public function testCanSetExceptionHandler()
+    {
+        $called = false;
+        $closure = function ($exception) use (&$called) {
+            if ('i am exception' === $exception->getMessage()) {
+                $called = true;
+            }
+        };
+
+        $handler = new ClosureExceptionHandler($closure);
+        $handler(new \Exception('i am exception'));
+
+        $this->setMockConsumer(0);
+        $this->mockConsumer
+            ->method('consume')
+            ->will($this->throwException(new RuntimeException('i am exception')));
+
+        $command = new ConsumeCommand();
+        $command->setExceptionHandler($handler);
+
+        $application = new Application(self::$kernel);
+        $application->add($command);
+
+        $command = $application->find('smartesb:consumer:start');
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(array(
+            'command' => $command->getName(),
+            'uri' => self::URI, // argument
+        ));
+
+        $this->assertTrue($called, 'The command did not call the closure handler with the correct message.');
+    }
+
 }
