@@ -7,7 +7,8 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\Exceptions\DeserializationException;
+use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
+use Smartbox\Integration\FrameworkBundle\Exceptions\QueueDeserializationException;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Stomp\Client;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 class StompQueueDriver extends Service implements QueueDriverInterface
 {
     use UsesSerializer;
+    use UsesExceptionHandlerTrait;
 
     const STOMP_VERSION = '1.1';
 
@@ -313,20 +315,17 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             try {
                 /** @var QueueMessageInterface $msg */
                 $msg = $this->getSerializer()->deserialize($this->currentFrame->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
-            } catch (\Exception $originalException) {
-                throw (new DeserializationException(
-                    $originalException->getMessage(),
-                    $originalException->getCode(),
-                    $originalException)
-                )->setBody($this->currentFrame->getBody());
+            } catch (\Exception $exception) {
+                $this->getExceptionHandler()($exception, $this->currentFrame->getBody());
+                $this->ack();
+                $this->markDequeudTime($start);
+                return null;
             }
-
             foreach ($this->currentFrame->getHeaders() as $header => $value) {
                 $msg->setHeader($header, $this->unescape($value));
             }
 
-            // Calculate how long it took to deserilize the message
-            $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
+            $this->markDequeudTime($start);
         }
 
         return $msg;
@@ -401,5 +400,13 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     protected function dropConnection()
     {
         $this->statefulStomp->getClient()->getConnection()->disconnect();
+    }
+
+    /**
+     * @param float $start
+     */
+    private function markDequeudTime($start)
+    {
+        $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
     }
 }

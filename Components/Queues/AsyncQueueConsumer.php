@@ -12,6 +12,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
+use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 class AsyncQueueConsumer extends Service implements ConsumerInterface, LoggerAwareInterface
@@ -20,6 +21,7 @@ class AsyncQueueConsumer extends Service implements ConsumerInterface, LoggerAwa
     use UsesSmartesbHelper;
     use UsesSerializer;
     use LoggerAwareTrait;
+    use UsesExceptionHandlerTrait;
 
     /**
      * @var QueueManager
@@ -56,6 +58,7 @@ class AsyncQueueConsumer extends Service implements ConsumerInterface, LoggerAwa
     public function consume(EndpointInterface $endpoint)
     {
         $handler = new AmqpQueueHandler($endpoint, (int) $this->expirationCount, $this->format, $this->serializer);
+        $handler->setExceptionHandler($this->getExceptionHandler());
 
         if ($this->smartesbHelper) {
             $handler->setSmartesbHelper($this->smartesbHelper);

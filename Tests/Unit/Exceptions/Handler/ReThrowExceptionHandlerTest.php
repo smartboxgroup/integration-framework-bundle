@@ -13,6 +13,6 @@ class ReThrowExceptionHandlerTest extends TestCase
         $this->expectException(RecoverableException::class);
 
         $handler = new ReThrowExceptionHandler();
-        $handler(new RecoverableException());
+        $handler(new RecoverableException(), null);
     }
 }

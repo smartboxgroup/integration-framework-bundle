@@ -21,9 +21,10 @@ final class ClosureExceptionHandler implements ExceptionHandlerInterface
 
     /**
      * @param \Exception $exception
+     * @param mixed $context
      */
-    public function __invoke(\Exception $exception)
+    public function __invoke(\Exception $exception, $context)
     {
-        ($this->closure)($exception);
+        ($this->closure)($exception, $context);
     }
 }

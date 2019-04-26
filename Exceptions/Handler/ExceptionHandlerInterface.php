@@ -6,6 +6,7 @@ interface ExceptionHandlerInterface
 {
     /**
      * @param \Exception $e
+     * @param mixed $context
      */
-    public function __invoke(\Exception $e);
+    public function __invoke(\Exception $e, $context);
 }

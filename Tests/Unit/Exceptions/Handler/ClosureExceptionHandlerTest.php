@@ -10,15 +10,16 @@ class ClosureExceptionHandlerTest extends TestCase
     public function testCallsClosure()
     {
         $called = false;
-        $closure = function ($exception) use (&$called) {
+        $closure = function ($exception, $context) use (&$called) {
             if ('i am exception' === $exception->getMessage()) {
-                $called = true;
+                $called = $context;
             }
         };
 
         $handler = new ClosureExceptionHandler($closure);
-        $handler(new \Exception('i am exception'));
+        $handler(new \Exception('i am exception'), 'i am context');
 
-        $this->assertTrue($called, 'The closure was not called with the correct message.');
+        $this->assertNotFalse($called, 'The closure was not called with the correct message.');
+        $this->assertSame($called, 'i am context', 'The closure should have been able to use the context');
     }
 }
