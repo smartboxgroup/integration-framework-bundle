@@ -318,14 +318,14 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             } catch (\Exception $exception) {
                 $this->getExceptionHandler()($exception, $this->currentFrame->getBody());
                 $this->ack();
-                $this->markDequeudTime($start);
+                $this->markDequeuedTime($start);
                 return null;
             }
             foreach ($this->currentFrame->getHeaders() as $header => $value) {
                 $msg->setHeader($header, $this->unescape($value));
             }
 
-            $this->markDequeudTime($start);
+            $this->markDequeuedTime($start);
         }
 
         return $msg;
@@ -405,7 +405,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /**
      * @param float $start
      */
-    private function markDequeudTime($start)
+    private function markDequeuedTime($start)
     {
         $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
     }
