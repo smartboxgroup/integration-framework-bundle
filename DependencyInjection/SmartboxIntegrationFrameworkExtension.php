@@ -191,6 +191,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         foreach ($this->config['queue_drivers'] as $driverName => $driverConfig) {
             $driverId = self::QUEUE_DRIVER_PREFIX.$driverName;
 
+            $exceptionHandlerId =  strtolower($driverConfig['exception_handler']);
+
             $type = strtolower($driverConfig['type']);
             switch ($type) {
                 case 'rabbitmq':
@@ -214,8 +216,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
                     $driverDef->addMethodCall('setUrlEncodeDestination', [$urlEncodeDestination]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
-                    if ($driverConfig['exception_handler']) {
-                        $driverDef->addMethodCall('setExceptionHandler', [new Reference($driverConfig['exception_handler'])]);
+                    if ($exceptionHandlerId) {
+                        $driverDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
                     }
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
                     $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
@@ -261,10 +263,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $container->findDefinition('smartesb.protocols.queue')
                         ->addMethodCall('setDefaultConsumer', [new Reference('smartesb.consumers.async_queue')]);
 
-                    if ($driverConfig['exception_handler']) {
+                    if ($exceptionHandlerId) {
                         $container->findDefinition('smartesb.consumers.async_queue')
-                            ->addMethodCall('setExceptionHandler', [new Reference($driverConfig['exception_handler'])]);
-                        $driverDef->addMethodCall('setExceptionHandler', [new Reference($driverConfig['exception_handler'])]);
+                            ->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
+                        $driverDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
                     }
                     break;
 
