@@ -78,7 +78,7 @@ class AmqpQueueHandler implements LoggerAwareInterface
         } catch (\Exception $exception) {
             $this->getExceptionHandler()($exception, $envelope->getBody());
             $queue->ack($envelope->getDeliveryTag());
-            return false;
+            return true;
         }
 
         if ($this->isQueueMessage($message) && null !== $this->smartesbHelper) {
