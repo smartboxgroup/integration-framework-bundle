@@ -161,6 +161,22 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /**
+     * @return mixed
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVhost()
+    {
+        return $this->vhost;
+    }
+
+    /**
      * @return int
      */
     public function getDequeueingTimeMs()
@@ -184,8 +200,8 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $client->setReceiptWait($this->timeout);
         $client->setSync($sync);
         $client->getConnection()->setReadTimeout($this->timeout);
-        $client->setVersions([$version]);
-        $client->setVhostname($vhost);
+        $client->setVersions([$this->stompVersion]);
+        $client->setVhostname($this->vhost);
         $this->statefulStomp = new StatefulStomp($client);
     }
 
