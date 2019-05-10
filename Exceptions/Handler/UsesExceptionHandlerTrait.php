@@ -27,7 +27,7 @@ trait UsesExceptionHandlerTrait
     public function setExceptionHandler(ExceptionHandlerInterface $exceptionHandler)
     {
         $this->exceptionHandler = $exceptionHandler;
+        
         return $this;
     }
-
 }
