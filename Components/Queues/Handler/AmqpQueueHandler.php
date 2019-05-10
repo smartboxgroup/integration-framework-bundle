@@ -76,7 +76,7 @@ class AmqpQueueHandler implements LoggerAwareInterface
             /** @var \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface|QueueMessageInterface $message */
             $message = $this->serializer->deserialize($envelope->getBody(), SerializableInterface::class, $this->format);
         } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, $envelope->getBody());
+            $this->getExceptionHandler()($exception, ['headers' => $envelope->getHeaders(), 'body' => $envelope->getBody()]);
             $queue->ack($envelope->getDeliveryTag());
             return true;
         }

@@ -332,7 +332,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
                 /** @var QueueMessageInterface $msg */
                 $msg = $this->getSerializer()->deserialize($this->currentFrame->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
             } catch (\Exception $exception) {
-                $this->getExceptionHandler()($exception, $this->currentFrame->getBody());
+                $this->getExceptionHandler()($exception, ['headers' => $this->currentFrame->getHeaders(), 'body' => $this->currentFrame->getBody()]);
                 $this->ack();
                 $this->markDequeuedTime($start);
                 return null;

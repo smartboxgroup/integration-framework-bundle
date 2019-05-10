@@ -247,7 +247,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
             /** @var QueueMessageInterface $msg */
             $msg = $this->getSerializer()->deserialize($this->currentEnvelope->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
         } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, $this->currentEnvelope->getBody());
+            $this->getExceptionHandler()($exception, ['headers' => $this->currentEnvelope->getHeaders(), 'body' => $this->currentEnvelope->getBody()]);
             $this->ack();
             return null;
         }
