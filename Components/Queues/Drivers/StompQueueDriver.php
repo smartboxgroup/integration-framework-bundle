@@ -60,6 +60,11 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     protected $subscriptionId = false;
 
     /**
+     * @var string
+     */
+    protected $description;
+
+    /**
      * @var int The time it took in ms to deserialize the message
      */
     protected $dequeueingTimeMs = 0;
@@ -182,6 +187,14 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     public function getDequeueingTimeMs()
     {
         return $this->dequeueingTimeMs;
+    }
+
+    /**
+     * @param $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
     }
 
     /** {@inheritdoc} */

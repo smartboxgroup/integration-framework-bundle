@@ -213,6 +213,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         $driverConfig['sync'],
                     ]);
 
+                    $driverDef->addMethodCall('setDescription', [$driverConfig['description']]);
                     $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
                     $driverDef->addMethodCall('setUrlEncodeDestination', [$urlEncodeDestination]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
@@ -404,7 +405,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         ]);
 
         $def->addTag('kernel.event_listener', [
-                'event' => ProcessEvent::TYPE_BEFORE,
+            'event' => ProcessEvent::TYPE_BEFORE,
             'method' => 'onEvent',
         ]);
 
@@ -472,9 +473,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         if ($this->getFlowsVersion() > $this->getLatestFlowsVersion()) {
             throw new InvalidConfigurationException(
-                sprintf('The flows version number(%s) can not be bigger than the latest version available(%s)',
+                sprintf(
+                    'The flows version number(%s) can not be bigger than the latest version available(%s)',
                     $this->getFlowsVersion(),
-                    $this->getLatestFlowsVersion()));
+                    $this->getLatestFlowsVersion()
+                )
+            );
         }
 
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
