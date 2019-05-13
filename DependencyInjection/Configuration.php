@@ -411,6 +411,11 @@ class Configuration implements ConfigurationInterface
                 ->prototype('scalar')->end()
             ->end()
 
+            ->scalarNode('exception_handler')
+            ->info('The service id of an exception handler to use when a message can not be de-serialized')
+            ->defaultValue(null)
+            ->end()
+
             ->end()
 
             ->end()

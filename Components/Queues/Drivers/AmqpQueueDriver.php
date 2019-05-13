@@ -11,11 +11,13 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
+use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
 {
     use UsesSerializer;
+    use UsesExceptionHandlerTrait;
 
     /**
      * Maximum amount of time (in seconds) to wait for a message.
@@ -241,9 +243,14 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
         $start = microtime(true);
         $deserializationContext = new DeserializationContext();
 
-        /** @var QueueMessageInterface $msg */
-        $msg = $this->getSerializer()->deserialize($this->currentEnvelope->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
-
+        try{
+            /** @var QueueMessageInterface $msg */
+            $msg = $this->getSerializer()->deserialize($this->currentEnvelope->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
+        } catch (\Exception $exception) {
+            $this->getExceptionHandler()($exception, ['headers' => $this->currentEnvelope->getHeaders(), 'body' => $this->currentEnvelope->getBody()]);
+            $this->ack();
+            return null;
+        }
         foreach ($this->currentEnvelope->getHeaders() as $header => $value) {
             $msg->setHeader($header, $value);
         }

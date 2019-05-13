@@ -7,6 +7,8 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
+use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
+use Smartbox\Integration\FrameworkBundle\Exceptions\QueueDeserializationException;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Stomp\Client;
@@ -23,6 +25,7 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 class StompQueueDriver extends Service implements QueueDriverInterface
 {
     use UsesSerializer;
+    use UsesExceptionHandlerTrait;
 
     const STOMP_VERSION = '1.1';
 
@@ -55,6 +58,11 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     protected $vhost;
 
     protected $subscriptionId = false;
+
+    /**
+     * @var string
+     */
+    protected $description;
 
     /**
      * @var int The time it took in ms to deserialize the message
@@ -158,11 +166,35 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /**
+     * @return mixed
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVhost()
+    {
+        return $this->vhost;
+    }
+
+    /**
      * @return int
      */
     public function getDequeueingTimeMs()
     {
         return $this->dequeueingTimeMs;
+    }
+
+    /**
+     * @param $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
     }
 
     /** {@inheritdoc} */
@@ -181,8 +213,8 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $client->setReceiptWait($this->timeout);
         $client->setSync($sync);
         $client->getConnection()->setReadTimeout($this->timeout);
-        $client->setVersions([$version]);
-        $client->setVhostname($vhost);
+        $client->setVersions([$this->stompVersion]);
+        $client->setVhostname($this->vhost);
         $this->statefulStomp = new StatefulStomp($client);
     }
 
@@ -225,7 +257,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
 
     public function isSubscribed()
     {
-        return $this->subscriptionId !== false;
+        return false !== $this->subscriptionId;
     }
 
     /** {@inheritdoc} */
@@ -309,16 +341,20 @@ class StompQueueDriver extends Service implements QueueDriverInterface
             if (!empty($group)) {
                 $deserializationContext->setGroups([$group]);
             }
-
-            /** @var QueueMessageInterface $msg */
-            $msg = $this->getSerializer()->deserialize($this->currentFrame->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
-
+            try {
+                /** @var QueueMessageInterface $msg */
+                $msg = $this->getSerializer()->deserialize($this->currentFrame->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
+            } catch (\Exception $exception) {
+                $this->getExceptionHandler()($exception, ['headers' => $this->currentFrame->getHeaders(), 'body' => $this->currentFrame->getBody()]);
+                $this->ack();
+                $this->markDequeuedTime($start);
+                return null;
+            }
             foreach ($this->currentFrame->getHeaders() as $header => $value) {
                 $msg->setHeader($header, $this->unescape($value));
             }
 
-            // Calculate how long it took to deserilize the message
-            $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
+            $this->markDequeuedTime($start);
         }
 
         return $msg;
@@ -386,12 +422,20 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     {
         $this->disconnect();
     }
-    
+
     /**
-     * Kill the TCP connection directly
+     * Kill the TCP connection directly.
      */
     protected function dropConnection()
     {
         $this->statefulStomp->getClient()->getConnection()->disconnect();
+    }
+
+    /**
+     * @param float $start
+     */
+    private function markDequeuedTime($start)
+    {
+        $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
     }
 }

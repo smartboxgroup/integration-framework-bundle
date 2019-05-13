@@ -6,6 +6,7 @@ use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\ExceptionHandlerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,6 +27,11 @@ class ConsumeCommand extends ContainerAwareCommand
 
     /** @var InputInterface */
     protected $input;
+
+    /**
+     * @var ExceptionHandlerInterface
+     */
+    protected $exceptionHandler;
 
     /**
      * @return \Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface

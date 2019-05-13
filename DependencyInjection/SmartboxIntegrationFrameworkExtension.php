@@ -191,6 +191,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         foreach ($this->config['queue_drivers'] as $driverName => $driverConfig) {
             $driverId = self::QUEUE_DRIVER_PREFIX.$driverName;
 
+            $exceptionHandlerId =  strtolower($driverConfig['exception_handler']);
+
             $type = strtolower($driverConfig['type']);
             switch ($type) {
                 case 'rabbitmq':
@@ -211,9 +213,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         $driverConfig['sync'],
                     ]);
 
+                    $driverDef->addMethodCall('setDescription', [$driverConfig['description']]);
                     $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
                     $driverDef->addMethodCall('setUrlEncodeDestination', [$urlEncodeDestination]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+                    if ($exceptionHandlerId) {
+                        $driverDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
+                    }
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
                     $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
                     $driverDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
@@ -258,6 +264,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $container->findDefinition('smartesb.protocols.queue')
                         ->addMethodCall('setDefaultConsumer', [new Reference('smartesb.consumers.async_queue')]);
 
+                    if ($exceptionHandlerId) {
+                        $container->findDefinition('smartesb.consumers.async_queue')
+                            ->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
+                        $driverDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
+                    }
                     break;
 
                 default:
@@ -394,7 +405,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         ]);
 
         $def->addTag('kernel.event_listener', [
-                'event' => ProcessEvent::TYPE_BEFORE,
+            'event' => ProcessEvent::TYPE_BEFORE,
             'method' => 'onEvent',
         ]);
 
@@ -462,9 +473,12 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         if ($this->getFlowsVersion() > $this->getLatestFlowsVersion()) {
             throw new InvalidConfigurationException(
-                sprintf('The flows version number(%s) can not be bigger than the latest version available(%s)',
+                sprintf(
+                    'The flows version number(%s) can not be bigger than the latest version available(%s)',
                     $this->getFlowsVersion(),
-                    $this->getLatestFlowsVersion()));
+                    $this->getLatestFlowsVersion()
+                )
+            );
         }
 
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
