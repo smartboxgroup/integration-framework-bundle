@@ -41,6 +41,8 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
     const VALIDATION_DISPLAY_MESSAGE = 'display_message';
     const VALIDATION_RECOVERABLE = 'recoverable';
     const REQUEST_EXPECTED_RESPONSE_TYPE = 'response_type';
+    const BASIC_HTTP_OPTIONS_CONNECT_TIMEOUT = 5;
+    const BASIC_HTTP_OPTIONS_TIMEOUT = 5;
 
     /**
      * @param       $options
@@ -50,22 +52,31 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
      */
     protected function getBasicHTTPOptions($options, array &$endpointOptions)
     {
-        $result = [
-            RequestOptions::CONNECT_TIMEOUT => $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT],
-            RequestOptions::TIMEOUT => $endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT],
-            RequestOptions::HEADERS => array_merge(
-                $endpointOptions[RestConfigurableProtocol::OPTION_HEADERS],
-                array_key_exists(RestConfigurableProtocol::OPTION_HEADERS, $options) ? $options[RestConfigurableProtocol::OPTION_HEADERS] : []
-            ),
-        ];
+        $result = $this->initializeBasicHTTPOptions();
+        $result[RequestOptions::CONNECT_TIMEOUT] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT];
+        $result[RequestOptions::TIMEOUT] = $endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT];
+        $result[RequestOptions::HEADERS] = array_merge(
+            $endpointOptions[RestConfigurableProtocol::OPTION_HEADERS],
+            array_key_exists(RestConfigurableProtocol::OPTION_HEADERS, $options) ? $options[RestConfigurableProtocol::OPTION_HEADERS] : []
+        );
 
         $auth = $endpointOptions[RestConfigurableProtocol::OPTION_AUTH];
-        if ($auth === RestConfigurableProtocol::AUTH_BASIC) {
+        if (RestConfigurableProtocol::AUTH_BASIC === $auth) {
             $result['auth'] = [
                 $endpointOptions[Protocol::OPTION_USERNAME],
                 $endpointOptions[Protocol::OPTION_PASSWORD],
             ];
         }
+
+        return $result;
+    }
+
+    protected function initializeBasicHTTPOptions()
+    {
+        $result = [];
+        $result[RequestOptions::CONNECT_TIMEOUT] = self::BASIC_HTTP_OPTIONS_CONNECT_TIMEOUT;
+        $result[RequestOptions::TIMEOUT] = self::BASIC_HTTP_OPTIONS_TIMEOUT;
+        $result[RequestOptions::HEADERS] = [];
 
         return $result;
     }
