@@ -6,8 +6,6 @@ addons:
     - librabbitmq-dev
 language: php
 
-dist: trusty
-
 php:
   - 7.0
   - 7.1
