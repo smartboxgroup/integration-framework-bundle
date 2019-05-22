@@ -2,21 +2,18 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService;
 
-/**
- * Class HasShowExternalSystemErrorMessage.
- */
 trait HasShowExternalSystemErrorMessage
 {
     /** @var bool */
     protected $showExternalSystemErrorMessage = false;
 
     /**
-     * @var
+     * @var string
      */
     protected $originalMessage;
 
     /**
-     * @var
+     * @var int
      */
     protected $originalCode;
 
@@ -68,7 +65,7 @@ trait HasShowExternalSystemErrorMessage
      */
     public function setOriginalCode($originalCode)
     {
-        $this->originalCode = $originalCode;
+        $this->originalCode = (int) $originalCode;
         return $this;
     }
 }
