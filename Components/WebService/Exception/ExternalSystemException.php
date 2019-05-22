@@ -30,7 +30,7 @@ class ExternalSystemException extends \Exception implements ExternalSystemExcept
         $code = self::EXTERNAL_EXCEPTION_CODE;
         if ($originalException->mustShowExternalSystemErrorMessage()) {
             $message = $originalException->getOriginalMessage();
-            $code = (int) $originalException->getOriginalCode();
+            $code = $originalException->getOriginalCode();
         }
 
         $exception = new self($message, $code);
