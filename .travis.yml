@@ -6,8 +6,6 @@ addons:
     - librabbitmq-dev
 language: php
 
-dist: trusty
-
 php:
   - 7.0
   - 7.1
@@ -77,9 +75,9 @@ before_install:
     export -f tpecl
   - |
     # Install librabbitmq
-    wget http://ftp.debian.org/debian/pool/main/libr/librabbitmq/librabbitmq-dev_0.5.2-2_amd64.deb
-    wget http://ftp.debian.org/debian/pool/main/libr/librabbitmq/librabbitmq1_0.5.2-2_amd64.deb
-    sudo dpkg -i librabbitmq1_0.5.2-2_amd64.deb librabbitmq-dev_0.5.2-2_amd64.deb
+    wget http://archive.ubuntu.com/ubuntu/pool/universe/libr/librabbitmq/librabbitmq-dev_0.7.1-1_amd64.deb
+    wget http://archive.ubuntu.com/ubuntu/pool/universe/libr/librabbitmq/librabbitmq4_0.7.1-1_amd64.deb
+    sudo dpkg -i librabbitmq4_0.7.1-1_amd64.deb librabbitmq4_0.7.1-1_amd64.deb
   - tfold ext.amqp tpecl amqp-1.9.3 amqp.so "~/.phpenv/versions/${TRAVIS_PHP_VERSION}/etc/conf.d/travis.ini"
   - phpenv config-add travis/z_php.ini
 
