@@ -2,8 +2,8 @@ addons:
   hosts:
     - rabbit.local
     - database.local
-  apt_packages:
-    - librabbitmq-dev
+#  apt_packages:
+#    - rabbitmq-server
 language: php
 
 php:
@@ -83,9 +83,9 @@ before_install:
 
 before_script:
   - echo $TRAVIS_PHP_VERSION
-  - sudo rabbitmq-plugins enable rabbitmq_stomp
-  - sudo service rabbitmq-server restart
-  - composer install --no-interaction
+#  - sudo rabbitmq-plugins enable rabbitmq_stomp
+#  - sudo service rabbitmq-server restart
+#  - composer install --no-interaction
 
 script:
   - SYMFONY_PHPUNIT_VERSION=6.5 SYMFONY_DEPRECATIONS_HELPER=74 bin/simple-phpunit --coverage-text # TODO: Fix deprecations
