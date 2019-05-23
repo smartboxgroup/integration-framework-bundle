@@ -75,10 +75,6 @@ before_install:
     }
     export -f tpecl
   - |
-    # Install librabbitmq
-    wget http://archive.ubuntu.com/ubuntu/pool/universe/libr/librabbitmq/librabbitmq-dev_0.7.1-1_amd64.deb
-    wget http://archive.ubuntu.com/ubuntu/pool/universe/libr/librabbitmq/librabbitmq4_0.7.1-1_amd64.deb
-    sudo dpkg -i librabbitmq4_0.7.1-1_amd64.deb librabbitmq4_0.7.1-1_amd64.deb
   - tfold ext.amqp tpecl amqp-1.9.3 amqp.so "~/.phpenv/versions/${TRAVIS_PHP_VERSION}/etc/conf.d/travis.ini"
   - phpenv config-add travis/z_php.ini
 
@@ -86,8 +82,7 @@ before_script:
   - echo $TRAVIS_PHP_VERSION
   - sudo systemctl enable rabbitmq-server
   - sudo rabbitmq-plugins enable rabbitmq_stomp
-#  - sudo systemctl start rabbitmq-server
-  - sudo service rabbitmq-server restart
+  - sudo systemctl restart rabbitmq-server
   - composer install --no-interaction
 
 script:
@@ -101,5 +96,5 @@ notifications:
     on_failure: always
 
 services:
-  #- rabbitmq
+  - rabbitmq
   - mongodb
