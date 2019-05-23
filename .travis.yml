@@ -2,8 +2,8 @@ addons:
   hosts:
     - rabbit.local
     - database.local
-#  apt_packages:
-#    - rabbitmq-server
+  apt_packages:
+    - rabbitmq-server
 language: php
 
 php:
@@ -98,5 +98,5 @@ notifications:
     on_failure: always
 
 services:
-  - rabbitmq
+  #- rabbitmq
   - mongodb
