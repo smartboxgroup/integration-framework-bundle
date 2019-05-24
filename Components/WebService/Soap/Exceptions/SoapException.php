@@ -93,8 +93,8 @@ class SoapException extends \Exception implements SerializableInterface, Externa
     private function setOriginalSoapExceptionContent(\Exception $previous = null)
     {
         if (is_object($previous) && $previous instanceof \SoapFault) {
-            $this->originalMessage = $previous->faultstring;
-            $this->originalCode = $previous->faultcode;
+            $this->setOriginalCode($previous->faultcode);
+            $this->setOriginalMessage($previous->faultstring);
         }
 
         return $this;
