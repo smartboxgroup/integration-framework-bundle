@@ -66,6 +66,16 @@ class ExpressionEvaluatorTest extends KernelTestCase
                 'expression' => 'substr("abcdef", 10, 3)',
                 'vars' => [],
             ],
+            'Check mb_substr returns a substring' => [
+                'expected' => 'ábé',
+                'expression' => 'mb_substr("ábédef", 0, 3)',
+                'vars' => [],
+            ],
+            'Check mb_substr returns a blank string' => [
+                'expected' => '',
+                'expression' => 'substr("abcdef", 10, 3)',
+                'vars' => [],
+            ],
             'Check md5 returns a hash' => [
                 'expected' => '187ef4436122d1cc2f40dc2b92f0eba0',
                 'expression' => 'md5("ab")',
