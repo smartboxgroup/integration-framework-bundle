@@ -17,6 +17,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createContainsFunction(),
             $this->createUniqIdFunction(),
             $this->createSubStrFunction(),
+            $this->createMbSubStrFunction(),
             $this->createDefaultTo(),
             $this->createNumberFormat(),
             $this->createMd5Function(),
@@ -151,19 +152,54 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
         return new ExpressionFunction(
             'substr',
             function ($string, $start, $length) {
-                return sprintf('( is_string(%1$1) && substr(%1$s, %2$s, %3$s) : %1$s ) === false ? "" : substr(%1$s, %2$s, %3$s) : %1$s ) )', $string, $start, $length);
+                return sprintf(
+                    '( !is_string(%1$s) ? "" : mb_substr(%1$s, %2$d, %3$d)) === false ? "" : mb_substr(%1$s, %2$d, %3$d) )', 
+                    $string,
+                    $start,
+                    $length
+                );
             },
             function ($arguments, $string, $start, $length) {
                 if (!is_string($string)) {
                     return '';
                 }
 
-                $sub_string = substr($string, $start, $length);
-                if (false === $sub_string) {
+                $subString = substr($string, $start, $length);
+                if (false === $subString) {
                     return '';
                 }
 
-                return $sub_string;
+                return $subString;
+            }
+        );
+    }
+
+    /**
+     * @return ExpressionFunction
+     */
+    protected function createMbSubStrFunction()
+    {
+        return new ExpressionFunction(
+            'mb_substr',
+            function ($string, $start, $length) {
+                return sprintf(
+                    '( !is_string(%1$s) ? "" : mb_substr(%1$s, %2$d, %3$d)) === false ? "" : mb_substr(%1$s, %2$d, %3$d) )',
+                    $string,
+                    $start,
+                    $length
+                );
+            },
+            function ($arguments, $string, $start, $length) {
+                if (!is_string($string)) {
+                    return '';
+                }
+
+                $subString = mb_substr($string, $start, $length);
+                if (false === $subString) {
+                    return '';
+                }
+
+                return $subString;
             }
         );
     }
