@@ -4,7 +4,6 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Processors\Routing;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
@@ -19,18 +18,57 @@ class RecipientList extends Processor
 
     const AGGREGATION_STRATEGY_FIRE_AND_FORGET = 'fireAndForget';
 
+    /**
+     * Delimiter used if the expression returned multiple endpoints.
+     *
+     * @var string
+     */
     private $delimiter;
+
+    /**
+     * Expression where the endpoinds are defined.
+     *
+     * @var string
+     */
     private $expression;
+
+    /**
+     * Recipient list strategy.
+     *
+     * @var string
+     */
     private $aggregationStrategy;
 
+    /**
+     * @param string $delimiter
+     */
     public function setDelimiter(string $delimiter)
     {
         $this->delimiter = $delimiter;
     }
 
+    /**
+     * @return string
+     */
+    public function getDelimiter()
+    {
+        return $this->delimiter;
+    }
+
+    /**
+     * @param string $expression
+     */
     public function setExpression(string $expression)
     {
         $this->expression = $expression;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExpression()
+    {
+        return $this->expression;
     }
 
     /**
@@ -41,7 +79,16 @@ class RecipientList extends Processor
         if (!in_array($aggregationStrategy, $this->getAvailableAggregationStrategies())) {
             throw new \InvalidArgumentException("Unsupported aggregation strategy: '$aggregationStrategy '");
         }
+
         $this->aggregationStrategy = $aggregationStrategy;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAggregationStrategy()
+    {
+        return $this->aggregationStrategy;
     }
 
     /**
@@ -57,8 +104,7 @@ class RecipientList extends Processor
     }
 
     /**
-     *
-     * @param Exchange $mainExchange
+     * @inheritdoc
      */
     protected function doProcess(Exchange $mainExchange, SerializableArray $processingContext)
     {
@@ -90,7 +136,13 @@ class RecipientList extends Processor
     }
 
     /**
+     * Method to execute the recipient list fire and forget strategy.
+     *
+     * It creates copies of the main exchange based on how many recipients the exchange has and triggers new exchange
+     * event for each of the recipients without waiting the replies of these events.
+     *
      * @param Exchange $mainExchange
+     * @param string $uri
      */
     private function executeFireAndForgetStrategy(Exchange $mainExchange, string $uri)
     {
@@ -106,8 +158,9 @@ class RecipientList extends Processor
         $exchange->getItinerary()->setName('Recipient list from "'.$mainExchange->getItinerary()->getName().'"');
 
         // Set Headers
-        if (!empty($mainExchange->getHeaders())) {
-            $exchange->setHeaders($mainExchange->getHeaders());
+        $headers = $mainExchange->getHeaders();
+        if (!empty($headers)) {
+            $exchange->setHeaders($headers);
         }
 
         $exchange->setHeader(Exchange::HEADER_PARENT_EXCHANGE, $mainExchange->getId());

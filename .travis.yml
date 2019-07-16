@@ -1,6 +1,6 @@
 addons:
   hosts:
-    - rabbit.local
+    - rabbit
     - database.local
   apt_packages:
     - librabbitmq-dev
