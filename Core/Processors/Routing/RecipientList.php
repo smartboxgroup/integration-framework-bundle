@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Core\Processors\Routing;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
@@ -76,7 +78,7 @@ class RecipientList extends Processor
      */
     public function setAggregationStrategy(string $aggregationStrategy)
     {
-        if (!in_array($aggregationStrategy, $this->getAvailableAggregationStrategies())) {
+        if (!\in_array($aggregationStrategy, $this->getAvailableAggregationStrategies())) {
             throw new \InvalidArgumentException("Unsupported aggregation strategy: '$aggregationStrategy '");
         }
 
@@ -114,7 +116,7 @@ class RecipientList extends Processor
             $recipientList = $evaluator->evaluateWithExchange($this->expression, $mainExchange);
         } catch (\Exception $e) {
             throw new \InvalidArgumentException(
-                sprintf(
+                \sprintf(
                     'Recipient list could not evaluate expression: "%s" %s',
                     $this->expression,
                     $e->getMessage()
@@ -124,7 +126,7 @@ class RecipientList extends Processor
             );
         }
 
-        $uris = explode($this->delimiter, $recipientList);
+        $uris = \explode($this->delimiter, $recipientList);
 
         foreach ($uris as $uri) {
             switch ($this->aggregationStrategy) {
@@ -172,7 +174,7 @@ class RecipientList extends Processor
         }
 
         // Set Message
-        $msgCopy = unserialize(serialize($mainExchange->getIn()));
+        $msgCopy = \unserialize(\serialize($mainExchange->getIn()));
         $exchange->setIn($msgCopy);
 
         $event = new NewExchangeEvent($exchange);
