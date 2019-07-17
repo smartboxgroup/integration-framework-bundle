@@ -144,7 +144,7 @@ class RecipientList extends Processor
      * event for each of the recipients without waiting the replies of these events.
      *
      * @param Exchange $mainExchange
-     * @param string $uri
+     * @param string   $uri
      */
     private function executeFireAndForgetStrategy(Exchange $mainExchange, string $uri)
     {
