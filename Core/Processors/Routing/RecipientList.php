@@ -52,7 +52,7 @@ class RecipientList extends Processor
     /**
      * @return string
      */
-    public function getDelimiter()
+    public function getDelimiter(): string
     {
         return $this->delimiter;
     }
@@ -68,7 +68,7 @@ class RecipientList extends Processor
     /**
      * @return string
      */
-    public function getExpression()
+    public function getExpression(): string
     {
         return $this->expression;
     }
@@ -88,7 +88,7 @@ class RecipientList extends Processor
     /**
      * @return string
      */
-    public function getAggregationStrategy()
+    public function getAggregationStrategy(): string
     {
         return $this->aggregationStrategy;
     }
@@ -98,7 +98,7 @@ class RecipientList extends Processor
      *
      * @return array
      */
-    private function getAvailableAggregationStrategies()
+    private function getAvailableAggregationStrategies(): array
     {
         return [
             self::AGGREGATION_STRATEGY_FIRE_AND_FORGET,
