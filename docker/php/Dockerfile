@@ -16,11 +16,13 @@ RUN docker-php-ext-install \
 
 RUN pecl install apcu-5.1.8 \
     amqp \
-    mongodb
+    mongodb \
+    xdebug
 
 RUN docker-php-ext-enable \
     apcu \
     amqp \
-    mongodb
+    mongodb \
+    xdebug
 
 COPY php.ini /usr/local/etc/php/php.ini
