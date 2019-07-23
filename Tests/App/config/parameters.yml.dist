@@ -1,11 +1,11 @@
 parameters:
-    hostname: rabbit.local
+    hostname: rabbit
     database_host: database.local
     database_user: root
     database_password: 1234
     database_name: test
     flows.version: 0
-    rabbitmq.hostname: "tcp://rabbit.local:61613"
+    rabbitmq.hostname: "tcp://rabbit:61613"
     rabbitmq.username: guest
     rabbitmq.password: guest
     rabbitmq.vhost: /
