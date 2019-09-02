@@ -3,8 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions;
 
 use JMS\Serializer\Annotation as JMS;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\HasExternalSystemName;
 use Smartbox\CoreBundle\Type\Traits\HasInternalType;

@@ -2,26 +2,18 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Components\WebService\Rest;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use JMS\Serializer\SerializerInterface;
-use Smartbox\CoreBundle\Tests\Fixtures\Entity\SerializableThing;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\ConfigurableWebserviceProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\RecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\RestConfigurableProducer;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\RestConfigurableProtocol;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
-use Smartbox\Integration\FrameworkBundle\Core\Exchange;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\ExpressionEvaluator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

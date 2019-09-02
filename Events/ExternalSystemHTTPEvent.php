@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Events;
 
 use JMS\Serializer\Annotation as JMS;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class ExternalSystemHTTPEvent.
