@@ -2,20 +2,17 @@ addons:
   hosts:
     - rabbit
     - database.local
-  apt_packages:
-    - librabbitmq-dev
-    - rabbitmq-server
 language: php
 
 php:
-  - 7.0
-  - 7.1
-  - 7.2
-  - 7.3
+  - '7.0'
+  - '7.1'
+  - '7.2'
+  - '7.3'
 
 matrix:
   allow_failures:
-    - php: 7.3
+    - php: '7.3'
 
 env:
   - SYMFONY_VERSION=2.8.* SYMFONY_PHPUNIT_VERSION=6.5
