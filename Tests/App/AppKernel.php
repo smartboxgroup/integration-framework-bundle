@@ -9,9 +9,7 @@ class AppKernel extends Kernel
     {
         return [
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
-            new \Symfony\Bundle\TwigBundle\TwigBundle(),
             new \Symfony\Bundle\MonologBundle\MonologBundle(),
-            new \JMS\SerializerBundle\JMSSerializerBundle(),
             new \BeSimple\SoapBundle\BeSimpleSoapBundle(),
 
             new \Smartbox\CoreBundle\SmartboxCoreBundle(),
