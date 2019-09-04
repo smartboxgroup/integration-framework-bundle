@@ -16,7 +16,7 @@
         "smartbox/core-bundle": "~1.4",
         "symfony/expression-language": "^2.8 || ^3.4",
         "symfony/framework-bundle": "^2.8 || ^3.4",
-        "symfony/options-resolver": "^2.8",
+        "symfony/options-resolver": "^2.8 || ^3.4",
         "symfony/validator": "^2.8 || ^3.4"
     },
     "require-dev": {
