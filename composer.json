@@ -27,7 +27,8 @@
         "mongodb/mongodb": "~1.0",
         "stomp-php/stomp-php": "4.*",
         "symfony/monolog-bundle": "^2.4",
-        "symfony/phpunit-bridge": "*"
+        "symfony/phpunit-bridge": "*",
+        "symfony/stopwatch": "^2.8 || ^3.4"
     },
     "config": {
         "bin-dir": "bin"
