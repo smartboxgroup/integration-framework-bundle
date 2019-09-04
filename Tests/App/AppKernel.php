@@ -10,6 +10,7 @@ class AppKernel extends Kernel
         return [
             new \Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
             new \Symfony\Bundle\MonologBundle\MonologBundle(),
+            new \JMS\SerializerBundle\JMSSerializerBundle(), // Not really needed by this bundle, it's required by core-bundle.
             new \BeSimple\SoapBundle\BeSimpleSoapBundle(),
 
             new \Smartbox\CoreBundle\SmartboxCoreBundle(),
