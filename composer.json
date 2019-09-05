@@ -24,7 +24,7 @@
     "require-dev": {
         "ext-amqp": "*",
         "doctrine/doctrine-bundle": "^1.6",
-        "jms/serializer-bundle": "*",
+        "jms/serializer-bundle": "^2.4",
         "mongodb/mongodb": "~1.0",
         "stomp-php/stomp-php": "4.*",
         "symfony/monolog-bundle": "^2.4",
