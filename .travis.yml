@@ -84,6 +84,7 @@ before_script:
   - sudo systemctl enable rabbitmq-server
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo systemctl restart rabbitmq-server
+  - composer require symfony/symfony:${SYMFONY_VERSION} --no-update
   - composer install --no-interaction
 
 script:
