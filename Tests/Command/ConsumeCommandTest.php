@@ -2,10 +2,8 @@
 
 namespace Smartbox\FrameworkBundle\Tests\Command;
 
-use JMS\Serializer\Exception\RuntimeException;
 use Smartbox\Integration\FrameworkBundle\Command\ConsumeCommand;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
-use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\ClosureExceptionHandler;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

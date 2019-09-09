@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
-use PHPUnit\Framework\MockObject\MockBuilder;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\FakeTcpStream;
-use Stomp\Client;
 use Stomp\Exception\ConnectionException;
 use Stomp\Network\Connection;
-use Stomp\StatefulStomp;
 
 /**
  * @internal

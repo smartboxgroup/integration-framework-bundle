@@ -12,41 +12,30 @@
         "php": ">=7.0",
         "ext-pcntl": "*",
         "guzzlehttp/guzzle": "^6.0",
-        "smartbox/besimple-soap": "^1.2",
-        "smartbox/core-bundle": "~1.4",
-        "symfony/expression-language": "^2.8",
-        "symfony/framework-bundle": "^2.8",
-        "symfony/options-resolver": "^2.8",
-        "symfony/validator": "^2.8"
+        "smartbox/besimple-soap": "^1.3",
+        "smartbox/core-bundle": "~1.6",
+        "symfony/expression-language": "^2.8 || ^3.4",
+        "symfony/framework-bundle": "^2.8.18 || ^3.4",
+        "symfony/options-resolver": "^2.8 || ^3.4",
+        "symfony/validator": "^2.8 || ^3.4",
+        "symfony/yaml": "^2.8 || ^3.4",
+        "symfony/event-dispatcher": "^2.8 || ^3.4"
     },
     "require-dev": {
         "ext-amqp": "*",
         "doctrine/doctrine-bundle": "^1.6",
-        "incenteev/composer-parameter-handler": "^2.1",
-        "jms/serializer-bundle": "*",
+        "jms/serializer-bundle": "^2.4",
         "mongodb/mongodb": "~1.0",
         "stomp-php/stomp-php": "4.*",
         "symfony/monolog-bundle": "^2.4",
-        "symfony/phpunit-bridge": "*"
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
-        ],
-        "post-update-cmd": [
-            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
-        ]
+        "symfony/phpunit-bridge": "*",
+        "symfony/stopwatch": "^2.8 || ^3.4"
     },
     "config": {
         "bin-dir": "bin"
     },
     "minimum-stability": "dev",
     "prefer-stable" : true,
-    "extra": {
-        "incenteev-parameters": {
-            "file": "Tests/App/config/parameters.yml"
-        }
-    },
     "suggest": {
         "enqueue/amqp-ext": "To use the AMQP driver."
     }

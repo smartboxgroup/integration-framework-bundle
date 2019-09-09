@@ -8,7 +8,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Service;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEventDispatcher;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesValidator;
 
 /**

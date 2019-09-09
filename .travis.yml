@@ -8,17 +8,18 @@ addons:
 language: php
 
 php:
-  - 7.0
-  - 7.1
-  - 7.2
-  - 7.3
+  - '7.0'
+  - '7.1'
+  - '7.2'
+  - '7.3'
 
 matrix:
   allow_failures:
-    - php: 7.3
+    - php: '7.3'
 
 env:
   - SYMFONY_VERSION=2.8.* SYMFONY_PHPUNIT_VERSION=6.5
+  - SYMFONY_VERSION=3.4.* SYMFONY_PHPUNIT_VERSION=6.5
 
 before_install:
   - |
@@ -83,10 +84,11 @@ before_script:
   - sudo systemctl enable rabbitmq-server
   - sudo rabbitmq-plugins enable rabbitmq_stomp
   - sudo systemctl restart rabbitmq-server
+  - composer require symfony/symfony:${SYMFONY_VERSION} --no-update
   - composer install --no-interaction
 
 script:
-  - SYMFONY_PHPUNIT_VERSION=6.5 SYMFONY_DEPRECATIONS_HELPER=74 bin/simple-phpunit --coverage-text # TODO: Fix deprecations
+  - SYMFONY_PHPUNIT_VERSION=6.5 SYMFONY_DEPRECATIONS_HELPER=312 bin/simple-phpunit --coverage-text # TODO: Fix deprecations
 
 notifications:
   email:

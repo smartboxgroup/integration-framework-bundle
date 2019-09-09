@@ -52,14 +52,14 @@ services:
         - { name: monolog.logger, channel: "router.endpoints" }
 
   smartesb.router.itineraries.cache_warmer:
-    class: "%router.cache_warmer.class%"
+    class: Symfony\Bundle\FrameworkBundle\CacheWarmer\RouterCacheWarmer
     arguments:
       - '@smartesb.router.itineraries'
     tags:
       - { name: "kernel.cache_warmer" }
 
   smartesb.router.endpoints.cache_warmer:
-    class: "%router.cache_warmer.class%"
+    class: Symfony\Bundle\FrameworkBundle\CacheWarmer\RouterCacheWarmer
     arguments:
       - '@smartesb.router.endpoints'
     tags:

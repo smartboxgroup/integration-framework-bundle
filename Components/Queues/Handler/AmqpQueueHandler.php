@@ -15,7 +15,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
-use Smartbox\Integration\FrameworkBundle\Exceptions\QueueDeserializationException;
 
 class AmqpQueueHandler implements LoggerAwareInterface
 {
