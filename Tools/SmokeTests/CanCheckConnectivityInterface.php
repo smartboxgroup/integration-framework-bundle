@@ -10,6 +10,14 @@ use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutputInterface;
 interface CanCheckConnectivityInterface
 {
     /**
+     * The label defines the critical level for smoke tests.
+     * By default smoke-tests skips the WIP label
+     */
+    const SMOKE_TEST_LABEL_EMPTY = '';
+    const SMOKE_TEST_LABEL_WIP = 'WIP';
+    const SMOKE_TEST_LABEL_IMPORTANT = 'important';
+    const SMOKE_TEST_LABEL_CRITICAL = 'critical';
+    /**
      * @param array $config
      *
      * @return SmokeTestOutputInterface
