@@ -18,6 +18,10 @@ class ExpressionLanguageCachePass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
+        // Last line (the reference to cache.app) triggers a "Constructing service "monolog.logger.cache" from a parent definition is not supported at build time."
+        // By bypassing this pass the container builds, but expression language throws a deprecation notice about not passing a cache interface in the constructor
+        return;
+
         foreach (static::NEEDED_SERVICES as $id) {
             if (!$container->has($id)) {
                 return;
