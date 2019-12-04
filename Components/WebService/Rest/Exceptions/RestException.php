@@ -87,7 +87,7 @@ class RestException extends \Exception implements SerializableInterface, Externa
         $this->requestHttpHeaders = $requestHeaders;
         $this->requestHttpBody = $requestBody;
         $this->responseHttpHeaders = $responseHeaders;
-        $this->setResponseHttpBody($responseBody);
+        $this->responseHttpBody = $responseBody;
         $this->responseStatusCode = $responseStatusCode;
 
         $this->setOriginalCode($code);
@@ -172,12 +172,6 @@ class RestException extends \Exception implements SerializableInterface, Externa
      */
     public function setResponseHttpBody($responseHttpBody)
     {
-        $validUTF8 = !(false === mb_detect_encoding($responseHttpBody, 'UTF-8', true));
-        if (!$validUTF8) {
-            $responseHttpBody = utf8_decode($responseHttpBody);
-            $responseHttpBody = mb_convert_encoding($responseHttpBody, 'UTF-8', 'UTF-8');
-        }
-
         $this->responseHttpBody = $responseHttpBody;
     }
 
