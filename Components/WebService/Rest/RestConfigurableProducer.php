@@ -214,6 +214,10 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                         $encoding
                     );
                 } catch (RuntimeException $e) {
+                    // Assume that the exception is one of the JSON exceptions that will kill the workers
+                    if (json_last_error() != JSON_ERROR_SYNTAX) {
+                        throw new \RuntimeException($e->getMessage());
+                    }
                     // if it cannot parse the response fallback to the textual content of the body
                     $responseBody = $responseContent;
                 }
@@ -274,6 +278,13 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             }
         } catch (UnrecoverableRestException $e) {
             throw $e;
+        } catch (\RuntimeException $e) {
+            /*
+             * Assume that the runtime exception thrown by json_last_error() has the potential to kill a worker, remove
+             * the responseBody from the payload to keep it from killing Monolog when it tries to deserialize the
+             * content and dispatching a ConsoleTerminateEvent.
+             */
+            $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(), $requestBody, $response->getHeaders(), null, $response ? $response->getStatusCode() : 0, false, $e->getCode(), $e);
         } catch (\Exception $e) {
             if ($response) {
                 $response->getBody()->rewind();
