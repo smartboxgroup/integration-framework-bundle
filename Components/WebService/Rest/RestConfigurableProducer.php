@@ -216,7 +216,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                     );
                 } catch (RuntimeException $e) {
                     // Assume that the exception is one of the JSON exceptions that will kill the workers
-                    if ($encoding === 'json' && (json_last_error() != JSON_ERROR_SYNTAX)) {
+                    if ($encoding === RestConfigurableProtocol::ENCODING_JSON && (json_last_error() != JSON_ERROR_SYNTAX)) {
                         throw new UnexpectedValueException($e->getMessage());
                     }
                     // if it cannot parse the response fallback to the textual content of the body
