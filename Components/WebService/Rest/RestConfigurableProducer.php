@@ -281,9 +281,9 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             throw $e;
         } catch (UnexpectedValueException $e) {
             /*
-             * Assume that the JsonDeserializeException thrown has the potential to kill a worker, remove
-             * the responseBody from the payload to keep it from killing Monolog when it tries to deserialize the
-             * content and dispatching a ConsoleTerminateEvent.
+             * Assume that the UnexpectedValueException thrown has the potential to kill a worker, remove
+             * the responseBody from the payload to keep the logger from terminating when it encounters an
+             * exception during serialization.
              */
             $this->throwRecoverableRestProducerException($e->getMessage(), $request->getHeaders(), $requestBody, $response->getHeaders(), null, $response ? $response->getStatusCode() : 0, false, $e->getCode(), $e);
         } catch (\Exception $e) {
