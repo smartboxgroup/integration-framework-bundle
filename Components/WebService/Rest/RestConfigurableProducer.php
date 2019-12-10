@@ -18,6 +18,7 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\R
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGuzzleHttpClient;
+use Smartbox\Integration\FrameworkBundle\Exceptions\JsonDeserializeException;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
@@ -215,8 +216,8 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                     );
                 } catch (RuntimeException $e) {
                     // Assume that the exception is one of the JSON exceptions that will kill the workers
-                    if (json_last_error() != JSON_ERROR_SYNTAX) {
-                        throw new \RuntimeException($e->getMessage());
+                    if ($encoding === 'json' && (json_last_error() != JSON_ERROR_SYNTAX)) {
+                        throw new JsonDeserializeException($e->getMessage());
                     }
                     // if it cannot parse the response fallback to the textual content of the body
                     $responseBody = $responseContent;
@@ -278,9 +279,9 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             }
         } catch (UnrecoverableRestException $e) {
             throw $e;
-        } catch (\RuntimeException $e) {
+        } catch (JsonDeserializeException $e) {
             /*
-             * Assume that the runtime exception thrown by json_last_error() has the potential to kill a worker, remove
+             * Assume that the JsonDeserializeException thrown has the potential to kill a worker, remove
              * the responseBody from the payload to keep it from killing Monolog when it tries to deserialize the
              * content and dispatching a ConsoleTerminateEvent.
              */
