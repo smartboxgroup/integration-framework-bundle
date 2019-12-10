@@ -3,7 +3,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Exceptions;
 
-
-class UnexpectedValueException extends \Exception {
-
+class UnexpectedValueException extends \Exception
+{
 }
