@@ -260,7 +260,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function subscribe($destination, $selector = null)
+    public function subscribe($desdtination, $selector = null)
     {
         $destinationUri = $destination;
         if ($this->urlEncodeDestination) {

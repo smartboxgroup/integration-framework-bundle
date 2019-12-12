@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -54,6 +55,12 @@ class QueueProducer extends Producer
         $queueMessage->setPriority($options[QueueProtocol::OPTION_PRIORITY]);
         $queueMessage->setDestinationURI($endpoint->getURI());
 
+        if ($this->getDriverRegistry()->getDriver($options['queue_driver']) instanceof PhpAmqpLibDriver) {
+            $queueDriver->setChannel();
+            $queueDriver->setQueue($queueName, AMQP_DURABLE, $options);
+//            $queueDriver->setExchange($ex);
+        }
+
         if ($type = @$options[QueueProtocol::OPTION_TYPE]) {
             $queueMessage->setMessageType($type);
         }
@@ -88,6 +95,5 @@ class QueueProducer extends Producer
      */
     protected function beforeSend(QueueMessage $queueMessage, $options)
     {
-
     }
 }

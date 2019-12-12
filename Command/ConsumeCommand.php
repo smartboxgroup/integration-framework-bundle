@@ -98,11 +98,8 @@ app/console smartesb:consumer:start queue://events --killAfter 10
         $message .= '.</info>';
         $output->writeln($message);
 
-        // AsyncQueueConsumer is immortal apart from Ctrl+C
-        if (!$this->endpoint->getConsumer() instanceof AsyncQueueConsumer) {
             pcntl_signal(SIGINT, [$this, 'handleSignal']);
             pcntl_signal(SIGTERM, [$this, 'handleSignal']);
-        }
 
         $this->endpoint->consume($input->getOption(self::OPTION_MAX_MESSAGES));
 

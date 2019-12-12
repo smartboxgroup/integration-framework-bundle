@@ -63,7 +63,7 @@ class QueueManager
 
             $this->connection = null;
             $tested = [];
-
+            
             foreach ($this->connections as $connection) {
                 try {
                     $connection->connect();
@@ -133,7 +133,7 @@ class QueueManager
 
     public function send(string $queueName, string $message, array $headers = [])
     {
-        $this->connect();
+//        $this->connect();
 
         $arguments = [];
         foreach ($headers as $key => $value) {
@@ -147,10 +147,15 @@ class QueueManager
         return $this->exchange->publish($message, $queueName, AMQP_NOPARAM, $headers);
     }
 
-    public function addConnection(\AMQPConnection $connection)
+    public function addConnection($connection)
     {
         $this->connections[] = $connection;
 
         return $this;
+    }
+    
+    public function getConnections()
+    {
+        return $this->connections;
     }
 }

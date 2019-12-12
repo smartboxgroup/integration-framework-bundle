@@ -1,6 +1,8 @@
 parameters:
   smartesb.consumers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer
   smartesb.consumers.async_queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer
+  smartesb.consumers.php_amqp_lib_async_queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\PhpAmqpLibAsyncConsumer
+  smartesb.consumers.php_amqp_lib_signal_queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\PhpAmqpSignalConsumer
 
 services:
   smartesb.consumers.queue:
@@ -14,6 +16,22 @@ services:
       arguments: ['@smartesb.amqp.queue_manager']
       calls:
           - [ setId, ['smartesb.consumers.async_queue']]
+          - [ setSmartesbHelper, ['@smartesb.helper']]
+          - [ setEventDispatcher, ['@event_dispatcher']]
+          - [ setSerializer, ['@jms_serializer']]
+  smartesb.consumers.php_amqp_lib_async_queue:
+      class: "%smartesb.consumers.php_amqp_lib_async_queue.class%"
+      arguments: ['@smartesb.amqp.php_amqp_queue_manager']
+      calls:
+          - [ setId, ['smartesb.consumers.php_amqp_lib_async_queue']]
+          - [ setSmartesbHelper, ['@smartesb.helper']]
+          - [ setEventDispatcher, ['@event_dispatcher']]
+          - [ setSerializer, ['@jms_serializer']]
+  smartesb.consumers.php_amqp_lib_signal_queue:
+      class: "%smartesb.consumers.php_amqp_lib_signal_queue.class%"
+      arguments: ['@smartesb.amqp.php_amqp_queue_manager']
+      calls:
+          - [ setId, ['smartesb.consumers.php_amqp_lib_signal_queue']]
           - [ setSmartesbHelper, ['@smartesb.helper']]
           - [ setEventDispatcher, ['@event_dispatcher']]
           - [ setSerializer, ['@jms_serializer']]
