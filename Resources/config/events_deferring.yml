@@ -3,8 +3,7 @@ parameters:
   event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher
 
 services:
-  deferred_event_dispatcher:
-    decorates: 'event_dispatcher'
+  event_dispatcher:
     class: "%event_dispatcher.class%"
     arguments:
       $container: '@service_container'
