@@ -2,15 +2,32 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
+use JMS\Serializer\DeserializationContext;
+use JMS\Serializer\SerializerBuilder;
+use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageHandlerInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
+use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 
-class PhpAmqpLibQueueManager
+class PhpAmqpLibQueueManager implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+    use UsesSmartesbHelper;
+    use UsesExceptionHandlerTrait;
 
     const PREFETCH_SIZE = 1;
     const PREFETCH_COUNT = 1;
@@ -47,32 +64,33 @@ class PhpAmqpLibQueueManager
      */
     private $queue;
 
+    /**
+     * @var AMQPMessage
+     */
     private $message;
 
-    public $expirationCount = -1;
+    public $max;
 
     public $shoudlStop;
 
-    public function callback($message) {
-        echo "\n--------\n";
-        echo $message->body;
-        echo "\n--------\n";
-        // Send a message with the string "quit" to cancel the consumer.
-        if ($message->body === 'quit' || $this->shoudlStop) {
-            $message->delivery_info['channel']->basic_cancel($message->delivery_info['consumer_tag']);
-        }
-        $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
-    }
+    public $format;
+
+    public $serializer;
+
+    public $endpoint;
 
     /**
      * QueueManager constructor.
      *
      * @param \AMQPConnection[] $connections
      */
-    public function __construct($connections = null)
+    public function __construct($connections = null, int $max = -1, string $format = 'json', SerializableInterface $serializer = null)
     {
         $this->connections = $connections;
         $this->shoudlStop = false;
+        $this->max = $max;
+        $this->format = $format;
+        $this->serializer = $serializer ?? SerializerBuilder::create()->build();
     }
 
     public function __destruct()
@@ -185,6 +203,7 @@ class PhpAmqpLibQueueManager
     public function declareChannel()
     {
         $this->channel = reset($this->connections)->channel();
+        $this->channel->basic_qos(null, self::PREFETCH_COUNT, true);
     }
 
     //AMQP Exchange is the publishing mechanism
@@ -195,7 +214,7 @@ class PhpAmqpLibQueueManager
         $this->channel->exchange_declare($this->exchange->getName(), AMQPExchangeType::DIRECT, false, true, false);
         $this->channel->queue_bind($this->queue, $this->exchange->getName(), $this->queue);
     }
-    
+
     public function getQueue(string $queueName)
     {
         if (!$this->queue) {
@@ -222,23 +241,24 @@ class PhpAmqpLibQueueManager
         $this->id = $id;
         return $this;
     }
-    
+
     public function consume(string $consumerTag)
     {
         $callback = function($message) {
-            echo "\n--------\n";
-            echo $message->body;
-            echo "\n--------\n";
+            $this->log('A message was received on {time}');
+            $this->log('Message Body:' . $message->body);
+
             // Send a message with the string "quit" to cancel the consumer.
-//            shell_exec('curl -X GET http://172.17.0.1/index.php');
-//            --$this->expirationCount;
             if ($message->body === 'quit' || $this->shoudlStop) {
                 $message->delivery_info['channel']->basic_cancel($message->delivery_info['consumer_tag']);
+                return false;
             }
+
+            $message = $this->deserializeMessage($message);
+            $this->dispatchMessage($message);
             $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
         };
 
-        $this->channel->basic_qos(null, $this->expirationCount ?? self::PREFETCH_COUNT, true);
         $this->channel->basic_consume($this->queue, $consumerTag, false, false, false, false, $callback);
         $message = $this->channel->basic_get($this->queue);
 
@@ -278,5 +298,58 @@ class PhpAmqpLibQueueManager
     public function getExpirationCount()
     {
         return $this->expirationCount;
+    }
+
+    public function dispatchMessage(AMQPMessage $message)
+    {
+        if (!$this->endpoint) {
+            throw new \Exception('Endpoint is undefined');
+        }
+
+        try {
+            $this->endpoint->getHandler()->handle($message, $this->endpoint);
+        } catch (\Exception $exception) {
+            $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
+        }
+    }
+
+    /**
+     * @param AMQPMessage
+     * @return  \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface|QueueMessageInterface $message
+     */
+    public function deserializeMessage(AMQPMessage $message)
+    {
+        try {
+            return $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->format);
+        } catch (\Exception $exception) {
+            throw new Exception($exception->getMessage());
+//            $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
+        }
+    }
+
+    private function log(string $message, array $ctx = [])
+    {
+        if (null === $this->logger) {
+            return;
+        }
+
+        $now = new \DateTime();
+        $ctx['time'] = $now->format('Y-m-d H:i:s.u');
+        $this->logger->info($message, $ctx);
+    }
+
+    /**
+     * @param \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface $message
+     *
+     * @return bool
+     */
+    private function isQueueMessage($message): bool
+    {
+        return $message instanceof QueueMessageInterface && !($this->endpoint->getHandler() instanceof QueueMessageHandlerInterface);
+    }
+
+    public function setEndpoint(Endpoint $endpoint)
+    {
+        $this->endpoint = $endpoint;
     }
 }

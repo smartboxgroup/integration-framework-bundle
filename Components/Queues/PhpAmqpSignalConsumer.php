@@ -191,18 +191,19 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
 
     public function consume(EndpointInterface $endpoint)
     {
-        $handler = new AmqpQueueHandler($endpoint, (int) $this->expirationCount, $this->format, $this->serializer);
-        $handler->setExceptionHandler($this->getExceptionHandler());
+//        $handler = new AmqpQueueHandler($endpoint, (int) $this->expirationCount, $this->format, $this->serializer);
+        $this->manager->setExceptionHandler($this->getExceptionHandler());
 
         if ($this->smartesbHelper) {
-            $handler->setSmartesbHelper($this->smartesbHelper);
+            $this->manager->setSmartesbHelper($this->smartesbHelper);
         }
         if ($this->logger) {
-            $handler->setLogger($this->logger);
+            $this->manager->setLogger($this->logger);
         }
 
         try {
             $this->manager->declareChannel();
+            $this->manager->setEndpoint($endpoint);
             $this->manager->declareQueue($this->getQueueName($endpoint));
             $this->expirationCount = $this->manager->getExpirationCount();
             $message = $this->manager->consume(self::CONSUMER_TAG);
