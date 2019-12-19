@@ -3,6 +3,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
+use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exception\AMQPRuntimeException;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -18,6 +19,10 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandler
 use Smartbox\Integration\FrameworkBundle\Service;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
+/**
+ * Class PhpAmqpLibDriver
+ * @package Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers
+ */
 class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
 {
     use UsesSerializer;
@@ -28,18 +33,16 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
      * Maximum amount of time (in seconds) to wait for a message.
      */
     const WAIT_TIMEOUT = 10;
+
+    /**
+     * Maximum amount of time (in seconds) to set as an interval while consuming messages
+     */
     const WAIT_PERIOD = 0.2;
-    const DEFAULT_PORT = 5672;
 
     /**
      * @var \AMQPQueue
      */
     private $queue;
-
-    /**
-     * @var \AMQPEnvelope
-     */
-    private $currentEnvelope;
 
     /**
      * @var int Time in ms
@@ -52,7 +55,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     private $format;
 
     /**
-     * @var QueueManager
+     * @var PhpAmqpLibQueueManager
      */
     private $manager;
 
@@ -81,7 +84,15 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
      */
     private $vhost;
 
+    /**
+     * @var array
+     */
     private $connectionId = [];
+
+    /**
+     * @var AMQPChannel
+     */
+    private $channel;
 
     /**
      * PhpAmqpLibDriver constructor.
@@ -94,77 +105,77 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
         $this->format = self::FORMAT_JSON;
     }
 
+    /**
+     * PhpAmqpLibDriver destruct
+     */
     public function __destruct()
     {
-        if ($this->currentEnvelope) {
-            trigger_error('PhpAmqpLibDriver: A message was left unacknowledged');
-        }
-
-        $this->doDestroy();
+        $this->manager->disconnect();
     }
 
+    /**
+     * @param $host
+     * @param string $username
+     * @param string $password
+     * @param string $format
+     * @param null $port
+     * @param null $vhost
+     */
     public function configure($host, $username, $password, $format = self::FORMAT_JSON, $port = null, $vhost = null)
     {
         $this->format = $format;
     }
 
-//    public function connect()
-//    {
-//        return AMQPStreamConnection::create_connection([
-//           [
-//               'host' => $this->host,
-//               'port' => $this->port,
-//               'user' => $this->username,
-//               'password' => $this->password,
-//               'vhost' => $vhost
-//           ]
-//        ],
-//        [
-//            'insist' => false,
-//            'login_method' => 'AMQPLAIN',
-//            'login_response' => null,
-//            'locale' => 'en_US',
-//            'connection_timeout' => 3.0,
-//            'read_write_timeout' => 3.0,
-//            'context' => null,
-//            'keepalive' => false,
-//            'heartbeat' => 0
-//        ]);
-//    }
+    /**
+     * @throws \AMQPException
+     */
     public function connect()
     {
         $this->manager->connect();
     }
 
-
+    /**
+     * @throws \Exception
+     */
     public function disconnect()
     {
-        if ($this->currentEnvelope) {
-            throw new \RuntimeException('Trying to disconnect with an unacknoleged message.');
-        }
-
         $this->manager->disconnect();
     }
-    
-    
-    public function createQueueMessage()
+
+    /**
+     * @return QueueMessage|QueueMessageInterface
+     */
+    public function createQueueMessage($queueName = null, $options = [])
     {
         $msg = new QueueMessage();
         $msg->setContext(new Context());
-
+        $this->setChannel();
+        $this->manager->declareQueue($queueName, AMQP_DURABLE, $options);
         return $msg;
     }
 
+    /**
+     * @return bool
+     */
     public function isConnected()
     {
         return $this->manager->isConnected();
     }
-    
+
+    /**
+     * @return bool
+     */
     public function isSubscribed()
     {
         return null !== $this->queue;
     }
-    
+
+    /**
+     * @param string $queue
+     * @throws \AMQPChannelException
+     * @throws \AMQPConnectionException
+     * @throws \AMQPQueueException
+     */
     public function subscribe($queue)
     {
         if ($this->currentEnvelope) {
@@ -174,6 +185,9 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
         $this->queue = $this->manager->getQueue((string) $queue);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function unSubscribe()
     {
         $this->disconnect();
@@ -323,27 +337,47 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
             sleep((int) $seconds);
         }
     }
-    
+
+    /**
+     *
+     */
     private function fillByContainer()
     {
         $this->container->get();
-    } 
-    
+    }
+
+    /**
+     * @return PhpAmqpLibQueueManager|QueueManager
+     */
     public function getManager()
     {
         return $this->manager;
     }
-    
-    public function setQueue(string $queueName, int $flag = AMQP_DURABLE, array $options = [])
+
+    /**
+     * @param string $queueName
+     * @param int $flag
+     * @param array $options
+     * @throws \AMQPChannelException
+     * @throws \AMQPConnectionException
+     * @throws \AMQPQueueException
+     */
+    public function setQueue($queueName)
     {
-        $this->manager->declareQueue($queueName, $flag, $options);
+        $this->manager->declareQueue($queueName);
     }
 
+    /**
+     * @param $exchange
+     */
     public function setExchange($exchange)
     {
         $this->manager->declareExchange($exchange);
     }
 
+    /**
+     *
+     */
     public function setChannel()
     {
         $this->manager->declareChannel();

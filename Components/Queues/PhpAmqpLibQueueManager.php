@@ -29,17 +29,27 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
     use UsesSmartesbHelper;
     use UsesExceptionHandlerTrait;
 
-    const PREFETCH_SIZE = 1;
+    /**
+     * Represents the maximum size of a message
+     */
+    const PREFETCH_SIZE = null;
+
+    /**
+     * Represents the amount of message to consume by iteration
+     */
     const PREFETCH_COUNT = 1;
 
     // To use the default exchange pass an empty string
     const EXCHANGE_NAME = '';
-    
+
+    /**
+     * Message Id
+     * @var int
+     */
     private $id;
-    
+
     /**
      * One or more AMQP connections. If one of the connection fail, the manager will try the next one.
-     *
      * @var array AMQPStreamConnection
      */
     private $connections = [];
@@ -69,19 +79,14 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
      */
     private $message;
 
+    /**
+     * Maximum number of messages to consume if param killAfter exists
+     * @var int
+     */
     public $max;
 
-    public $shoudlStop;
-
-    public $format;
-
-    public $serializer;
-
-    public $endpoint;
-
     /**
-     * QueueManager constructor.
-     *
+     * PhpAmqpLibQueueManager constructor.
      * @param \AMQPConnection[] $connections
      */
     public function __construct($connections = null, int $max = -1, string $format = 'json', SerializableInterface $serializer = null)
@@ -93,6 +98,11 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
         $this->serializer = $serializer ?? SerializerBuilder::create()->build();
     }
 
+    /**
+     * PhpAmqpLibQueueMessage destructor
+     * @throws \Exception
+     * @return
+     */
     public function __destruct()
     {
         try {
@@ -106,12 +116,10 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
 
     /**
      * Opens a connection with a queuing system.
-     *
      * @param bool $shuffle Shuffle connections to avoid connecting to the seame endpoint everytime
-     *
      * @throws \AMQPException
      */
-    public function connect(bool $shuffle = true)
+    public function connect(bool $shuffle = true): void
     {
         if (!$this->isConnected()) {
             if (empty($this->connections)) {
@@ -162,7 +170,6 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
 
     /**
      * Returns true if a connection already exists with the queueing system, false otherwise.
-     *
      * @return bool
      */
     public function isConnected(): bool
@@ -171,6 +178,8 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
     }
 
     /**
+     * Declares the queue to drive the message
+     *
      * @param string $name      The name of the que
      * @param int    $flag      See AMQPQueue::setFlags()
      * @param array  $arguments See AMQPQueue::setArguments()
@@ -192,33 +201,51 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
         return $this->channel->queue_declare($this->queue, false, $durable, false, false, false, new AMQPTable([$arguments]));
     }
 
+    /**
+     * Publish a message
+     * @param AMQPMessage $message
+     */
     public function publish(AMQPMessage $message)
     {
         $this->channel->basic_publish($message, self::EXCHANGE_NAME, $this->queue);
     }
 
-    public function addConnection($connection)
+    /**
+     * Add a connection to the browker
+     * @param $connection
+     * @return $this
+     */
+    public function addConnection($connection): self
     {
         $this->connections[] = $connection;
 
         return $this;
     }
 
-    public function getConnections()
+    /**
+     * Returns all the connections available
+     * @return \AMQPConnection[]|array|null
+     */
+    public function getConnections():? array
     {
         return $this->connections;
     }
 
-    //Declare channel
-    public function declareChannel()
+    /**
+     * Catch a channel inside the connection
+     * @return AMQPChannel
+     */
+    public function declareChannel(): AMQPChannel
     {
         $this->channel = reset($this->connections)->channel();
-//        $this->channel->basic_qos(null, self::PREFETCH_COUNT, true);
+        $this->channel->basic_qos(null, self::PREFETCH_COUNT, null);
         return $this->channel;
     }
 
-    //AMQP Exchange is the publishing mechanism
-    public function declareExchange($exchange)
+    /**
+     * AMQP Exchange is the publishing mechanism
+     */
+    public function declareExchange($exchange): void
     {
         $this->exchange = $exchange;
         $this->exchange->setName(self::EXCHANGE_NAME);
@@ -226,7 +253,17 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
         $this->channel->queue_bind($this->queue, $this->exchange->getName(), $this->queue);
     }
 
-    public function getQueue(string $queueName)
+    /**
+     * Return the Queue name if there is already a queue. Otherwise it declares a new queue
+     *
+     * @param string $queueName
+     * @return \AMQPQueue
+     * @throws \AMQPChannelException
+     * @throws \AMQPConnectionException
+     * @throws \AMQPException
+     * @throws \AMQPQueueException
+     */
+    public function getQueue(string $queueName): \AMQPQueue
     {
         if (!$this->queue) {
             $this->connect();
@@ -238,7 +275,7 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
     /**
      * @return mixed
      */
-    public function getId()
+    public function getId():? int
     {
         return $this->id;
     }
@@ -247,18 +284,23 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
      * @param mixed $id
      * @return PhpAmqpLibQueueManager
      */
-    public function setId($id)
+    public function setId($id): self
     {
         $this->id = $id;
         return $this;
     }
 
-    public function shutdown()
+    /**
+     * Shutdown the connection
+     * @throws \Exception
+     */
+    public function shutdown(): bool
     {
         try {
             if ($this->channel->getConnection()) {
                 $this->channel->getConnection()->close();
                 $this->channel->close();
+                return true;
             }
         } catch (\Exception $exception) {
             throw new \Exception($exception->getMessage());

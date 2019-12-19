@@ -47,19 +47,13 @@ class QueueProducer extends Producer
             throw new \RuntimeException("Found queue driver with name '$queueDriverName' that doesn't implement QueueDriverInterface");
         }
 
-        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage = $queueDriver->createQueueMessage($queueName, $options);
         $queueMessage->setBody($inMessage);
         $queueMessage->setTTL($options[QueueProtocol::OPTION_TTL]);
         $queueMessage->setQueue($queueName);
         $queueMessage->setPersistent($options[QueueProtocol::OPTION_PERSISTENT]);
         $queueMessage->setPriority($options[QueueProtocol::OPTION_PRIORITY]);
         $queueMessage->setDestinationURI($endpoint->getURI());
-
-        if ($this->getDriverRegistry()->getDriver($options['queue_driver']) instanceof PhpAmqpLibDriver) {
-            $queueDriver->setChannel();
-            $queueDriver->setQueue($queueName, AMQP_DURABLE, $options);
-//            $queueDriver->setExchange($ex);
-        }
 
         if ($type = @$options[QueueProtocol::OPTION_TYPE]) {
             $queueMessage->setMessageType($type);
