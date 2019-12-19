@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
+use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Exception\AMQPRuntimeException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Handler\AmqpQueueHandler;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Handler\PhpAmqpHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
@@ -51,6 +53,11 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     private $shouldStop;
 
     /**
+     * @var PhpAmqpHandler
+     */
+    private $handler;
+
+    /**
      * PhpAmqpSignalConsumer constructor.
      */
     public function __construct($manager, string $format = 'json')
@@ -88,6 +95,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
                 break;
             case SIGINT:  // 2 : ctrl + c (manual stop)
                 $this->stop();
+                break;
             case SIGHUP: // 1 : kill -s HUP
                 $this->restart();
                 break;
@@ -112,24 +120,6 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
         } else {
             echo 'Starting consumer.' . PHP_EOL;
         }
-
-        $handler = new AmqpQueueHandler($endpoint, (int) $this->expirationCount, $this->format, $this->serializer);
-        $handler->setExceptionHandler($this->getExceptionHandler());
-
-        if ($this->smartesbHelper) {
-            $handler->setSmartesbHelper($this->smartesbHelper);
-        }
-        if ($this->logger) {
-            $handler->setLogger($this->logger);
-        }
-
-        try {
-            $message = $this->manager->consume($this->getQueueName($endpoint));
-        } finally {
-            $this->manager->shutdown();
-        }
-
-        return true;
     }
 
     /**
@@ -165,9 +155,14 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
      */
     public function stop()
     {
-        echo 'Stopping consumer by cancel command.' . PHP_EOL;
-        $this->manager->stopConsumer(self::CONSUMER_TAG);
-        return;
+        try {
+            echo 'Stopping consumer by cancel command.' . PHP_EOL;
+            $this->manager->isConnected();
+            $this->handler->stop(self::CONSUMER_TAG);
+            return;
+        } catch (\Exception $exception) {
+            return;
+        }
     }
 
     /**
@@ -191,23 +186,24 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
 
     public function consume(EndpointInterface $endpoint)
     {
-//        $handler = new AmqpQueueHandler($endpoint, (int) $this->expirationCount, $this->format, $this->serializer);
-        $this->manager->setExceptionHandler($this->getExceptionHandler());
-
-        if ($this->smartesbHelper) {
-            $this->manager->setSmartesbHelper($this->smartesbHelper);
-        }
-        if ($this->logger) {
-            $this->manager->setLogger($this->logger);
-        }
-
         try {
-            $this->manager->declareChannel();
-            $this->manager->setEndpoint($endpoint);
-            $this->manager->declareQueue($this->getQueueName($endpoint));
-            $this->expirationCount = $this->manager->getExpirationCount();
-            $message = $this->manager->consume(self::CONSUMER_TAG);
-            $this->manager->isConsuming();
+            $this->handler = new PhpAmqpHandler($endpoint, (int) $this->expirationCount, $this->format, $this->serializer);
+            $this->handler->setExceptionHandler($this->getExceptionHandler());
+
+            if ($this->smartesbHelper) {
+                $this->handler->setSmartesbHelper($this->smartesbHelper);
+            }
+            if ($this->logger) {
+                $this->handler->setLogger($this->logger);
+            }
+
+            $channel = $this->manager->declareChannel();
+            if ($channel instanceof AMQPChannel) {
+                $this->handler->setChannel($channel);
+            }
+            $queueName = $this->getQueueName($endpoint);
+            $this->manager->declareQueue($queueName);
+            $this->handler->consume(self::CONSUMER_TAG, $channel, $queueName);
         } catch (\Exception $exception) {
             echo $exception->getMessage();
         } finally {

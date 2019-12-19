@@ -123,8 +123,11 @@ class Endpoint implements EndpointInterface
         if ($maxAmount > 0) {
             $this->getConsumer()->setExpirationCount($maxAmount);
         }
-
-        $this->getConsumer()->consume($this);
+        try {
+            $this->getConsumer()->consume($this);
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage(), $exception->getCode());
+        }
     }
 
     /**

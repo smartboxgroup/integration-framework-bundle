@@ -95,7 +95,13 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
 
     public function __destruct()
     {
-        $this->disconnect();
+        try {
+            if ($this->isConnected()) {
+                return $this->disconnect();
+            }
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
+        }
     }
 
     /**
@@ -144,10 +150,14 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
      */
     public function disconnect()
     {
-        if ($connection = $this->channel->getConnection()) {
-            $connection->close();
+        try {
+            if ($this->isConnected()) {
+                $this->connections[0]->close();
+            }
+            $this->connection = null;
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
         }
-        $this->connection = null;
     }
 
     /**
@@ -179,7 +189,7 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
 
         $this->queue = $name;
         $durable = $flag === AMQP_DURABLE ? true : false;
-        list($queueName, $this->expirationCount, $consumerCount) = $this->channel->queue_declare($this->queue, false, $durable, false, false, false, new AMQPTable([$arguments]));
+        return $this->channel->queue_declare($this->queue, false, $durable, false, false, false, new AMQPTable([$arguments]));
     }
 
     public function publish(AMQPMessage $message)
@@ -203,7 +213,8 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
     public function declareChannel()
     {
         $this->channel = reset($this->connections)->channel();
-        $this->channel->basic_qos(null, self::PREFETCH_COUNT, true);
+//        $this->channel->basic_qos(null, self::PREFETCH_COUNT, true);
+        return $this->channel;
     }
 
     //AMQP Exchange is the publishing mechanism
@@ -242,114 +253,15 @@ class PhpAmqpLibQueueManager implements LoggerAwareInterface
         return $this;
     }
 
-    public function consume(string $consumerTag)
-    {
-        $callback = function($message) {
-            $this->log('A message was received on {time}');
-            $this->log('Message Body:' . $message->body);
-
-            // Send a message with the string "quit" to cancel the consumer.
-            if ($message->body === 'quit' || $this->shoudlStop) {
-                $message->delivery_info['channel']->basic_cancel($message->delivery_info['consumer_tag']);
-                return false;
-            }
-
-            $message = $this->deserializeMessage($message);
-            $this->dispatchMessage($message);
-            $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
-        };
-
-        $this->channel->basic_consume($this->queue, $consumerTag, false, false, false, false, $callback);
-        $message = $this->channel->basic_get($this->queue);
-
-        return $message;
-    }
-
     public function shutdown()
     {
-        $this->channel->getConnection()->close();
-        $this->channel->close();
-    }
-
-    public function isConsuming()
-    {
         try {
-            echo 'Enter wait.' . PHP_EOL;
-            while ($this->channel->is_consuming()) {
-                $this->channel->wait(null, true);
+            if ($this->channel->getConnection()) {
+                $this->channel->getConnection()->close();
+                $this->channel->close();
             }
         } catch (\Exception $exception) {
-            echo $exception->getMessage();
-            return;
-        } finally {
-            return;
+            throw new \Exception($exception->getMessage());
         }
-    }
-
-    /**
-     * @param string $consumerTag
-     * @return mixed
-     */
-    public function stopConsumer(string $consumerTag)
-    {
-        return $this->channel->basic_cancel($consumerTag, false, false);
-    }
-
-    public function getExpirationCount()
-    {
-        return $this->expirationCount;
-    }
-
-    public function dispatchMessage(AMQPMessage $message)
-    {
-        if (!$this->endpoint) {
-            throw new \Exception('Endpoint is undefined');
-        }
-
-        try {
-            $this->endpoint->getHandler()->handle($message, $this->endpoint);
-        } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
-        }
-    }
-
-    /**
-     * @param AMQPMessage
-     * @return  \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface|QueueMessageInterface $message
-     */
-    public function deserializeMessage(AMQPMessage $message)
-    {
-        try {
-            return $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->format);
-        } catch (\Exception $exception) {
-            throw new Exception($exception->getMessage());
-//            $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
-        }
-    }
-
-    private function log(string $message, array $ctx = [])
-    {
-        if (null === $this->logger) {
-            return;
-        }
-
-        $now = new \DateTime();
-        $ctx['time'] = $now->format('Y-m-d H:i:s.u');
-        $this->logger->info($message, $ctx);
-    }
-
-    /**
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface $message
-     *
-     * @return bool
-     */
-    private function isQueueMessage($message): bool
-    {
-        return $message instanceof QueueMessageInterface && !($this->endpoint->getHandler() instanceof QueueMessageHandlerInterface);
-    }
-
-    public function setEndpoint(Endpoint $endpoint)
-    {
-        $this->endpoint = $endpoint;
     }
 }
