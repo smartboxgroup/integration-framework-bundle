@@ -157,8 +157,9 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     {
         try {
             echo 'Stopping consumer by cancel command.' . PHP_EOL;
-            $this->manager->isConnected();
-            $this->handler->stop(self::CONSUMER_TAG);
+            if ($this->manager->isConnected()) {
+                $this->handler->stopConsume(self::CONSUMER_TAG);
+            }
             return;
         } catch (\Exception $exception) {
             return;

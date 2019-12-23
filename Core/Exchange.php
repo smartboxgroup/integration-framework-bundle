@@ -56,11 +56,6 @@ class Exchange implements SerializableInterface
     protected $out;
 
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
      * Exchange constructor.
      *
      * @param MessageInterface|null $message
@@ -150,23 +145,5 @@ class Exchange implements SerializableInterface
         if ($this->itinerary) {
             $this->itinerary = clone $this->itinerary;
         }
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     * @return Exchange
-     */
-    public function setName(string $name): Exchange
-    {
-        $this->name = $name;
-        return $this;
     }
 }

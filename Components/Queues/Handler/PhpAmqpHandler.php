@@ -15,6 +15,7 @@ use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageHandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
@@ -29,17 +30,12 @@ class PhpAmqpHandler implements LoggerAwareInterface
     use LoggerAwareTrait;
     use UsesSmartesbHelper;
     use UsesExceptionHandlerTrait;
+    use IsStopableConsumer;
 
     /**
      * @var EndpointInterface
      */
     private $endpoint;
-
-    /**
-     * Maximum number of messages to consume if the parameter killAfter was passed
-     * @var int
-     */
-    private $max;
 
     /**
      * Format used by serializer funtion
@@ -53,12 +49,6 @@ class PhpAmqpHandler implements LoggerAwareInterface
     private $serializer;
 
     /**
-     * Flag to represent if the work should to stop
-     * @var bool
-     */
-    private $stopped = false;
-
-    /**
      * @var AMQPChannel
      */
     private $channel;
@@ -67,14 +57,14 @@ class PhpAmqpHandler implements LoggerAwareInterface
      * AmqpQueueHandler constructor.
      *
      * @param EndpointInterface        $endpoint   The endpoint used to consume
-     * @param int                      $max        Maximum amount of message to consume before stopping
+     * @param int                      $expirationCount  Maximum amount of message to consume before stopping
      * @param string                   $format     json|xml|php
      * @param SerializerInterface|null $serializer Serializer to use for deserialization
      */
-    public function __construct(EndpointInterface $endpoint, int $max = -1, string $format = 'json', SerializerInterface $serializer = null)
+    public function __construct(EndpointInterface $endpoint, int $expirationCount = -1, string $format = 'json', SerializerInterface $serializer = null)
     {
         $this->endpoint = $endpoint;
-        $this->max = $max;
+        $this->setExpirationCount($expirationCount);
         $this->format = $format;
         $this->serializer = $serializer ?? SerializerBuilder::create()->build();
     }
@@ -90,9 +80,8 @@ class PhpAmqpHandler implements LoggerAwareInterface
     {
         $callback = function($message) use ($channel) {
             $this->isConnected($channel);
-            $this->shouldStop();
             // Send a message with the string "quit" to cancel the consumer.
-            if ($message->body === 'quit' || $this->stopped) {
+            if ($message->body === 'quit' || $this->shouldStop()) {
                 $channel->basic_cancel($message->delivery_info['consumer_tag']);
                 return false;
             }
@@ -103,7 +92,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
             $queueMessage = $this->deserializeMessage($message);
             $this->dispatchMessage($queueMessage);
             $channel->basic_ack($message->delivery_info['delivery_tag']);
-            --$this->max;
+            --$this->expirationCount;
         };
 
         try {
@@ -125,7 +114,6 @@ class PhpAmqpHandler implements LoggerAwareInterface
     public function isConsuming(AMQPChannel $channel): void
     {
         try {
-            $this->log('Enter wait.' . PHP_EOL);
             while ($channel->is_consuming()) {
                 $channel->wait(null, true);
             }
@@ -140,26 +128,16 @@ class PhpAmqpHandler implements LoggerAwareInterface
      * Dispatch the command to stop the work on next iteration
      * @param string $consumerTag
      */
-    public function stop(string $consumerTag): void
+    public function stopConsume(string $consumerTag): void
     {
         try {
-            $this->stopped = true;
+            $this->stop();
             if ($this->channel && $this->channel->getConnection()) {
-                $this->channel->basic_cancel($consumerTag);
+                $this->channel->basic_cancel($consumerTag, true, true);
             }
         } catch (\Exception $exception) {
             $this->log($exception->getMessage());
             exit(1);
-        }
-    }
-
-    /**
-     * Verify if the work shoul to stop to consume the messages
-     */
-    private function shouldStop(): void
-    {
-        if (0 === $this->max) {
-            $this->stopped = true;
         }
     }
 
