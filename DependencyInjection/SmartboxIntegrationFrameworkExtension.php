@@ -301,7 +301,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                     $driverDef = $container->findDefinition('smartesb.drivers.queue.phpamqplib');
                     $driverDef->addMethodCall('setId', [$driverId]);
-//                    $driverDef->addMethodCall('configure', [$driverConfig['host'], null, null, $driverConfig['format']]);
 
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 

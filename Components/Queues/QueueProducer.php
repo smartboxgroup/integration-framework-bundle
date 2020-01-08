@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -47,7 +46,7 @@ class QueueProducer extends Producer
             throw new \RuntimeException("Found queue driver with name '$queueDriverName' that doesn't implement QueueDriverInterface");
         }
 
-        $queueMessage = $queueDriver->createQueueMessage($queueName, $options);
+        $queueMessage = $queueDriver->createQueueMessage();
         $queueMessage->setBody($inMessage);
         $queueMessage->setTTL($options[QueueProtocol::OPTION_TTL]);
         $queueMessage->setQueue($queueName);

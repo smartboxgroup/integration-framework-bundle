@@ -133,7 +133,7 @@ class QueueManager
 
     public function send(string $queueName, string $message, array $headers = [])
     {
-//        $this->connect();
+        $this->connect();
 
         $arguments = [];
         foreach ($headers as $key => $value) {
@@ -152,10 +152,5 @@ class QueueManager
         $this->connections[] = $connection;
 
         return $this;
-    }
-    
-    public function getConnections()
-    {
-        return $this->connections;
     }
 }

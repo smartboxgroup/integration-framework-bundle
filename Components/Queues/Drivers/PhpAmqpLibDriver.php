@@ -4,20 +4,17 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Exception\AMQPRuntimeException;
+use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\PhpAmqpLibQueueManager;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueManager;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 use Smartbox\Integration\FrameworkBundle\Service;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Class PhpAmqpLibDriver
@@ -27,8 +24,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
 {
     use UsesSerializer;
     use UsesExceptionHandlerTrait;
-    use ContainerAwareTrait;
-    
+
     /**
      * Maximum amount of time (in seconds) to wait for a message.
      */
@@ -38,6 +34,17 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
      * Maximum amount of time (in seconds) to set as an interval while consuming messages
      */
     const WAIT_PERIOD = 0.2;
+
+    /**
+     * Represents the amount of message to consume by iteration
+     */
+    const PREFETCH_COUNT = 1;
+
+    /*
+     * To use the default exchange pass an empty string
+     */
+    const EXCHANGE_NAME = '';
+
 
     /**
      * @var \AMQPQueue
@@ -60,36 +67,6 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     private $manager;
 
     /**
-     * @var string Host form Message Broker
-     */
-    private $host;
-
-    /**
-     * @var string Username to connect to Message broker
-     */
-    private $username;
-
-    /**
-     * @var string $password
-     */
-    private $password;
-
-    /**
-     * @var string $port
-     */
-    private $port;
-
-    /**
-     * @var string $vhost
-     */
-    private $vhost;
-
-    /**
-     * @var array
-     */
-    private $connectionId = [];
-
-    /**
      * @var AMQPChannel
      */
     private $channel;
@@ -98,19 +75,23 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
      * PhpAmqpLibDriver constructor.
      * @param QueueManager $manager
      */
-    public function __construct(PhpAmqpLibQueueManager $manager)
+    public function __construct(PhpAmqpLibQueueManager $manager, string $format = null)
     {
         parent::__construct();
         $this->manager = $manager;
-        $this->format = self::FORMAT_JSON;
+        $this->format = $format ?? self::FORMAT_JSON;
     }
 
     /**
      * PhpAmqpLibDriver destruct
      */
-    public function __destruct()
+    final function __destruct()
     {
-        $this->manager->disconnect();
+        try {
+            $this->manager->disconnect();
+        } catch (\Exception $connectionException) {
+            $this->getExceptionHandler()($connectionException);
+        }
     }
 
     /**
@@ -118,10 +99,8 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
      * @param string $username
      * @param string $password
      * @param string $format
-     * @param null $port
-     * @param null $vhost
      */
-    public function configure($host, $username, $password, $format = self::FORMAT_JSON, $port = null, $vhost = null)
+    public function configure($host, $username, $password, $format = self::FORMAT_JSON)
     {
         $this->format = $format;
     }
@@ -135,7 +114,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws \AMQPException
      */
     public function disconnect()
     {
@@ -149,8 +128,6 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     {
         $msg = new QueueMessage();
         $msg->setContext(new Context());
-        $this->setChannel();
-        $this->manager->declareQueue($queueName, AMQP_DURABLE, $options);
         return $msg;
     }
 
@@ -171,83 +148,92 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
+     * @todo verify the need of this function
      * @param string $queue
-     * @throws \AMQPChannelException
-     * @throws \AMQPConnectionException
-     * @throws \AMQPQueueException
      */
     public function subscribe($queue)
     {
-        if ($this->currentEnvelope) {
+        /*if ($this->currentEnvelope) {
             throw new \RuntimeException('Don\'t be greedy and process the message you already have!');
         }
-
-        $this->queue = $this->manager->getQueue((string) $queue);
+        $this->queue = $this->manager->getQueue((string) $queue);*/
     }
 
     /**
+     * @todo verify the need of this function
      * @throws \Exception
      */
     public function unSubscribe()
     {
-        $this->disconnect();
-        $this->queue = $this->currentEnvelope = null;
+        /*$this->disconnect();
+        $this->queue = $this->currentEnvelope = null;*/
     }
 
     /**
+     * @todo verify the need of this function
      * {@inheritdoc}
      */
     public function ack()
     {
-        if (!$this->currentEnvelope) {
+        /*if (!$this->currentEnvelope) {
             throw new \RuntimeException('You must first receive a message, before acking it');
         }
 
         $this->queue->ack($this->currentEnvelope->getDeliveryTag());
-        $this->currentEnvelope = null;
+        $this->currentEnvelope = null;*/
     }
 
     /**
+     * @todo verify the need of this function
      * {@inheritdoc}
      */
     public function nack()
     {
-        if (!$this->currentEnvelope) {
+        /*if (!$this->currentEnvelope) {
             throw new \RuntimeException('You must first receive a message, before nacking it');
         }
 
         $this->queue->nack($this->currentEnvelope->getDeliveryTag(), AMQP_REQUEUE);
-        $this->currentEnvelope = null;
+        $this->currentEnvelope = null;*/
     }
 
     /**
+     * @todo verify the need of this function
      * {@inheritdoc}
      */
     public function doDestroy()
     {
-        $this->disconnect();
+        try {
+            $this->manager->disconnect();
+        } catch (\Exception $e) {
+            $this->getExceptionHandler()($e);
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function send(QueueMessageInterface $message, $destination = null)
+    public function send(QueueMessageInterface $queueMessage, $destination = null, $options = [])
     {
-        $messageBody = $this->getSerializer()->serialize($message, $this->format);
-        $messageHeaders = new AMQPTable($message->getHeaders());
+        if (!$queueMessage->getQueue()) {
+            throw new \Exception('Please declare a queue before send some message');
+        }
+
+        $messageBody = $this->getSerializer()->serialize($queueMessage, $this->format);
+        $messageHeaders = new AMQPTable($queueMessage->getHeaders());
         $message = new AMQPMessage($messageBody);
         $message->set('application_headers', $messageHeaders);
-        $this->manager->publish($message);
-
+        $this->publish($message, $queueMessage->getQueue());
         return true;
     }
 
     /**
+     * @todo verify the need of this function
      * {@inheritdoc}
      */
     public function receive()
     {
-        if ($this->currentEnvelope) {
+        /*if ($this->currentEnvelope) {
             throw new \LogicException('AmqpQueueDriver: You have to subscribe before receiving.');
         }
         $waited = 0;
@@ -257,10 +243,11 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
             $waited += static::WAIT_PERIOD;
         }
 
-        return $msg;
+        return $msg;*/
     }
 
     /**
+     * @todo verify the need of this function
      * Returns One Serializable object from the queue.
      *
      * It requires to subscribe previously to a specific queue
@@ -271,7 +258,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function receiveNoWait()
     {
-        if ($this->currentEnvelope) {
+        /*if ($this->currentEnvelope) {
             throw new \RuntimeException(
                 'AmqpQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages.'
             );
@@ -292,8 +279,8 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
 
         try{
             /** @var QueueMessageInterface $msg */
-            $msg = $this->getSerializer()->deserialize($this->currentEnvelope->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
-        } catch (\Exception $exception) {
+//            $msg = $this->getSerializer()->deserialize($this->currentEnvelope->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
+        /*} catch (\Exception $exception) {
             $this->getExceptionHandler()($exception, ['headers' => $this->currentEnvelope->getHeaders(), 'body' => $this->currentEnvelope->getBody()]);
             $this->ack();
             return null;
@@ -305,15 +292,16 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
         // Calculate how long it took to deserilize the message
         $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
 
-        return $msg;
+        return $msg;*/
     }
 
     /**
+     * @todo verify the need of this function
      * @return int The time it took in ms to de-queue and deserialize the message
      */
     public function getDequeueingTimeMs()
     {
-        return $this->dequeueingTimeMs;
+//        return $this->dequeueingTimeMs;
     }
 
     /**
@@ -339,14 +327,6 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
-     *
-     */
-    private function fillByContainer()
-    {
-        $this->container->get();
-    }
-
-    /**
      * @return PhpAmqpLibQueueManager|QueueManager
      */
     public function getManager()
@@ -356,15 +336,13 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
 
     /**
      * @param string $queueName
-     * @param int $flag
-     * @param array $options
      * @throws \AMQPChannelException
      * @throws \AMQPConnectionException
      * @throws \AMQPQueueException
      */
     public function setQueue($queueName)
     {
-        $this->manager->declareQueue($queueName);
+        $this->declareQueue($queueName);
     }
 
     /**
@@ -372,14 +350,80 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function setExchange($exchange)
     {
-        $this->manager->declareExchange($exchange);
+        $this->declareExchange($exchange);
     }
 
     /**
-     *
+     * Declares a channel to connect with the broker
      */
     public function setChannel()
     {
-        $this->manager->declareChannel();
+        $this->declareChannel();
+    }
+
+    /**
+     * Declares the queue to drive the message
+     *
+     * @param string $name      The name of the que
+     * @param int    $flag      See AMQPQueue::setFlags()
+     * @param array  $arguments See AMQPQueue::setArguments()
+     *
+     * @return \AMQPQueue
+     *
+     * @throws \AMQPChannelException
+     * @throws \AMQPConnectionException
+     * @throws \AMQPQueueException
+     */
+    public function declareQueue(string $name, int $flag = AMQP_DURABLE, array $arguments = [])
+    {
+        if (!$this->channel) {
+            throw new \AMQPChannelException('There is no channel available');
+        }
+
+        $this->queue = $name;
+        $durable = $flag === AMQP_DURABLE ? true : false;
+        return $this->channel->queue_declare($this->queue, false, $durable, false, false, false, new AMQPTable([$arguments]));
+    }
+
+    /**
+     * Catch a channel inside the connection
+     * @return AMQPChannel
+     */
+    public function declareChannel(): AMQPChannel
+    {
+        $this->channel = reset($this->manager->getConnections())->channel();
+        $this->channel->basic_qos(null, self::PREFETCH_COUNT, null);
+        return $this->channel;
+    }
+
+    /**
+     * Publish a message
+     * @param AMQPMessage $message
+     * @param string $queueName
+     * @param array $options
+     * @throws \AMQPChannelException
+     * @throws \AMQPConnectionException
+     * @throws \AMQPQueueException
+     */
+    public function publish(AMQPMessage $message, string $queueName, array $options = [])
+    {
+        try {
+            $this->declareChannel();
+            $queue = $this->declareQueue($queueName, AMQP_DURABLE, $options);
+            $this->channel->basic_publish($message, self::EXCHANGE_NAME, $queueName);
+        } catch (\Exception $exception) {
+            $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
+        }
+    }
+
+    /**
+     * AMQP Exchange is the publishing mechanism
+     */
+    public function declareExchange($exchange)
+    {
+        $this->exchange = $exchange;
+        $this->exchange->setName(self::EXCHANGE_NAME);
+        $this->channel->exchange_declare($this->exchange->getName(), AMQPExchangeType::DIRECT, false, true, false);
+        $this->channel->queue_bind($this->queue, $this->exchange->getName(), $this->queue);
     }
 }

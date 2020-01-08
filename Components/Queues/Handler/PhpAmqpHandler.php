@@ -6,7 +6,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Handler;
 
 use JMS\Serializer\SerializerBuilder;
 use JMS\Serializer\SerializerInterface;
-use mysql_xdevapi\Exception;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Message\AMQPMessage;
 use Psr\Log\LoggerAwareInterface;
@@ -76,7 +75,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
      * @param string $queueName
      * @throws \Exception
      */
-    public function consume(string $consumerTag, AMQPChannel $channel, string $queueName): void
+    public function consume(string $consumerTag, AMQPChannel $channel, string $queueName)
     {
         $callback = function($message) use ($channel) {
             $this->isConnected($channel);
@@ -97,7 +96,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
 
         try {
             $channel->basic_qos(null, 1, null);
-            $message = $channel->basic_consume($queue, $consumerTag, false, false, false, false, $callback);
+            $message = $channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
             $this->isConsuming($channel);
         } catch (\Exception $exception) {
             $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
@@ -127,6 +126,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
      * Set the flag to stop the worker as true
      * Dispatch the command to stop the work on next iteration
      * @param string $consumerTag
+     * @throws \Exception
      */
     public function stopConsume(string $consumerTag): void
     {
@@ -218,6 +218,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
     /**
      * Verifies if the channel is open and connected
      * @param AMQPChannel $channel
+     * @return bool
      * @throws \AMQPConnectionException
      */
     public function isConnected(AMQPChannel $channel): bool

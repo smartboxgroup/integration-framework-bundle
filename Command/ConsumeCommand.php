@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Command;
 
 use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\ExceptionHandlerInterface;

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
+use Exception;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Exception\AMQPRuntimeException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Handler\AmqpQueueHandler;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Handler\PhpAmqpHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
@@ -31,14 +31,9 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     use UsesExceptionHandlerTrait;
 
     /**
-     *
+     * Consumer identifier name
      */
     const CONSUMER_TAG = 'php-amqp-signal-consumer';
-
-    /**
-     * @var boolean
-     */
-    private $restart;
 
     /**
      * @var PhpAmqpLibQueueManager
@@ -50,8 +45,6 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
      */
     private $format;
 
-    private $shouldStop;
-
     /**
      * @var PhpAmqpHandler
      */
@@ -60,25 +53,21 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     /**
      * PhpAmqpSignalConsumer constructor.
      */
-    public function __construct($manager, string $format = 'json')
+    public function __construct(PhpAmqpLibQueueManager $manager, string $format = 'json')
     {
+        parent::__construct();
         $this->manager = $manager;
         $this->format = $format;
-        $this->shouldStop = false;
 
-        if (extension_loaded('pcntl')) {
-            define('AMQP_WITHOUT_SIGNALS', false);
-
-            pcntl_signal(SIGTERM, [$this, 'signalHandler']);
-            pcntl_signal(SIGHUP, [$this, 'signalHandler']);
-            pcntl_signal(SIGINT, [$this, 'signalHandler']);
-            pcntl_signal(SIGQUIT, [$this, 'signalHandler']);
-            pcntl_signal(SIGUSR1, [$this, 'signalHandler']);
-            pcntl_signal(SIGUSR2, [$this, 'signalHandler']);
-            pcntl_signal(SIGALRM, [$this, 'alarmHandler']);
-        } else {
+        if (!extension_loaded('pcntl')) {
             throw new AMQPRuntimeException('Unable to process signals. Miss configuration.');
         }
+
+        define('AMQP_WITHOUT_SIGNALS', false);
+
+        pcntl_signal(SIGTERM, [$this, 'signalHandler']);
+        pcntl_signal(SIGINT, [$this, 'signalHandler']);
+        pcntl_signal(SIGQUIT, [$this, 'signalHandler']);
     }
 
     /**
@@ -96,43 +85,13 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
             case SIGINT:  // 2 : ctrl + c (manual stop)
                 $this->stop();
                 break;
-            case SIGHUP: // 1 : kill -s HUP
-                $this->restart();
-                break;
-            case SIGUSR1: // 10 : kill -s USR1
-                pcntl_alarm(1);
-                break;
-            case SIGUSR2: // 12 : kill -s USR2
-                pcntl_alarm(10);
-                break;
             default:
                 break;
         }
     }
 
     /**
-     * @return bool
-     */
-    public function start()
-    {
-        if ($this->restart) {
-            echo 'Restarting consumer.' . PHP_EOL;
-        } else {
-            echo 'Starting consumer.' . PHP_EOL;
-        }
-    }
-
-    /**
-     *
-     */
-    public function restart()
-    {
-        $this->stopSoft();
-        $this->restart = true;
-    }
-
-    /**
-     *
+     * Stop the consumer not gracefully closing the connection
      */
     public function stopHard()
     {
@@ -141,7 +100,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     }
 
     /**
-     *
+     * Stop the consumer gracefully, closing the channel
      */
     public function stopSoft()
     {
@@ -161,30 +120,17 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
                 $this->handler->stopConsume(self::CONSUMER_TAG);
             }
             return;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return;
         }
     }
 
     /**
+     * Start the consume flow
+     * @param EndpointInterface $endpoint
      * @return bool
+     * @throws Exception
      */
-    public function shouldRestart()
-    {
-        return $this->restart;
-    }
-
-    /**
-     * @param $signalNumber
-     */
-    public function alarmHandler($signalNumber)
-    {
-        echo 'Handling the alarm: #' . $signalNumber . PHP_EOL;
-        echo memory_get_usage(true) . PHP_EOL;
-
-        return;
-    }
-
     public function consume(EndpointInterface $endpoint)
     {
         try {
@@ -205,7 +151,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
             $queueName = $this->getQueueName($endpoint);
             $this->manager->declareQueue($queueName);
             $this->handler->consume(self::CONSUMER_TAG, $channel, $queueName);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             echo $exception->getMessage();
         } finally {
             $this->manager->shutdown();
@@ -223,6 +169,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     }
 
     /**
+     * Returns the queue name properly treated with queue prefix
      * @param EndpointInterface $endpoint
      * @return string
      */
@@ -231,10 +178,5 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
         $options = $endpoint->getOptions();
 
         return "{$options[QueueProtocol::OPTION_PREFIX]}{$options[QueueProtocol::OPTION_QUEUE_NAME]}";
-    }
-
-    public function shouldStop(int $messagesReady)
-    {
-        return !boolval($messagesReady);
     }
 }
