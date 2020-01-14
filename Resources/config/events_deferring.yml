@@ -1,15 +1,11 @@
-parameters:
-  smartesb.handlers.events_deferring.class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler
-  event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher
-
 services:
   event_dispatcher:
-    class: "%event_dispatcher.class%"
+    class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher
     arguments:
       $container: '@service_container'
 
   smartesb.handlers.events:
-      class: "%smartesb.handlers.events_deferring.class%"
+      class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler
       calls:
         - [setId, ['smartesb.handlers.events']]
         - [setEventDispatcher, ['@event_dispatcher']]
