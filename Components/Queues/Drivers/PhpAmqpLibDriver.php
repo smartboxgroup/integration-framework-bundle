@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
@@ -7,8 +8,7 @@ use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
-use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\PhpAmqpLibQueueManager;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\PhpAmqpLibConnectionManager;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
@@ -45,7 +45,6 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
      */
     const EXCHANGE_NAME = '';
 
-
     /**
      * @var \AMQPQueue
      */
@@ -62,7 +61,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     private $format;
 
     /**
-     * @var PhpAmqpLibQueueManager
+     * @var PhpAmqpLibConnectionManager
      */
     private $manager;
 
@@ -72,26 +71,17 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     private $channel;
 
     /**
-     * PhpAmqpLibDriver constructor.
+     * @var \AMQPExchange
+     */
+    private $exchange;
+
+    /**
      * @param QueueManager $manager
      */
-    public function __construct(PhpAmqpLibQueueManager $manager, string $format = null)
+    public function __construct(PhpAmqpLibConnectionManager $manager)
     {
         parent::__construct();
         $this->manager = $manager;
-        $this->format = $format ?? self::FORMAT_JSON;
-    }
-
-    /**
-     * PhpAmqpLibDriver destruct
-     */
-    final function __destruct()
-    {
-        try {
-            $this->manager->disconnect();
-        } catch (\Exception $connectionException) {
-            $this->getExceptionHandler()($connectionException);
-        }
     }
 
     /**
@@ -106,6 +96,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
+     * Method responsible to open the connection with the broker
      * @throws \AMQPException
      */
     public function connect()
@@ -114,17 +105,20 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
+     * Responsible to disconnect with the broker
      * @throws \AMQPException
+     * @throws \Exception
      */
     public function disconnect()
     {
-        $this->manager->disconnect();
+        $this->manager->shutdown();
     }
 
     /**
+     * Creates the QueueMessage object
      * @return QueueMessage|QueueMessageInterface
      */
-    public function createQueueMessage($queueName = null, $options = [])
+    public function createQueueMessage()
     {
         $msg = new QueueMessage();
         $msg->setContext(new Context());
@@ -132,6 +126,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
+     * Verifies if there is some connection opened with the broker
      * @return bool
      */
     public function isConnected()
@@ -140,6 +135,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
+     * @todo verify if the method is need
      * @return bool
      */
     public function isSubscribed()
@@ -204,13 +200,14 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     public function doDestroy()
     {
         try {
-            $this->manager->disconnect();
+            $this->manager->shutdown();
         } catch (\Exception $e) {
             $this->getExceptionHandler()($e);
         }
     }
 
     /**
+     * Creates a message and prepare the content to publish
      * {@inheritdoc}
      */
     public function send(QueueMessageInterface $queueMessage, $destination = null, $options = [])
@@ -301,10 +298,11 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function getDequeueingTimeMs()
     {
-//        return $this->dequeueingTimeMs;
+        return $this->dequeueingTimeMs;
     }
 
     /**
+     * @todo verify if this method is need
      * {@inheritdoc}
      */
     public function purge(string $queue)
@@ -327,7 +325,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
-     * @return PhpAmqpLibQueueManager|QueueManager
+     * @return PhpAmqpLibConnectionManager
      */
     public function getManager()
     {
@@ -346,6 +344,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
+     * Declares an exchange if needs
      * @param $exchange
      */
     public function setExchange($exchange)
@@ -391,7 +390,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
      */
     public function declareChannel(): AMQPChannel
     {
-        $this->channel = reset($this->manager->getConnections())->channel();
+        $this->channel = $this->manager->getConnections()[0]->channel();
         $this->channel->basic_qos(null, self::PREFETCH_COUNT, null);
         return $this->channel;
     }
@@ -409,7 +408,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     {
         try {
             $this->declareChannel();
-            $queue = $this->declareQueue($queueName, AMQP_DURABLE, $options);
+            $this->declareQueue($queueName, AMQP_DURABLE, $options);
             $this->channel->basic_publish($message, self::EXCHANGE_NAME, $queueName);
         } catch (\Exception $exception) {
             $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
@@ -417,7 +416,7 @@ class PhpAmqpLibDriver extends Service implements PurgeableQueueDriverInterface
     }
 
     /**
-     * AMQP Exchange is the publishing mechanism
+     * AMQP Exchange is the publishing mechanism. This method declares a new default exchange
      */
     public function declareExchange($exchange)
     {

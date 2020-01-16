@@ -53,8 +53,6 @@ class PhpAmqpHandler implements LoggerAwareInterface
     private $channel;
 
     /**
-     * AmqpQueueHandler constructor.
-     *
      * @param EndpointInterface        $endpoint   The endpoint used to consume
      * @param int                      $expirationCount  Maximum amount of message to consume before stopping
      * @param string                   $format     json|xml|php
@@ -69,7 +67,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
     }
 
     /**
-     * Consumes the message and dispatch the message to others features
+     * Consumes the message and dispatch it to others features
      * @param string $consumerTag
      * @param AMQPChannel $channel
      * @param string $queueName
@@ -174,7 +172,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
      * @param QueueMessage $message
      * @throws \Exception
      */
-    public function dispatchMessage(QueueMessage $message): void
+    private function dispatchMessage(QueueMessage $message): void
     {
         if (!$this->endpoint) {
             $this->getExceptionHandler()('Endpoint is undefined');

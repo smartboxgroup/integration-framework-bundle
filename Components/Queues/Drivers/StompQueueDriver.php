@@ -386,7 +386,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $this->currentFrame = null;
     }
 
-    public function createQueueMessage($queueName = null, $options = [])
+    public function createQueueMessage()
     {
         $msg = new QueueMessage();
         $msg->setContext(new Context());

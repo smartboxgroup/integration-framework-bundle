@@ -165,7 +165,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
         $this->currentEnvelope = null;
     }
 
-    public function createQueueMessage($queueName = null, $options = [])
+    public function createQueueMessage()
     {
         $msg = new QueueMessage();
         $msg->setContext(new Context());

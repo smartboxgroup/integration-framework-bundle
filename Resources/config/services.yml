@@ -114,8 +114,8 @@ services:
     class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueManager
     public: false
 
-  smartesb.amqp.php_amqp_queue_manager:
-    class: Smartbox\Integration\FrameworkBundle\Components\Queues\PhpAmqpLibQueueManager
+  smartesb.amqp.php_amqp_connection_manager:
+    class: Smartbox\Integration\FrameworkBundle\Components\Queues\PhpAmqpLibConnectionManager
     public: false
 
   smartesb.drivers.queue.amqp:

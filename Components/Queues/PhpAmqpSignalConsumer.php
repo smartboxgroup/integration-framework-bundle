@@ -17,6 +17,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializ
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 use Smartbox\Integration\FrameworkBundle\Service;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 
 /**
  * Class PhpAmqpSignalConsumer
@@ -36,7 +37,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     const CONSUMER_TAG = 'php-amqp-signal-consumer';
 
     /**
-     * @var PhpAmqpLibQueueManager
+     * @var PhpAmqpLibConnectionManager
      */
     private $manager;
 
@@ -51,13 +52,19 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     private $handler;
 
     /**
+     * @var PhpAmqpLibDriver
+     */
+    private $driver;
+
+    /**
      * PhpAmqpSignalConsumer constructor.
      */
-    public function __construct(PhpAmqpLibQueueManager $manager, string $format = 'json')
+    public function __construct(PhpAmqpLibConnectionManager $manager, string $format = 'json')
     {
         parent::__construct();
         $this->manager = $manager;
         $this->format = $format;
+        $this->driver = new PhpAmqpLibDriver($this->manager, $this->format);
 
         if (!extension_loaded('pcntl')) {
             throw new AMQPRuntimeException('Unable to process signals. Miss configuration.');
@@ -96,15 +103,6 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     public function stopHard()
     {
         echo 'Stopping consumer by closing connection.' . PHP_EOL;
-        $this->manager->disconnect();
-    }
-
-    /**
-     * Stop the consumer gracefully, closing the channel
-     */
-    public function stopSoft()
-    {
-        echo 'Stopping consumer by closing channel.' . PHP_EOL;
         $this->manager->shutdown();
     }
 
@@ -144,12 +142,12 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
                 $this->handler->setLogger($this->logger);
             }
 
-            $channel = $this->manager->declareChannel();
+            $channel = $this->driver->declareChannel();
             if ($channel instanceof AMQPChannel) {
                 $this->handler->setChannel($channel);
             }
             $queueName = $this->getQueueName($endpoint);
-            $this->manager->declareQueue($queueName);
+            $this->driver->declareQueue($queueName);
             $this->handler->consume(self::CONSUMER_TAG, $channel, $queueName);
         } catch (Exception $exception) {
             echo $exception->getMessage();
@@ -161,6 +159,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     }
 
     /**
+     * Returns the consumer name
      * {@inheritdoc}
      */
     public function getName()
@@ -179,4 +178,5 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
 
         return "{$options[QueueProtocol::OPTION_PREFIX]}{$options[QueueProtocol::OPTION_QUEUE_NAME]}";
     }
+
 }

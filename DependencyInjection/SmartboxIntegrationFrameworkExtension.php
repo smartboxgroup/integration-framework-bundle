@@ -275,14 +275,14 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                 case 'phpamqplib':
                     if (!class_exists(AMQPStreamConnection::class)) {
-                        throw new \RuntimeException('You need the amqp extension to use AMQP driver.');
+                        throw new \RuntimeException('You need the amqp extension to use PHP-AMQP-LIB driver.');
                     }
 
                     if (empty($driverConfig['connections'] ?? [])) {
                         throw new \InvalidArgumentException('You need to define at least one connection to use the AMQP driver.');
                     }
 
-                    $queueManager = $container->findDefinition('smartesb.amqp.php_amqp_queue_manager');
+                    $connectionManager = $container->findDefinition('smartesb.amqp.php_amqp_connection_manager');
                     foreach ($driverConfig['connections'] as $index => $uri) {
                         $connection = parse_url($uri);
                         $connectionId = "$driverId.connection.$index";
@@ -295,12 +295,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                             'vhost' => trim($connection['path'] ?? '', '/'),
                         ]);
 
-                        $queueManager->addMethodCall('addConnection', [new Reference($connectionId)]);
+                        $connectionManager->addMethodCall('addConnection', [new Reference($connectionId)]);
                     }
                     $this->useAmqp = true;
 
                     $driverDef = $container->findDefinition('smartesb.drivers.queue.phpamqplib');
                     $driverDef->addMethodCall('setId', [$driverId]);
+                    $driverDef->addMethodCall('configure', [null, null, null, $driverConfig['format']]);
 
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 

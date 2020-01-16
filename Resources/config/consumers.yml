@@ -19,7 +19,7 @@ services:
           - [ setSerializer, ['@jms_serializer']]
   smartesb.consumers.php_amqp_lib_signal_queue:
       class: Smartbox\Integration\FrameworkBundle\Components\Queues\PhpAmqpSignalConsumer
-      arguments: ['@smartesb.amqp.php_amqp_queue_manager']
+      arguments: ['@smartesb.amqp.php_amqp_connection_manager']
       calls:
           - [ setId, ['smartesb.consumers.php_amqp_lib_signal_queue']]
           - [ setSmartesbHelper, ['@smartesb.helper']]
