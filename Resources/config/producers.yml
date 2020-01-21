@@ -34,12 +34,3 @@ services:
       calls:
         - [setId, ['smartesb.producers.service']]
         - [setContainer, ['@service_container']]
-
-  # PHPAMQPLIB
-  smartesb.drivers.queue.phpamqplib:
-    class: Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver
-    arguments: ['@smartesb.amqp.php_amqp_connection_manager']
-    calls:
-      - [setSerializer, ['@jms_serializer']]
-      - [setMessageFactory, ['@smartesb.message_factory']]
-    public: '%kernel.debug%'

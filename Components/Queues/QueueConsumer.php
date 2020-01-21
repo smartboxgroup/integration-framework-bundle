@@ -67,7 +67,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     protected function readMessage(EndpointInterface $endpoint)
     {
         $driver = $this->getQueueDriver($endpoint);
-        $this->dequeueingTimeMs = $driver->getDequeueingTimeMs();
+        $this->dequeueingTimeMs = $driver->getDequeueTimeMs();
 
         return $driver->receive();
     }

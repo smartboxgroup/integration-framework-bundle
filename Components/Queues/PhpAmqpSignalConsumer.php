@@ -37,11 +37,6 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     const CONSUMER_TAG = 'php-amqp-signal-consumer';
 
     /**
-     * @var PhpAmqpLibConnectionManager
-     */
-    private $manager;
-
-    /**
      * @var string
      */
     private $format;
@@ -59,18 +54,16 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     /**
      * PhpAmqpSignalConsumer constructor.
      */
-    public function __construct(PhpAmqpLibConnectionManager $manager, string $format = 'json')
+    public function __construct(PhpAmqpLibDriver $driver)
     {
-        parent::__construct();
-        $this->manager = $manager;
-        $this->format = $format;
-        $this->driver = new PhpAmqpLibDriver($this->manager, $this->format);
-
         if (!extension_loaded('pcntl')) {
             throw new AMQPRuntimeException('Unable to process signals. Miss configuration.');
         }
-
         define('AMQP_WITHOUT_SIGNALS', false);
+
+        parent::__construct();
+        $this->driver = $driver;
+        $this->format = $this->driver->getFormat();
 
         pcntl_signal(SIGTERM, [$this, 'signalHandler']);
         pcntl_signal(SIGINT, [$this, 'signalHandler']);
@@ -78,7 +71,8 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     }
 
     /**
-     * @param $signalHandler
+     * @param $signalNumber
+     * @throws \AMQPException
      */
     public function signalHandler($signalNumber)
     {
@@ -99,27 +93,24 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
 
     /**
      * Stop the consumer not gracefully closing the connection
+     * @throws \AMQPException
      */
     public function stopHard()
     {
         echo 'Stopping consumer by closing connection.' . PHP_EOL;
-        $this->manager->shutdown();
+        $this->driver->disconnect();
     }
 
     /**
      * Tell the server you are going to stop consuming
      * It will finish up the last message and not send you any more
+     * @throws Exception
      */
     public function stop()
     {
-        try {
-            echo 'Stopping consumer by cancel command.' . PHP_EOL;
-            if ($this->manager->isConnected()) {
-                $this->handler->stopConsume(self::CONSUMER_TAG);
-            }
-            return;
-        } catch (Exception $exception) {
-            return;
+        echo 'Stopping consumer by cancel command.' . PHP_EOL;
+        if ($this->driver->isConnected()) {
+            $this->handler->stopConsume(self::CONSUMER_TAG);
         }
     }
 
@@ -152,7 +143,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
         } catch (Exception $exception) {
             echo $exception->getMessage();
         } finally {
-            $this->manager->shutdown();
+            $this->driver->disconnect();
         }
 
         return true;
@@ -177,6 +168,15 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
         $options = $endpoint->getOptions();
 
         return "{$options[QueueProtocol::OPTION_PREFIX]}{$options[QueueProtocol::OPTION_QUEUE_NAME]}";
+    }
+
+    /**
+     * Set the driver to the class with the fulfilled values
+     * @param $driver
+     */
+    public function setDriver($driver)
+    {
+        $this->driver = $driver;
     }
 
 }

@@ -17,9 +17,11 @@ services:
           - [ setSmartesbHelper, ['@smartesb.helper']]
           - [ setEventDispatcher, ['@event_dispatcher']]
           - [ setSerializer, ['@jms_serializer']]
+
+  # PHPAMQPLIB
   smartesb.consumers.php_amqp_lib_signal_queue:
       class: Smartbox\Integration\FrameworkBundle\Components\Queues\PhpAmqpSignalConsumer
-      arguments: ['@smartesb.amqp.php_amqp_connection_manager']
+      arguments: ['@smartesb.drivers.queue.phpamqplib']
       calls:
           - [ setId, ['smartesb.consumers.php_amqp_lib_signal_queue']]
           - [ setSmartesbHelper, ['@smartesb.helper']]

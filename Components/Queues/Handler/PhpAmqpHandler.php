@@ -11,12 +11,14 @@ use PhpAmqpLib\Message\AMQPMessage;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageHandlerInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 
@@ -37,7 +39,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
     private $endpoint;
 
     /**
-     * Format used by serializer funtion
+     * Format used by serializer function
      * @var string
      */
     private $format;
@@ -56,9 +58,9 @@ class PhpAmqpHandler implements LoggerAwareInterface
      * @param EndpointInterface        $endpoint   The endpoint used to consume
      * @param int                      $expirationCount  Maximum amount of message to consume before stopping
      * @param string                   $format     json|xml|php
-     * @param SerializerInterface|null $serializer Serializer to use for deserialization
+     * @param null $serializer Serializer to use for deserialization
      */
-    public function __construct(EndpointInterface $endpoint, int $expirationCount = -1, string $format = 'json', SerializerInterface $serializer = null)
+    public function __construct(EndpointInterface $endpoint, int $expirationCount = -1, string $format = QueueDriverInterface::FORMAT_JSON, $serializer = null)
     {
         $this->endpoint = $endpoint;
         $this->setExpirationCount($expirationCount);
@@ -103,19 +105,20 @@ class PhpAmqpHandler implements LoggerAwareInterface
     }
 
     /**
-     * Verify if the channel is consuming a message.
-     * If there is message to consume it calls the consume callback function
+     * Verifies if the channel is consuming a message.
+     * If there is a message to consume it calls the consume callback function
      * If there is no message to consume it will put the worker in a wait state
      * @param AMQPChannel $channel
+     * @throws \Exception
      */
-    public function isConsuming(AMQPChannel $channel): void
+    public function isConsuming(AMQPChannel $channel)
     {
         try {
             while ($channel->is_consuming()) {
                 $channel->wait(null, true);
             }
         } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception);
+            $this->log($exception->getMessage());
             return;
         }
     }
@@ -126,7 +129,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
      * @param string $consumerTag
      * @throws \Exception
      */
-    public function stopConsume(string $consumerTag): void
+    public function stopConsume(string $consumerTag)
     {
         try {
             $this->stop();
@@ -142,7 +145,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
     /**
      * Verifies if the message object is an instance of QueueMesseageInterface
      * and if the handler is not an instance of QueueMessageHandlerInterface. Used by dispatchMessage function
-     * @param \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface $message
+     * @param MessageInterface $message
      * @return bool
      */
     private function isQueueMessage($message): bool
@@ -172,7 +175,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
      * @param QueueMessage $message
      * @throws \Exception
      */
-    private function dispatchMessage(QueueMessage $message): void
+    private function dispatchMessage(QueueMessage $message)
     {
         if (!$this->endpoint) {
             $this->getExceptionHandler()('Endpoint is undefined');
@@ -193,7 +196,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
 
     /**
      * @param AMQPMessage
-     * @return  \Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface|QueueMessageInterface $message
+     * @return  MessageInterface|QueueMessageInterface $message
      */
     public function deserializeMessage(AMQPMessage $message): QueueMessageInterface
     {
@@ -208,7 +211,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
      * Set a AMQPChannel object to class variable
      * @param AMQPChannel $channel
      */
-    public function setChannel(AMQPChannel $channel): void
+    public function setChannel(AMQPChannel $channel)
     {
         $this->channel = $channel;
     }
@@ -217,7 +220,6 @@ class PhpAmqpHandler implements LoggerAwareInterface
      * Verifies if the channel is open and connected
      * @param AMQPChannel $channel
      * @return bool
-     * @throws \AMQPConnectionException
      */
     public function isConnected(AMQPChannel $channel): bool
     {
