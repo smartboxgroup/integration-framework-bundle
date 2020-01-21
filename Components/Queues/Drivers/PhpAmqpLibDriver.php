@@ -91,6 +91,8 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     private $connections;
 
     /**
+     * Method responsible to catch the parameters to configure the driver
+     *
      * @param string $host
      * @param string $username
      * @param string $password
@@ -106,7 +108,9 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * Method responsible to open the connection with the broker
-     * @throws \AMQPException
+     *
+     * @param array $connections
+     * @param bool $shuffle - used to randomize the connections if exists more than one
      * @throws \Exception
      */
     public function connect($connections = [], $shuffle = true)
@@ -123,9 +127,8 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     }
 
     /**
-     * Add a connection to the broker
+     * Add a connection to the array of connections
      * @param $connection
-     * @return $this
      */
     public function addConnection($connection)
     {
@@ -262,12 +265,9 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     /**
      * @todo verify the need of this function
      * Returns One Serializable object from the queue.
-     *
      * It requires to subscribe previously to a specific queue
      *
      * @throws \Exception
-     *
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface|null
      */
     public function receiveNoWait()
     {
@@ -305,45 +305,15 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     }
 
     /**
-     * @param string $queueName
-     * @throws \AMQPChannelException
-     * @throws \AMQPConnectionException
-     * @throws \AMQPQueueException
-     */
-    public function setQueue($queueName)
-    {
-        $this->declareQueue($queueName);
-    }
-
-    /**
-     * Declares an exchange if needs
-     * @param $exchange
-     */
-    public function setExchange($exchange)
-    {
-        $this->declareExchange($exchange);
-    }
-
-    /**
-     * Declares a channel to connect with the broker
-     */
-    public function setChannel()
-    {
-        $this->declareChannel();
-    }
-
-    /**
      * Declares the queue to drive the message
      *
-     * @param string $name      The name of the que
-     * @param int    $flag      See AMQPQueue::setFlags()
-     * @param array  $arguments See AMQPQueue::setArguments()
+     * @param string $name The name of the que
+     * @param int $flag See AMQPQueue::setFlags()
+     * @param array $arguments See AMQPQueue::setArguments()
      *
-     * @return \AMQPQueue
+     * @return array|null
      *
      * @throws \AMQPChannelException
-     * @throws \AMQPConnectionException
-     * @throws \AMQPQueueException
      */
     public function declareQueue(string $name, int $flag = AMQP_DURABLE, array $arguments = [])
     {
@@ -368,13 +338,22 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     }
 
     /**
+     * AMQP Exchange is the publishing mechanism. This method declares a new default exchange
+     * @param $exchange
+     */
+    public function declareExchange($exchange)
+    {
+        $this->exchange = $exchange;
+        $this->exchange->setName(self::EXCHANGE_NAME);
+        $this->channel->exchange_declare($this->exchange->getName(), AMQPExchangeType::DIRECT, false, true, false);
+        $this->channel->queue_bind($this->queue, $this->exchange->getName(), $this->queue);
+    }
+
+    /**
      * Publish a message
      * @param AMQPMessage $message
      * @param string $queueName
      * @param array $options
-     * @throws \AMQPChannelException
-     * @throws \AMQPConnectionException
-     * @throws \AMQPQueueException
      */
     public function publish(AMQPMessage $message, string $queueName, array $options = [])
     {
@@ -385,17 +364,6 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
         } catch (\Exception $exception) {
             $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
         }
-    }
-
-    /**
-     * AMQP Exchange is the publishing mechanism. This method declares a new default exchange
-     */
-    public function declareExchange($exchange)
-    {
-        $this->exchange = $exchange;
-        $this->exchange->setName(self::EXCHANGE_NAME);
-        $this->channel->exchange_declare($this->exchange->getName(), AMQPExchangeType::DIRECT, false, true, false);
-        $this->channel->queue_bind($this->queue, $this->exchange->getName(), $this->queue);
     }
 
     /**

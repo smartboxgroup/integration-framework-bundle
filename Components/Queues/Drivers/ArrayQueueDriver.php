@@ -21,7 +21,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
     /**
      * @return int
      */
-    public function getDequeueingTimeMs()
+    public function getDequeueTimeMs()
     {
         return 0;
     }

@@ -53,6 +53,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
 
     /**
      * PhpAmqpSignalConsumer constructor.
+     * @param PhpAmqpLibDriver $driver
      */
     public function __construct(PhpAmqpLibDriver $driver)
     {
@@ -71,10 +72,11 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     }
 
     /**
+     * Method responsible to receive the number dispatched by the signal and execute the related function
      * @param $signalNumber
      * @throws \AMQPException
      */
-    public function signalHandler($signalNumber)
+    public function signalHandler(int $signalNumber)
     {
         echo 'Handling signal: #' . $signalNumber . PHP_EOL;
 

@@ -195,6 +195,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
     }
 
     /**
+     * Deserialize the messages and dispatch them to the other targets
      * @param AMQPMessage
      * @return  MessageInterface|QueueMessageInterface $message
      */
