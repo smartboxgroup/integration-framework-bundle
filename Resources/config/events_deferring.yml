@@ -1,6 +1,8 @@
 services:
+  # This effectively overrides Symfony's dispatcher. Tag is there to emulate what Symfony 3.4 does with its own disptacher.
   event_dispatcher:
     class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher
+    tags: ['container.hot_path']
     arguments:
       $container: '@service_container'
 
