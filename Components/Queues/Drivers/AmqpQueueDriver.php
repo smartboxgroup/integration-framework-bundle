@@ -264,7 +264,7 @@ class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
     /**
      * @return int The time it took in ms to de-queue and deserialize the message
      */
-    public function getDequeueTimeMs()
+    public function getDequeueingTimeMs()
     {
         return $this->dequeueingTimeMs;
     }

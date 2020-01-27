@@ -39,7 +39,7 @@ class AsyncQueueConsumer extends Service implements ConsumerInterface, LoggerAwa
      * @param QueueManager $manager
      * @param string       $format
      */
-    public function __construct($manager, string $format = 'json')
+    public function __construct(QueueManager $manager, string $format = 'json')
     {
         parent::__construct();
         $this->manager = $manager;

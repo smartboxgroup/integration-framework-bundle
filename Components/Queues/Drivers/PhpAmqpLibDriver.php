@@ -6,13 +6,19 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exception\AMQPRuntimeException;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
+use Psr\Log\LoggerAwareTrait;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Handler\PhpAmqpHandler;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 use Smartbox\Integration\FrameworkBundle\Service;
 
@@ -24,6 +30,13 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 {
     use UsesSerializer;
     use UsesExceptionHandlerTrait;
+    use UsesSmartesbHelper;
+    use LoggerAwareTrait;
+
+    /**
+     * Consumer identifier name
+     */
+    const CONSUMER_TAG = 'php-amqp-signal-consumer';
 
     /**
      * Maximum amount of time (in seconds) to wait for a message.
@@ -88,7 +101,29 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     /**
      * @var array|null
      */
-    private $connections;
+    private $connectionsData;
+
+    /**
+     * @var array|null
+     */
+    private $amqpConnections;
+
+    /**
+     * @var PhpAmqpHandler
+     */
+    private $handler;
+
+    private $port;
+
+    private $vhost;
+
+    public function __construct()
+    {
+        parent::__construct();
+        if (!extension_loaded('pcntl')) {
+            throw new AMQPRuntimeException('Unable to process signals. Miss configuration.');
+        }
+    }
 
     /**
      * Method responsible to catch the parameters to configure the driver
@@ -98,29 +133,41 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
      * @param string $password
      * @param string $format
      */
-    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON)
+    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $port = null, $vhost = null)
     {
         $this->host = $host;
+        $this->port = $port;
         $this->username = $username;
         $this->password = $password;
+        $this->vhost = $vhost;
+
+        $this->connectionsData[] = [
+            'host' => $this->host,
+            'port' => $this->port,
+            'user' => $this->username,
+            'password' => $this->password,
+            'vhost' => $this->vhost,
+        ];
         $this->format = $format;
     }
 
     /**
      * Method responsible to open the connection with the broker
      *
-     * @param array $connections
      * @param bool $shuffle - used to randomize the connections if exists more than one
      * @throws \Exception
      */
-    public function connect($connections = [], $shuffle = true)
+    public function connect($shuffle = true)
     {
+        if (empty($this->connectionsData)) {
+            throw new \Exception('No data available to make the connection.');
+        }
+
         try {
-            if ($shuffle) {
-                shuffle($connections);
+            if ($shuffle && count($this->connectionsData) > 1) {
+                shuffle($connectionsData);
             }
-            $connection = AMQPStreamConnection::create_connection($connections, []);
-            $this->addConnection($connection);
+            $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, []));
         } catch (\AMQPConnectionException $connectionException) {
             echo $connectionException->getMessage();
         }
@@ -132,7 +179,7 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
      */
     public function addConnection($connection)
     {
-        $this->connections[] = $connection;
+        $this->amqpConnections[] = $connection;
     }
 
     /**
@@ -143,8 +190,8 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     public function disconnect()
     {
         try {
-            if ($this->connections) {
-                foreach ($this->connections as $connection) {
+            if ($this->amqpConnections) {
+                foreach ($this->amqpConnections as $connection) {
                     if ($connection instanceof AMQPStreamConnection) {
                         $connection->close();
                     }
@@ -172,8 +219,8 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
      */
     public function isConnected(): bool
     {
-        if ($this->connections) {
-            foreach ($this->connections as $connection) {
+        if ($this->amqpConnections) {
+            foreach ($this->amqpConnections as $connection) {
                 if ($connection->isConnected()) {
                     return true;
                 }
@@ -277,7 +324,7 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
      * @todo verify the need of this function
      * @return int The time it took in ms to de-queue and deserialize the message
      */
-    public function getDequeueTimeMs()
+    public function getDequeueingTimeMs()
     {
         return $this->dequeueTimeMs;
     }
@@ -332,7 +379,7 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
      */
     public function declareChannel(): AMQPChannel
     {
-        $this->channel = $this->connections[0]->channel();
+        $this->channel = $this->amqpConnections[0]->channel();
         $this->channel->basic_qos(null, self::PREFETCH_COUNT, null);
         return $this->channel;
     }
@@ -374,4 +421,75 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     {
         return $this->format;
     }
+
+    /**
+     * Start the consume flow
+     * @param EndpointInterface $endpoint
+     * @return bool
+     * @throws \Exception
+     */
+    public function consume(EndpointInterface $endpoint): bool
+    {
+        try {
+            $this->handler = new PhpAmqpHandler($endpoint, (int) $this->expirationCount, $this->format, $this->serializer);
+            $this->handler->setExceptionHandler($this->getExceptionHandler());
+
+            if ($this->smartesbHelper) {
+                $this->handler->setSmartesbHelper($this->smartesbHelper);
+            }
+            if ($this->logger) {
+                $this->handler->setLogger($this->logger);
+            }
+
+            $channel = $this->declareChannel();
+            if ($channel instanceof AMQPChannel) {
+                $this->handler->setChannel($channel);
+            }
+            $queueName = $this->getQueueName($endpoint);
+            $this->declareQueue($queueName);
+            $this->handler->consume(self::CONSUMER_TAG, $channel, $queueName);
+        } catch (\AMQPException $exception) {
+            echo $exception->getMessage();
+        } finally {
+            $this->disconnect();
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns the queue name properly treated with queue prefix
+     * @param EndpointInterface $endpoint
+     * @return string
+     */
+    protected function getQueueName(EndpointInterface $endpoint): string
+    {
+        $options = $endpoint->getOptions();
+
+        return "{$options[QueueProtocol::OPTION_PREFIX]}{$options[QueueProtocol::OPTION_QUEUE_NAME]}";
+    }
+
+    /**
+     * Stop the consumer not gracefully closing the connection
+     * @throws \AMQPException
+     */
+    public function stopHard()
+    {
+        echo 'Stopping consumer by closing connection.' . PHP_EOL;
+        $this->disconnect();
+    }
+
+    /**
+     * Tell the server you are going to stop consuming
+     * It will finish up the last message and not send you any more
+     * @throws \Exception
+     */
+    public function stop()
+    {
+        echo 'Stopping consumer by cancel command.' . PHP_EOL;
+        if ($this->isConnected()) {
+            $this->handler->stopConsume(self::CONSUMER_TAG);
+        }
+    }
+
 }

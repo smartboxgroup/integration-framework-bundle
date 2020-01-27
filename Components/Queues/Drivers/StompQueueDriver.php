@@ -183,7 +183,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /**
      * @return int
      */
-    public function getDequeueTimeMs()
+    public function getDequeueingTimeMs()
     {
         return $this->dequeueingTimeMs;
     }

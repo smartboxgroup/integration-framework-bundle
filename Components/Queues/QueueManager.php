@@ -131,6 +131,17 @@ class QueueManager
         return $queue;
     }
 
+    /**
+     * @param string $queueName
+     * @param string $message
+     * @param array $headers
+     * @return bool
+     * @throws \AMQPChannelException
+     * @throws \AMQPConnectionException
+     * @throws \AMQPException
+     * @throws \AMQPExchangeException
+     * @throws \AMQPQueueException
+     */
     public function send(string $queueName, string $message, array $headers = [])
     {
         $this->connect();
@@ -147,7 +158,11 @@ class QueueManager
         return $this->exchange->publish($message, $queueName, AMQP_NOPARAM, $headers);
     }
 
-    public function addConnection($connection)
+    /**
+     * @param \AMQPConnection $connection
+     * @return $this
+     */
+    public function addConnection(\AMQPConnection $connection)
     {
         $this->connections[] = $connection;
 
