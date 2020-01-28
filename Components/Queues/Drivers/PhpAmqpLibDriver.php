@@ -34,11 +34,6 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     use LoggerAwareTrait;
 
     /**
-     * Consumer identifier name
-     */
-    const CONSUMER_TAG = 'php-amqp-signal-consumer';
-
-    /**
      * Maximum amount of time (in seconds) to wait for a message.
      */
     const WAIT_TIMEOUT = 10;

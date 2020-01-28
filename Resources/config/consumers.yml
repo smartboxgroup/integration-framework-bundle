@@ -18,3 +18,4 @@ services:
           - [ setEventDispatcher, ['@event_dispatcher']]
           - [ setSerializer, ['@jms_serializer']]
 
+

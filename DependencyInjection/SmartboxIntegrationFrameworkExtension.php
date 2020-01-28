@@ -47,7 +47,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const AMQP_SERVICES = [
         'smartesb.amqp.queue_manager',
         'smartesb.consumers.async_queue',
-        'smartesb.drivers.queue.amqp'
+        'smartesb.drivers.queue.amqp',
+        'smartesb.consumers.php_amqp_lib_signal_queue.class'
     ];
 
     protected $config;
@@ -298,18 +299,23 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         ]);
                     }
 
+                    $queueDriverRegistry->addMethodCall('setDriver', [$driverName, $driverDef]);
+
                     $driverDef->addMethodCall('setId', [$driverId]);
                     $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
-                    $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
-
-                    $this->useAmqp = true;
-
-                    $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 
                     $container->setDefinition($driverId, $driverDef);
 
+                    $consumer = $container->findDefinition('smartesb.consumers.php_amqp_lib_signal_queue');
+                    $consumer->addMethodCall('setDriver', [$driverDef]);
+                    $consumer->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
+
+                    $container->findDefinition('smartesb.protocols.queue')
+                        ->addMethodCall('setDefaultConsumer', [$consumer]);
+
                     if ($exceptionHandlerId) {
                         $driverDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
+                        $consumer->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
                     }
                     break;
 
