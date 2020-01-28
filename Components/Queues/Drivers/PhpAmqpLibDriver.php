@@ -404,7 +404,7 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
             $this->declareQueue($queueName, AMQP_DURABLE, $options);
             $this->channel->basic_publish($message, self::EXCHANGE_NAME, $queueName);
         } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
+            $this->getExceptionHandler()($exception, [$exception->getCode(), $exception->getMessage()]);
         }
     }
 
