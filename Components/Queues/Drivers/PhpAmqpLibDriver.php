@@ -162,9 +162,18 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
             if ($shuffle && count($this->connectionsData) > 1) {
                 shuffle($connectionsData);
             }
-            $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, []));
+            $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, [
+                'insist' => false,
+                'login_method' => 'AMQPLAIN',
+                'locale' => 'en_IE',
+                'connection_timeout' => 6.0,
+                'read_write_timeout' => 20.0,
+                'context' => null,
+                'keepalive' => true,
+                'heartbeat' => 10
+            ]));
         } catch (\AMQPConnectionException $connectionException) {
-            echo $connectionException->getMessage();
+            $this->getExceptionHandler()($connectionException, [$connectionException->getCode(), $connectionException->getMessage()]);
         }
     }
 
@@ -416,75 +425,4 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     {
         return $this->format;
     }
-
-    /**
-     * Start the consume flow
-     * @param EndpointInterface $endpoint
-     * @return bool
-     * @throws \Exception
-     */
-    public function consume(EndpointInterface $endpoint): bool
-    {
-        try {
-            $this->handler = new PhpAmqpHandler($endpoint, (int) $this->expirationCount, $this->format, $this->serializer);
-            $this->handler->setExceptionHandler($this->getExceptionHandler());
-
-            if ($this->smartesbHelper) {
-                $this->handler->setSmartesbHelper($this->smartesbHelper);
-            }
-            if ($this->logger) {
-                $this->handler->setLogger($this->logger);
-            }
-
-            $channel = $this->declareChannel();
-            if ($channel instanceof AMQPChannel) {
-                $this->handler->setChannel($channel);
-            }
-            $queueName = $this->getQueueName($endpoint);
-            $this->declareQueue($queueName);
-            $this->handler->consume(self::CONSUMER_TAG, $channel, $queueName);
-        } catch (\AMQPException $exception) {
-            echo $exception->getMessage();
-        } finally {
-            $this->disconnect();
-        }
-
-        return true;
-    }
-
-    /**
-     * Returns the queue name properly treated with queue prefix
-     * @param EndpointInterface $endpoint
-     * @return string
-     */
-    protected function getQueueName(EndpointInterface $endpoint): string
-    {
-        $options = $endpoint->getOptions();
-
-        return "{$options[QueueProtocol::OPTION_PREFIX]}{$options[QueueProtocol::OPTION_QUEUE_NAME]}";
-    }
-
-    /**
-     * Stop the consumer not gracefully closing the connection
-     * @throws \AMQPException
-     */
-    public function stopHard()
-    {
-        echo 'Stopping consumer by closing connection.' . PHP_EOL;
-        $this->disconnect();
-    }
-
-    /**
-     * Tell the server you are going to stop consuming
-     * It will finish up the last message and not send you any more
-     * @throws \Exception
-     */
-    public function stop()
-    {
-        echo 'Stopping consumer by cancel command.' . PHP_EOL;
-        if ($this->isConnected()) {
-            $this->handler->stopConsume(self::CONSUMER_TAG);
-        }
-    }
-
 }
