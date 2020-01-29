@@ -86,7 +86,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
             }
 
             $this->log('A message was received on {time}');
-            $this->log('Message Body:' . $message->body);
+//            $this->log('Message Body:' . $message->body);
 
             $queueMessage = $this->deserializeMessage($message);
             $this->dispatchMessage($queueMessage);

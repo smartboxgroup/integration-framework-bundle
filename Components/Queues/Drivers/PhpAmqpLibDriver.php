@@ -163,14 +163,14 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
                 shuffle($connectionsData);
             }
             $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, [
-                'insist' => false,
+                'insist' => true,
                 'login_method' => 'AMQPLAIN',
                 'locale' => 'en_IE',
-                'connection_timeout' => 6.0,
-                'read_write_timeout' => 20.0,
+                'connection_timeout' => 60.0,
+                'read_write_timeout' => 50.0,
                 'context' => null,
                 'keepalive' => true,
-                'heartbeat' => 10
+                'heartbeat' => 0
             ]));
         } catch (\AMQPConnectionException $connectionException) {
             $this->getExceptionHandler()($connectionException, [$connectionException->getCode(), $connectionException->getMessage()]);
