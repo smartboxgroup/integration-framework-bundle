@@ -39,7 +39,6 @@ class PhpAmqpHandler implements LoggerAwareInterface
     private $endpoint;
 
     /**
-     * Format used by serializer function
      * @var string
      */
     private $format;
@@ -70,6 +69,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
 
     /**
      * Consumes the message and dispatch it to others features
+     *
      * @param string $consumerTag
      * @param AMQPChannel $channel
      * @param string $queueName
@@ -79,14 +79,13 @@ class PhpAmqpHandler implements LoggerAwareInterface
     {
         $callback = function($message) use ($channel) {
             $this->isConnected($channel);
-            // Send a message with the string "quit" to cancel the consumer.
-            if ($message->body === 'quit' || $this->shouldStop()) {
+
+            if ($this->shouldStop()) {
                 $channel->basic_cancel($message->delivery_info['consumer_tag']);
                 return false;
             }
 
             $this->log('A message was received on {time}');
-//            $this->log('Message Body:' . $message->body);
 
             $queueMessage = $this->deserializeMessage($message);
             $this->dispatchMessage($queueMessage);
@@ -105,13 +104,14 @@ class PhpAmqpHandler implements LoggerAwareInterface
     }
 
     /**
-     * Verifies if the channel is consuming a message.
+     * Verifies if the channel is consuming a message
      * If there is a message to consume it calls the consume callback function
      * If there is no message to consume it will put the worker in a wait state
+     *
      * @param AMQPChannel $channel
      * @throws \Exception
      */
-    public function isConsuming(AMQPChannel $channel)
+    private function isConsuming(AMQPChannel $channel)
     {
         try {
             while ($channel->is_consuming()) {
@@ -126,6 +126,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
     /**
      * Set the flag to stop the worker as true
      * Dispatch the command to stop the work on next iteration
+     *
      * @param string $consumerTag
      * @throws \Exception
      */
@@ -143,8 +144,9 @@ class PhpAmqpHandler implements LoggerAwareInterface
     }
 
     /**
-     * Verifies if the message object is an instance of QueueMesseageInterface
+     * Verifies if the message object is an instance of QueueMessageInterface
      * and if the handler is not an instance of QueueMessageHandlerInterface. Used by dispatchMessage function
+     *
      * @param MessageInterface $message
      * @return bool
      */
@@ -155,6 +157,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
 
     /**
      * Log in console the message passed as param
+     *
      * @param string $message
      * @param array $ctx
      * @throws \Exception
@@ -172,6 +175,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
 
     /**
      * Dispatch the message to target system or events to database
+     *
      * @param QueueMessage $message
      * @throws \Exception
      */
@@ -196,6 +200,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
 
     /**
      * Deserialize the messages and dispatch them to the other targets
+     *
      * @param AMQPMessage
      * @return  MessageInterface|QueueMessageInterface $message
      */
@@ -210,6 +215,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
 
     /**
      * Set a AMQPChannel object to class variable
+     *
      * @param AMQPChannel $channel
      */
     public function setChannel(AMQPChannel $channel)
@@ -219,6 +225,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
 
     /**
      * Verifies if the channel is open and connected
+     *
      * @param AMQPChannel $channel
      * @return bool
      */

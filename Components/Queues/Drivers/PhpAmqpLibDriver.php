@@ -6,7 +6,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Exception\AMQPRuntimeException;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
@@ -14,8 +13,6 @@ use Psr\Log\LoggerAwareTrait;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Handler\PhpAmqpHandler;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
@@ -24,6 +21,7 @@ use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
  * Class PhpAmqpLibDriver
+ *
  * @package Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers
  */
 class PhpAmqpLibDriver extends Service implements QueueDriverInterface
@@ -32,16 +30,6 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     use UsesExceptionHandlerTrait;
     use UsesSmartesbHelper;
     use LoggerAwareTrait;
-
-    /**
-     * Maximum amount of time (in seconds) to wait for a message.
-     */
-    const WAIT_TIMEOUT = 10;
-
-    /**
-     * Maximum amount of time (in seconds) to set as an interval while consuming messages
-     */
-    const WAIT_PERIOD = 0.2;
 
     /**
      * Represents the amount of message to consume by iteration
@@ -104,21 +92,14 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     private $amqpConnections;
 
     /**
-     * @var PhpAmqpHandler
+     * @var int|null
      */
-    private $handler;
-
     private $port;
 
+    /**
+     * @var string|null
+     */
     private $vhost;
-
-    public function __construct()
-    {
-        parent::__construct();
-        if (!extension_loaded('pcntl')) {
-            throw new AMQPRuntimeException('Unable to process signals. Miss configuration.');
-        }
-    }
 
     /**
      * Method responsible to catch the parameters to configure the driver
@@ -154,14 +135,9 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
      */
     public function connect($shuffle = true)
     {
-        if (empty($this->connectionsData)) {
-            throw new \Exception('No data available to make the connection.');
-        }
-
         try {
-            if ($shuffle && count($this->connectionsData) > 1) {
-                shuffle($connectionsData);
-            }
+            $this->validateConnectionData();
+            $this->shuffleConnections($shuffle);
             $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, [
                 'insist' => true,
                 'login_method' => 'AMQPLAIN',
@@ -172,13 +148,14 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
                 'keepalive' => true,
                 'heartbeat' => 0
             ]));
-        } catch (\AMQPConnectionException $connectionException) {
-            $this->getExceptionHandler()($connectionException, [$connectionException->getCode(), $connectionException->getMessage()]);
+        } catch (\Exception $exception) {
+            $this->getExceptionHandler()($exception, [$exception->getCode(), $exception->getMessage()]);
         }
     }
 
     /**
      * Add a connection to the array of connections
+     *
      * @param $connection
      */
     public function addConnection($connection)
@@ -188,8 +165,6 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * Responsible to disconnect with the broker
-     * @throws \AMQPException
-     * @throws \Exception
      */
     public function disconnect()
     {
@@ -201,13 +176,14 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
                     }
                 }
             }
-        } catch (\AMQPConnectionException $exception) {
-            echo $exception->getMessage();
+        } catch (\Exception $exception) {
+            $this->getExceptionHandler()($exception, [$exception->getCode(), $exception->getMessage()]);
         }
     }
 
     /**
      * Creates the QueueMessage object
+     *
      * @return QueueMessage|QueueMessageInterface
      */
     public function createQueueMessage(): QueueMessage
@@ -219,6 +195,7 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * Verifies if there is some connection opened with the broker
+     *
      * @return bool
      */
     public function isConnected(): bool
@@ -235,15 +212,16 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * @todo verify if the method is need
+     *
      * @return bool
      */
     public function isSubscribed(): bool
     {
-        return null !== $this->queue;
     }
 
     /**
      * @todo verify the need of this function
+     *
      * @param string $queue
      */
     public function subscribe($queue)
@@ -252,6 +230,7 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * @todo verify the need of this function
+     *
      * @throws \Exception
      */
     public function unSubscribe()
@@ -260,6 +239,7 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * @todo verify the need of this function
+     *
      * {@inheritdoc}
      */
     public function ack()
@@ -268,6 +248,7 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * @todo verify the need of this function
+     *
      * {@inheritdoc}
      */
     public function nack()
@@ -276,37 +257,38 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * @todo verify the need of this function
+     *
      * {@inheritdoc}
      */
     public function doDestroy()
     {
         try {
             $this->disconnect();
-        } catch (\Exception $e) {
-            echo $e->getMessage();
+        } catch (\Exception $exception) {
+            $this->getExceptionHandler()($exception, [$exception->getCode(), $exception->getMessage()]);
         }
     }
 
     /**
      * Creates a message and prepare the content to publish
+     *
      * {@inheritdoc}
+     * @throws \Exception
      */
-    public function send(QueueMessageInterface $queueMessage, $destination = null, $options = []): bool
+    public function send(QueueMessageInterface $message, $destination = null): bool
     {
-        if (!$queueMessage->getQueue()) {
-            throw new \Exception('Please declare a queue before send some message');
-        }
-
-        $messageBody = $this->getSerializer()->serialize($queueMessage, $this->format);
-        $messageHeaders = new AMQPTable($queueMessage->getHeaders());
-        $message = new AMQPMessage($messageBody);
-        $message->set('application_headers', $messageHeaders);
-        $this->publish($message, $queueMessage->getQueue());
+        $this->validateQueueExists($message);
+        $messageBody = $this->getSerializer()->serialize($message, $this->format);
+        $messageHeaders = new AMQPTable($message->getHeaders());
+        $amqpMessage = new AMQPMessage($messageBody);
+        $amqpMessage->set('application_headers', $messageHeaders);
+        $this->publish($amqpMessage, $message->getQueue());
         return true;
     }
 
     /**
      * @todo verify the need of this function
+     *
      * {@inheritdoc}
      */
     public function receive()
@@ -315,17 +297,7 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * @todo verify the need of this function
-     * Returns One Serializable object from the queue.
-     * It requires to subscribe previously to a specific queue
      *
-     * @throws \Exception
-     */
-    public function receiveNoWait()
-    {
-    }
-
-    /**
-     * @todo verify the need of this function
      * @return int The time it took in ms to de-queue and deserialize the message
      */
     public function getDequeueingTimeMs()
@@ -334,51 +306,26 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     }
 
     /**
-     * @todo verify if this method is need
-     * {@inheritdoc}
-     */
-    public function purge(string $queue)
-    {
-    }
-
-    /**
-     * Sleep the script for a given number of seconds.
-     *
-     * @param int|float $seconds
-     */
-    public function sleep($seconds)
-    {
-        if ($seconds < 1) {
-            usleep((int) $seconds * 1000000);
-        } else {
-            sleep((int) $seconds);
-        }
-    }
-
-    /**
      * Declares the queue to drive the message
      *
-     * @param string $name The name of the que
-     * @param int $flag See AMQPQueue::setFlags()
+     * @param string $name The name of the queue
+     * @param int $durable
      * @param array $arguments See AMQPQueue::setArguments()
      *
      * @return array|null
      *
      * @throws \AMQPChannelException
      */
-    public function declareQueue(string $name, int $flag = AMQP_DURABLE, array $arguments = [])
+    public function declareQueue(string $name, int $durable = AMQP_DURABLE, array $arguments = [])
     {
-        if (!$this->channel) {
-            throw new \AMQPChannelException('There is no channel available');
-        }
-
+        $this->validateChannel();
         $this->queue = $name;
-        $durable = $flag === AMQP_DURABLE ? true : false;
         return $this->channel->queue_declare($this->queue, false, $durable, false, false, false, new AMQPTable([$arguments]));
     }
 
     /**
      * Catch a channel inside the connection
+     *
      * @return AMQPChannel
      */
     public function declareChannel(): AMQPChannel
@@ -390,18 +337,16 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * AMQP Exchange is the publishing mechanism. This method declares a new default exchange
-     * @param $exchange
      */
-    public function declareExchange($exchange)
+    public function declareExchange()
     {
-        $this->exchange = $exchange;
-        $this->exchange->setName(self::EXCHANGE_NAME);
-        $this->channel->exchange_declare($this->exchange->getName(), AMQPExchangeType::DIRECT, false, true, false);
-        $this->channel->queue_bind($this->queue, $this->exchange->getName(), $this->queue);
+        $this->channel->exchange_declare(self::EXCHANGE_NAME, AMQPExchangeType::DIRECT, false, true, false);
+        $this->channel->queue_bind($this->queue, self::EXCHANGE_NAME, $this->queue);
     }
 
     /**
      * Publish a message
+     *
      * @param AMQPMessage $message
      * @param string $queueName
      * @param array $options
@@ -419,10 +364,60 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
 
     /**
      * Returns the format used on serialize function
+     *
      * @return string
      */
     public function getFormat()
     {
         return $this->format;
+    }
+
+    /**
+     * Validate if the information related to the connection is available
+     *
+     * @throws \Exception
+     */
+    private function validateConnectionData()
+    {
+        if (empty($this->connectionsData)) {
+            throw new \Exception('No data available to make the connection.');
+        }
+    }
+
+    /**
+     * Shuffles the connection in case there is more than one available
+     *
+     * @param bool $isShuffle
+     */
+    private function shuffleConnections($isShuffle = true)
+    {
+        if ($isShuffle && count($this->connectionsData) > 1) {
+            shuffle($this->connectionsData);
+        }
+    }
+
+    /**
+     * Validate if a queue already was declared to this connection
+     *
+     * @param $queueMessage
+     * @throws \Exception
+     */
+    private function validateQueueExists($queueMessage)
+    {
+        if (!$queueMessage->getQueue()) {
+            throw new \Exception('Please declare a queue before send some message');
+        }
+    }
+
+    /**
+     * Validate if a channel was already declared on the driver
+     *
+     * @throws \AMQPChannelException
+     */
+    private function validateChannel()
+    {
+        if (!$this->channel) {
+            throw new \AMQPChannelException('There is no channel available');
+        }
     }
 }

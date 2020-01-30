@@ -21,6 +21,7 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDri
 
 /**
  * Class PhpAmqpSignalConsumer
+ *
  * @package Smartbox\Integration\FrameworkBundle\Components\Queues
  */
 class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, LoggerAwareInterface
@@ -51,10 +52,9 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
      */
     private $driver;
 
-    private $driverConfigs;
-
     /**
      * PhpAmqpSignalConsumer constructor.
+     *
      * @param PhpAmqpLibDriver $driver
      * @throws Exception
      */
@@ -73,13 +73,12 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
 
     /**
      * Method responsible to receive the number dispatched by the signal and execute the related function
+     *
      * @param $signalNumber
      * @throws \AMQPException
      */
     public function signalHandler(int $signalNumber)
     {
-        echo 'Handling signal: #' . $signalNumber . PHP_EOL;
-
         switch ($signalNumber) {
             case SIGTERM: // 15 : supervisor default stop
             case SIGQUIT: // 3  : kill -s QUIT
@@ -95,6 +94,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
 
     /**
      * Stop the consumer not gracefully closing the connection
+     *
      * @throws \AMQPException
      */
     public function stopHard()
@@ -106,6 +106,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     /**
      * Tell the server you are going to stop consuming
      * It will finish up the last message and not send you any more
+     *
      * @throws Exception
      */
     public function stop()
@@ -118,6 +119,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
 
     /**
      * Start the consume flow
+     *
      * @param EndpointInterface $endpoint
      * @return bool
      * @throws Exception
@@ -158,6 +160,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
 
     /**
      * Returns the consumer name
+     *
      * {@inheritdoc}
      */
     public function getName()
@@ -167,6 +170,7 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
 
     /**
      * Returns the queue name properly treated with queue prefix
+     *
      * @param EndpointInterface $endpoint
      * @return string
      */
@@ -178,17 +182,13 @@ class PhpAmqpSignalConsumer extends Service implements ConsumerInterface, Logger
     }
 
     /**
-     * Set the driver to the class with the fulfilled values
+     * Set the driver to this class with the properties fulfilled
+     *
      * @param $driver
      */
     public function setDriver($driver)
     {
         $this->driver = $driver;
-    }
-
-   public function setDriverConfig($driverConfigs)
-    {
-        $this->driverConfigs = $driverConfigs;
     }
 
 }

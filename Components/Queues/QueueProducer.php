@@ -21,6 +21,7 @@ class QueueProducer extends Producer
 
     protected $headersToPropagate = [
         Message::HEADER_EXPIRES,
+        'x-dead-letters-exchange' => 'EAI'
     ];
 
     /**
@@ -64,6 +65,7 @@ class QueueProducer extends Producer
                 $queueMessage->setHeader($header, $inMessage->getHeader($header));
             }
         }
+        $queueMessage->setHeader('x-dead-letter-exchanges', 'EAI');
 
         // Call the preSend hook
         $this->beforeSend($queueMessage, $options);

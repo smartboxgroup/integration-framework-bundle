@@ -48,6 +48,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         'smartesb.amqp.queue_manager',
         'smartesb.consumers.async_queue',
         'smartesb.drivers.queue.amqp',
+        'smartesb.drivers.queue.phpamqplib',
         'smartesb.consumers.php_amqp_lib_signal_queue.class'
     ];
 
@@ -280,14 +281,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     }
 
                     if (empty($driverConfig['connections'] ?? [])) {
-                        throw new \InvalidArgumentException('You need to define at least one connection to use the AMQP driver.');
+                        throw new \InvalidArgumentException('You need to define at least one connection to use the PHP AMQP lib driver.');
                     }
 
                     $driverDef = new Definition(PhpAmqpLibDriver::class);
 
                     foreach ($driverConfig['connections'] as $index => $uri) {
                         $connection = parse_url($uri);
-                        $connectionId = "$driverId.connection.$index";
 
                         $driverDef->addMethodCall('configure', [
                             'host' => $connection['host'],
