@@ -10,7 +10,6 @@ use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 use Psr\Log\LoggerAwareTrait;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Handler\PhpAmqpHandler;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
@@ -24,7 +23,7 @@ use Smartbox\Integration\FrameworkBundle\Service;
  *
  * @package Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers
  */
-class PhpAmqpLibDriver extends Service implements QueueDriverInterface
+class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 {
     use UsesSerializer;
     use UsesExceptionHandlerTrait;
@@ -161,11 +160,10 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
      * @param string $queueName
      * @param callable $callback
      */
-    public function consume(string $consumerTag, AMQPChannel $channel, string $queueName, callable $callback)
+    public function consume(string $consumerTag, string $queueName, callable $callback)
     {
-        $channel->basic_qos(null, 1, null);
-        $channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
-        $this->wait($channel);
+        $this->channel->basic_qos(null, 1, null);
+        $this->channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
     }
 
     /**
@@ -257,8 +255,9 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
      *
      * {@inheritdoc}
      */
-    public function ack()
+    public function ack(int $deliveryTag)
     {
+        $this->channel->basic_ack($deliveryTag);
     }
 
     /**
@@ -444,10 +443,13 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
      * @param AMQPChannel $channel
      * @throws \Exception
      */
-    protected function wait(AMQPChannel $channel)
+    public function waitNonBlocking()
     {
-        while ($channel->is_consuming()) {
-            $channel->wait(null, true);
-        }
+        $this->channel->wait(null, true);
+    }
+
+    public function isConsuming()
+    {
+        return $this->channel->is_consuming();
     }
 }

@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\SmokeTests;
 
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 
 /**
@@ -16,7 +17,7 @@ class QueueDriverConnectionSmokeTest implements SmokeTestInterface
      */
     protected $queueDriver;
 
-    public function __construct(QueueDriverInterface $queueDriver)
+    public function __construct(AsyncQueueDriverInterface $queueDriver)
     {
         $this->queueDriver = $queueDriver;
     }

@@ -4,24 +4,16 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
-use Exception;
-use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Exception\AMQPRuntimeException;
 use PhpAmqpLib\Message\AMQPMessage;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Handler\PhpAmqpHandler;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
-use Smartbox\Integration\FrameworkBundle\Service;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 
 /**
@@ -44,12 +36,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * @var string
      */
-    private $format;
-
-    /**
-     * @var PhpAmqpHandler
-     */
-    private $handler;
+    private $format = QueueDriverInterface::FORMAT_JSON;
 
     /**
      * @var PhpAmqpLibDriver
@@ -71,13 +58,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     protected function initialize(EndpointInterface $endpoint)
     {
-        $this->handler = new PhpAmqpHandler($endpoint, (int)$this->expirationCount, $this->driver->getFormat(), $this->serializer);
-        $this->handler->setExceptionHandler($this->getExceptionHandler());
-
-        if ($this->smartesbHelper) {
-            $this->handler->setSmartesbHelper($this->smartesbHelper);
-        }
-
         if (!$this->driver->isConnected()) {
             $this->driver->connect();
         }
@@ -86,14 +66,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     public function callback(EndpointInterface $endpoint)
     {
         return function(AMQPMessage $message) use($endpoint) {
-            try {
-                $queueMessage = $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->format);
-            } catch (\Exception $exception) {
-                $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
-            }
-
-            $this->process($endpoint, $queueMessage);
+            $this->process($endpoint, $message);
             $this->confirmMessage($endpoint, $message);
+            $this->expirationCount--;
         };
     }
 
@@ -131,19 +106,41 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * @inheritDoc
      */
-    protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message)
+    protected function confirmMessage(EndpointInterface $endpoint, $message)
     {
-        // TODO: Implement confirmMessage() method.
+        $this->driver->ack($message->getDeliveryTag());
     }
 
     public function asyncConsume(EndpointInterface $endpoint, callable $callback)
     {
-        $channel = $this->driver->declareChannel();
-        if ($channel instanceof AMQPChannel) {
-            $this->handler->setChannel($channel);
-        }
+        $this->driver->declareChannel();
         $queueName = $this->getQueueName($endpoint);
+
         $this->driver->declareQueue($queueName);
-        $this->driver->consume($this->getName(), $channel, $queueName, $callback);
+        $this->driver->consume($this->getName(), $queueName, $callback);
+    }
+
+    public function wait()
+    {
+        if ($this->driver->isConsuming()) {
+            $this->driver->waitNonBlocking();
+        }
+    }
+
+    protected function process(EndpointInterface $queueEndpoint, $message)
+    {
+        try {
+            $message = $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->format);
+        } catch (\Exception $exception) {
+            $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
+        }
+
+        // If we used a wrapper to queue the message, that the handler doesn't understand, unwrap it
+        if ($message instanceof QueueMessageInterface && !($queueEndpoint->getHandler() instanceof QueueMessageHandlerInterface)) {
+            $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI(), EndpointFactory::MODE_CONSUME);
+            $queueEndpoint->getHandler()->handle($message->getBody(), $endpoint);
+        } else {
+            parent::process($queueEndpoint, $message);
+        }
     }
 }

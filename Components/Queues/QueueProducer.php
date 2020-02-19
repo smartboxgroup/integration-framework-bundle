@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
@@ -43,7 +44,7 @@ class QueueProducer extends Producer
             );
         }
 
-        if (!($queueDriver instanceof QueueDriverInterface)) {
+        if (!($queueDriver instanceof AsyncQueueDriverInterface)) {
             throw new \RuntimeException("Found queue driver with name '$queueDriverName' that doesn't implement QueueDriverInterface");
         }
 

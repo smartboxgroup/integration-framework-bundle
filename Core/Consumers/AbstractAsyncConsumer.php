@@ -2,6 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
+use PhpAmqpLib\Message\AMQPMessage;
+use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
@@ -42,7 +44,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * @param EndpointInterface $endpoint
      * @param MessageInterface  $message
      */
-    protected function process(EndpointInterface $endpoint, MessageInterface $message)
+    protected function process(EndpointInterface $endpoint, AMQPMessage $message)
     {
         $endpoint->handle($message);
     }
@@ -52,11 +54,11 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * not be removed from the source Endpoint, this is very important to ensure the Message delivery guarantee.
      *
      * @param EndpointInterface $endpoint
-     * @param MessageInterface  $message
+     * @param $message
      *
      * @return MessageInterface
      */
-    abstract protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message);
+    abstract protected function confirmMessage(EndpointInterface $endpoint, $message);
 
     /**
      * {@inheritdoc}
@@ -68,11 +70,11 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
         $this->initialize($endpoint);
 
         $callback = $this->callback($endpoint);
+        $this->asyncConsume($endpoint, $callback);
+
         while (!$this->shouldStop()) {
             try {
-                $this->asyncConsume($endpoint, $callback);
-                $this->logConsumeMessage();
-                --$this->expirationCount;
+                $this->wait();
             } catch (\Exception $exception) {
                 if (!$this->stop) {
                     throw $exception;
@@ -82,8 +84,18 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
 
         $this->cleanUp($endpoint);
     }
-    abstract public function callback(EndpointInterface $endpoint);
+
+    public function callback(EndpointInterface $endpoint)
+    {
+        return function($message) use($endpoint) {
+            $this->process($endpoint, $message);
+            $this->confirmMessage($endpoint, $message);
+            $this->expirationCount--;
+        };
+    }
+
     abstract public function asyncConsume(EndpointInterface $endpoint, callable $callback);
+    abstract public function wait();
 
     /** {@inheritdoc} */
     public function getName()

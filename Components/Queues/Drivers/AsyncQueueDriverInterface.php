@@ -5,7 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 
-interface QueueDriverInterface extends SerializableInterface
+interface AsyncQueueDriverInterface extends SerializableInterface
 {
     const FORMAT_JSON = 'json';
     const FORMAT_XML = 'xml';
@@ -66,8 +66,10 @@ interface QueueDriverInterface extends SerializableInterface
      * Acknowledges the processing of the last received object.
      *
      * The object should be removed from the queue.
+     *
+     * @param string $deliveryTag
      */
-    public function ack();
+    public function ack(int $deliveryTag);
 
     /**
      * Acknowledges a failure on processing the last received object.
@@ -84,7 +86,16 @@ interface QueueDriverInterface extends SerializableInterface
      */
     public function send(QueueMessageInterface $message, $destination = null);
 
-
+    /**
+     * Returns One Serializable object from the queue.
+     *
+     * It requires to subscribe previously to a specific queue
+     *
+     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface|null
+     *
+     * @throws \Exception
+     */
+    public function receive();
 
     /**
      * @return QueueMessageInterface
