@@ -6,6 +6,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\IsStopableConsumer;
@@ -14,12 +15,9 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 
 /**
- * Class PhpAmqpSignalConsumer
- *
- * @package Smartbox\Integration\FrameworkBundle\Components\Queues
+ * Class PhpAmqpSignalConsumer.
  */
 class AsyncQueueConsumer extends AbstractAsyncConsumer
 {
@@ -29,7 +27,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     use UsesExceptionHandlerTrait;
 
     /**
-     * Consumer identifier name
+     * Consumer identifier name.
      */
     const CONSUMER_TAG = 'amqp-consumer-%s-%s';
 
@@ -44,7 +42,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     private $driver;
 
     /**
-     * Set the driver to this class with the properties fulfilled
+     * Set the driver to this class with the properties fulfilled.
      *
      * @param $driver
      */
@@ -54,7 +52,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function initialize(EndpointInterface $endpoint)
     {
@@ -65,15 +63,15 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
     public function callback(EndpointInterface $endpoint)
     {
-        return function(AMQPMessage $message) use($endpoint) {
+        return function (AMQPMessage $message) use ($endpoint) {
             $this->process($endpoint, $message);
             $this->confirmMessage($endpoint, $message);
-            $this->expirationCount--;
+            --$this->expirationCount;
         };
     }
 
     /**
-     * Returns the consumer name
+     * Returns the consumer name.
      *
      * {@inheritdoc}
      */
@@ -83,10 +81,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * Returns the queue name properly treated with queue prefix
-     *
-     * @param EndpointInterface $endpoint
-     * @return string
+     * Returns the queue name properly treated with queue prefix.
      */
     protected function getQueueName(EndpointInterface $endpoint): string
     {
@@ -96,7 +91,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function cleanUp(EndpointInterface $endpoint)
     {
@@ -104,7 +99,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function confirmMessage(EndpointInterface $endpoint, $message)
     {

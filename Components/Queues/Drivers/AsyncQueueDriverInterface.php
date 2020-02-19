@@ -79,8 +79,7 @@ interface AsyncQueueDriverInterface extends SerializableInterface
     public function nack();
 
     /**
-     * @param QueueMessageInterface $message
-     * @param string|null           $destination
+     * @param string|null $destination
      *
      * @return bool
      */

@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use PhpAmqpLib\Message\AMQPMessage;
-use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
@@ -23,26 +22,20 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
 
     /**
      * Initializes the consumer for a given endpoint.
-     *
-     * @param EndpointInterface $endpoint
      */
     abstract protected function initialize(EndpointInterface $endpoint);
 
     /**
-     * @param EndpointInterface $endpoint
-     *
      * @return mixed
      */
     abstract protected function cleanUp(EndpointInterface $endpoint);
-
 
     /**
      * After the execution of this method, it will be considered that the message was successfully handled,
      * therefore, if there was any problem, an exception must be thrown and not continue. This is important to ensure
      * the Message Delivery Guarantee.
      *
-     * @param EndpointInterface $endpoint
-     * @param MessageInterface  $message
+     * @param MessageInterface $message
      */
     protected function process(EndpointInterface $endpoint, AMQPMessage $message)
     {
@@ -53,7 +46,6 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * This function is called to confirm that a message was successfully handled. Until this point, the message should
      * not be removed from the source Endpoint, this is very important to ensure the Message delivery guarantee.
      *
-     * @param EndpointInterface $endpoint
      * @param $message
      *
      * @return MessageInterface
@@ -87,14 +79,15 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
 
     public function callback(EndpointInterface $endpoint)
     {
-        return function($message) use($endpoint) {
+        return function ($message) use ($endpoint) {
             $this->process($endpoint, $message);
             $this->confirmMessage($endpoint, $message);
-            $this->expirationCount--;
+            --$this->expirationCount;
         };
     }
 
     abstract public function asyncConsume(EndpointInterface $endpoint, callable $callback);
+
     abstract public function wait();
 
     /** {@inheritdoc} */
@@ -110,7 +103,6 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * This function dispatchs a timing event with the amount of time it took to consume a message.
      *
      * @param $intervalMs int the timing interval that we would like to emanate
-     * @param MessageInterface $message
      *
      * @return mixed
      */
@@ -138,7 +130,6 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
             'date' => $now->format('Y-m-d H:i:s.u'),
             ]
         );
+        }
     }
-}
-
 }

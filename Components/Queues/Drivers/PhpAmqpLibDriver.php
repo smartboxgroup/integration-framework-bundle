@@ -19,9 +19,7 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandler
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
- * Class PhpAmqpLibDriver
- *
- * @package Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers
+ * Class PhpAmqpLibDriver.
  */
 class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 {
@@ -31,7 +29,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     use LoggerAwareTrait;
 
     /**
-     * Represents the amount of message to consume by iteration
+     * Represents the amount of message to consume by iteration.
      */
     const PREFETCH_COUNT = 1;
 
@@ -101,7 +99,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     private $vhost;
 
     /**
-     * Method responsible to catch the parameters to configure the driver
+     * Method responsible to catch the parameters to configure the driver.
      *
      * @param string $host
      * @param string $username
@@ -127,9 +125,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Method responsible to open the connection with the broker
+     * Method responsible to open the connection with the broker.
      *
      * @param bool $shuffle - used to randomize the connections if exists more than one
+     *
      * @throws \Exception
      */
     public function connect($shuffle = true)
@@ -145,7 +144,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
                 'read_write_timeout' => 50.0,
                 'context' => null,
                 'keepalive' => true,
-                'heartbeat' => 0
+                'heartbeat' => 0,
             ]));
         } catch (\Exception $exception) {
             $this->getExceptionHandler()($exception, [$exception->getCode(), $exception->getMessage()]);
@@ -153,12 +152,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Consumes the message and dispatch it to others features
+     * Consumes the message and dispatch it to others features.
      *
-     * @param string $consumerTag
      * @param AMQPChannel $channel
-     * @param string $queueName
-     * @param callable $callback
      */
     public function consume(string $consumerTag, string $queueName, callable $callback)
     {
@@ -167,7 +163,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Add a connection to the array of connections
+     * Add a connection to the array of connections.
      *
      * @param $connection
      */
@@ -177,7 +173,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Responsible to disconnect with the broker
+     * Responsible to disconnect with the broker.
      */
     public function disconnect()
     {
@@ -195,7 +191,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Creates the QueueMessage object
+     * Creates the QueueMessage object.
      *
      * @return QueueMessage|QueueMessageInterface
      */
@@ -203,13 +199,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     {
         $msg = new QueueMessage();
         $msg->setContext(new Context());
+
         return $msg;
     }
 
     /**
-     * Verifies if there is some connection opened with the broker
-     *
-     * @return bool
+     * Verifies if there is some connection opened with the broker.
      */
     public function isConnected(): bool
     {
@@ -220,13 +215,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
                 }
             }
         }
+
         return false;
     }
 
     /**
-     * @return bool
      * @todo verify if the method is need
-     *
      */
     public function isSubscribed(): bool
     {
@@ -234,8 +228,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * @param string $queue
-     * @todo verify the need of this function
      *
+     * @todo verify the need of this function
      */
     public function subscribe($queue)
     {
@@ -243,8 +237,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * @throws \Exception
-     * @todo verify the need of this function
      *
+     * @todo verify the need of this function
      */
     public function unSubscribe()
     {
@@ -284,9 +278,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Creates a message and prepare the content to publish
+     * Creates a message and prepare the content to publish.
      *
      * {@inheritdoc}
+     *
      * @throws \Exception
      */
     public function send(QueueMessageInterface $message, $destination = null): bool
@@ -297,6 +292,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
         $amqpMessage = new AMQPMessage($messageBody);
         $amqpMessage->set('application_headers', $messageHeaders);
         $this->publish($amqpMessage, $message->getQueue());
+
         return true;
     }
 
@@ -311,8 +307,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * @return int The time it took in ms to de-queue and deserialize the message
-     * @todo verify the need of this function
      *
+     * @todo verify the need of this function
      */
     public function getDequeueingTimeMs()
     {
@@ -320,11 +316,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Declares the queue to drive the message
+     * Declares the queue to drive the message.
      *
-     * @param string $name The name of the queue
-     * @param int $durable
-     * @param array $arguments See AMQPQueue::setArguments()
+     * @param string $name      The name of the queue
+     * @param array  $arguments See AMQPQueue::setArguments()
      *
      * @return array|null
      *
@@ -334,23 +329,23 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     {
         $this->validateChannel();
         $this->queue = $name;
+
         return $this->channel->queue_declare($this->queue, false, $durable, false, false, false, new AMQPTable([$arguments]));
     }
 
     /**
-     * Catch a channel inside the connection
-     *
-     * @return AMQPChannel
+     * Catch a channel inside the connection.
      */
     public function declareChannel(): AMQPChannel
     {
         $this->channel = $this->amqpConnections[0]->channel();
         $this->channel->basic_qos(null, self::PREFETCH_COUNT, null);
+
         return $this->channel;
     }
 
     /**
-     * AMQP Exchange is the publishing mechanism. This method declares a new default exchange
+     * AMQP Exchange is the publishing mechanism. This method declares a new default exchange.
      */
     public function declareExchange()
     {
@@ -359,11 +354,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Publish a message
-     *
-     * @param AMQPMessage $message
-     * @param string $queueName
-     * @param array $options
+     * Publish a message.
      */
     public function publish(AMQPMessage $message, string $queueName, array $options = [])
     {
@@ -377,7 +368,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Returns the format used on serialize function
+     * Returns the format used on serialize function.
      *
      * @return string
      */
@@ -387,7 +378,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Validate if the information related to the connection is available
+     * Validate if the information related to the connection is available.
      *
      * @throws \Exception
      */
@@ -399,7 +390,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Shuffles the connection in case there is more than one available
+     * Shuffles the connection in case there is more than one available.
      *
      * @param bool $isShuffle
      */
@@ -411,9 +402,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Validate if a queue already was declared to this connection
+     * Validate if a queue already was declared to this connection.
      *
      * @param $queueMessage
+     *
      * @throws \Exception
      */
     private function validateQueueExists($queueMessage)
@@ -424,7 +416,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Validate if a channel was already declared on the driver
+     * Validate if a channel was already declared on the driver.
      *
      * @throws \AMQPChannelException
      */
@@ -438,9 +430,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * Verifies if the channel is consuming a message
      * If there is a message to consume it calls the consume callback function
-     * If there is no message to consume it will put the worker in a wait state
+     * If there is no message to consume it will put the worker in a wait state.
      *
      * @param AMQPChannel $channel
+     *
      * @throws \Exception
      */
     public function waitNonBlocking()
