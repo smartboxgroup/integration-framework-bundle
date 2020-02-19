@@ -154,6 +154,21 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     }
 
     /**
+     * Consumes the message and dispatch it to others features
+     *
+     * @param string $consumerTag
+     * @param AMQPChannel $channel
+     * @param string $queueName
+     * @param callable $callback
+     */
+    public function consume(string $consumerTag, AMQPChannel $channel, string $queueName, callable $callback)
+    {
+        $channel->basic_qos(null, 1, null);
+        $channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
+        $this->wait($channel);
+    }
+
+    /**
      * Add a connection to the array of connections
      *
      * @param $connection
@@ -211,27 +226,27 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     }
 
     /**
+     * @return bool
      * @todo verify if the method is need
      *
-     * @return bool
      */
     public function isSubscribed(): bool
     {
     }
 
     /**
+     * @param string $queue
      * @todo verify the need of this function
      *
-     * @param string $queue
      */
     public function subscribe($queue)
     {
     }
 
     /**
+     * @throws \Exception
      * @todo verify the need of this function
      *
-     * @throws \Exception
      */
     public function unSubscribe()
     {
@@ -296,9 +311,9 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     }
 
     /**
+     * @return int The time it took in ms to de-queue and deserialize the message
      * @todo verify the need of this function
      *
-     * @return int The time it took in ms to de-queue and deserialize the message
      */
     public function getDequeueingTimeMs()
     {
@@ -418,6 +433,21 @@ class PhpAmqpLibDriver extends Service implements QueueDriverInterface
     {
         if (!$this->channel) {
             throw new \AMQPChannelException('There is no channel available');
+        }
+    }
+
+    /**
+     * Verifies if the channel is consuming a message
+     * If there is a message to consume it calls the consume callback function
+     * If there is no message to consume it will put the worker in a wait state
+     *
+     * @param AMQPChannel $channel
+     * @throws \Exception
+     */
+    protected function wait(AMQPChannel $channel)
+    {
+        while ($channel->is_consuming()) {
+            $channel->wait(null, true);
         }
     }
 }

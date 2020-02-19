@@ -110,20 +110,7 @@ services:
   smartesb.handlers.async:
       class: '%smartesb.handlers.message_routing.class%'
 
-  smartesb.amqp.queue_manager:
-    class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueManager
-    public: false
-
   smartesb.drivers.queue.amqp:
-    class: Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AmqpQueueDriver
-    arguments: ['@smartesb.amqp.queue_manager']
-    calls:
-      - [setSerializer, ['@jms_serializer']]
-      - [setMessageFactory, ['@smartesb.message_factory']]
-    public: '%kernel.debug%'
-
-  # PHPAMQPLIB
-  smartesb.drivers.queue.phpamqplib:
     class: Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver
     calls:
       - [setSerializer, ['@jms_serializer']]

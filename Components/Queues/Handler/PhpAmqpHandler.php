@@ -67,41 +67,7 @@ class PhpAmqpHandler implements LoggerAwareInterface
         $this->serializer = $serializer ?? SerializerBuilder::create()->build();
     }
 
-    /**
-     * Consumes the message and dispatch it to others features
-     *
-     * @param string $consumerTag
-     * @param AMQPChannel $channel
-     * @param string $queueName
-     * @throws \Exception
-     */
-    public function consume(string $consumerTag, AMQPChannel $channel, string $queueName)
-    {
-        $callback = function($message) use ($channel) {
-            $this->isConnected($channel);
 
-            if ($this->shouldStop()) {
-                $channel->basic_cancel($message->delivery_info['consumer_tag']);
-                return false;
-            }
-
-            $this->log('A message was received on {time}');
-
-            $queueMessage = $this->deserializeMessage($message);
-            $this->dispatchMessage($queueMessage);
-            $channel->basic_ack($message->delivery_info['delivery_tag']);
-            --$this->expirationCount;
-        };
-
-        try {
-            $channel->basic_qos(null, 1, null);
-            $message = $channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
-            $this->isConsuming($channel);
-        } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
-            return;
-        }
-    }
 
     /**
      * Verifies if the channel is consuming a message

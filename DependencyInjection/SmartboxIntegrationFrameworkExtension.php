@@ -45,11 +45,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const CONSUMER_PREFIX = 'smartesb.consumers.';
     const PARAM_DEFERRED_EVENTS_URI = 'smartesb.uris.deferred_events';
     const AMQP_SERVICES = [
-        'smartesb.amqp.queue_manager',
         'smartesb.consumers.async_queue',
-        'smartesb.drivers.queue.amqp',
+//        'smartesb.drivers.queue.amqp',
         'smartesb.drivers.queue.phpamqplib',
-        'smartesb.consumers.php_amqp_lib_signal_queue.class'
+        'smartesb.async_consumers.queue.class'
     ];
 
     protected $config;
@@ -201,6 +200,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             switch ($type) {
                 case 'rabbitmq':
                 case 'activemq':
+                case 'stomp':
                     $urlEncodeDestination = ('rabbitmq' == $type);
 
                     $driverDef = new Definition(StompQueueDriver::class, []);
@@ -233,49 +233,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     break;
 
                 case 'amqp':
-                    if (!class_exists('AMQPConnection')) {
-                        throw new \RuntimeException('You need the amqp extension to use AMQP driver.');
-                    }
-
-                    if (empty($driverConfig['connections'] ?? [])) {
-                        throw new \InvalidArgumentException('You need to define at least one connection to use the AMQP driver.');
-                    }
-
-                    $queueManager = $container->findDefinition('smartesb.amqp.queue_manager');
-                    foreach ($driverConfig['connections'] as $index => $uri) {
-                        $connection = parse_url($uri);
-                        $connectionId = "$driverId.connection.$index";
-
-                        $container->register($connectionId, 'AMQPConnection')->setArguments([[
-                            'host' => $connection['host'],
-                            'port' => $connection['port'] ?? 5672,
-                            'vhost' => trim($connection['path'] ?? '', '/'),
-                            'login' => $connection['user'],
-                            'password' => $connection['pass'],
-                        ]]);
-
-                        $queueManager->addMethodCall('addConnection', [new Reference($connectionId)]);
-                    }
                     $this->useAmqp = true;
-
-                    $driverDef = $container->findDefinition('smartesb.drivers.queue.amqp');
-                    $driverDef->addMethodCall('setId', [$driverId]);
-                    $driverDef->addMethodCall('configure', [null, null, null, $driverConfig['format']]);
-
-                    $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
-
-                    $container->setDefinition($driverId, $driverDef);
-                    $container->findDefinition('smartesb.protocols.queue')
-                        ->addMethodCall('setDefaultConsumer', [new Reference('smartesb.consumers.async_queue')]);
-
-                    if ($exceptionHandlerId) {
-                        $container->findDefinition('smartesb.consumers.async_queue')
-                            ->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
-                        $driverDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
-                    }
-                    break;
-
-                case 'phpamqplib':
+                    
                     if (!class_exists(AMQPStreamConnection::class)) {
                         throw new \RuntimeException('You need the amqp extension to use PHP-AMQP-LIB driver.');
                     }
@@ -306,7 +265,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                     $container->setDefinition($driverId, $driverDef);
 
-                    $consumer = $container->findDefinition('smartesb.consumers.php_amqp_lib_signal_queue');
+                    $consumer = $container->findDefinition('smartesb.async_consumers.queue');
                     $consumer->addMethodCall('setDriver', [$driverDef]);
                     $consumer->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
 
