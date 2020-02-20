@@ -20,14 +20,26 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     use UsesLogger;
     use UsesSmartesbHelper;
 
+    /**
+     * Sleep flag. Prevents the consumer from running too fast and consuming all available resources when there are
+     * no messages available.
+     *
+     * @var bool
+     */
     protected $sleep = true;
 
     /**
      * Initializes the consumer for a given endpoint.
+     *
+     * @param EndpointInterface $endpoint
      */
     abstract protected function initialize(EndpointInterface $endpoint);
 
     /**
+     * Cleans up and closes connections before shutting down.
+     *
+     * @param EndpointInterface $endpoint
+     *
      * @return mixed
      */
     abstract protected function cleanUp(EndpointInterface $endpoint);
@@ -71,6 +83,8 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
                 $this->waitNoBlock();
 
                 if ($this->sleep) {
+                    // TODO: Careful here, seems that between messages, waitNoBlock doesnt find anything in the queue
+                    // even if it is full. Need to verify in prod if we trigger this sleep even when there are messages to consume
                     usleep(250000);
                 }
             } catch (\Exception $exception) {
@@ -83,6 +97,15 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
         $this->cleanUp($endpoint);
     }
 
+    /**
+     * Callback function to be triggered when a message is received. Is in charge of triggering the processing,
+     * confirming the message if no exception was thrown, reducing the expiration count and preventing the consumer
+     * from sleeping in the next round.
+     *
+     * @param EndpointInterface $endpoint
+     *
+     * @return \Closure
+     */
     public function callback(EndpointInterface $endpoint)
     {
         return function ($message) use ($endpoint) {
@@ -93,9 +116,25 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
         };
     }
 
+    /**
+     * Hooks the consumer with the source of information and passes the callback function to be called once a message
+     * is received.
+     *
+     * @param EndpointInterface $endpoint
+     * @param callable $callback
+     */
     abstract public function asyncConsume(EndpointInterface $endpoint, callable $callback);
 
+    /**
+     * Waits for a message in a blocking way. If the worker needs to listen to signals, use waitNoBlock() instead. This
+     * function won't return the control to the consumer until a message arrives and the callback function finishes.
+     */
     abstract public function wait();
+
+    /**
+     * Waits for a message in a non-blocking way. If there's no message to consume, control is returned to the consumer.
+     * Needs to be called in a loop in order to keep checking for messages.
+     */
     abstract public function waitNoBlock();
 
     /** {@inheritdoc} */
