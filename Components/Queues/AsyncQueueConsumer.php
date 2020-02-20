@@ -6,7 +6,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
@@ -14,6 +13,8 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
+use Smartbox\Integration\FrameworkBundle\Service;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AmqpLibDriver\AmqpLibDriver;
 
 /**
  * Class PhpAmqpSignalConsumer.
@@ -35,7 +36,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     private $format = QueueDriverInterface::FORMAT_JSON;
 
     /**
-     * @var PhpAmqpLibDriver
+     * @var AmqpLibDriver
      */
     private $driver;
 
@@ -54,18 +55,16 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     protected function initialize(EndpointInterface $endpoint)
     {
+        $this->handler = new PhpAmqpHandler($endpoint, (int)$this->expirationCount, $this->driver->getFormat(), $this->serializer);
+        $this->handler->setExceptionHandler($this->getExceptionHandler());
+
+        if ($this->smartesbHelper) {
+            $this->handler->setSmartesbHelper($this->smartesbHelper);
+        }
+
         if (!$this->driver->isConnected()) {
             $this->driver->connect();
         }
-    }
-
-    public function callback(EndpointInterface $endpoint)
-    {
-        return function (AMQPMessage $message) use ($endpoint) {
-            $this->process($endpoint, $message);
-            $this->confirmMessage($endpoint, $message);
-            --$this->expirationCount;
-        };
     }
 
     /**
@@ -116,7 +115,13 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     public function wait()
     {
         if ($this->driver->isConsuming()) {
-            $this->driver->waitNonBlocking();
+            $this->driver->waitNoBlock();
+        }
+    }
+    public function wait()
+    {
+        if ($this->driver->isConsuming()) {
+            $this->driver->wait();
         }
     }
 

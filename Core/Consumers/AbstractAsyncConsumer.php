@@ -20,6 +20,8 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     use UsesLogger;
     use UsesSmartesbHelper;
 
+    protected $sleep = true;
+
     /**
      * Initializes the consumer for a given endpoint.
      */
@@ -64,9 +66,13 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
         $callback = $this->callback($endpoint);
         $this->asyncConsume($endpoint, $callback);
 
-        while (!$this->shouldStop()) {
+        while (!$this->shouldStop() && $this->sleep = true) {
             try {
-                $this->wait();
+                $this->waitNoBlock();
+
+                if ($this->sleep) {
+                    usleep(250000);
+                }
             } catch (\Exception $exception) {
                 if (!$this->stop) {
                     throw $exception;
@@ -83,12 +89,14 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
             $this->process($endpoint, $message);
             $this->confirmMessage($endpoint, $message);
             --$this->expirationCount;
+            $this->sleep = false;
         };
     }
 
     abstract public function asyncConsume(EndpointInterface $endpoint, callable $callback);
 
     abstract public function wait();
+    abstract public function waitNoBlock();
 
     /** {@inheritdoc} */
     public function getName()
