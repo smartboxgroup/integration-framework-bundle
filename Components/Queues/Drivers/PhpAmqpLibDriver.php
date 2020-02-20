@@ -428,17 +428,16 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Verifies if the channel is consuming a message
-     * If there is a message to consume it calls the consume callback function
-     * If there is no message to consume it will put the worker in a wait state.
-     *
-     * @param AMQPChannel $channel
-     *
-     * @throws \Exception
      */
-    public function waitNonBlocking()
+    public function waitNoBlock()
     {
         $this->channel->wait(null, true);
+    }
+    /**
+     */
+    public function wait()
+    {
+        $this->channel->wait();
     }
 
     public function isConsuming()

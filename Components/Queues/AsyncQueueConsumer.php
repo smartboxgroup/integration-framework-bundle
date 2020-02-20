@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
-use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
@@ -13,8 +13,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
-use Smartbox\Integration\FrameworkBundle\Service;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AmqpLibDriver\AmqpLibDriver;
 
 /**
  * Class PhpAmqpSignalConsumer.
@@ -36,7 +34,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     private $format = QueueDriverInterface::FORMAT_JSON;
 
     /**
-     * @var AmqpLibDriver
+     * @var PhpAmqpLibDriver
      */
     private $driver;
 
@@ -55,13 +53,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     protected function initialize(EndpointInterface $endpoint)
     {
-        $this->handler = new PhpAmqpHandler($endpoint, (int)$this->expirationCount, $this->driver->getFormat(), $this->serializer);
-        $this->handler->setExceptionHandler($this->getExceptionHandler());
-
-        if ($this->smartesbHelper) {
-            $this->handler->setSmartesbHelper($this->smartesbHelper);
-        }
-
         if (!$this->driver->isConnected()) {
             $this->driver->connect();
         }
@@ -112,7 +103,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         $this->driver->consume($this->getName(), $queueName, $callback);
     }
 
-    public function wait()
+    public function waitNoBlock()
     {
         if ($this->driver->isConsuming()) {
             $this->driver->waitNoBlock();
@@ -130,7 +121,8 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         try {
             $message = $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->format);
         } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, ['headers' => $message->getHeaders(), 'body' => $message->getBody()]);
+            // TODO Verify "headers" are passed correctly. might need to access "data" key after get_properties
+            $this->getExceptionHandler()($exception, ['headers' => $message->get_properties(), 'body' => $message->getBody()]);
         }
 
         // If we used a wrapper to queue the message, that the handler doesn't understand, unwrap it
