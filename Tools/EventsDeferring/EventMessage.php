@@ -16,7 +16,7 @@ class EventMessage extends Message
     const HEADER_EVENT_NAME = 'event_name';
 
     /**
-     * @Assert\Valid(traverse=true, deep=true)
+     * @Assert\Valid()
      * @JMS\Type("Smartbox\Integration\FrameworkBundle\Events\Event")
      * @JMS\Groups({"logs"})
      * @JMS\Expose
