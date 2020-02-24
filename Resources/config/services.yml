@@ -26,8 +26,6 @@ parameters:
   smartesb.steps_provider.nosql.class: Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\NoSQLStepsProvider
   smartesb.steps_provider.csv.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableStepsProvider
 
-  smartesb.drivers.queue.amqp: Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver
-
 services:
   smartesb.serialization.handler.mongodate:
       class: '%smartesb.serialization.handler.mongodate.class%'
@@ -113,7 +111,7 @@ services:
       class: '%smartesb.handlers.message_routing.class%'
 
   smartesb.drivers.queue.amqp:
-    class: '%smartesb.drivers.queue.amqp%'
+    class: Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver
     calls:
       - [setSerializer, ['@jms_serializer']]
       - [setMessageFactory, ['@smartesb.message_factory']]

@@ -67,5 +67,5 @@ interface AsyncQueueDriverInterface extends QueueDriverInterface
      * @param array $arguments
      * @return bool
      */
-    public function send(QueueMessageInterface $message, $destination = null, $arguments = []);
+    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []);
 }
