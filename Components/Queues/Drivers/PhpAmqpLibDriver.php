@@ -296,15 +296,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * @todo verify the need of this function
-     *
-     * {@inheritdoc}
-     */
-    public function receive()
-    {
-    }
-
-    /**
      * @return int The time it took in ms to de-queue and deserialize the message
      *
      * @todo verify the need of this function
