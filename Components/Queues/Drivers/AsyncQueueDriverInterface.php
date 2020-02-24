@@ -38,7 +38,7 @@ interface AsyncQueueDriverInterface extends QueueDriverInterface
      * @param callable|null $callback
      * @return mixed
      */
-    public function consume(string $consumerTag, string $queueName, ?callable $callback = null);
+    public function consume(string $consumerTag, string $queueName, callable $callback = null);
 
     /**
      * Verifies if the channel is consuming a message
@@ -50,14 +50,22 @@ interface AsyncQueueDriverInterface extends QueueDriverInterface
     public function wait();
 
     /**
-     * @param int $deliveryTag
+     * @param int $messageId
      * @return mixed
      */
-    public function ack(int $deliveryTag);
+    public function ack(int $messageId = null);
 
     /**
-     * @param int $deliveryTag
+     * @param int $messageId
      * @return mixed
      */
-    public function nack(int $deliveryTag);
+    public function nack(int $messageId = null);
+
+    /**
+     * @param QueueMessageInterface $message
+     * @param null $destination
+     * @param array $arguments
+     * @return bool
+     */
+    public function send(QueueMessageInterface $message, $destination = null, $arguments = []);
 }

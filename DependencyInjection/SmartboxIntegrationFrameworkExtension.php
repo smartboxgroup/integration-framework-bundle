@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -204,16 +205,16 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                     $driverDef = new Definition(StompQueueDriver::class, []);
                     $driverDef->addMethodCall('setId', [$driverId]);
+                    $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
+                    $driverDef->addMethodCall('setStompVersion', [$driverConfig['version'] ?? StompQueueDriver::STOMP_VERSION]);
+                    $driverDef->addMethodCall('setTimeout', [$driverConfig['timeout']]);
+                    $driverDef->addMethodCall('setSync', [$driverConfig['sync']]);
 
                     $driverDef->addMethodCall('configure', [
                         $driverConfig['host'],
                         $driverConfig['username'],
                         $driverConfig['password'],
-                        $driverConfig['format'],
-                        StompQueueDriver::STOMP_VERSION,
-                        $driverConfig['vhost'],
-                        $driverConfig['timeout'],
-                        $driverConfig['sync'],
+                        $driverConfig['vhost']
                     ]);
 
                     $driverDef->addMethodCall('setDescription', [$driverConfig['description']]);
@@ -247,12 +248,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     foreach ($driverConfig['connections'] as $index => $uri) {
                         $connection = parse_url($uri);
 
+                        $driverDef->addMethodCall('setPort', [$driverConfig['port'] ?? QueueDriverInterface::DEFAULT_PORT]);
                         $driverDef->addMethodCall('configure', [
                             'host' => $connection['host'],
                             'username' => $connection['user'],
                             'password' => $connection['pass'],
-                            'format' => $driverConfig['format'],
-                            'port' => $connection['port'] ?? 5672,
                             'vhost' => trim($connection['path'] ?? '', '/'),
                         ]);
                     }
@@ -261,6 +261,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                     $driverDef->addMethodCall('setId', [$driverId]);
                     $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
+                    $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
 
                     $container->setDefinition($driverId, $driverDef);
 

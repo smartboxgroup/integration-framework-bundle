@@ -10,6 +10,7 @@ interface QueueDriverInterface extends SerializableInterface
     const FORMAT_JSON = 'json';
     const FORMAT_XML = 'xml';
     const DEFAULT_TTL = 86400;
+    const DEFAULT_PORT = 5672;
 
     const HEADER_TTL = 'ttl';
     const HEADER_EXPIRES = 'expires';
@@ -19,12 +20,12 @@ interface QueueDriverInterface extends SerializableInterface
     /**
      * Configures the driver.
      *
-     * @param $host
-     * @param string $username Username to connect to the queuing system
-     * @param string $password Password to connect to the queuing system
-     * @param string $format
+     * @param string $host
+     * @param string $username
+     * @param string $password
+     * @param string|null $vhost
      */
-    public function configure($host, $username, $password, $format = self::FORMAT_JSON);
+    public function configure(string $host, string $username, string $password, string $vhost = null);
 
     /**
      * Opens a connection with a queuing system.
@@ -44,44 +45,25 @@ interface QueueDriverInterface extends SerializableInterface
     public function isConnected();
 
     /**
-     * Returns true if a subscription already exists, false otherwise.
-     *
-     * @return bool
-     */
-    public function isSubscribed();
-
-    /**
-     * Creates a subscription to the given $queue, allowing to receive messages from it.
-     *
-     * @param string $queue Queue to subscribe
-     */
-    public function subscribe($queue);
-
-    /**
-     * Destroys the created subscription with a queue.
-     */
-    public function unSubscribe();
-
-    /**
      * Acknowledges the processing of the last received object.
      *
      * The object should be removed from the queue.
      */
-    public function ack();
+    public function ack(int $messageId = null);
 
     /**
      * Acknowledges a failure on processing the last received object.
      *
      * The object could be moved to the DLQ or be delivered to another subscription for retrial
      */
-    public function nack();
+    public function nack(int $messageId = null);
 
     /**
      * @param string|null $destination
      *
      * @return bool
      */
-    public function send(QueueMessageInterface $message, $destination = null);
+    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []);
 
     /**
      * @return QueueMessageInterface
@@ -91,10 +73,19 @@ interface QueueDriverInterface extends SerializableInterface
     /**
      * Clean all the opened resources, must be called just before terminating the current request.
      */
-    public function doDestroy();
+    public function destroy();
 
     /**
-     * @return int The time it took in ms to de-queue and deserialize the message
+     * Returns the format used on serialize/deserialize function.
+     *
+     * @return string
      */
-    public function getDequeueingTimeMs();
+    public function getFormat();
+
+    /**
+     * Set the format used on serialize/deserialize function.
+     *
+     * @return string
+     */
+    public function setFormat(string $format = QueueDriverInterface::FORMAT_JSON);
 }

@@ -66,16 +66,12 @@ class QueueProducer extends Producer
                 $queueMessage->setHeader($header, $inMessage->getHeader($header));
             }
         }
-        $queueMessage->setHeader('x-dead-letter-exchanges', 'EAI');
 
         // Call the preSend hook
         $this->beforeSend($queueMessage, $options);
 
         // Send
-        if (!$queueDriver->isConnected()) {
-            $queueDriver->connect();
-        }
-
+        $queueDriver->connect();
         $success = $queueDriver->send($queueMessage);
 
         if (!$success) {

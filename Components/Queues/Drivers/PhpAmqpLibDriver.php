@@ -14,7 +14,6 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 use Smartbox\Integration\FrameworkBundle\Service;
 
@@ -25,23 +24,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 {
     use UsesSerializer;
     use UsesExceptionHandlerTrait;
-    use UsesSmartesbHelper;
-    use LoggerAwareTrait;
-
-    /**
-     * Represents the amount of message to consume by iteration.
-     */
-    const PREFETCH_COUNT = 1;
-
-    /*
-     * To use the default exchange pass an empty string
-     */
-    const EXCHANGE_NAME = '';
-
-    /**
-     * @var \AMQPQueue|null
-     */
-    private $queue;
 
     /**
      * @var int Time in ms
@@ -64,21 +46,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     private $exchange;
 
     /**
-     * @var string|null
-     */
-    private $host;
-
-    /**
-     * @var string|null
-     */
-    private $username;
-
-    /**
-     * @var string|null
-     */
-    private $password;
-
-    /**
      * @var array|null
      */
     private $connectionsData;
@@ -89,39 +56,26 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     private $amqpConnections;
 
     /**
-     * @var int|null
+     * Number of the port used by the broker
+     *
+     * @var int $port
      */
     private $port;
 
     /**
-     * @var string|null
-     */
-    private $vhost;
-
-    /**
      * Method responsible to catch the parameters to configure the driver.
      *
-     * @param string $host
-     * @param string $username
-     * @param string $password
-     * @param string $format
+     * {@inheritDoc}
      */
-    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $port = null, $vhost = null)
+    public function configure(string $host, string $username, string $password, string $vhost = null)
     {
-        $this->host = $host;
-        $this->port = $port;
-        $this->username = $username;
-        $this->password = $password;
-        $this->vhost = $vhost;
-
         $this->connectionsData[] = [
-            'host' => $this->host,
-            'port' => $this->port,
-            'user' => $this->username,
-            'password' => $this->password,
-            'vhost' => $this->vhost,
+            'host' => $host,
+            'user' => $username,
+            'password' => $password,
+            'vhost' => $vhost,
+            'port' => $this->port
         ];
-        $this->format = $format;
     }
 
     /**
@@ -139,7 +93,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
             $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, [
                 'insist' => true,
                 'login_method' => 'AMQPLAIN',
-                'locale' => 'en_IE',
+                'locale' => 'en_UK',
                 'connection_timeout' => 60.0,
                 'read_write_timeout' => 50.0,
                 'context' => null,
@@ -149,27 +103,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
         } catch (\Exception $exception) {
             $this->getExceptionHandler()($exception, [$exception->getCode(), $exception->getMessage()]);
         }
-    }
-
-    /**
-     * Consumes the message and dispatch it to others features.
-     *
-     * @param AMQPChannel $channel
-     */
-    public function consume(string $consumerTag, string $queueName, callable $callback)
-    {
-        $this->channel->basic_qos(null, 1, null);
-        $this->channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
-    }
-
-    /**
-     * Add a connection to the array of connections.
-     *
-     * @param $connection
-     */
-    public function addConnection($connection)
-    {
-        $this->amqpConnections[] = $connection;
     }
 
     /**
@@ -191,16 +124,13 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Creates the QueueMessage object.
+     * Add a connection to the array of connections.
      *
-     * @return QueueMessage|QueueMessageInterface
+     * @param $connection
      */
-    public function createQueueMessage(): QueueMessage
+    public function addConnection($connection)
     {
-        $msg = new QueueMessage();
-        $msg->setContext(new Context());
-
-        return $msg;
+        $this->amqpConnections[] = $connection;
     }
 
     /**
@@ -220,55 +150,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * @todo verify if the method is need
-     */
-    public function isSubscribed(): bool
-    {
-    }
-
-    /**
-     * @param string $queue
-     *
-     * @todo verify the need of this function
-     */
-    public function subscribe($queue)
-    {
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @todo verify the need of this function
-     */
-    public function unSubscribe()
-    {
-    }
-
-    /**
-     * @todo verify the need of this function
-     *
      * {@inheritdoc}
      */
-    public function ack(int $deliveryTag)
-    {
-        $this->channel->basic_ack($deliveryTag);
-    }
-
-    /**
-     * @todo verify the need of this function
-     *
-     * {@inheritdoc}
-     */
-    public function nack()
-    {
-    }
-
-    /**
-     * @todo verify the need of this function
-     *
-     * {@inheritdoc}
-     */
-    public function doDestroy()
+    public function destroy()
     {
         try {
             $this->disconnect();
@@ -278,41 +162,62 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
+     * Consumes the message and dispatch it to others features.
+     *
+     * @param AMQPChannel $channel
+     */
+    public function consume(string $consumerTag, string $queueName, callable $callback = null)
+    {
+        $this->channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
+    }
+
+    /**
+     * Creates the QueueMessage object.
+     *
+     * @return QueueMessage|QueueMessageInterface
+     */
+    public function createQueueMessage(): QueueMessage
+    {
+        $msg = new QueueMessage();
+        $msg->setContext(new Context());
+
+        return $msg;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function ack(int $messageId = null)
+    {
+        $this->channel->basic_ack($messageId);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function nack(int $messageId = null)
+    {
+        $this->channel->basic_nack($messageId);
+    }
+
+    /**
      * Creates a message and prepare the content to publish.
      *
      * {@inheritdoc}
      *
      * @throws \Exception
      */
-    public function send(QueueMessageInterface $message, $destination = null): bool
+    public function send(QueueMessageInterface $message, $destination = null, $arguments = []): bool
     {
+        $this->declareChannel();
         $this->validateQueueExists($message);
         $messageBody = $this->getSerializer()->serialize($message, $this->format);
         $messageHeaders = new AMQPTable($message->getHeaders());
         $amqpMessage = new AMQPMessage($messageBody);
         $amqpMessage->set('application_headers', $messageHeaders);
-        $this->publish($amqpMessage, $message->getQueue());
-
+        $this->declareQueue($message->getQueue(), AMQP_DURABLE, $arguments);
+        $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $message->getQueue());
         return true;
-    }
-
-    /**
-     * @todo verify the need of this function
-     *
-     * {@inheritdoc}
-     */
-    public function receive()
-    {
-    }
-
-    /**
-     * @return int The time it took in ms to de-queue and deserialize the message
-     *
-     * @todo verify the need of this function
-     */
-    public function getDequeueingTimeMs()
-    {
-        return $this->dequeueTimeMs;
     }
 
     /**
@@ -325,12 +230,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      *
      * @throws \AMQPChannelException
      */
-    public function declareQueue(string $name, int $durable = AMQP_DURABLE, array $arguments = [])
+    public function declareQueue(string $queueName, int $durable = AMQP_DURABLE, array $arguments = [])
     {
-        $this->validateChannel();
-        $this->queue = $name;
-
-        return $this->channel->queue_declare($this->queue, false, $durable, false, false, false, new AMQPTable([$arguments]));
+        return $this->channel->queue_declare($queueName, false, $durable, false, false, false, new AMQPTable([$arguments]));
     }
 
     /**
@@ -339,7 +241,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function declareChannel(): AMQPChannel
     {
         $this->channel = $this->amqpConnections[0]->channel();
-        $this->channel->basic_qos(null, self::PREFETCH_COUNT, null);
+        $this->channel->basic_qos(self::PREFETCH_SIZE, self::PREFETCH_COUNT, null);
 
         return $this->channel;
     }
@@ -347,10 +249,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * AMQP Exchange is the publishing mechanism. This method declares a new default exchange.
      */
-    public function declareExchange()
+    public function declareExchange(string $queueName)
     {
         $this->channel->exchange_declare(self::EXCHANGE_NAME, AMQPExchangeType::DIRECT, false, true, false);
-        $this->channel->queue_bind($this->queue, self::EXCHANGE_NAME, $this->queue);
+        $this->channel->queue_bind($queueName, self::EXCHANGE_NAME, $queueName);
     }
 
     /**
@@ -359,9 +261,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function publish(AMQPMessage $message, string $queueName, array $options = [])
     {
         try {
-            $this->declareChannel();
-            $this->declareQueue($queueName, AMQP_DURABLE, $options);
-            $this->channel->basic_publish($message, self::EXCHANGE_NAME, $queueName);
         } catch (\Exception $exception) {
             $this->getExceptionHandler()($exception, [$exception->getCode(), $exception->getMessage()]);
         }
@@ -375,6 +274,14 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function getFormat()
     {
         return $this->format;
+    }
+
+    /**
+     * @param string $format
+     */
+    public function setFormat(string $format = QueueDriverInterface::FORMAT_JSON)
+    {
+        $this->format = $format;
     }
 
     /**
@@ -443,5 +350,13 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function isConsuming()
     {
         return $this->channel->is_consuming();
+    }
+
+    /**
+     * @param int $port
+     */
+    public function setPort(int $port)
+    {
+        $this->port = $port;
     }
 }

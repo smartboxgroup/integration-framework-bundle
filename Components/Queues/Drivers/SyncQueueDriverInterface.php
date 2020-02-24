@@ -42,12 +42,12 @@ interface SyncQueueDriverInterface extends QueueDriverInterface
      *
      * The object should be removed from the queue.
      */
-    public function ack();
+    public function ack(int $messageId = null);
 
     /**
      * Acknowledges a failure on processing the last received object.
      *
      * The object could be moved to the DLQ or be delivered to another subscription for retrial
      */
-    public function nack();
+    public function nack(int $messageId = null);
 }

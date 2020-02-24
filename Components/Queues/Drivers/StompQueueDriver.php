@@ -93,13 +93,34 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /**
-     * @param string $stompVersion
+     * Set the version to Stomp driver
+     *
+     * @param string $version
      */
-    public function setStompVersion($stompVersion)
+    public function setStompVersion(string $version = self::STOMP_VERSION)
     {
-        $this->stompVersion = $stompVersion;
+        $this->stompVersion = $version;
     }
 
+    /**
+     * Set the timeout to Stomp driver
+     *
+     * @param int $timeout
+     */
+    public function setTimeout(int $timeout = 3)
+    {
+        $this->timeout = $timeout;
+    }
+
+    /**
+     * Set if the driver will work in synchronous or asynchronous mode
+     *
+     * @param bool $sync
+     */
+    public function setSync(bool $sync = true)
+    {
+        $this->sync = $sync;
+    }
     /**
      * @return string
      */
@@ -159,7 +180,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /**
      * @param string $format
      */
-    public function setFormat($format)
+    public function setFormat(string $format = QueueDriverInterface::FORMAT_JSON)
     {
         $this->format = $format;
     }
@@ -197,24 +218,12 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function configure($host, $username, $password, $format = QueueDriverInterface::FORMAT_JSON, $version = self::STOMP_VERSION, $vhost = null, $timeout = 3, $sync = true)
+    public function configure(string $host, string $username, string $password, string $vhost = null)
     {
-        $this->format = $format;
         $this->host = $host;
         $this->username = $username;
         $this->pass = $password;
-        $this->stompVersion = $version;
         $this->vhost = $vhost;
-        $this->timeout = $timeout;
-
-        $client = new Client($this->host);
-        $client->setLogin($this->getUsername(), $this->getPass());
-        $client->setReceiptWait($this->timeout);
-        $client->setSync($sync);
-        $client->getConnection()->setReadTimeout($this->timeout);
-        $client->setVersions([$this->stompVersion]);
-        $client->setVhostname($this->vhost);
-        $this->statefulStomp = new StatefulStomp($client);
     }
 
     public function __destruct()
@@ -231,8 +240,21 @@ class StompQueueDriver extends Service implements QueueDriverInterface
         $this->statefulStomp->getClient()->getConnection()->setReadTimeout($this->timeout);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function connect()
     {
+        if (!$this->isConnected()) {
+            $client = new Client($this->host);
+            $client->setLogin($this->getUsername(), $this->getPass());
+            $client->setReceiptWait($this->timeout);
+            $client->setSync($this->sync);
+            $client->getConnection()->setReadTimeout($this->timeout);
+            $client->setVersions([$this->stompVersion]);
+            $client->setVhostname($this->vhost);
+            $this->statefulStomp = new StatefulStomp($client);
+        }
     }
 
     /**
@@ -285,7 +307,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function send(QueueMessageInterface $message, $destination = null)
+    public function send(QueueMessageInterface $message, $destination = null, array $arguments = [])
     {
         $destination = $destination ? $destination : $message->getQueue();
         $destinationUri = $destination;
@@ -365,7 +387,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function ack()
+    public function ack(int $messageId = null)
     {
         if (!$this->currentFrame) {
             throw new \RuntimeException('You must first receive a message, before acking it');
@@ -376,7 +398,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function nack()
+    public function nack(int $messageId = null)
     {
         if (!$this->currentFrame) {
             throw new \RuntimeException('You must first receive a message, before nacking it');
@@ -397,7 +419,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function doDestroy()
+    public function destroy()
     {
         $this->disconnect();
     }
