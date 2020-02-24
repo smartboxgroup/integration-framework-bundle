@@ -46,7 +46,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const PARAM_DEFERRED_EVENTS_URI = 'smartesb.uris.deferred_events';
     const AMQP_SERVICES = [
         'smartesb.consumers.async_queue',
-//        'smartesb.drivers.queue.amqp',
         'smartesb.drivers.queue.phpamqplib',
         'smartesb.async_consumers.queue.class'
     ];
@@ -194,7 +193,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         foreach ($this->config['queue_drivers'] as $driverName => $driverConfig) {
             $driverId = self::QUEUE_DRIVER_PREFIX.$driverName;
 
-            $exceptionHandlerId =  strtolower($driverConfig['exception_handler']);
+            $exceptionHandlerId = strtolower($driverConfig['exception_handler']);
 
             $type = strtolower($driverConfig['type']);
             switch ($type) {

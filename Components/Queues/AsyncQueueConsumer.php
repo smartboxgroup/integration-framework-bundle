@@ -109,6 +109,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
             $this->driver->waitNoBlock();
         }
     }
+
     public function wait()
     {
         if ($this->driver->isConsuming()) {
@@ -119,7 +120,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     protected function process(EndpointInterface $queueEndpoint, $message)
     {
         try {
-            $message = $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->format);
+            $message = $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->driver->getFormat());
         } catch (\Exception $exception) {
             // TODO Verify "headers" are passed correctly. might need to access "data" key after get_properties
             $this->getExceptionHandler()($exception, ['headers' => $message->get_properties(), 'body' => $message->getBody()]);
