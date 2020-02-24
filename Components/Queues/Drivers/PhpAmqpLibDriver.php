@@ -158,7 +158,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function consume(string $consumerTag, string $queueName, callable $callback)
     {
-        $this->channel->basic_qos(null, 1, null);
         $this->channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
     }
 
