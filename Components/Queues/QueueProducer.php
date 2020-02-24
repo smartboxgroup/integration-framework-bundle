@@ -44,7 +44,7 @@ class QueueProducer extends Producer
             );
         }
 
-        if (!($queueDriver instanceof AsyncQueueDriverInterface)) {
+        if (!($queueDriver instanceof QueueDriverInterface)) {
             throw new \RuntimeException("Found queue driver with name '$queueDriverName' that doesn't implement QueueDriverInterface");
         }
 

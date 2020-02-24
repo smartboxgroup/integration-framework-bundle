@@ -5,109 +5,59 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 
-interface AsyncQueueDriverInterface extends SerializableInterface
+/**
+ * Interface AsyncQueueDriverInterface
+ * @package Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers
+ */
+interface AsyncQueueDriverInterface extends QueueDriverInterface
 {
-    const FORMAT_JSON = 'json';
-    const FORMAT_XML = 'xml';
-    const DEFAULT_TTL = 86400;
-
-    const HEADER_TTL = 'ttl';
-    const HEADER_EXPIRES = 'expires';
-    const HEADER_TYPE = 'type';
-    const HEADER_PRIORITY = 'priority';
+    /**
+     * This field specifies the prefetch window size in octets.
+     * The server will send a message in advance if it is equal to or smaller in size than the available prefetch size
+     * (and also falls into other prefetch limits).
+     * May be set to zero, meaning "no specific limit", although other prefetch limits may still apply.
+     * The prefetch-size is ignored if the no-ack option is set.
+     */
+    const PREFETCH_SIZE = null;
 
     /**
-     * Configures the driver.
+     * Represents the amount of message to consume by iteration
+     */
+    const PREFETCH_COUNT = 1;
+
+    /*
+     * To use the default exchange pass an empty string
+     */
+    const EXCHANGE_NAME = '';
+
+    /**
+     * Returns a serialized message from the queue
      *
-     * @param $host
-     * @param string $username Username to connect to the queuing system
-     * @param string $password Password to connect to the queuing system
-     * @param string $format
+     * @param string $consumerTag
+     * @param string $queueName
+     * @param callable|null $callback
+     * @return mixed
      */
-    public function configure($host, $username, $password, $format = self::FORMAT_JSON);
+    public function consume(string $consumerTag, string $queueName, ?callable $callback = null);
 
     /**
-     * Opens a connection with a queuing system.
-     */
-    public function connect();
-
-    /**
-     * Destroys the connection with the queuing system.
-     */
-    public function disconnect();
-
-    /**
-     * Returns true if a connection already exists with the queing system, false otherwise.
+     * Verifies if the channel is consuming a message
+     * If there is a message to consume it calls the consume callback function
+     * If there is no message to consume it will put the worker in a wait state
      *
-     * @return bool
+     * @throws \Exception
      */
-    public function isConnected();
+    public function wait();
 
     /**
-     * Returns true if a subscription already exists, false otherwise.
-     *
-     * @return bool
-     */
-    public function isSubscribed();
-
-    /**
-     * Creates a subscription to the given $queue, allowing to receive messages from it.
-     *
-     * @param string $queue Queue to subscribe
-     */
-    public function subscribe($queue);
-
-    /**
-     * Destroys the created subscription with a queue.
-     */
-    public function unSubscribe();
-
-    /**
-     * Acknowledges the processing of the last received object.
-     *
-     * The object should be removed from the queue.
-     *
-     * @param string $deliveryTag
+     * @param int $deliveryTag
+     * @return mixed
      */
     public function ack(int $deliveryTag);
 
     /**
-     * Acknowledges a failure on processing the last received object.
-     *
-     * The object could be moved to the DLQ or be delivered to another subscription for retrial
+     * @param int $deliveryTag
+     * @return mixed
      */
-    public function nack();
-
-    /**
-     * @param string|null $destination
-     *
-     * @return bool
-     */
-    public function send(QueueMessageInterface $message, $destination = null);
-
-    /**
-     * Returns One Serializable object from the queue.
-     *
-     * It requires to subscribe previously to a specific queue
-     *
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface|null
-     *
-     * @throws \Exception
-     */
-    public function receive();
-
-    /**
-     * @return QueueMessageInterface
-     */
-    public function createQueueMessage();
-
-    /**
-     * Clean all the opened resources, must be called just before terminating the current request.
-     */
-    public function doDestroy();
-
-    /**
-     * @return int The time it took in ms to de-queue and deserialize the message
-     */
-    public function getDequeueingTimeMs();
+    public function nack(int $deliveryTag);
 }

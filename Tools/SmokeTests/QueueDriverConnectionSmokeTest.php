@@ -17,7 +17,7 @@ class QueueDriverConnectionSmokeTest implements SmokeTestInterface
      */
     protected $queueDriver;
 
-    public function __construct(AsyncQueueDriverInterface $queueDriver)
+    public function __construct(QueueDriverInterface $queueDriver)
     {
         $this->queueDriver = $queueDriver;
     }
