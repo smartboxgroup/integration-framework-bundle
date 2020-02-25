@@ -60,6 +60,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * This function is called to confirm that a message was successfully handled. Until this point, the message should
      * not be removed from the source Endpoint, this is very important to ensure the Message delivery guarantee.
      *
+     * @param EndpointInterface $endpoint
      * @param $message
      *
      * @return MessageInterface

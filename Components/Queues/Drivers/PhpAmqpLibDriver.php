@@ -9,12 +9,10 @@ use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
-use Psr\Log\LoggerAwareTrait;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
-use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
@@ -23,7 +21,6 @@ use Smartbox\Integration\FrameworkBundle\Service;
 class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 {
     use UsesSerializer;
-    use UsesExceptionHandlerTrait;
 
     /**
      * This field specifies the prefetch window size in octets.
@@ -37,10 +34,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * Represents the amount of message to consume by iteration
      */
-    const PREFETCH_COUNT = 1;
+    const PREFETCH_COUNT = 10;
 
     /*
-     * To use the default exchange pass an empty string
+     * Default exchange name
      */
     const EXCHANGE_NAME = '';
 
@@ -70,9 +67,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     private $connectionsData;
 
     /**
-     * @var array|null
+     * @var array
      */
-    private $amqpConnections;
+    private $amqpConnections = [];
 
     /**
      * Number of the port used by the broker
@@ -106,22 +103,21 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function connect($shuffle = true)
     {
-        try {
-            $this->validateConnectionData();
+        $this->validateConnectionData();
+        if ($shuffle) {
             $this->shuffleConnections($shuffle);
-            $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, [
-                'insist' => true,
-                'login_method' => 'AMQPLAIN',
-                'locale' => 'en_UK',
-                'connection_timeout' => 60.0,
-                'read_write_timeout' => 50.0,
-                'context' => null,
-                'keepalive' => true,
-                'heartbeat' => 0,
-            ]));
-        } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, [$exception->getCode(), $exception->getMessage()]);
         }
+
+        $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, [
+            'insist' => true,
+            'login_method' => 'AMQPLAIN',
+            'locale' => 'en_UK',
+            'connection_timeout' => 60.0,
+            'read_write_timeout' => 50.0,
+            'context' => null,
+            'keepalive' => true,
+            'heartbeat' => 0,
+        ]));
     }
 
     /**
@@ -136,19 +132,15 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * Responsible to disconnect with the broker.
+     *
+     * @throws \Exception
      */
     public function disconnect()
     {
-        try {
-            if ($this->amqpConnections) {
-                foreach ($this->amqpConnections as $connection) {
-                    if ($connection instanceof AMQPStreamConnection) {
-                        $connection->close();
-                    }
-                }
+        foreach ($this->amqpConnections as $connection) {
+            if ($connection instanceof AMQPStreamConnection) {
+                $connection->close();
             }
-        } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, [$exception->getCode(), $exception->getMessage()]);
         }
     }
 
@@ -170,11 +162,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function isConnected(): bool
     {
-        if ($this->amqpConnections) {
-            foreach ($this->amqpConnections as $connection) {
-                if ($connection->isConnected()) {
-                    return true;
-                }
+        foreach ($this->amqpConnections as $connection) {
+            if ($connection->isConnected()) {
+                return true;
             }
         }
 
@@ -186,11 +176,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function destroy()
     {
-        try {
-            $this->disconnect();
-        } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, [$exception->getCode(), $exception->getMessage()]);
-        }
+        $this->disconnect();
     }
 
     /**
@@ -314,14 +300,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * Shuffles the connection in case there is more than one available.
-     *
-     * @param bool $isShuffle
      */
-    private function shuffleConnections($isShuffle = true)
+    private function shuffleConnections()
     {
-        if ($isShuffle && count($this->connectionsData) > 1) {
-            shuffle($this->connectionsData);
-        }
+        shuffle($this->connectionsData);
     }
 
     /**
@@ -351,12 +333,15 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
+     * {@inheritdoc}
      */
     public function waitNoBlock()
     {
         $this->channel->wait(null, true);
     }
+
     /**
+     * {@inheritdoc}
      */
     public function wait()
     {
