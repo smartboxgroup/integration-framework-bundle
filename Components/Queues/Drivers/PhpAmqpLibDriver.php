@@ -26,6 +26,25 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     use UsesExceptionHandlerTrait;
 
     /**
+     * This field specifies the prefetch window size in octets.
+     * The server will send a message in advance if it is equal to or smaller in size than the available prefetch size
+     * (and also falls into other prefetch limits).
+     * May be set to zero, meaning "no specific limit", although other prefetch limits may still apply.
+     * The prefetch-size is ignored if the no-ack option is set.
+     */
+    const PREFETCH_SIZE = null;
+
+    /**
+     * Represents the amount of message to consume by iteration
+     */
+    const PREFETCH_COUNT = 1;
+
+    /*
+     * To use the default exchange pass an empty string
+     */
+    const EXCHANGE_NAME = '';
+
+    /**
      * @var int Time in ms
      */
     private $dequeueTimeMs = 0;

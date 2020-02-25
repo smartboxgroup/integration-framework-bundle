@@ -36,18 +36,4 @@ interface SyncQueueDriverInterface extends QueueDriverInterface
      * @throws \Exception
      */
     public function receive();
-
-    /**
-     * Acknowledges the processing of the last received object.
-     *
-     * The object should be removed from the queue.
-     */
-    public function ack(int $messageId = null);
-
-    /**
-     * Acknowledges a failure on processing the last received object.
-     *
-     * The object could be moved to the DLQ or be delivered to another subscription for retrial
-     */
-    public function nack(int $messageId = null);
 }

@@ -83,8 +83,6 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
                 $this->waitNoBlock();
 
                 if ($this->sleep) {
-                    // TODO: Careful here, seems that between messages, waitNoBlock doesnt find anything in the queue
-                    // even if it is full. Need to verify in prod if we trigger this sleep even when there are messages to consume
                     usleep(250000);
                 }
             } catch (\Exception $exception) {

@@ -45,16 +45,19 @@ interface QueueDriverInterface extends SerializableInterface
     public function isConnected();
 
     /**
-     * Acknowledges the processing of the last received object.
+     * Acknowledges the message in the message broker. $messageId is nullable for backwards compatibility with the
+     * SyncQueueDriverInterface. In practice, unless your driver is keeping track of messages, messageId should always
+     * be passed to this function.
      *
-     * The object should be removed from the queue.
+     * @param int $messageId
      */
     public function ack(int $messageId = null);
 
     /**
-     * Acknowledges a failure on processing the last received object.
+     * Negative acknowledgement of a message.
      *
-     * The object could be moved to the DLQ or be delivered to another subscription for retrial
+     * @see ack() for extra information about this function.
+     * @param int $messageId
      */
     public function nack(int $messageId = null);
 
