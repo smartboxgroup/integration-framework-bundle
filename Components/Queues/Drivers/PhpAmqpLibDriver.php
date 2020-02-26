@@ -42,11 +42,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     const EXCHANGE_NAME = '';
 
     /**
-     * @var int Time in ms
-     */
-    protected $dequeueTimeMs = 0;
-
-    /**
      * @var string
      */
     protected $format = self::FORMAT_JSON;
@@ -220,14 +215,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
         $this->declareQueue($message->getQueue(), AMQP_DURABLE, $arguments);
         $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $message->getQueue());
         return true;
-    }
-
-    /**
-     * @return int The time it took in ms to de-queue and deserialize the message
-     */
-    public function getDequeueingTimeMs()
-    {
-        return $this->dequeueTimeMs;
     }
 
     /**

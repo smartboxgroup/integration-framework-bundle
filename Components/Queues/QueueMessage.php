@@ -24,6 +24,11 @@ class QueueMessage extends Message implements QueueMessageInterface
     const DELIVERY_MODE_PERSISTENT = 2;
     const DELIVERY_MODE_NON_PERSISTENT = 1;
 
+    /**
+     * @var int
+     */
+    protected $messageId;
+
     public function __construct(SerializableInterface $body = null, $headers = [], Context $context = null)
     {
         parent::__construct($body, $headers, $context);
@@ -70,6 +75,11 @@ class QueueMessage extends Message implements QueueMessageInterface
             $this->setHeader(self::HEADER_DELIVERY_MODE, self::DELIVERY_MODE_NON_PERSISTENT);
             unset($this->headers[self::HEADER_DELIVERY_MODE]);
         }
+    }
+
+    public function setMessageId(int $messageId)
+    {
+        $this->messageId = $messageId;
     }
 
     public function setReasonForFailure($reason)
@@ -131,5 +141,10 @@ class QueueMessage extends Message implements QueueMessageInterface
     public function getDestinationURI()
     {
         return $this->getHeader(Message::HEADER_FROM);
+    }
+
+    public function getMessageId()
+    {
+        return $this->messageId;
     }
 }

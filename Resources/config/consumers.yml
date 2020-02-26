@@ -12,7 +12,7 @@ services:
   smartesb.async_consumers.queue:
       class: Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer
       calls:
-          - [ setId, ['smartesb.consumers.php_amqp_lib_signal_queue']]
+          - [ setId, ['smartesb.consumers.async_queue']]
           - [ setSmartesbHelper, ['@smartesb.helper']]
           - [ setEventDispatcher, ['@event_dispatcher']]
           - [ setSerializer, ['@jms_serializer']]

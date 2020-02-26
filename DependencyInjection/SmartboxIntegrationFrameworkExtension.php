@@ -234,7 +234,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                 case 'amqp':
                     $this->useAmqp = true;
-                    
+
                     if (!class_exists(AMQPStreamConnection::class)) {
                         throw new \RuntimeException('You need the amqp extension to use PHP-AMQP-LIB driver.');
                     }
@@ -273,7 +273,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         ->addMethodCall('setDefaultConsumer', [$consumer]);
 
                     if ($exceptionHandlerId) {
-                        $driverDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
                         $consumer->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
                     }
                     break;

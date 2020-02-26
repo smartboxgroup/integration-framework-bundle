@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
@@ -51,7 +52,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @param MessageInterface $message
      */
-    protected function process(EndpointInterface $endpoint, AMQPMessage $message)
+    protected function process(EndpointInterface $endpoint, QueueMessageInterface $message)
     {
         $endpoint->handle($message);
     }
@@ -65,7 +66,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @return MessageInterface
      */
-    abstract protected function confirmMessage(EndpointInterface $endpoint, $message);
+    abstract protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message);
 
     /**
      * {@inheritdoc}
@@ -107,8 +108,19 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      */
     public function callback(EndpointInterface $endpoint)
     {
-        return function ($message) use ($endpoint) {
-            $this->process($endpoint, $message);
+        return function (MessageInterface $message) use ($endpoint) {
+            $startConsumeTime = microtime(true);
+
+            try {
+                $this->process($endpoint, $message);
+            } catch (\Exception $exception) {
+                $this->dispatchConsumerTimingEvent((microtime(true) - $startConsumeTime) * 1000, $message);
+
+                throw $exception;
+            }
+
+            $this->dispatchConsumerTimingEvent((microtime(true) - $startConsumeTime) * 1000, $message);
+
             $this->confirmMessage($endpoint, $message);
             --$this->expirationCount;
             $this->sleep = false;
@@ -149,8 +161,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * This function dispatchs a timing event with the amount of time it took to consume a message.
      *
      * @param $intervalMs int the timing interval that we would like to emanate
-     *
-     * @return mixed
+     * @param MessageInterface $message
      */
     protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
     {
@@ -172,10 +183,10 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
             $now = DateTimeCreator::getNowDateTime();
 
             $this->logger->info(
-            'A message was consumed on {date}', [
-            'date' => $now->format('Y-m-d H:i:s.u'),
-            ]
-        );
+                'A message was consumed on {date}', [
+                    'date' => $now->format('Y-m-d H:i:s.u'),
+                ]
+            );
         }
     }
 }
