@@ -131,6 +131,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
             $parentCallback = parent::callback($endpoint);
 
             try {
+                // TODO: Measure time here like the STOMP driver does (dequeueing time)
                 $queueMessage = $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->driver->getFormat());
                 $queueMessage->setMessageId($message->getDeliveryTag());
             } catch (\Exception $exception) {
