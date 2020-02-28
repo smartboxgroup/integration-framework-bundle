@@ -10,18 +10,13 @@ use Smartbox\Integration\FrameworkBundle\Service;
 /**
  * Class ArrayQueueDriver.
  */
-class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
+class ArrayQueueDriver extends Service implements QueueDriverInterface
 {
     public static $array = [];
 
     protected $connected = false;
     protected $subscribedQueue = false;
     protected $unacknowledgedFrame = null;
-
-    /**
-     * @var string
-     */
-    private $format;
 
     /**
      * @return int
@@ -115,7 +110,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
      *
      * The object should be removed from the queue.
      */
-    public function ack(int $messageId = null)
+    public function ack()
     {
         $this->unacknowledgedFrame = false;
     }
@@ -125,13 +120,13 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
      *
      * The object could be moved to the DLQ or be delivered to another subscription for retrial
      */
-    public function nack(int $messageId = null)
+    public function nack()
     {
         $this->unacknowledgedFrame = false;
     }
 
     /** {@inheritdoc} */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = [])
+    public function send(QueueMessageInterface $message, $destination = null)
     {
         $destination = $destination ? $destination : $message->getQueue();
 
@@ -171,26 +166,9 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Clean all the opened resources, must be called just before terminating the current request.
      */
-    public function destroy()
+    public function doDestroy()
     {
         // TODO: Implement doDestroy() method.
         // I have no time to do destroy the world.
-    }
-
-    /**
-     * @return string
-     */
-    public function getFormat()
-    {
-        return $this->format;
-    }
-
-    /**
-     * @param string $format
-     * @return ArrayQueueDriver
-     */
-    public function setFormat(string $format = null)
-    {
-        $this->format = $format;
     }
 }

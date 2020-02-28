@@ -90,5 +90,5 @@ interface QueueDriverInterface extends SerializableInterface
      *
      * @return string
      */
-    public function setFormat(string $format = null);
+    public function setFormat(string $format = QueueDriverInterface::FORMAT_JSON);
 }
