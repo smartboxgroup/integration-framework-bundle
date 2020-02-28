@@ -6,6 +6,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
@@ -32,21 +33,16 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     const CONSUMER_TAG = 'amqp-consumer-%s-%s';
 
     /**
-     * @var string
-     */
-    private $format = QueueDriverInterface::FORMAT_JSON;
-
-    /**
      * @var PhpAmqpLibDriver
      */
-    protected $driver;
+    private $driver;
 
     /**
      * Set the driver to this class with the properties fulfilled.
      *
      * @param $driver
      */
-    public function setDriver($driver)
+    public function setDriver(AsyncQueueDriverInterface $driver)
     {
         $this->driver = $driver;
     }
