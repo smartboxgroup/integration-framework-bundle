@@ -41,7 +41,7 @@ class RestConfigurableProducerTest extends \PHPUnit\Framework\TestCase
     /** @var EventDispatcher */
     private $eventDispatcher;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockBuilder(ClientInterface::class)->getMock();
         $this->evaluator = $this->getMockBuilder(ExpressionEvaluator::class)
@@ -79,12 +79,16 @@ class RestConfigurableProducerTest extends \PHPUnit\Framework\TestCase
      * @param RequestException $internalException
      * @param string           $expectedException
      * @dataProvider getExpectedExceptionsForStatusCodes
+     * @group rest-exceptions
      */
     public function testItShouldCreateProperRestExceptions(
         $statusCode,
         RequestException $internalException,
         $expectedException
     ) {
+        // Code adapted to PHPUNIT v. 9
+        $this->expectException(\Throwable::class);
+
         $this->client->method('send')
             ->with($this->anything())
             ->willThrowException($internalException)

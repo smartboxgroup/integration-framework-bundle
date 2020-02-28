@@ -19,12 +19,12 @@ class ContentRouterTest extends \PHPUnit\Framework\TestCase
     /** @var ContentRouter */
     private $contentRouter;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->contentRouter = new ContentRouter();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->contentRouter = null;
     }

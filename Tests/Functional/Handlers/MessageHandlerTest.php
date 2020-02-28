@@ -44,7 +44,7 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
     /** @var MessageFactoryInterface */
     public $factory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $this->handler = new MessageHandler();

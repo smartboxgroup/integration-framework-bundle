@@ -6,7 +6,8 @@ parameters:
     database_name: test
     flows.version: 0
     rabbitmq.hostname: 'tcp://rabbit:61613'
-    rabbitmq.username: guest
-    rabbitmq.password: guest
-    rabbitmq.vhost: /
+    rabbitmq.username: rabbit
+    rabbitmq.password: eairabbitmq
+    rabbitmq.vhost: test
     rabbitmq.timeout: 15
+
