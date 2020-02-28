@@ -33,12 +33,12 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * @var string
      */
-    private $format = QueueDriverInterface::FORMAT_JSON;
+    protected $format = QueueDriverInterface::FORMAT_JSON;
 
     /**
      * @var PhpAmqpLibDriver
      */
-    private $driver;
+    protected $driver;
 
     /**
      * Set the driver to this class with the properties fulfilled.
@@ -125,21 +125,27 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         $queueEndpoint->getHandler()->handle($message->getBody(), $endpoint);
     }
 
+    /**
+     * Overrides the main callback function to convert the AMQPMessage from the queue into a QueueMessage.
+     *
+     * {@inheritDoc}
+     */
     public function callback(EndpointInterface $endpoint)
     {
         return function (AMQPMessage $message) use ($endpoint) {
-            $parentCallback = parent::callback($endpoint);
-
             try {
-                // TODO: Measure time here like the STOMP driver does (dequeueing time)
+                $start = microtime(true);
                 $queueMessage = $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->driver->getFormat());
+                $this->consumptionDuration = (microtime(true) - $start) * 1000;
+
                 $queueMessage->setMessageId($message->getDeliveryTag());
             } catch (\Exception $exception) {
                 // TODO Verify "headers" are passed correctly. might need to access "data" key after get_properties
+                $deserializationTime = (microtime(true) - $start) * 1000;
                 $this->getExceptionHandler()($exception, ['headers' => $message->get_properties(), 'body' => $message->getBody()]);
             }
 
-            $parentCallback($queueMessage);
+            parent::callback($endpoint)($queueMessage);
         };
     }
 

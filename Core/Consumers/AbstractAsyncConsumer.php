@@ -30,6 +30,15 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     protected $sleep = true;
 
     /**
+     * Holds the amount of time it took to process a message once the callback is triggered. Due to the asynchronicity
+     * nature of this consumer, it's not possible to measure how long it takes to get a message from the queue and send
+     * it to the callback
+     *
+     * @var int
+     */
+    protected $consumptionDuration = 0;
+
+    /**
      * Initializes the consumer for a given endpoint.
      *
      * @param EndpointInterface $endpoint
@@ -114,15 +123,18 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
             try {
                 $this->process($endpoint, $message);
             } catch (\Exception $exception) {
-                $this->dispatchConsumerTimingEvent((microtime(true) - $startConsumeTime) * 1000, $message);
+                $this->consumptionDuration = (microtime(true) - $startConsumeTime) * 1000;
+                $this->dispatchConsumerTimingEvent($message);
 
                 throw $exception;
             }
 
-            $this->dispatchConsumerTimingEvent((microtime(true) - $startConsumeTime) * 1000, $message);
+            $this->consumptionDuration += (microtime(true) - $startConsumeTime) * 1000;
+            $this->dispatchConsumerTimingEvent($message);
 
             $this->confirmMessage($endpoint, $message);
             --$this->expirationCount;
+            $this->consumptionDuration = 0;
             $this->sleep = false;
         };
     }
@@ -158,15 +170,14 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     }
 
     /**
-     * This function dispatchs a timing event with the amount of time it took to consume a message.
+     * Dispatches a timing event with the amount of time it took to process a message.
      *
-     * @param $intervalMs int the timing interval that we would like to emanate
      * @param MessageInterface $message
      */
-    protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
+    protected function dispatchConsumerTimingEvent(MessageInterface $message)
     {
         $event = new TimingEvent(TimingEvent::CONSUMER_TIMING);
-        $event->setIntervalMs($intervalMs);
+        $event->setIntervalMs($this->consumptionDuration);
         $event->setMessage($message);
 
         if (null !== ($dispatcher = $this->getEventDispatcher())) {
