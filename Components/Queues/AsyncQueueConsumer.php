@@ -7,8 +7,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
@@ -18,8 +16,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesb
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 
 /**
- * Class AsyncQueueConsumer
- * @package Smartbox\Integration\FrameworkBundle\Components\Queues
+ * Class AsyncQueueConsumer.
  */
 class AsyncQueueConsumer extends AbstractAsyncConsumer
 {
@@ -33,7 +30,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     const CONSUMER_TAG = 'amqp-consumer-%s-%s';
 
     /**
-     * @var PhpAmqpLibDriver
+     * @var AsyncQueueDriverInterface
      */
     private $driver;
 
@@ -125,7 +122,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * Overrides the main callback function to convert the AMQPMessage from the queue into a QueueMessage.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function callback(EndpointInterface $endpoint)
     {
@@ -145,5 +142,4 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
             parent::callback($endpoint)($queueMessage);
         };
     }
-
 }
