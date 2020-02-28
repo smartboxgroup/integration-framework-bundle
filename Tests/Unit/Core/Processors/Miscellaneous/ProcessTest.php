@@ -24,7 +24,7 @@ class ProcessTest extends \PHPUnit\Framework\TestCase
      */
     public $factory;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
 
@@ -35,7 +35,7 @@ class ProcessTest extends \PHPUnit\Framework\TestCase
         $this->factory->setFlowsVersion(0);
     }
 
-    protected function tearDown(): void
+    protected function tearDown()
     {
         $this->processProcessor = null;
     }

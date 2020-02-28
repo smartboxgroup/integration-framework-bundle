@@ -17,7 +17,7 @@ abstract class ProcessorTest extends BaseTestCase
 
     abstract public function getWorkingMessages();
 
-    public function setUp(): void
+    public function setUp()
     {
         parent::setUp();
         $this->processor = $this->createProcessor();

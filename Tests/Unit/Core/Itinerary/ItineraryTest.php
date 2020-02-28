@@ -14,12 +14,12 @@ class ItineraryTest extends \PHPUnit\Framework\TestCase
     /** @var Itinerary */
     private $itinerary;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->itinerary = new Itinerary();
     }
 
-    protected function tearDown(): void
+    protected function tearDown()
     {
         $this->itinerary = null;
     }

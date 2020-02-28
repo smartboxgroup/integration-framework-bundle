@@ -12,12 +12,12 @@ class DirectProducerTest extends \PHPUnit\Framework\TestCase
     /** @var DirectProducer */
     private $directProducer;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->directProducer = new DirectProducer();
     }
 
-    protected function tearDown(): void
+    protected function tearDown()
     {
         $this->directProducer = null;
     }

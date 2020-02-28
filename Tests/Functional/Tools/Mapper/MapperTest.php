@@ -17,13 +17,13 @@ class MapperTest extends BaseTestCase
     /** @var Mapper|MapperInterface */
     protected $mapper;
 
-    public function setUp(): void
+    public function setUp()
     {
         $this->bootKernel(['debug' => false]);
         $this->mapper = $this->getContainer()->get('smartesb.util.mapper');
     }
 
-    protected function tearDown(): void
+    public function tearDown()
     {
         $this->mapper = null;
     }

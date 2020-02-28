@@ -11,12 +11,12 @@ class MapperTest extends \PHPUnit\Framework\TestCase
     private $mapper;
 
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->mapper = new Mapper();
     }
 
-    protected function tearDown(): void
+    protected function tearDown()
     {
         $this->mapper = null;
     }

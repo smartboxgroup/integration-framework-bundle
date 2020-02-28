@@ -3,10 +3,7 @@
 namespace Smartbox\FrameworkBundle\Tests\Command;
 
 use Smartbox\Integration\FrameworkBundle\Command\ConsumeCommand;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -19,30 +16,10 @@ class ConsumeCommandTest extends KernelTestCase
 
     protected $mockConsumer;
 
-    public function setUp(): void
-    {
-        self::bootKernel();
-    }
-
-    public function setMockQueueDriver()
-    {
-        $msg = new QueueMessage(new Message());
-
-        $this->mockQueueDriver = $this
-            ->getMockBuilder(StompQueueDriver::class)
-            ->setMethods(['connect', 'send'])
-            ->getMock();
-        $this->mockQueueDriver
-            ->method('connect');
-        $this->mockQueueDriver
-            ->method('send')
-            ->with($msg);
-
-        self::$kernel->getContainer()->set(StompQueueDriver::class, $this->mockQueueDriver);
-    }
-
     public function setMockConsumer($expirationCount)
     {
+        self::bootKernel();
+
         $this->mockConsumer = $this
             ->getMockBuilder(QueueConsumer::class)
             ->setMethods(['consume', 'setExpirationCount'])
@@ -55,14 +32,14 @@ class ConsumeCommandTest extends KernelTestCase
             ->willReturn(true);
 
         self::$kernel->getContainer()->set('smartesb.consumers.queue', $this->mockConsumer);
+        self::$kernel->getContainer()->set('smartesb.consumers.async_queue', $this->mockConsumer);
+        self::$kernel->getContainer()->set('doctrine', $this->createMock(RegistryInterface::class));
     }
 
     public function testExecuteWithKillAfter()
     {
-        $this->setMockQueueDriver();
         $this->setMockConsumer(self::NB_MESSAGES);
 
-        self::$kernel->getContainer();
         $application = new Application(self::$kernel);
         $application->add(new ConsumeCommand());
 

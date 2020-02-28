@@ -25,7 +25,7 @@ class RestConfigurableProducerTest extends BaseTestCase
     /** @var RestConfigurableProducer */
     protected $producer;
 
-    public function setUp(): void
+    public function setUp()
     {
         parent::setUp();
         $producer = new RestConfigurableProducer();

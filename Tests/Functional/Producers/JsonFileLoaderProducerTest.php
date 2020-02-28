@@ -14,7 +14,7 @@ class JsonFileLoaderProducerTest extends BaseTestCase
     /** @var JsonFileLoaderProducer */
     protected $producer;
 
-    public function setUp(): void
+    public function setUp()
     {
         parent::setUp();
         $this->producer = new JsonFileLoaderProducer();

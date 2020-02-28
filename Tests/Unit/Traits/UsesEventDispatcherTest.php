@@ -16,7 +16,7 @@ class UsesEventDispatcherTest extends \PHPUnit\Framework\TestCase
      */
     private $fakeObject;
 
-    protected function setUp(): void
+    public function setUp()
     {
         $this->fakeObject = new FakeTraitsUsage();
     }

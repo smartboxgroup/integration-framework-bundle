@@ -28,7 +28,7 @@ class DatabaseSmokeTestTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->registry = $this->createMock(ConnectionRegistry::class);
         $this->smokeTest = new DatabaseSmokeTest($this->registry);

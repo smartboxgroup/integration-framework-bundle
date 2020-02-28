@@ -23,12 +23,12 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
     /** @var MessageHandler */
     private $messageHandler;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->messageHandler = new MessageHandler();
     }
 
-    protected function tearDown(): void
+    protected function tearDown()
     {
         $this->messageHandler = null;
     }

@@ -39,7 +39,7 @@ class DBConfigurableConsumerTest extends \PHPUnit\Framework\TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->messageFactory = $this->createMock(MessageFactory::class);
         $this->stepProvider = $this->createMock(ConfigurableStepsProviderInterface::class);

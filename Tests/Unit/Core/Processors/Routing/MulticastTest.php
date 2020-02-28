@@ -16,12 +16,12 @@ class MulticastTest extends \PHPUnit\Framework\TestCase
     /** @var Multicast */
     private $multicast;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->multicast = new Multicast();
     }
 
-    protected function tearDown(): void
+    protected function tearDown()
     {
         $this->multicast = null;
     }

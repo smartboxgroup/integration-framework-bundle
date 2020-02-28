@@ -23,7 +23,7 @@ class DeferredEventsHandlerTest extends \PHPUnit\Framework\TestCase
     /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject */
     public $eventDispatcherMock;
 
-    public function setUp(): void
+    public function setUp()
     {
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $this->handler = new DeferredEventsHandler();

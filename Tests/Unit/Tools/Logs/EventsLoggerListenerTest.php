@@ -26,7 +26,7 @@ class EventsLoggerListenerTest extends \PHPUnit\Framework\TestCase
     /** @var LoggerInterface|\PHPUnit_Framework_MockObject_MockObject */
     private $logger;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         /** @var RequestStack|\PHPUnit_Framework_MockObject_MockObject $requestStack */
         $requestStack = $this->createMock(RequestStack::class);
@@ -35,7 +35,7 @@ class EventsLoggerListenerTest extends \PHPUnit\Framework\TestCase
         $this->listener = new EventsLoggerListener($this->logger, $requestStack);
     }
 
-    protected function tearDown(): void
+    protected function tearDown()
     {
         $this->logger = null;
         $this->listener = null;

@@ -19,7 +19,7 @@ class TransformerTest extends KernelTestCase
     /** @var Transformer */
     private $transformer;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         static::bootKernel();
         $container = static::$kernel->getContainer();
@@ -32,7 +32,7 @@ class TransformerTest extends KernelTestCase
         $this->transformer->setEvaluator($container->get('smartesb.util.evaluator'));
     }
 
-    protected function tearDown(): void
+    protected function tearDown()
     {
         $this->transformer = null;
     }

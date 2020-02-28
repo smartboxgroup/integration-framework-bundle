@@ -45,11 +45,7 @@ smartbox_integration_framework:
         amqp:
             type: AMQP
             description: AMQP queue driver
-            host: "%hostname%"
-            username: "%rabbitmq.username%"
-            password: "%rabbitmq.password%"
             format: json
-            vhost: "%rabbitmq.vhost%"
             connections:
                 - "amqp://%rabbitmq.username%:%rabbitmq.password%@%hostname%/%rabbitmq.vhost%"
 
@@ -60,7 +56,7 @@ smartbox_integration_framework:
 
     message_handlers:
         sync:
-            description: Message handler to handle messages comming from the API
+            description: Message hanlder to handle messages comming from the API
             retries_max: 5
             retry_delay: 0
             failed_uri: queue://main/sync/failed
@@ -69,7 +65,7 @@ smartbox_integration_framework:
             defer_new_exchanges: false
 
         async:
-            description: Message handler to handle messages comming from a queue
+            description: Message hanlder to handle messages comming from a queue
             retries_max: 5
             retry_delay: 0
             failed_uri: queue://main/async/failed

@@ -67,7 +67,7 @@ class ConfigurableProducerTest extends BaseTestCase
           ],
     ];
 
-    public function setUp(): void
+    public function setUp()
     {
         parent::setUp();
 

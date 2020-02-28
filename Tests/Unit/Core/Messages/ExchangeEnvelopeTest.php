@@ -13,7 +13,7 @@ class ExchangeEnvelopeTest extends \PHPUnit\Framework\TestCase
     /** @var ExchangeEnvelope */
     private $exchangeEnvelope;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         /** @var Context|\PHPUnit_Framework_MockObject_MockObject $context */
         $context = $this->createMock(Context::class);
@@ -30,7 +30,7 @@ class ExchangeEnvelopeTest extends \PHPUnit\Framework\TestCase
         $this->exchangeEnvelope = new ExchangeEnvelope($exchange);
     }
 
-    protected function tearDown(): void
+    protected function tearDown()
     {
         $this->exchangeEnvelope = null;
     }

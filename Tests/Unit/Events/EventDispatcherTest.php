@@ -145,7 +145,7 @@ class EventDispatcherTest extends \PHPUnit\Framework\TestCase
         $this->assertCount(0, $messages);
     }
 
-    protected function tearDown(): void
+    public function tearDown()
     {
         parent::tearDown();
         ArrayQueueDriver::$array = [];

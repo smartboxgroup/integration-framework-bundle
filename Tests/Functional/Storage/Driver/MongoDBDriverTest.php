@@ -33,7 +33,7 @@ class MongoDBDriverTest extends KernelTestCase
     /** @var NoSQLDriverInterface */
     protected static $storageDriver;
 
-    public static function setUpBeforeClass(): void
+    public static function setUpBeforeClass()
     {
         if (!\extension_loaded('mongodb')) {
             self::markTestSkipped(
@@ -55,7 +55,7 @@ class MongoDBDriverTest extends KernelTestCase
         parent::setUpBeforeClass();
     }
 
-    public static function tearDownAfterClass(): void
+    public static function tearDownAfterClass()
     {
         self::$storageDriver = null;
         parent::tearDownAfterClass();
