@@ -127,8 +127,13 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     protected function process(EndpointInterface $queueEndpoint, QueueMessageInterface $message)
     {
-        $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI(), EndpointFactory::MODE_CONSUME);
-        $queueEndpoint->getHandler()->handle($message->getBody(), $endpoint);
+        // If we used a wrapper to queue the message, that the handler doesn't understand, unwrap it
+        if ($message instanceof QueueMessageInterface && !($queueEndpoint->getHandler() instanceof QueueMessageHandlerInterface)) {
+            $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI(), EndpointFactory::MODE_CONSUME);
+            $queueEndpoint->getHandler()->handle($message->getBody(), $endpoint);
+        } else {
+            parent::process($queueEndpoint, $message);
+        }
     }
 
     /**
