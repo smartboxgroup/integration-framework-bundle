@@ -141,7 +141,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
                 $queueMessage->setMessageId($message->getDeliveryTag());
             } catch (\Exception $exception) {
                 // TODO Verify "headers" are passed correctly. might need to access "data" key after get_properties
-                $deserializationTime = (microtime(true) - $start) * 1000;
+                $this->consumptionDuration = (microtime(true) - $start) * 1000;
                 $this->getExceptionHandler()($exception, ['headers' => $message->get_properties(), 'body' => $message->getBody()]);
             }
 

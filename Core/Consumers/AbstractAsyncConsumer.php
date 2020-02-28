@@ -118,18 +118,18 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     public function callback(EndpointInterface $endpoint)
     {
         return function (MessageInterface $message) use ($endpoint) {
-            $startConsumeTime = microtime(true);
+            $start = microtime(true);
 
             try {
                 $this->process($endpoint, $message);
             } catch (\Exception $exception) {
-                $this->consumptionDuration = (microtime(true) - $startConsumeTime) * 1000;
+                $this->consumptionDuration = (microtime(true) - $start) * 1000;
                 $this->dispatchConsumerTimingEvent($message);
 
                 throw $exception;
             }
 
-            $this->consumptionDuration += (microtime(true) - $startConsumeTime) * 1000;
+            $this->consumptionDuration += (microtime(true) - $start) * 1000;
             $this->dispatchConsumerTimingEvent($message);
 
             $this->confirmMessage($endpoint, $message);
