@@ -17,7 +17,8 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesb
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 
 /**
- * Class PhpAmqpSignalConsumer.
+ * Class AsyncQueueConsumer
+ * @package Smartbox\Integration\FrameworkBundle\Components\Queues
  */
 class AsyncQueueConsumer extends AbstractAsyncConsumer
 {
