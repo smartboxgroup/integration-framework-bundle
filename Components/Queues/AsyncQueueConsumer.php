@@ -90,6 +90,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         $this->driver->ack($message->getMessageId());
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function asyncConsume(EndpointInterface $endpoint, callable $callback)
     {
         $this->driver->declareChannel();
@@ -99,6 +102,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         $this->driver->consume($this->getName(), $queueName, $callback);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function waitNoBlock()
     {
         if ($this->driver->isConsuming()) {
@@ -106,6 +112,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function wait()
     {
         if ($this->driver->isConsuming()) {
@@ -113,6 +122,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function process(EndpointInterface $queueEndpoint, QueueMessageInterface $message)
     {
         $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI(), EndpointFactory::MODE_CONSUME);
