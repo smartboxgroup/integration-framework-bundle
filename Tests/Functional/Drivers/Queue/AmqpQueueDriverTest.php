@@ -14,7 +14,7 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverIn
  */
 class AmqpQueueDriverTest extends AbstractQueueDriverTest
 {
-    protected function setUp(): void
+    protected function setUp()
     {
         if (!\extension_loaded('amqp')) {
             $this->markTestSkipped('AMQP extension is need for that test');

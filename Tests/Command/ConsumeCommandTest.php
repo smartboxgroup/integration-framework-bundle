@@ -19,7 +19,7 @@ class ConsumeCommandTest extends KernelTestCase
 
     protected $mockConsumer;
 
-    public function setUp(): void
+    public function setUp()
     {
         self::bootKernel();
     }

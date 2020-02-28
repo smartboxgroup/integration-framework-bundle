@@ -12,7 +12,7 @@ class PhpAmqpLibDriverTest extends TestCase
      */
     private $driver;
 
-    public function setUp(): void
+    public function setUp()
     {
         $this->driver = new PhpAmqpLibDriver();
     }
