@@ -15,6 +15,10 @@
         <directory>./Tests/</directory>
     </testsuite>
 
+    <php>
+        <ini name="error_reporting" value="2" />
+    </php>
+
     <filter>
         <whitelist>
             <directory>.</directory>

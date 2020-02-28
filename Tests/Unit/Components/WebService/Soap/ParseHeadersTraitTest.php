@@ -29,7 +29,7 @@ class ParseHeadersTraitTest extends TestCase
         Request::METHOD_TRACE,
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->parseTrait = $this->getMockForTrait(ParseHeadersTrait::class);
     }

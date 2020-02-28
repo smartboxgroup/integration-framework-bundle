@@ -46,13 +46,14 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const CONSUMER_PREFIX = 'smartesb.consumers.';
     const PARAM_DEFERRED_EVENTS_URI = 'smartesb.uris.deferred_events';
     const AMQP_SERVICES = [
-        'smartesb.consumers.async_queue',
-        'smartesb.drivers.queue.phpamqplib',
-        'smartesb.async_consumers.queue.class'
+        'smartesb.drivers.queue.amqp',
+        'smartesb.async_consumers.queue'
     ];
 
     protected $config;
     protected $useAmqp = false;
+
+    protected $drivesThatUseAMQP = [];
 
     public function getFlowsVersion()
     {
@@ -235,6 +236,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                 case 'amqp':
                     $this->useAmqp = true;
 
+                    $this->drivesThatUseAMQP[] = $driverName;
+
                     if (!class_exists(AMQPStreamConnection::class)) {
                         throw new \RuntimeException('You need the amqp extension to use PHP-AMQP-LIB driver.');
                     }
@@ -250,10 +253,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                         $driverDef->addMethodCall('setPort', [$driverConfig['port'] ?? QueueDriverInterface::DEFAULT_PORT]);
                         $driverDef->addMethodCall('configure', [
-                            'host' => $connection['host'],
-                            'username' => $connection['user'],
-                            'password' => $connection['pass'],
-                            'vhost' => trim($connection['path'] ?? '', '/'),
+                            $driverConfig['host'],
+                            $driverConfig['username'],
+                            $driverConfig['password'],
+                            $driverConfig['vhost']
                         ]);
                     }
 
@@ -273,6 +276,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         ->addMethodCall('setDefaultConsumer', [$consumer]);
 
                     if ($exceptionHandlerId) {
+                        $driverDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
                         $consumer->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
                     }
                     break;
@@ -287,11 +291,16 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$this->config['default_queue_driver']);
         $container->setAlias('smartesb.default_queue_driver', $defaultQueueDriverAlias);
 
-        if (!$this->useAmqp) {
-            foreach (static::AMQP_SERVICES as $id) {
-                $container->removeDefinition($id);
+        foreach($this->config['queue_drivers'] as $driverName => $driver) {
+            if (!\in_array($driverName, $this->drivesThatUseAMQP)) {
+//                foreach (static::AMQP_SERVICES as $id) {
+//                    $container->removeDefinition($id);
+                    $container->findDefinition('smartesb.protocols.queue')
+                        ->addMethodCall('setDefaultConsumer', [new Reference('smartesb.consumers.queue')]);
+//                }
             }
         }
+
     }
 
     protected function loadNoSQLDrivers(ContainerBuilder $container)

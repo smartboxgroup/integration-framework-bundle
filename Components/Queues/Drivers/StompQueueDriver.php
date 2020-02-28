@@ -180,7 +180,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /**
      * @param string $format
      */
-    public function setFormat(string $format = QueueDriverInterface::FORMAT_JSON)
+    public function setFormat(string $format = null)
     {
         $this->format = $format;
     }

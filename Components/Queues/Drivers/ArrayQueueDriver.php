@@ -10,13 +10,18 @@ use Smartbox\Integration\FrameworkBundle\Service;
 /**
  * Class ArrayQueueDriver.
  */
-class ArrayQueueDriver extends Service implements QueueDriverInterface
+class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
 {
     public static $array = [];
 
     protected $connected = false;
     protected $subscribedQueue = false;
     protected $unacknowledgedFrame = null;
+
+    /**
+     * @var string
+     */
+    private $format;
 
     /**
      * @return int
@@ -110,7 +115,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
      *
      * The object should be removed from the queue.
      */
-    public function ack()
+    public function ack(int $messageId = null)
     {
         $this->unacknowledgedFrame = false;
     }
@@ -120,13 +125,13 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
      *
      * The object could be moved to the DLQ or be delivered to another subscription for retrial
      */
-    public function nack()
+    public function nack(int $messageId = null)
     {
         $this->unacknowledgedFrame = false;
     }
 
     /** {@inheritdoc} */
-    public function send(QueueMessageInterface $message, $destination = null)
+    public function send(QueueMessageInterface $message, $destination = null, array $arguments = [])
     {
         $destination = $destination ? $destination : $message->getQueue();
 
@@ -166,9 +171,26 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
     /**
      * Clean all the opened resources, must be called just before terminating the current request.
      */
-    public function doDestroy()
+    public function destroy()
     {
         // TODO: Implement doDestroy() method.
         // I have no time to do destroy the world.
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormat()
+    {
+        return $this->format;
+    }
+
+    /**
+     * @param string $format
+     * @return ArrayQueueDriver
+     */
+    public function setFormat(string $format = null)
+    {
+        $this->format = $format;
     }
 }
