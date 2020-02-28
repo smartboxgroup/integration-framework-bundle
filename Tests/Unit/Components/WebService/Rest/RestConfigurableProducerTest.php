@@ -79,6 +79,7 @@ class RestConfigurableProducerTest extends \PHPUnit\Framework\TestCase
      * @param RequestException $internalException
      * @param string           $expectedException
      * @dataProvider getExpectedExceptionsForStatusCodes
+     * @expectedException \Throwable
      */
     public function testItShouldCreateProperRestExceptions(
         $statusCode,

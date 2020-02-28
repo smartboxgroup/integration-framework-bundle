@@ -42,6 +42,11 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     const EXCHANGE_NAME = '';
 
     /**
+     * @var int Time in ms
+     */
+    private $dequeueTimeMs = 0;
+
+    /**
      * @var string
      */
     protected $format = self::FORMAT_JSON;
@@ -49,7 +54,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * @var AMQPChannel|null
      */
-    protected $channel;
+    private $channel;
+
+    /**
+     * @var \AMQPExchange|null
+     */
+    private $exchange;
 
     /**
      * @var array|null
@@ -265,7 +275,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * @param string $format
      */
-    public function setFormat(string $format = QueueDriverInterface::FORMAT_JSON)
+    public function setFormat(string $format = null)
     {
         $this->format = $format;
     }
