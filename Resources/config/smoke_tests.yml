@@ -14,7 +14,7 @@ services:
 
   smartesb.smoke_test.file_permissions:
       class: "%smartesb.smoke_test.file_permissions.class%"
-      arguments: [ '%kernel.root_dir%/cache' ]
+      arguments: [ "@=service('kernel').getCacheDir()" ] # TODO: Once 2.8 support is dropped, replace this with '%kernel.cache_dir%'
       tags:
           - { name: smartcore.smoke_test, labels: "important" }
 
