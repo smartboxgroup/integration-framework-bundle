@@ -378,22 +378,16 @@ class Configuration implements ConfigurationInterface
             ->defaultValue('')
             ->end()
 
-            ->scalarNode('host')
-            ->defaultValue('')
-            ->end()
+            ->scalarNode('host')->end()
 
             ->scalarNode('vhost')
             ->info('This is the virtual host to use. By default is determined based on the host')
             ->defaultValue(null)
             ->end()
 
-            ->scalarNode('username')
-            ->defaultValue('')
-            ->end()
+            ->scalarNode('username')->end()
 
-            ->scalarNode('password')
-            ->defaultValue('')
-            ->end()
+            ->scalarNode('password')->end()
 
             ->scalarNode('format')
             ->isRequired()

@@ -8,7 +8,6 @@ use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
@@ -40,7 +39,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * Set the driver to this class with the properties fulfilled.
      *
-     * @param $driver
+     * @param AsyncQueueDriverInterface $driver
      */
     public function setDriver(AsyncQueueDriverInterface $driver)
     {
@@ -69,6 +68,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
     /**
      * Returns the queue name properly treated with queue prefix.
+     *
+     * @param EndpointInterface $endpoint
+     * @return string
      */
     protected function getQueueName(EndpointInterface $endpoint): string
     {
@@ -93,6 +95,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         $this->driver->ack($message->getMessageId());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function asyncConsume(EndpointInterface $endpoint, callable $callback)
     {
         $this->driver->declareChannel();
@@ -102,6 +107,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         $this->driver->consume($this->getName(), $queueName, $callback);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function waitNoBlock()
     {
         if ($this->driver->isConsuming()) {
@@ -109,6 +117,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function wait()
     {
         if ($this->driver->isConsuming()) {
@@ -116,6 +127,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function process(EndpointInterface $queueEndpoint, QueueMessageInterface $message)
     {
         $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI(), EndpointFactory::MODE_CONSUME);

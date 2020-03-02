@@ -3,27 +3,72 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
-use PHPUnit\Framework\TestCase;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue\AbstractQueueDriverTest;
 
-class PhpAmqpLibDriverTest extends TestCase
+/**
+ * Class PhpAmqpLibDriverTest
+ * @package Smartbox\Integration\FrameworkBundle\Tests
+ * @group php-amqp-lib
+ */
+class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
 {
     /**
      * @var PhpAmqpLibDriver
      */
-    private $driver;
+    protected $driver;
 
     public function setUp()
     {
-        $this->driver = new PhpAmqpLibDriver();
+        $this->driver = $this->createDriver();
+        $this->driver->setPort(QueueDriverInterface::DEFAULT_PORT);
+        $this->driver->configure(
+            'rabbit',
+            'guest',
+            'guest',
+            'test'
+        );
+        $this->driver->connect();
     }
 
     /**
-     * @group phpamqplib-configure
+     * @inheritDoc
      */
-    public function testConfigure()
+    protected function createDriver(): QueueDriverInterface
     {
-
+        return new PhpAmqpLibDriver();
     }
+
+    /**
+     * @dataProvider getMessages
+     *
+     * @param MessageInterface $msg
+     * @throws \Exception
+     * @group php1
+     */
+    public function testShouldSelect(MessageInterface $msg)
+    {
+        $msgIn = $this->createQueueMessage($msg);
+        $msgIn->addHeader('test_header', '12345');
+        $this->driver->send($msgIn);
+
+//        $this->driver->subscribe($this->queueName, 'test_header = 12345');
+
+        $this->assertNotNull($this->driver->receive(), 'Message should be received');
+        $this->driver->ack();
+        $this->driver->unSubscribe();
+    }
+
+    /**
+     * @throws \Exception
+     * @group send
+     */
+//    public function testSend()
+//    {
+//        $msg = $this->createQueueMessage($this->createSimpleEntity('item1'));
+//        $this->driver->send($msg);
+//    }
 
     public function testNack()
     {
@@ -56,11 +101,6 @@ class PhpAmqpLibDriverTest extends TestCase
     }
 
     public function testIsConsuming()
-    {
-
-    }
-
-    public function testConnect()
     {
 
     }
@@ -110,13 +150,10 @@ class PhpAmqpLibDriverTest extends TestCase
 
     }
 
-    public function testSend()
-    {
-
-    }
 
     public function testGetFormat()
     {
 
     }
+
 }
