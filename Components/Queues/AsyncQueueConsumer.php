@@ -7,7 +7,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
@@ -32,7 +31,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     const CONSUMER_TAG = 'amqp-consumer-%s-%s';
 
     /**
-     * @var PhpAmqpLibDriver
+     * @var AsyncQueueDriverInterface
      */
     private $driver;
 
@@ -96,7 +95,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function asyncConsume(EndpointInterface $endpoint, callable $callback)
     {
@@ -108,7 +107,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function waitNoBlock()
     {
@@ -118,7 +117,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function wait()
     {
@@ -128,18 +127,23 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function process(EndpointInterface $queueEndpoint, QueueMessageInterface $message)
     {
-        $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI(), EndpointFactory::MODE_CONSUME);
-        $queueEndpoint->getHandler()->handle($message->getBody(), $endpoint);
+        // If we used a wrapper to queue the message, that the handler doesn't understand, unwrap it
+        if ($message instanceof QueueMessageInterface && !($queueEndpoint->getHandler() instanceof QueueMessageHandlerInterface)) {
+            $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI(), EndpointFactory::MODE_CONSUME);
+            $queueEndpoint->getHandler()->handle($message->getBody(), $endpoint);
+        } else {
+            parent::process($queueEndpoint, $message);
+        }
     }
 
     /**
      * Overrides the main callback function to convert the AMQPMessage from the queue into a QueueMessage.
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function callback(EndpointInterface $endpoint)
     {
@@ -159,5 +163,4 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
             parent::callback($endpoint)($queueMessage);
         };
     }
-
 }
