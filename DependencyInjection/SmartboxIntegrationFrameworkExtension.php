@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
@@ -251,7 +252,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     foreach ($driverConfig['connections'] as $index => $uri) {
                         $connection = parse_url($uri);
 
-                        $driverDef->addMethodCall('setPort', [$driverConfig['port'] ?? QueueDriverInterface::DEFAULT_PORT]);
+                        $driverDef->addMethodCall('setPort', [$driverConfig['port'] ?? AsyncQueueDriverInterface::DEFAULT_PORT]);
                         $driverDef->addMethodCall('configure', [
                             $driverConfig['host'],
                             $driverConfig['username'],
