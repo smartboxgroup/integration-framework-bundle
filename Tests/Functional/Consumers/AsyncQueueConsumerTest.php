@@ -98,7 +98,10 @@ class AsyncQueueConsumerTest extends TestCase
 
         $driver = $this->createMock(AsyncQueueDriverInterface::class);
 
-        $consumer = new AsyncQueueConsumer();
+        $consumer = $this->getMockBuilder(AsyncQueueConsumer::class)
+            // Prevent the parent class from processing the message, otherwise it would require mocking buncha stuff
+            ->setMethods(['process'])
+            ->getMock();
         $consumer->setSerializer($serializer);
         $consumer->setDriver($driver);
         $callback = $consumer->callback($this->createMock(EndpointInterface::class));
