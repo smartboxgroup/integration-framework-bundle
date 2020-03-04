@@ -7,9 +7,11 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exception\AMQPChannelClosedException;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
@@ -190,7 +192,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function consume(string $consumerTag, string $queueName, callable $callback = null)
     {
-        $this->validateChannel();
+        $this->declareChannel();
+        $this->declareQueue($queueName);
         $this->channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
     }
 
@@ -248,25 +251,50 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * Catch a channel inside the connection.
      */
-    public function declareChannel(): AMQPChannel
+    public function declareChannel(int $prefetchSize = self::PREFETCH_SIZE, int $prefetchCount = self::PREFETCH_COUNT): AMQPChannel
     {
-        try {
-            $this->channel = $this->amqpConnections[0]->channel();
-            $this->channel->basic_qos(self::PREFETCH_SIZE, self::PREFETCH_COUNT, null);
+        $this->channel = $this->amqpConnections[0]->channel();
+        $this->channel->basic_qos($prefetchSize, $prefetchCount, null);
 
-            return $this->channel;
-        } catch (\AMQPChannelException $channelException) {
-            throw new \Exception($channelException->getMessage(), $channelException->getCode());
-        }
+        return $this->channel;
     }
 
     /**
      * AMQP Exchange is the publishing mechanism. This method declares a new default exchange.
+     *
+     * @param string $name
+     * @param string $type
+     * @param bool $passive
+     * @param bool $durable
+     * @param bool $autoDelete
+     * @param bool $internal
+     * @param bool $noWait
+     * @param array $arguments
      */
-    public function declareExchange(string $queueName)
+    public function declareExchange(
+        string $name = self::EXCHANGE_NAME,
+        string $type = AMQPExchangeType::DIRECT,
+        bool $passive = false,
+        bool $durable = false,
+        bool $autoDelete = true,
+        bool $internal = false,
+        bool $noWait = false,
+        array $arguments = []
+    ) {
+        $this->channel->exchange_declare($name, $type, $passive, $durable, $autoDelete, $internal, $noWait, $arguments);
+    }
+
+    /**
+     * Binds a queue to exchange
+     *
+     * @param string $queueName
+     * @param string $exchangeName
+     * @param string $routingKey
+     * @param bool $noWait
+     */
+    public function queueBind(string $queueName, string $exchangeName, string $routingKey = '', bool $noWait = false)
     {
-        $this->channel->exchange_declare(self::EXCHANGE_NAME, AMQPExchangeType::DIRECT, false, true, false);
-        $this->channel->queue_bind($queueName, self::EXCHANGE_NAME, $queueName);
+        $this->channel->queue_bind($queueName, self::EXCHANGE_NAME, $queueName, $noWait);
     }
 
     /**

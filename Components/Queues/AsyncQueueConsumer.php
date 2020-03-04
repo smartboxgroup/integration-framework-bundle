@@ -99,10 +99,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     public function asyncConsume(EndpointInterface $endpoint, callable $callback)
     {
-        $this->driver->declareChannel();
         $queueName = $this->getQueueName($endpoint);
-
-        $this->driver->declareQueue($queueName);
         $this->driver->consume($this->getName(), $queueName, $callback);
     }
 
