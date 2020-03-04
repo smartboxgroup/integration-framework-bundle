@@ -7,6 +7,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 
@@ -84,19 +85,22 @@ class AsyncQueueConsumerTest extends TestCase
         $callback($message);
     }
 
+    /**
+     * Test that the message id is set when deserializing it, so it can be correclty acked later.
+     */
     public function testConsumerSetsMessageID()
     {
-        $message = $this->createMock(QueueMessageInterface::class);
-        $message->expects($this->once())
-            ->method('setMessageId')
-            ->with($this->equalTo(1));
+        $messageID = 42;
 
         $serializer = $this->createMock(SerializerInterface::class);
         $serializer->expects($this->once())
             ->method('deserialize')
-            ->willReturn($message);
+            ->willReturn(new QueueMessage());
 
         $driver = $this->createMock(AsyncQueueDriverInterface::class);
+        $driver->expects($this->once())
+            ->method('ack')
+            ->with($messageID);
 
         $consumer = $this->getMockBuilder(AsyncQueueConsumer::class)
             // Prevent the parent class from processing the message, otherwise it would require mocking buncha stuff
@@ -107,7 +111,7 @@ class AsyncQueueConsumerTest extends TestCase
         $callback = $consumer->callback($this->createMock(EndpointInterface::class));
 
         $message = new AMQPMessage('an amqp message');
-        $message->delivery_info['delivery_tag'] = 1;
+        $message->delivery_info['delivery_tag'] = $messageID;
 
         $callback($message);
     }
