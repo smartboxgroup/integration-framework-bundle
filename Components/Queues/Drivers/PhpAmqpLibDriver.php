@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 use PhpAmqpLib\Channel\AMQPChannel;
+use PhpAmqpLib\Connection\AbstractConnection;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -49,7 +50,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * @var string
      */
-    protected $format = self::FORMAT_JSON;
+    protected $format = AsyncQueueDriverInterface::FORMAT_JSON;
 
     /**
      * @var AMQPChannel|null
@@ -125,7 +126,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      *
      * @param $connection
      */
-    public function addConnection($connection)
+    public function addConnection(AbstractConnection $connection)
     {
         $this->amqpConnections[] = $connection;
     }
@@ -185,9 +186,11 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @param string $consumerTag
      * @param string $queueName
      * @param callable|null $callback
+     * @return string $consumerTag
      */
     public function consume(string $consumerTag, string $queueName, callable $callback = null)
     {
+        $this->validateChannel();
         $this->channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
     }
 
@@ -217,12 +220,11 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function send(QueueMessageInterface $message, $destination = null, array $arguments = [])
     {
         $this->declareChannel();
-        $this->validateQueueExists($message);
+        $this->declareQueue($message->getQueue(), AMQP_DURABLE, $arguments);
         $messageBody = $this->getSerializer()->serialize($message, $this->format);
         $messageHeaders = new AMQPTable($message->getHeaders());
         $amqpMessage = new AMQPMessage($messageBody);
         $amqpMessage->set('application_headers', $messageHeaders);
-        $this->declareQueue($message->getQueue(), AMQP_DURABLE, $arguments);
         $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $message->getQueue());
         return true;
     }
@@ -230,7 +232,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * Declares the queue to drive the message.
      *
-     * @param string $name      The name of the queue
+     * @param string $queueName The name of the queue
+     * @param int $durable
      * @param array  $arguments See AMQPQueue::setArguments()
      *
      * @return array|null
@@ -311,10 +314,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      *
      * @throws \Exception
      */
-    protected function validateQueueExists($queueMessage)
+    protected function validateQueueExists($queue)
     {
-        if (!$queueMessage->getQueue()) {
-            throw new \Exception('Please declare a queue before send some message');
+        try {
+            $this->channel->queue_declare($queue, true);
+        } catch (\Exception $exception) {
+            throw new \Exception('Queue not found. Please declare a queue before send/consume some message');
         }
     }
 

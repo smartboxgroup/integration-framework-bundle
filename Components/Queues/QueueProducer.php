@@ -21,8 +21,7 @@ class QueueProducer extends Producer
     use UsesDriverRegistry;
 
     protected $headersToPropagate = [
-        Message::HEADER_EXPIRES,
-        'x-dead-letters-exchange' => 'EAI'
+        Message::HEADER_EXPIRES
     ];
 
     /**

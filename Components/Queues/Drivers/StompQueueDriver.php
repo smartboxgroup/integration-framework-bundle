@@ -52,10 +52,13 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     /** @var StatefulStomp */
     protected $statefulStomp;
 
+    /** @var int */
     protected $timeout;
 
+    /** @var string */
     protected $vhost;
 
+    /** @var bool|int  */
     protected $subscriptionId = false;
 
     /**
@@ -67,6 +70,9 @@ class StompQueueDriver extends Service implements QueueDriverInterface
      * @var int The time it took in ms to deserialize the message
      */
     protected $dequeueingTimeMs = 0;
+
+    /** @var bool */
+    protected $sync;
 
     /**
      * @return bool

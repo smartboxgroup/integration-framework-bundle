@@ -8,6 +8,7 @@ use Smartbox\FrameworkBundle\Tests\Command\ConsumeCommandTest;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 
 /**
  * @internal

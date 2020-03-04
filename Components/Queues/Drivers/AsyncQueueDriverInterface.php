@@ -8,6 +8,8 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
  */
 interface AsyncQueueDriverInterface extends QueueDriverInterface
 {
+    const DEFAULT_PORT = 5672;
+
     /**
      * Declares a queue to be consumed and installs an optional callback function to be called once the worker is put
      * in wait state and a message arrives.

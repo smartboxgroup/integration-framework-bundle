@@ -10,7 +10,6 @@ interface QueueDriverInterface extends SerializableInterface
     const FORMAT_JSON = 'json';
     const FORMAT_XML = 'xml';
     const DEFAULT_TTL = 86400;
-    const DEFAULT_PORT = 5672;
 
     const HEADER_TTL = 'ttl';
     const HEADER_EXPIRES = 'expires';
