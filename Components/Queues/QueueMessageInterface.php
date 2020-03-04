@@ -98,4 +98,16 @@ interface QueueMessageInterface extends MessageInterface
      * @return null|string
      */
     public function getDestinationURI();
+
+    /**
+     * @param int $messageId
+     *
+     * @return mixed
+     */
+    public function setMessageId(int $messageId);
+
+    /**
+     * @return mixed
+     */
+    public function getMessageId();
 }
