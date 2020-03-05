@@ -46,16 +46,6 @@ class AsyncQueueConsumerTest extends TestCase
     }
 
     /**
-     * Assert that the callback function returns a callable object.
-     */
-    public function testCallbackReturnsCallable()
-    {
-        $consumer = new AsyncQueueConsumer();
-        $callback = $consumer->callback($this->createMock(EndpointInterface::class));
-        $this->assertInstanceOf(\Closure::class, $callback);
-    }
-
-    /**
      * Callback should call the exception handler when it fails to deserialize a message. By default, the
      * ReThrowExceptionHandler is used which simply throws the exception again.
      */

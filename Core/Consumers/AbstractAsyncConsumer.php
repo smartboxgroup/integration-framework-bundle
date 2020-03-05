@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use PhpAmqpLib\Message\AMQPMessage;
@@ -22,7 +24,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     use UsesSmartesbHelper;
 
     /**
-     * Sleep flag. Prevents the consumer from running too fast and consuming all available resources when there are
+     * Sleep flag. Prevents the consumer from running too fast and causing a CPU usage spike when there are
      * no messages available.
      *
      * @var bool
@@ -115,7 +117,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @return \Closure
      */
-    public function callback(EndpointInterface $endpoint)
+    public function callback(EndpointInterface $endpoint): callable
     {
         return function (MessageInterface $message) use ($endpoint) {
             $start = microtime(true);
@@ -161,7 +163,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     abstract public function waitNoBlock();
 
     /** {@inheritdoc} */
-    public function getName()
+    public function getName(): string
     {
         $reflection = new \ReflectionClass(self::class);
         $name = $reflection->getShortName();

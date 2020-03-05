@@ -60,7 +60,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      *
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return sprintf(self::CONSUMER_TAG, gethostname(), getmypid());
     }
@@ -138,7 +138,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      *
      * {@inheritdoc}
      */
-    public function callback(EndpointInterface $endpoint)
+    public function callback(EndpointInterface $endpoint): callable
     {
         return function (AMQPMessage $message) use ($endpoint) {
             try {
