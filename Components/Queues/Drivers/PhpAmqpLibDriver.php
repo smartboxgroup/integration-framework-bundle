@@ -12,6 +12,8 @@ use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\Service;
@@ -43,9 +45,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     const EXCHANGE_NAME = '';
 
     /**
-     * @var int Time in ms
+     * Default port to connection
      */
-    private $dequeueTimeMs = 0;
+    const DEFAULT_PORT = 5672;
 
     /**
      * @var string
@@ -109,16 +111,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
         }
 
         try {
-            $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, [
-                'insist' => true,
-                'login_method' => 'AMQPLAIN',
-                'locale' => 'en_UK',
-                'connection_timeout' => 60.0,
-                'read_write_timeout' => 50.0,
-                'context' => null,
-                'keepalive' => true,
-                'heartbeat' => 0,
-            ]));
+            $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, []));
         } catch (AMQPIOException $exception) {
             throw new \AMQPConnectionException($exception->getMessage());
         }
@@ -128,6 +121,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * Add a connection to the array of connections.
      *
      * @param $connection
+     * @return void
      */
     public function addConnection(AbstractConnection $connection)
     {
@@ -138,6 +132,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * Responsible to disconnect with the broker.
      *
      * @throws \Exception
+     * @return void
      */
     public function disconnect()
     {
@@ -163,11 +158,13 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * Verifies if there is some connection opened with the broker.
+     *
+     * @return bool
      */
     public function isConnected(): bool
     {
         foreach ($this->amqpConnections as $connection) {
-            if ($connection->is_connected()) {
+            if ($connection->isConnected()) {
                 return true;
             }
         }
@@ -178,11 +175,15 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function destroy()
+    public function destroy(AbstractAsyncConsumer $consumer)
     {
-        $this->amqpConnections = [];
-        $this->connectionsData = [];
-        $this->disconnect();
+            if (!$this->channel) {
+                throw  new \AMQPChannelException('No channel available');
+            }
+            $this->channel->basic_cancel($consumer->getName());
+            $this->amqpConnections = [];
+            $this->connectionsData = [];
+            $this->disconnect();
     }
 
     /**
@@ -192,6 +193,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @param string $queueName
      * @param callable|null $callback
      * @return string $consumerTag
+     * @throws \Exception
      */
     public function consume(string $consumerTag, string $queueName, callable $callback = null)
     {
@@ -222,7 +224,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * {@inheritdoc}
      * @throws \Exception
      */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = [])
+    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
     {
         $this->declareChannel();
         $this->declareQueue($message->getQueue(), AMQP_DURABLE, $arguments);
@@ -242,7 +244,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @param array $arguments See AMQPQueue::setArguments()
      *
      * @return array|null
-     *
      */
     public function declareQueue(string $queueName, int $durable = AMQP_DURABLE, array $arguments = [])
     {
@@ -251,6 +252,11 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * Catch a channel inside the connection.
+     *
+     * @param int $prefetchSize
+     * @param int $prefetchCount
+     * @return AMQPChannel
+     * @throws \Exception
      */
     public function declareChannel(int $prefetchSize = self::PREFETCH_SIZE, int $prefetchCount = self::PREFETCH_COUNT): AMQPChannel
     {
@@ -266,12 +272,14 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      *
      * @return string
      */
-    public function getFormat()
+    public function getFormat(): string
     {
         return $this->format;
     }
 
     /**
+     * Set the format used by serialize/deserialize functions
+     *
      * @param string $format
      */
     public function setFormat(string $format = null)
@@ -303,12 +311,14 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
         $this->channel->wait();
     }
 
-    public function isConsuming()
+    public function isConsuming(): bool
     {
         return $this->channel->is_consuming();
     }
 
     /**
+     * Set the port to connection
+     *
      * @param int $port
      */
     public function setPort(int $port)
@@ -317,17 +327,17 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Rreturn one or more connections available on the driver
+     * Return one or more connections available on the driver
      *
      * @return array
      */
-    public function getAvailableConnections()
+    public function getAvailableConnections(): array
     {
         return $this->amqpConnections;
     }
 
     /**
-     * validate if there is some connection available
+     * Validate if there is some connection available
      *
      * @return void
      * @throws \Exception

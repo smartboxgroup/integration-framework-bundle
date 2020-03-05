@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
@@ -187,7 +189,6 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * @param string $format
-     * @return ArrayQueueDriver
      */
     public function setFormat(string $format = null)
     {
