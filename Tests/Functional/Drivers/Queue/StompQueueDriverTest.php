@@ -19,7 +19,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
      * @dataProvider getMessages
      *
      * @param MessageInterface $msg
-     * @group stomp1
+     * @group stomp
      */
     public function testShouldSelect(MessageInterface $msg)
     {

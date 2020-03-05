@@ -7,6 +7,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue\AbstractQueueDriverTest;
@@ -94,19 +95,14 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     public function testConsumeWithCallbackAckingMessage(MessageInterface $msg)
     {
-        $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header', '12345');
-        $this->driver->send($msgIn);
-        $this->consumer = $this->createConsumer();
-        $consumerTag = $this->consumer->getName();
-        $this->driver->declareChannel();
+        $this->prepareToConsume($msg);
 
         $callback = function($message) {
             $this->message = $message;
             $this->driver->ack($this->message->delivery_info['delivery_tag']);
         };
 
-        $this->driver->consume($consumerTag, $this->queueName, $callback);
+        $this->driver->consume($this->consumer->getName(), $this->queueName, $callback);
         $this->driver->isConsuming();
         $this->driver->wait();
 
@@ -125,19 +121,14 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     public function testConsumeNackingMessage(MessageInterface $msg)
     {
-        $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header', '12345');
-        $this->driver->send($msgIn);
-        $this->consumer = $this->createConsumer();
-        $consumerTag = $this->consumer->getName();
-        $channel = $this->driver->declareChannel();
+        $this->prepareToConsume($msg);
 
-        $callback = function($message) use ($channel) {
+        $callback = function($message) {
             $this->message = $message;
             $this->driver->nack($this->message->delivery_info['delivery_tag']);
         };
 
-        $this->driver->consume($consumerTag, $this->queueName, $callback);
+        $this->driver->consume($this->consumer->getName(), $this->queueName, $callback);
         $this->driver->isConsuming();
         $this->driver->wait();
 
@@ -216,19 +207,14 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     public function testConsumeWaitNoBlock(MessageInterface $msg)
     {
-        $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header', '12345');
-        $this->driver->send($msgIn);
-        $this->consumer = $this->createConsumer();
-        $consumerTag = $this->consumer->getName();
-        $this->driver->declareChannel();
+        $this->prepareToConsume($msg);
 
         $callback = function($message) {
             $this->message = $message;
             $this->driver->ack($this->message->delivery_info['delivery_tag']);
         };
 
-        $this->driver->consume($consumerTag, $this->queueName, $callback);
+        $this->driver->consume($this->consumer->getName(), $this->queueName, $callback);
         $this->driver->isConsuming();
         $this->driver->waitNoBlock();
 
@@ -237,6 +223,21 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $this->assertInstanceOf(AsyncQueueConsumer::class, $this->consumer);
         $this->assertEquals($this->message->delivery_info['consumer_tag'], $this->consumer->getName());
         $this->assertContains('QueueMessage', $this->message->getBody());
+    }
+
+    /**
+     * Prepare the data and class to consume a message
+     *
+     * @param QueueMessage $msg
+     * @return mixed
+     */
+    public function prepareToConsume(MessageInterface $msg)
+    {
+        $msgIn = $this->createQueueMessage($msg);
+        $msgIn->addHeader('test_header', '12345');
+        $this->driver->send($msgIn);
+        $this->consumer = $this->createConsumer();
+        $this->driver->declareChannel();
     }
 
 }
