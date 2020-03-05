@@ -167,7 +167,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function isConnected(): bool
     {
         foreach ($this->amqpConnections as $connection) {
-            if ($connection->isConnected()) {
+            if ($connection->is_connected()) {
                 return true;
             }
         }
@@ -243,7 +243,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      *
      * @return array|null
      *
-     * @throws \AMQPChannelException
      */
     public function declareQueue(string $queueName, int $durable = AMQP_DURABLE, array $arguments = [])
     {
@@ -330,7 +329,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * validate if there is some connection available
      *
-     * @return bool
+     * @return void
+     * @throws \Exception
      */
     public function validateConnection()
     {

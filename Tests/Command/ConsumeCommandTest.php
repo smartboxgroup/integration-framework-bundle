@@ -62,7 +62,6 @@ class ConsumeCommandTest extends KernelTestCase
         $this->setMockQueueDriver();
         $this->setMockConsumer(self::NB_MESSAGES);
 
-        self::$kernel->getContainer();
         $application = new Application(self::$kernel);
         $application->add(new ConsumeCommand());
 
