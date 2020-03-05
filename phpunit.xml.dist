@@ -30,4 +30,11 @@
             </exclude>
         </whitelist>
     </filter>
+
+    <logging>
+        <log type="coverage-html" target="./Tests/Logs/coverage.html" lowUpperBound="35"
+             highLowerBound="70"/>
+        <log type="testdox-html" target="./Tests/Logs/Testdox/testdox.html"/>
+        <log type="testdox-text" target="./Tests/Logs/Testdox/testdox.txt"/>
+    </logging>
 </phpunit>
