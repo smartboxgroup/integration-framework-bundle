@@ -108,9 +108,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     public function waitNoBlock()
     {
-        if ($this->driver->isConsuming()) {
-            $this->driver->waitNoBlock();
-        }
+        $this->driver->waitNoBlock();
     }
 
     /**
@@ -118,9 +116,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     public function wait()
     {
-        if ($this->driver->isConsuming()) {
-            $this->driver->wait();
-        }
+        $this->driver->wait();
     }
 
     /**

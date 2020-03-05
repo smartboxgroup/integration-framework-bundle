@@ -114,4 +114,34 @@ class AsyncQueueConsumerTest extends TestCase
 
         $callback($message);
     }
+
+    /**
+     * Expect one call to wait on the driver
+     */
+    public function testWait()
+    {
+        $driver = $this->createMock(AsyncQueueDriverInterface::class);
+        $driver->expects($this->once())
+            ->method('wait');
+
+        $consumer = new AsyncQueueConsumer();
+        $consumer->setDriver($driver);
+
+        $consumer->wait();
+    }
+
+    /**
+     * Expect one call to waitNoBlock on the driver
+     */
+    public function testWaitNoBlock()
+    {
+        $driver = $this->createMock(AsyncQueueDriverInterface::class);
+        $driver->expects($this->once())
+            ->method('waitNoBlock');
+
+        $consumer = new AsyncQueueConsumer();
+        $consumer->setDriver($driver);
+
+        $consumer->waitNoBlock();
+    }
 }
