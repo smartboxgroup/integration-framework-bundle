@@ -165,7 +165,7 @@ class AbstractAsyncConsumerTest extends TestCase
     /**
      * Test that messages are not confirmed if an exception is thrown during processing.
      */
-    public function testMessageIsNotConfirmedAfterProcessing()
+    public function testMessageIsNotConfirmedAfterFailedProcessing()
     {
         /** @var AbstractAsyncConsumer|MockObject $consumer */
         $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
@@ -182,5 +182,24 @@ class AbstractAsyncConsumerTest extends TestCase
         $this->expectException(\RuntimeException::class);
 
         $callback(new QueueMessage());
+    }
+
+    /**
+     * Test no exceptions are re thrown if the consumer is stopped.
+     */
+    public function testConsumerWillNotThrowExceptionIfItHasBeenStopped()
+    {
+        /** @var AbstractAsyncConsumer|MockObject $consumer */
+        $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
+        $consumer->expects($this->once())
+            ->method('waitNoBlock')
+            ->willReturnCallback(function () use ($consumer) {
+                // Stop consumer
+                $consumer->stop();
+                // Simulate a processing error
+                throw new \RuntimeException('If you see this, the test failed. Exception should not be rethrown if the consumer was told to stop.');
+            });
+
+        $consumer->consume($this->createMock(EndpointInterface::class));
     }
 }
