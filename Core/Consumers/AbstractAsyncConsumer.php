@@ -24,6 +24,11 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     use UsesSmartesbHelper;
 
     /**
+     * Duration of the nap in microseconds. Sweet dreams!
+     */
+    const SLEEP_DURATION = 250000;
+
+    /**
      * Sleep flag. Prevents the consumer from running too fast and causing a CPU usage spike when there are
      * no messages available.
      *
@@ -96,7 +101,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
                 $this->waitNoBlock();
 
                 if ($this->sleep) {
-                    usleep(250000);
+                    usleep(self::SLEEP_DURATION);
                 }
             } catch (\Exception $exception) {
                 if (!$this->stop) {
