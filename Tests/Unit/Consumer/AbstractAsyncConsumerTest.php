@@ -7,6 +7,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
@@ -99,7 +100,7 @@ class AbstractAsyncConsumerTest extends TestCase
 
             protected function cleanUp(EndpointInterface $endpoint) {}
 
-            protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message) {}
+            protected function confirmMessage(EndpointInterface $endpoint, QueueMessageInterface $message) {}
 
             public function asyncConsume(EndpointInterface $endpoint, callable $callback) {}
 
