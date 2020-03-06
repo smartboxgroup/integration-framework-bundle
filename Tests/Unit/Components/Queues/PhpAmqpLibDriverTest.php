@@ -147,8 +147,22 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     public function testDestroy()
     {
         $this->assertTrue($this->driver->isConnected());
-        $this->driver->destroy();
+        $this->driver->declareChannel();
+        $this->driver->destroy($this->createConsumer());
         $this->assertFalse($this->driver->isConnected());
+    }
+
+    /**
+     * Tests the function to destroy the connection and clean the variables related
+     *
+     * @group destroy-no-channel
+     * @expectedException \AMQPChannelException
+     */
+    public function testDestroyWithoutChannel()
+    {
+        $this->assertTrue($this->driver->isConnected());
+        $this->driver->destroy($this->createConsumer());
+        $this->assertTrue($this->driver->isConnected());
     }
 
     /**
@@ -160,7 +174,8 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     public function testDeclareChannelWithoutConnnection()
     {
         $this->assertTrue($this->driver->isConnected());
-        $this->driver->destroy();
+        $this->driver->declareChannel();
+        $this->driver->destroy($this->createConsumer());
         $this->assertFalse($this->driver->isConnected());
         $this->driver->declareChannel();
     }
@@ -181,7 +196,8 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     public function testConnectWithoutData()
     {
-        $this->driver->destroy();
+        $this->driver->declareChannel();
+        $this->driver->destroy($this->createConsumer());
         $this->driver->configure('', '', '', '');
         $this->driver->connect(true);
     }
@@ -194,7 +210,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $this->driver->setPort(PhpAmqpLibDriver::DEFAULT_PORT);
         $this->driver->configure('rabbit', 'guest', 'guest', 'test');
         $this->driver->connect(true);
-        $channel = $this->driver->declareChannel();
+        $this->driver->declareChannel();
         $connections = $this->driver->getAvailableConnections();
         $this->assertInstanceOf(AMQPStreamConnection::class, $connections[0]);
         $this->assertInstanceOf(AMQPStreamConnection::class, $connections[1]);

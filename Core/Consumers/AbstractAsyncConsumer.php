@@ -82,7 +82,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @return MessageInterface
      */
-    abstract protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message);
+    abstract protected function confirmMessage(EndpointInterface $endpoint, QueueMessageInterface $message);
 
     /**
      * {@inheritdoc}

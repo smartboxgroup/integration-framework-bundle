@@ -36,4 +36,9 @@ interface SyncQueueDriverInterface extends QueueDriverInterface
      * @throws \Exception
      */
     public function receive();
+
+    /**
+     * Clean all the opened resources, must be called just before terminating the current request.
+     */
+    public function destroy();
 }

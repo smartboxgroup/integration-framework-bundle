@@ -89,7 +89,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * {@inheritdoc}
      */
-    protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message)
+    protected function confirmMessage(EndpointInterface $endpoint, QueueMessageInterface $message)
     {
         $this->driver->ack($message->getMessageId());
     }
@@ -155,5 +155,13 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
             parent::callback($endpoint)($queueMessage);
         };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function destroy()
+    {
+        $this->driver->destroy($this);
     }
 }
