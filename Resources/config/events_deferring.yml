@@ -1,10 +1,14 @@
-parameters:
-  smartesb.handlers.events_deferring.class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler
-  event_dispatcher.class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher
-
 services:
+  # This effectively overrides Symfony's dispatcher. Tag is there to emulate what Symfony 3.4 does with its own disptacher.
+  event_dispatcher:
+    class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher
+    tags:
+      - { name: container.hot_path }
+    arguments:
+      $container: '@service_container'
+
   smartesb.handlers.events:
-      class: "%smartesb.handlers.events_deferring.class%"
+      class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler
       calls:
         - [setId, ['smartesb.handlers.events']]
         - [setEventDispatcher, ['@event_dispatcher']]
