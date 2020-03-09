@@ -295,8 +295,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             if (!\in_array($driverName, $this->drivesThatUseAMQP)) {
 //                foreach (static::AMQP_SERVICES as $id) {
 //                    $container->removeDefinition($id);
-                    $container->findDefinition('smartesb.protocols.queue')
-                        ->addMethodCall('setDefaultConsumer', [new Reference('smartesb.consumers.queue')]);
 //                }
             }
         }
