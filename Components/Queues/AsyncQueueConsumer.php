@@ -91,7 +91,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     protected function confirmMessage(EndpointInterface $endpoint, QueueMessageInterface $message)
     {
-        $this->driver->ack($message->getMessageId());
+        $this->driver->ack($message);
     }
 
     /**

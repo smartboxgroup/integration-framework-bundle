@@ -395,7 +395,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function ack(int $messageId = null)
+    public function ack(QueueMessageInterface $message = null)
     {
         if (!$this->currentFrame) {
             throw new \RuntimeException('You must first receive a message, before acking it');
@@ -406,7 +406,7 @@ class StompQueueDriver extends Service implements QueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function nack(int $messageId = null)
+    public function nack(QueueMessageInterface $message = null)
     {
         if (!$this->currentFrame) {
             throw new \RuntimeException('You must first receive a message, before nacking it');

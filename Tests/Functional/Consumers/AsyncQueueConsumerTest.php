@@ -80,16 +80,18 @@ class AsyncQueueConsumerTest extends TestCase
     public function testConsumerSetsMessageID()
     {
         $messageID = 42;
+        $queueMessage = new QueueMessage();
+        $queueMessage->setMessageId($messageID);
 
         $serializer = $this->createMock(SerializerInterface::class);
         $serializer->expects($this->once())
             ->method('deserialize')
-            ->willReturn(new QueueMessage());
+            ->willReturn($queueMessage);
 
         $driver = $this->createMock(AsyncQueueDriverInterface::class);
         $driver->expects($this->once())
             ->method('ack')
-            ->with($messageID);
+            ->with($queueMessage);
 
         $consumer = $this->getMockBuilder(AsyncQueueConsumer::class)
             // Prevent the parent class from processing the message, otherwise it would require mocking buncha stuff

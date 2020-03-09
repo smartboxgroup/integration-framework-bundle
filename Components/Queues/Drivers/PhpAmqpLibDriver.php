@@ -205,17 +205,17 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function ack(int $messageId = null)
+    public function ack(QueueMessageInterface $message = null)
     {
-        $this->channel->basic_ack($messageId);
+        $this->channel->basic_ack($message->getMessageId());
     }
 
     /**
      * {@inheritdoc}
      */
-    public function nack(int $messageId = null)
+    public function nack(QueueMessageInterface $message = null)
     {
-        $this->channel->basic_nack($messageId);
+        $this->channel->basic_nack($message->getMessageId());
     }
 
     /**

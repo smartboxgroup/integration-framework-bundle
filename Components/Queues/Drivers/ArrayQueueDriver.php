@@ -117,7 +117,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
      *
      * The object should be removed from the queue.
      */
-    public function ack(int $messageId = null)
+    public function ack(QueueMessageInterface $message = null)
     {
         $this->unacknowledgedFrame = false;
     }
@@ -127,7 +127,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
      *
      * The object could be moved to the DLQ or be delivered to another subscription for retrial
      */
-    public function nack(int $messageId = null)
+    public function nack(QueueMessageInterface $message = null)
     {
         $this->unacknowledgedFrame = false;
     }
