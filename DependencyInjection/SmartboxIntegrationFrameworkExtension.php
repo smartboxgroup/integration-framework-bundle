@@ -202,7 +202,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             switch ($type) {
                 case 'rabbitmq':
                 case 'activemq':
-                case 'stomp':
                     $urlEncodeDestination = ('rabbitmq' == $type);
 
                     $driverDef = new Definition(StompQueueDriver::class, []);
