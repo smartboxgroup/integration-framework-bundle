@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
-use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
