@@ -149,26 +149,14 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     public function testDestroy()
     {
-        $this->assertTrue($this->driver->isConnected());
+        $this->driver->connect();
         $this->driver->declareChannel();
+        $this->assertTrue($this->driver->isConnected());
         $this->driver->destroy($this->createConsumer());
         $this->assertFalse($this->driver->isConnected());
     }
 
-    /**
-     * Tests the function to destroy the connection and clean the variables related
-     *
-     * @group destroy-no-channel
-     * @expectedException \AMQPChannelException
-     */
-    public function testDestroyWithoutChannel()
-    {
-        $this->assertTrue($this->driver->isConnected());
-        $this->driver->destroy($this->createConsumer());
-        $this->assertTrue($this->driver->isConnected());
-    }
-
-    /**
+     /**
      * Tests that tries to declare a channel without having a connection
      *
      * @group channel-exception
@@ -200,7 +188,8 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     public function testConnectWithoutData()
     {
         $this->driver->declareChannel();
-        $this->driver->destroy($this->createConsumer());
+        $consumer = $this->createConsumer();
+        $this->driver->destroy($consumer);
         $this->driver->configure('', '', '', '');
         $this->driver->connect(true);
         $this->assertTrue($this->driver->isConnected());
@@ -248,6 +237,25 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $this->driver->send($msgIn);
         $this->consumer = $this->createConsumer();
         $this->driver->declareChannel();
+    }
+
+    public function setMockConsumer($expirationCount)
+    {
+        self::bootKernel();
+
+        $this->mockConsumer = $this
+            ->getMockBuilder(AsyncQueueConsumer::class)
+            ->setMethods(['consume', 'setExpirationCount'])
+            ->getMock();
+        $this->mockConsumer
+            ->method('setExpirationCount')
+            ->with($expirationCount);
+        $this->mockConsumer
+            ->method('consume')
+            ->willReturn(true);
+
+        static::$kernel->getContainer()->set('smartesb.async_consumers.queue', $this->mockConsumer);
+        static::$kernel->getContainer()->get('smartesb.protocols.queue')->setDefaultConsumer($this->mockConsumer);
     }
 
 }

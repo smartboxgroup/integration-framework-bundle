@@ -72,7 +72,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * @var AMQPStreamConnection
      */
-    protected $amqpConnection;
+    protected $stream;
 
     /**
      * Number of the port used by the broker
@@ -81,10 +81,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     protected $port;
 
-//    public function __destruct()
-//    {
-//        $this->disconnect();
-//    }
+    public function __destruct()
+    {
+        $this->destroy(null);
+    }
 
     /**
      * Method responsible to catch the parameters to configure the driver.
@@ -114,9 +114,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     {
         $this->shuffleConnections($shuffle);
         try {
-            $this->amqpConnection = AMQPStreamConnection::create_connection($this->connectionsData, []);
+            $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, []);
         } catch (AMQPIOException $exception) {
-            throw new \AMQPConnectionException($exception->getMessage());
+            throw new \streamException($exception->getMessage());
         }
     }
 
@@ -128,8 +128,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function disconnect()
     {
-        if ($this->amqpConnection instanceof AbstractConnection) {
-            $this->amqpConnection->close();
+        if ($this->stream instanceof AbstractConnection) {
+            $this->stream->close();
         }
     }
 
@@ -153,11 +153,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function isConnected(): bool
     {
-        if ($this->amqpConnection->isConnected()) {
-            return true;
-        }
-
-        return false;
+        return $this->validateConnection() && $this->stream->isConnected();
     }
 
     /**
@@ -165,11 +161,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @throws \AMQPChannelException
      * @throws \Exception
      */
-    public function destroy(AbstractAsyncConsumer $consumer = null)
+    public function destroy($consumer = null)
     {
-        $this->validateChannel();
         $this->cancelConsume($consumer);
-        $this->amqpConnection->close();
+        if ($this->validateConnection()) {
+            $this->stream->close();
+        }
     }
 
     /**
@@ -246,8 +243,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function declareChannel(int $prefetchSize = self::PREFETCH_SIZE, int $prefetchCount = self::PREFETCH_COUNT): AMQPChannel
     {
-        $this->validateConnection();
-        $this->channel = $this->amqpConnection->channel();
+        $this->channel = $this->stream->channel();
         $this->channel->basic_qos($prefetchSize, $prefetchCount, null);
 
         return $this->channel;
@@ -323,25 +319,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * Validate if there is some connection available
      *
      * @return void
-     * @throws \Exception
      */
     public function validateConnection()
     {
-        if (!($this->amqpConnection instanceof AbstractConnection)) {
-            throw new \Exception('No connection available');
-        }
-    }
-
-    /**
-     * Validate if there is a channel configured and available
-     *
-     * @throws \AMQPChannelException
-     */
-    public function validateChannel()
-    {
-        if (!$this->channel) {
-            throw new \AMQPChannelException('No channel available');
-        }
+        return $this->stream instanceof AbstractConnection;
     }
 
     /**
@@ -350,8 +331,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @param AbstractAsyncConsumer $consumer
      * @return mixed
      */
-    public function cancelConsume(AbstractAsyncConsumer $consumer)
+    public function cancelConsume($consumer)
     {
-        return $this->channel->basic_cancel($consumer->getName());
+        if ($consumer instanceof AbstractAsyncConsumer) {
+            return $this->channel->basic_cancel($consumer->getName());
+        }
     }
 }
