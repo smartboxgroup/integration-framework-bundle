@@ -70,9 +70,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     protected $connectionsData;
 
     /**
-     * @var array
+     * @var AMQPStreamConnection
      */
-    protected $amqpConnections = [];
+    protected $amqpConnection;
 
     /**
      * Number of the port used by the broker
@@ -80,6 +80,11 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @var int $port
      */
     protected $port;
+
+//    public function __destruct()
+//    {
+//        $this->disconnect();
+//    }
 
     /**
      * Method responsible to catch the parameters to configure the driver.
@@ -103,29 +108,16 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @param bool $shuffle - used to randomize the connections if exists more than one
      *
      * @throws \Exception
+     * @noinspection PhpUndefinedClassInspection
      */
     public function connect($shuffle = true)
     {
-        if ($shuffle) {
-            $this->shuffleConnections();
-        }
-
+        $this->shuffleConnections($shuffle);
         try {
-            $this->addConnection(AMQPStreamConnection::create_connection($this->connectionsData, []));
+            $this->amqpConnection = AMQPStreamConnection::create_connection($this->connectionsData, []);
         } catch (AMQPIOException $exception) {
             throw new \AMQPConnectionException($exception->getMessage());
         }
-    }
-
-    /**
-     * Add a connection to the array of connections.
-     *
-     * @param $connection
-     * @return void
-     */
-    public function addConnection(AbstractConnection $connection)
-    {
-        $this->amqpConnections[] = $connection;
     }
 
     /**
@@ -136,10 +128,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function disconnect()
     {
-        foreach ($this->amqpConnections as $connection) {
-            if ($connection instanceof AbstractConnection) {
-                $connection->close();
-            }
+        if ($this->amqpConnection instanceof AbstractConnection) {
+            $this->amqpConnection->close();
         }
     }
 
@@ -163,10 +153,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function isConnected(): bool
     {
-        foreach ($this->amqpConnections as $connection) {
-            if ($connection->isConnected()) {
-                return true;
-            }
+        if ($this->amqpConnection->isConnected()) {
+            return true;
         }
 
         return false;
@@ -174,16 +162,14 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
+     * @throws \AMQPChannelException
+     * @throws \Exception
      */
-    public function destroy(AbstractAsyncConsumer $consumer)
+    public function destroy(AbstractAsyncConsumer $consumer = null)
     {
-            if (!$this->channel) {
-                throw  new \AMQPChannelException('No channel available');
-            }
-            $this->channel->basic_cancel($consumer->getName());
-            $this->amqpConnections = [];
-            $this->connectionsData = [];
-            $this->disconnect();
+        $this->validateChannel();
+        $this->cancelConsume($consumer);
+        $this->amqpConnection->close();
     }
 
     /**
@@ -261,7 +247,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function declareChannel(int $prefetchSize = self::PREFETCH_SIZE, int $prefetchCount = self::PREFETCH_COUNT): AMQPChannel
     {
         $this->validateConnection();
-        $this->channel = $this->amqpConnections[0]->channel();
+        $this->channel = $this->amqpConnection->channel();
         $this->channel->basic_qos($prefetchSize, $prefetchCount, null);
 
         return $this->channel;
@@ -290,9 +276,11 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * Shuffles the connection in case there is more than one available.
      */
-    protected function shuffleConnections()
+    protected function shuffleConnections(bool $shuffle = true)
     {
-        shuffle($this->connectionsData);
+        if ($shuffle) {
+            shuffle($this->connectionsData);
+        }
     }
 
     /**
@@ -311,6 +299,11 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
         $this->channel->wait();
     }
 
+    /**
+     * Checks if any messages are being consumed
+     *
+     * @return bool
+     */
     public function isConsuming(): bool
     {
         return $this->channel->is_consuming();
@@ -327,16 +320,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Return one or more connections available on the driver
-     *
-     * @return array
-     */
-    public function getAvailableConnections(): array
-    {
-        return $this->amqpConnections;
-    }
-
-    /**
      * Validate if there is some connection available
      *
      * @return void
@@ -344,9 +327,32 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function validateConnection()
     {
-        if (!isset($this->amqpConnections[0]) || !$this->amqpConnections[0] instanceof AbstractConnection) {
+        if (!($this->amqpConnection instanceof AbstractConnection)) {
             throw new \Exception('No connection available');
         }
+    }
+
+    /**
+     * Validate if there is a channel configured and available
+     *
+     * @throws \AMQPChannelException
+     */
+    public function validateChannel()
+    {
+        if (!$this->channel) {
+            throw new \AMQPChannelException('No channel available');
+        }
+    }
+
+    /**
+     * Finish the last consume activity and cancel the worker
+     *
+     * @param AbstractAsyncConsumer $consumer
+     * @return mixed
+     */
+    public function cancelConsume(AbstractAsyncConsumer $consumer)
+    {
+        return $this->channel->basic_cancel($consumer->getName());
     }
 
 }

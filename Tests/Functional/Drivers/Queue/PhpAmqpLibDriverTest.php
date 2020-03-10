@@ -195,7 +195,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
 
     /**
      * @group amqp-connection
-     * @expectedException \AMQPConnectionException
+     * @throws \AMQPConnectionException
      */
     public function testConnectWithoutData()
     {
@@ -203,21 +203,8 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $this->driver->destroy($this->createConsumer());
         $this->driver->configure('', '', '', '');
         $this->driver->connect(true);
-    }
-
-    /**
-     * @group amqp-connection2
-     */
-    public function testConnectMultipleHosts()
-    {
-        $this->driver->setPort(PhpAmqpLibDriver::DEFAULT_PORT);
-        $this->driver->configure('rabbit', 'guest', 'guest', 'test');
-        $this->driver->connect(true);
-        $this->driver->declareChannel();
-        $connections = $this->driver->getAvailableConnections();
-        $this->assertInstanceOf(AMQPStreamConnection::class, $connections[0]);
-        $this->assertInstanceOf(AMQPStreamConnection::class, $connections[1]);
-        $this->assertCount(2, $connections);
+        $this->assertTrue($this->driver->isConnected());
+        $this->assertInstanceOf(AMQPStreamConnection::class, $this->driver->declareChannel()->getConnection());
     }
 
     /**

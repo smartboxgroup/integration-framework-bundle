@@ -39,5 +39,5 @@ interface AsyncQueueDriverInterface extends QueueDriverInterface
      *
      * @param string $consumerTag // String that identifies the consumer that should be destroyed \,,/
      */
-    public function destroy(AbstractAsyncConsumer $consumer);
+    public function destroy(AbstractAsyncConsumer $consumer = null);
 }
