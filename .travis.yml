@@ -88,7 +88,7 @@ before_script:
   - composer install --no-interaction
 
 script:
-  - SYMFONY_PHPUNIT_VERSION=6.5 SYMFONY_DEPRECATIONS_HELPER=417 bin/simple-phpunit --coverage-text # TODO: Fix deprecations
+  - SYMFONY_PHPUNIT_VERSION=6.5 SYMFONY_DEPRECATIONS_HELPER=456 bin/simple-phpunit --coverage-text # TODO: Fix deprecations
 
 notifications:
   email:
