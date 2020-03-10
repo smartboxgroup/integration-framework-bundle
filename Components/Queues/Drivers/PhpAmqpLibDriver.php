@@ -164,9 +164,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function destroy($consumer = null)
     {
         $this->cancelConsume($consumer);
-        if ($this->validateConnection()) {
-            $this->stream->close();
-        }
+        $this->disconnect();
     }
 
     /**
@@ -228,7 +226,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      *
      * @return array|null
      */
-    public function declareQueue(string $queueName, int $durable = AMQP_DURABLE, array $arguments = [])
+    protected function declareQueue(string $queueName, int $durable = AMQP_DURABLE, array $arguments = [])
     {
         return $this->channel->queue_declare($queueName, false, $durable, false, false, false, new AMQPTable([$arguments]));
     }
@@ -320,7 +318,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      *
      * @return void
      */
-    public function validateConnection()
+    protected function validateConnection()
     {
         return $this->stream instanceof AbstractConnection;
     }
@@ -331,7 +329,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @param AbstractAsyncConsumer $consumer
      * @return mixed
      */
-    public function cancelConsume($consumer)
+    protected function cancelConsume($consumer)
     {
         if ($consumer instanceof AbstractAsyncConsumer) {
             return $this->channel->basic_cancel($consumer->getName());
