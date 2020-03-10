@@ -139,8 +139,8 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
             $this->consumptionDuration += (microtime(true) - $start) * 1000;
             $this->dispatchConsumerTimingEvent($message);
 
-            $this->logConsumeMessage();
             $this->confirmMessage($endpoint, $message);
+            $this->logConsumeMessage();
             --$this->expirationCount;
             $this->consumptionDuration = 0;
             $this->sleep = false;
