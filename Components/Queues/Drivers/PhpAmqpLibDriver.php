@@ -116,7 +116,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
         try {
             $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, []);
         } catch (AMQPIOException $exception) {
-            throw new \streamException($exception->getMessage());
+            throw new \AMQPConnectionException($exception->getMessage());
         }
     }
 
