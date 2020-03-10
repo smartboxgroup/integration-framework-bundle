@@ -354,5 +354,4 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     {
         return $this->channel->basic_cancel($consumer->getName());
     }
-
 }

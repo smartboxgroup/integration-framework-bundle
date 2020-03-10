@@ -99,7 +99,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
 
         while (!$this->shouldStop() && $this->sleep = true) {
             try {
-                $this->waitNoBlock();
+                $this->waitNoBlock($endpoint);
 
                 if ($this->sleep) {
                     usleep(self::SLEEP_DURATION);

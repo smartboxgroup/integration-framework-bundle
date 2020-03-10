@@ -99,9 +99,9 @@ class AbstractAsyncConsumerTest extends TestCase
 
             public function asyncConsume(EndpointInterface $endpoint, callable $callback) {}
 
-            public function wait() {}
+            public function wait(EndpointInterface $endpoint) {}
 
-            public function waitNoBlock()
+            public function waitNoBlock(EndpointInterface $endpoint)
             {
                 $this->sleep = false;
                 $this->rounds++;
