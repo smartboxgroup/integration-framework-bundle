@@ -6,6 +6,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Type\SerializableInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
@@ -50,11 +51,11 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
         $queueDriver = $this->smartesbHelper->getQueueDriver($queueDriverName);
 
-        if ($queueDriver instanceof QueueDriverInterface) {
+        if ($queueDriver instanceof AsyncQueueDriverInterface) {
             return $queueDriver;
         }
 
-        throw new \RuntimeException(sprintf('[AsyncQueueConsumer] Driver "%s" does not implement QueueDriverInterface', $queueDriverName));
+        throw new \RuntimeException(sprintf('[AsyncQueueConsumer] Driver "%s" does not implement AsyncQueueDriverInterface', $queueDriverName));
     }
 
     /**

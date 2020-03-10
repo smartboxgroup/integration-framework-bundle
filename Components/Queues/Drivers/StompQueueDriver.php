@@ -23,7 +23,7 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 /**
  * Class StompQueueDriver.
  */
-class StompQueueDriver extends Service implements QueueDriverInterface
+class StompQueueDriver extends Service implements SyncQueueDriverInterface
 {
     use UsesSerializer;
     use UsesExceptionHandlerTrait;

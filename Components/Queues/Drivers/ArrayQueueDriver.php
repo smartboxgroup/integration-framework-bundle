@@ -48,11 +48,12 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Configures the driver.
      *
-     * @param string $uri      URI of the queuing system
+     * @param string $host
      * @param string $username Username to connect to the queuing system
      * @param string $password Password to connect to the queuing system
+     * @param string|null $vhost
      */
-    public function configure($host, $username, $password, $format = '')
+    public function configure(string $host, string $username, string $password, string $vhost = null)
     {
         self::$array = [];
     }

@@ -2,7 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
@@ -45,11 +45,11 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
         $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
         $queueDriver = $this->smartesbHelper->getQueueDriver($queueDriverName);
 
-        if ($queueDriver instanceof QueueDriverInterface) {
+        if ($queueDriver instanceof SyncQueueDriverInterface) {
             return $queueDriver;
         }
 
-        throw new \RuntimeException("Error in QueueConsumer, the driver with name $queueDriverName does not implement the interface QueueDriverInterface");
+        throw new \RuntimeException("Error in QueueConsumer, the driver with name $queueDriverName does not implement the interface SyncQueueDriverInterface");
     }
 
     /**

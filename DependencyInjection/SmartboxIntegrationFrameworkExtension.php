@@ -249,8 +249,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef = new Definition(PhpAmqpLibDriver::class);
 
                     foreach ($driverConfig['connections'] as $index => $uri) {
-                        $connection = parse_url($uri);
-
                         $driverDef->addMethodCall('setPort', [$driverConfig['port'] ?? AsyncQueueDriverInterface::DEFAULT_PORT]);
                         $driverDef->addMethodCall('configure', [
                             $driverConfig['host'],
@@ -269,11 +267,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $container->setDefinition($driverId, $driverDef);
 
                     $consumer = $container->findDefinition('smartesb.async_consumers.queue');
-                    $consumer->addMethodCall('setDriver', [$driverDef]);
                     $consumer->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
-
-                    $container->findDefinition('smartesb.protocols.queue')
-                        ->addMethodCall('setDefaultConsumer', [$consumer]);
 
                     if ($exceptionHandlerId) {
                         $consumer->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
