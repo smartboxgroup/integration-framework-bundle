@@ -80,7 +80,7 @@ class AbstractAsyncConsumerTest extends TestCase
         $consumer->consume($this->createMock(EndpointInterface::class));
         $stopwatch->stop('consume');
 
-        $this->assertGreaterThan(AbstractAsyncConsumer::SLEEP_DURATION / 1000, $stopwatch->getEvent('consume')->getDuration());
+        $this->assertGreaterThanOrEqual(AbstractAsyncConsumer::SLEEP_DURATION / 1000, $stopwatch->getEvent('consume')->getDuration());
     }
 
     /**
@@ -117,7 +117,7 @@ class AbstractAsyncConsumerTest extends TestCase
         $consumer->consume($this->createMock(EndpointInterface::class));
         $stopwatch->stop('consume');
 
-        $this->assertLessThan(AbstractAsyncConsumer::SLEEP_DURATION / 1000, $stopwatch->getEvent('consume')->getDuration());
+        $this->assertLessThanOrEqual(AbstractAsyncConsumer::SLEEP_DURATION / 1000, $stopwatch->getEvent('consume')->getDuration());
     }
 
     /**
