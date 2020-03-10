@@ -4,11 +4,14 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumers;
 
 use JMS\Serializer\SerializerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 
 /**
  * Class AsyncQueueConsumerTest
@@ -22,11 +25,14 @@ class AsyncQueueConsumerTest extends TestCase
     public function testConsume()
     {
         $endpoint = $this->createMock(EndpointInterface::class);
-        $endpoint->expects($this->once())
+        $endpoint->expects($this->any())
             ->method('getOptions')
             ->willReturn(
-                ['prefix' => 'doughnuts-',
-                    'queue' => 'should-be-plain']
+                [
+                    QueueProtocol::OPTION_QUEUE_DRIVER => 'ya-know-what?',
+                    'prefix' => 'doughnuts-',
+                    'queue' => 'should-be-plain'
+                ]
             );
 
         $driver = $this->createMock(AsyncQueueDriverInterface::class);
@@ -39,10 +45,9 @@ class AsyncQueueConsumerTest extends TestCase
             );
 
         $consumer = new AsyncQueueConsumer();
-        $consumer->setDriver($driver);
+        $consumer->setSmartesbHelper($this->getHelper($driver));
 
-        $consumer->asyncConsume($endpoint, function () {
-        });
+        $consumer->asyncConsume($endpoint, function () {});
     }
 
     /**
@@ -62,8 +67,8 @@ class AsyncQueueConsumerTest extends TestCase
             ->willReturn('json');
 
         $consumer = new AsyncQueueConsumer();
+        $consumer->setSmartesbHelper($this->getHelper($driver));
         $consumer->setSerializer($serializer);
-        $consumer->setDriver($driver);
         $callback = $consumer->callback($this->createMock(EndpointInterface::class));
 
         $message = new AMQPMessage('an amqp message', []);
@@ -75,7 +80,7 @@ class AsyncQueueConsumerTest extends TestCase
     }
 
     /**
-     * Test that the message id is set when deserializing it, so it can be correclty acked later.
+     * Test that the message id is set when deserializing it, so it can be correctly acked later.
      */
     public function testConsumerSetsMessageID()
     {
@@ -98,7 +103,7 @@ class AsyncQueueConsumerTest extends TestCase
             ->setMethods(['process'])
             ->getMock();
         $consumer->setSerializer($serializer);
-        $consumer->setDriver($driver);
+        $consumer->setSmartesbHelper($this->getHelper($driver));
         $callback = $consumer->callback($this->createMock(EndpointInterface::class));
 
         $message = new AMQPMessage('an amqp message');
@@ -117,9 +122,9 @@ class AsyncQueueConsumerTest extends TestCase
             ->method('wait');
 
         $consumer = new AsyncQueueConsumer();
-        $consumer->setDriver($driver);
+        $consumer->setSmartesbHelper($this->getHelper($driver));
 
-        $consumer->wait();
+        $consumer->wait($this->createMock(EndpointInterface::class));
     }
 
     /**
@@ -132,8 +137,24 @@ class AsyncQueueConsumerTest extends TestCase
             ->method('waitNoBlock');
 
         $consumer = new AsyncQueueConsumer();
-        $consumer->setDriver($driver);
+        $consumer->setSmartesbHelper($this->getHelper($driver));
 
-        $consumer->waitNoBlock();
+        $consumer->waitNoBlock($this->createMock(EndpointInterface::class));
+    }
+
+    /**
+     * Returns a SmartESBHelper mock that returns the passed driver on getQueueDriver().
+     *
+     * @param AsyncQueueDriverInterface $driver
+     *
+     * @return MockObject
+     */
+    protected function getHelper(AsyncQueueDriverInterface $driver)
+    {
+        $helper = $this->createMock(SmartesbHelper::class);
+        $helper->method('getQueueDriver')
+            ->willReturn($driver);
+
+        return $helper;
     }
 }

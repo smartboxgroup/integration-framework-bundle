@@ -66,7 +66,8 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * therefore, if there was any problem, an exception must be thrown and not continue. This is important to ensure
      * the Message Delivery Guarantee.
      *
-     * @param MessageInterface $message
+     * @param EndpointInterface $endpoint
+     * @param QueueMessageInterface $message
      */
     protected function process(EndpointInterface $endpoint, QueueMessageInterface $message)
     {
@@ -158,14 +159,18 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     /**
      * Waits for a message in a blocking way. If the worker needs to listen to signals, use waitNoBlock() instead. This
      * function won't return the control to the consumer until a message arrives and the callback function finishes.
+     *
+     * @param EndpointInterface $endpoint
      */
-    abstract public function wait();
+    abstract public function wait(EndpointInterface $endpoint);
 
     /**
      * Waits for a message in a non-blocking way. If there's no message to consume, control is returned to the consumer.
      * Needs to be called in a loop in order to keep checking for messages.
+     *
+     * @param EndpointInterface $endpoint
      */
-    abstract public function waitNoBlock();
+    abstract public function waitNoBlock(EndpointInterface $endpoint);
 
     /** {@inheritdoc} */
     public function getName(): string
