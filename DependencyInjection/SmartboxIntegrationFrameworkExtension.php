@@ -231,6 +231,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                     $container->setDefinition($driverId, $driverDef);
 
+                    $container->setAlias('smartesb.consumers.queue.default', new Alias('smartesb.consumers.queue'));
                     break;
 
                 case 'amqp':
@@ -272,6 +273,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     if ($exceptionHandlerId) {
                         $consumer->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
                     }
+
+                    $container->setAlias('smartesb.consumers.queue.default', new Alias('smartesb.async_consumers.queue'));
                     break;
 
                 default:
