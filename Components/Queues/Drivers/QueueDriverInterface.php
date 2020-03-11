@@ -45,10 +45,10 @@ interface QueueDriverInterface extends SerializableInterface
 
     /**
      * Acknowledges the message in the message broker. $messageId is nullable for backwards compatibility with the
-     * SyncQueueDriverInterface. In practice, unless your driver is keeping track of messages, messageId should always
+     * SyncQueueDriverInterface. In practice, unless your driver is keeping track of messages, $message should always
      * be passed to this function.
      *
-     * @param int $messageId
+     * @param QueueMessageInterface|null $message
      */
     public function ack(QueueMessageInterface $message = null);
 
@@ -56,12 +56,15 @@ interface QueueDriverInterface extends SerializableInterface
      * Negative acknowledgement of a message.
      *
      * @see ack() for extra information about this function.
-     * @param int $messageId
+     *
+     * @param QueueMessageInterface|null $message
      */
     public function nack(QueueMessageInterface $message = null);
 
     /**
+     * @param QueueMessageInterface $message
      * @param string|null $destination
+     * @param array $arguments
      *
      * @return bool
      */

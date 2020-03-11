@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesLogger;
@@ -66,9 +65,9 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * the Message Delivery Guarantee.
      *
      * @param EndpointInterface $endpoint
-     * @param QueueMessageInterface $message
+     * @param MessageInterface $message
      */
-    protected function process(EndpointInterface $endpoint, QueueMessageInterface $message)
+    protected function process(EndpointInterface $endpoint, MessageInterface $message)
     {
         $endpoint->handle($message);
     }
@@ -82,7 +81,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @return MessageInterface
      */
-    abstract protected function confirmMessage(EndpointInterface $endpoint, QueueMessageInterface $message);
+    abstract protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message);
 
     /**
      * {@inheritdoc}

@@ -11,6 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverIn
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
@@ -92,9 +93,13 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * {@inheritdoc}
      */
-    protected function confirmMessage(EndpointInterface $endpoint, QueueMessageInterface $message)
+    protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message)
     {
-        $this->getQueueDriver($endpoint)->ack($message);
+        /*
+         * Verify first that we have a QueueMessageInterface. If not, pass null and pray that the driver is
+         * keeping track of which messages need to be acked.
+         */
+        $this->getQueueDriver($endpoint)->ack($message instanceof QueueMessageInterface ? $message : null);
     }
 
     /**
@@ -125,10 +130,10 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * {@inheritdoc}
      */
-    protected function process(EndpointInterface $queueEndpoint, QueueMessageInterface $message)
+    protected function process(EndpointInterface $queueEndpoint, MessageInterface $message)
     {
         // If we used a wrapper to queue the message, that the handler doesn't understand, unwrap it
-        if ($message instanceof QueueMessageInterface && !($queueEndpoint->getHandler() instanceof QueueMessageHandlerInterface)) {
+        if ($message instanceof MessageInterface && !($queueEndpoint->getHandler() instanceof QueueMessageHandlerInterface)) {
             $endpoint = $this->smartesbHelper->getEndpointFactory()->createEndpoint($message->getDestinationURI(), EndpointFactory::MODE_CONSUME);
             $queueEndpoint->getHandler()->handle($message->getBody(), $endpoint);
         } else {

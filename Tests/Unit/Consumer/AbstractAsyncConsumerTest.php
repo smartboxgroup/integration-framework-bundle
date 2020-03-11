@@ -5,9 +5,9 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Events\TimingEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
@@ -95,7 +95,7 @@ class AbstractAsyncConsumerTest extends TestCase
 
             protected function cleanUp(EndpointInterface $endpoint) {}
 
-            protected function confirmMessage(EndpointInterface $endpoint, QueueMessageInterface $message) {}
+            protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message) {}
 
             public function asyncConsume(EndpointInterface $endpoint, callable $callback) {}
 
