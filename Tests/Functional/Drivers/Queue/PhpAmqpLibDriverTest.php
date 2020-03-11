@@ -239,23 +239,4 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $this->driver->declareChannel();
     }
 
-    public function setMockConsumer($expirationCount)
-    {
-        self::bootKernel();
-
-        $this->mockConsumer = $this
-            ->getMockBuilder(AsyncQueueConsumer::class)
-            ->setMethods(['consume', 'setExpirationCount'])
-            ->getMock();
-        $this->mockConsumer
-            ->method('setExpirationCount')
-            ->with($expirationCount);
-        $this->mockConsumer
-            ->method('consume')
-            ->willReturn(true);
-
-        static::$kernel->getContainer()->set('smartesb.async_consumers.queue', $this->mockConsumer);
-        static::$kernel->getContainer()->get('smartesb.protocols.queue')->setDefaultConsumer($this->mockConsumer);
-    }
-
 }

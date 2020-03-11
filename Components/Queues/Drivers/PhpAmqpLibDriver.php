@@ -223,7 +223,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      *
      * @return array|null
      */
-    protected function declareQueue(string $queueName, int $durable = AMQP_DURABLE, array $arguments = [])
+    public function declareQueue(string $queueName, int $durable = AMQP_DURABLE, array $arguments = [])
     {
         return $this->channel->queue_declare($queueName, false, $durable, false, false, false, new AMQPTable([$arguments]));
     }
