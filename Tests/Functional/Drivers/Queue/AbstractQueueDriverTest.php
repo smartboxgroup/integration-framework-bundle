@@ -6,7 +6,6 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PurgeableQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
@@ -38,10 +37,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
 
     protected function tearDown()
     {
-        if ($this->driver instanceof PurgeableQueueDriverInterface) {
-            $this->driver->purge($this->queueName);
-        }
-
         $this->driver->disconnect();
         $this->driver = null;
         parent::tearDown();
