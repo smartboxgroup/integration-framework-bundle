@@ -13,7 +13,6 @@ use PhpAmqpLib\Wire\AMQPTable;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\Service;
@@ -108,7 +107,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @param bool $shuffle - used to randomize the connections if exists more than one
      *
      * @throws \Exception
-     * @noinspection PhpUndefinedClassInspection
      */
     public function connect($shuffle = true)
     {
@@ -158,7 +156,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
-     * @throws \AMQPChannelException
      * @throws \Exception
      */
     public function destroy($consumer = null)
@@ -315,8 +312,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * Validate if there is some connection available
-     *
-     * @return void
      */
     protected function validateConnection()
     {
