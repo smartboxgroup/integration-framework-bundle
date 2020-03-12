@@ -126,7 +126,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function disconnect()
     {
-        if ($this->stream instanceof AbstractConnection) {
+        if ($this->validateConnection()) {
             $this->stream->close();
         }
     }

@@ -46,15 +46,9 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const PRODUCER_PREFIX = 'smartesb.producers.';
     const CONSUMER_PREFIX = 'smartesb.consumers.';
     const PARAM_DEFERRED_EVENTS_URI = 'smartesb.uris.deferred_events';
-    const AMQP_SERVICES = [
-        'smartesb.drivers.queue.amqp',
-        'smartesb.async_consumers.queue'
-    ];
 
     protected $config;
     protected $useAmqp = false;
-
-    protected $drivesThatUseAMQP = [];
 
     public function getFlowsVersion()
     {
@@ -250,7 +244,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef = new Definition(PhpAmqpLibDriver::class);
 
                     foreach ($driverConfig['connections'] as $index => $uri) {
-                        $driverDef->addMethodCall('setPort', [$driverConfig['port'] ?? AsyncQueueDriverInterface::DEFAULT_PORT]);
+                        $driverDef->addMethodCall('setPort', [$driverConfig['port'] ?? PhpAmqpLibDriver::DEFAULT_PORT]);
                         $driverDef->addMethodCall('configure', [
                             $driverConfig['host'],
                             $driverConfig['username'],
@@ -268,7 +262,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $container->setDefinition($driverId, $driverDef);
 
                     $consumer = $container->findDefinition('smartesb.async_consumers.queue');
-                    $consumer->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
 
                     if ($exceptionHandlerId) {
                         $consumer->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
@@ -286,14 +279,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         // set default queue driver alias
         $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$this->config['default_queue_driver']);
         $container->setAlias('smartesb.default_queue_driver', $defaultQueueDriverAlias);
-
-        foreach($this->config['queue_drivers'] as $driverName => $driver) {
-            if (!\in_array($driverName, $this->drivesThatUseAMQP)) {
-//                foreach (static::AMQP_SERVICES as $id) {
-//                    $container->removeDefinition($id);
-//                }
-            }
-        }
     }
 
     protected function loadNoSQLDrivers(ContainerBuilder $container)
