@@ -49,6 +49,11 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     const DEFAULT_PORT = 5672;
 
     /**
+     * Default host to connect
+     */
+    const DEFAULT_HOST = 'localhost';
+
+    /**
      * @var string
      */
     protected $format = AsyncQueueDriverInterface::FORMAT_JSON;
@@ -73,16 +78,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     protected $stream;
 
-    /**
-     * Number of the port used by the broker
-     *
-     * @var int $port
-     */
-    protected $port;
-
     public function __destruct()
     {
-        $this->destroy(null);
+        $this->disconnect();
     }
 
     /**
@@ -92,13 +90,19 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function configure(string $host, string $username, string $password, string $vhost = null)
     {
-        $this->connectionsData[] = [
-            'host' => $host,
-            'user' => $username,
-            'password' => $password,
-            'vhost' => $vhost,
-            'port' => $this->port
-        ];
+        $urls = explode(',', $host);
+
+        foreach ($urls as $url) {
+            $parsedUrl = parse_url($url);
+
+            $this->connectionsData[] = [
+                'host' => $parsedUrl['host'] ?? self::DEFAULT_HOST,
+                'user' => $username,
+                'password' => $password,
+                'vhost' => $vhost,
+                'port' => $parsedUrl['port'] ?? self::DEFAULT_PORT,
+            ];
+        }
     }
 
     /**
@@ -126,7 +130,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function disconnect()
     {
-        if ($this->stream instanceof AbstractConnection) {
+        if ($this->validateConnection()) {
             $this->stream->close();
         }
     }
@@ -156,22 +160,15 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
-     * @throws \Exception
      */
-    public function destroy($consumer = null)
+    public function destroy(string $consumerTag)
     {
-        $this->cancelConsume($consumer);
+        $this->channel->basic_cancel($consumerTag);
         $this->disconnect();
     }
 
     /**
-     * Consumes the message and dispatch it to others features.
-     *
-     * @param string $consumerTag
-     * @param string $queueName
-     * @param callable|null $callback
-     * @return string $consumerTag
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function consume(string $consumerTag, string $queueName, callable $callback = null)
     {
@@ -211,6 +208,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
         $amqpMessage = new AMQPMessage($messageBody);
         $amqpMessage->set('application_headers', $messageHeaders);
         $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $message->getQueue());
+
         return true;
     }
 
@@ -301,33 +299,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Set the port to connection
-     *
-     * @param int $port
-     */
-    public function setPort(int $port)
-    {
-        $this->port = $port;
-    }
-
-    /**
      * Validate if there is some connection available
      */
     protected function validateConnection()
     {
         return $this->stream instanceof AbstractConnection;
-    }
-
-    /**
-     * Finish the last consume activity and cancel the worker
-     *
-     * @param AbstractAsyncConsumer $consumer
-     * @return mixed
-     */
-    protected function cancelConsume($consumer)
-    {
-        if ($consumer instanceof AbstractAsyncConsumer) {
-            return $this->channel->basic_cancel($consumer->getName());
-        }
     }
 }

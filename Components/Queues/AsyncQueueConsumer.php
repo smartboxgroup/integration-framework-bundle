@@ -170,6 +170,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     public function destroy(EndpointInterface $endpoint)
     {
-        $this->getQueueDriver($endpoint)->destroy($this);
+        $this->getQueueDriver($endpoint)->destroy($this->getName());
     }
 }
