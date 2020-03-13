@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use PhpAmqpLib\Message\AMQPMessage;
+use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
@@ -15,6 +16,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
+use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Serializables\Entity\SerializableSimpleEntity;
 
 /**
  * Class AsyncQueueConsumer
@@ -156,9 +158,12 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
                 $queueMessage->setMessageId($message->getDeliveryTag());
             } catch (\Exception $exception) {
-                // TODO Verify "headers" are passed correctly. might need to access "data" key after get_properties
                 $this->consumptionDuration = (microtime(true) - $start) * 1000;
-                $this->getExceptionHandler()($exception, ['headers' => $message->get_properties(), 'body' => $message->getBody()]);
+                $queueMessage = $this->getQueueDriver($endpoint)->createQueueMessage();
+                $queueMessage->setMessageId($message->getDeliveryTag());
+                $this->getQueueDriver($endpoint)->ack($queueMessage);
+                $this->getExceptionHandler()($exception, ['headers' => $message->get('application_headers')->getNativeData(), 'body' => $message->getBody()]);
+                return;
             }
 
             parent::callback($endpoint)($queueMessage);
