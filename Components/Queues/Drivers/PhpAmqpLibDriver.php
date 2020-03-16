@@ -236,8 +236,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function declareChannel(int $prefetchSize = self::PREFETCH_SIZE, int $prefetchCount = self::PREFETCH_COUNT): AMQPChannel
     {
-        $this->channel = $this->stream->channel();
-        $this->channel->basic_qos($prefetchSize, $prefetchCount, null);
+        if (!$this->channel instanceof AMQPChannel) {
+            $this->channel = $this->stream->channel();
+            $this->channel->basic_qos($prefetchSize, $prefetchCount, null);
+        }
 
         return $this->channel;
     }

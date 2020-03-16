@@ -159,11 +159,12 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
                 $queueMessage->setMessageId($message->getDeliveryTag());
             } catch (\Exception $exception) {
                 $this->consumptionDuration = (microtime(true) - $start) * 1000;
-                $queueMessage = $this->getQueueDriver($endpoint)->createQueueMessage();
-                $queueMessage->setMessageId($message->getDeliveryTag());
-                $this->getQueueDriver($endpoint)->ack($queueMessage);
-                $this->getExceptionHandler()($exception, ['headers' => $message->get('application_headers')->getNativeData(), 'body' => $message->getBody()]);
-                return;
+                $this->getExceptionHandler()($exception, [
+                    'headers' => $message->get('application_headers')->getNativeData(),
+                    'body' => $message->getBody(),
+                    'messageId' => $message->delivery_info['delivery_tag']]
+                );
+                return false;
             }
 
             parent::callback($endpoint)($queueMessage);
