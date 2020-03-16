@@ -20,7 +20,7 @@ class Middleware
      * @return \Closure
      * 
      */
-    public function httpErrors()
+    public static function httpErrors()
     {
         return function (callable $handler) {
             return function (RequestInterface $request, array $options) use ($handler) {

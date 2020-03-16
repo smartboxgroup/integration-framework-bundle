@@ -5,7 +5,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Rest;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\HandlerStack;
-use http\Exception\InvalidArgumentException;
 
 /**
  * Create a proper error handler to be used by Guzzle
@@ -17,7 +16,7 @@ class HttpErrorHandler implements HttpHandlerInterface
     public static function create(array $config = []): HandlerStack
     {
         if(!isset($config['http_errors']) || true === $config['http_errors']) {
-            throw new InvalidArgumentException('You must set http_errors to false to use ' . self::class);
+            throw new \InvalidArgumentException('You must set http_errors to false to use ' . self::class);
         }
 
         $handler = new CurlHandler();
