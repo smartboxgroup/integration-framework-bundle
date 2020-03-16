@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
-use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
@@ -234,8 +233,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     break;
 
                 case 'amqp':
-                    if (!class_exists(AMQPStreamConnection::class)) {
-                        throw new \RuntimeException('You need the amqp extension to use PHP-AMQP-LIB driver.');
+                    if (!class_exists(\PhpAmqpLib\Package::class)) {
+                        throw new \LogicException('To use the AMQP driver, you\'ll need the php-amqplib library. Please run \'composer install php-amqplib/php-amqplib\' to install it.');
                     }
 
                     $driverDef = new Definition(PhpAmqpLibDriver::class);
