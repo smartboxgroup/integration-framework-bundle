@@ -234,7 +234,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                 case 'amqp':
                     if (!class_exists(\PhpAmqpLib\Package::class)) {
-                        throw new \LogicException('To use the AMQP driver, you\'ll need the php-amqplib library. Please run \'composer install php-amqplib/php-amqplib\' to install it.');
+                        throw new \LogicException('To use the AMQP driver, you\'ll need the php-amqplib library. Please run \'composer require php-amqplib/php-amqplib\' to install it.');
                     }
 
                     $driverDef = new Definition(PhpAmqpLibDriver::class);
