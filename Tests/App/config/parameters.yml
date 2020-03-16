@@ -1,5 +1,5 @@
 parameters:
-    hostname: rabbit
+    hostname: rabbit:5672
     database_host: database.local
     database_user: root
     database_password: 1234
