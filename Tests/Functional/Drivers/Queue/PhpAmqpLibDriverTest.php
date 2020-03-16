@@ -36,7 +36,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     /**
      * Returns an instance of the AsyncQueueConsumer class
      *
-     * @return mixed
+     * @return AsyncQueueConsumer
      */
     protected function createConsumer()
     {
@@ -152,7 +152,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $this->driver->connect();
         $this->driver->declareChannel();
         $this->assertTrue($this->driver->isConnected());
-        $this->driver->destroy($this->createConsumer());
+        $this->driver->destroy($this->createConsumer()->getName());
         $this->assertFalse($this->driver->isConnected());
     }
 
@@ -166,7 +166,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     {
         $this->assertTrue($this->driver->isConnected());
         $this->driver->declareChannel();
-        $this->driver->destroy($this->createConsumer());
+        $this->driver->destroy($this->createConsumer()->getName());
         $this->assertFalse($this->driver->isConnected());
         $this->driver->declareChannel();
     }
@@ -189,7 +189,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     {
         $this->driver->declareChannel();
         $consumer = $this->createConsumer();
-        $this->driver->destroy($consumer);
+        $this->driver->destroy($consumer->getName());
         $this->driver->configure('', '', '', '');
         $this->driver->connect(true);
         $this->assertTrue($this->driver->isConnected());
