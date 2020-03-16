@@ -89,7 +89,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     protected function cleanUp(EndpointInterface $endpoint)
     {
-        $this->getQueueDriver($endpoint)->disconnect();
+        $this->getQueueDriver($endpoint)->destroy($this->getName());
     }
 
     /**
@@ -168,13 +168,5 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
             parent::callback($endpoint)($queueMessage);
         };
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function destroy(EndpointInterface $endpoint)
-    {
-        $this->getQueueDriver($endpoint)->destroy($this->getName());
     }
 }

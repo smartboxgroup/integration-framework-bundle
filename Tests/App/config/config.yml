@@ -34,7 +34,7 @@ smartbox_integration_framework:
     defer_events_to_uri: queue://events
     queue_drivers:
         main:
-            type: RabbitMQ
+            type: rabbitmq
             description: RabbitMQ queue driver
             host: "%rabbitmq.hostname%"
             username: "%rabbitmq.username%"
@@ -43,15 +43,13 @@ smartbox_integration_framework:
             vhost: '%rabbitmq.vhost%'
             timeout: '%rabbitmq.timeout%'
         amqp:
-            type: AMQP
+            type: amqp
             description: AMQP queue driver
             host: "%hostname%"
             username: "%rabbitmq.username%"
             password: "%rabbitmq.password%"
             format: json
             vhost: "%rabbitmq.vhost%"
-            connections:
-                - "amqp://%rabbitmq.username%:%rabbitmq.password%@%hostname%/%rabbitmq.vhost%"
 
     nosql_drivers: ~
 
