@@ -10,13 +10,16 @@ class HttpClient extends Client
 {
     public function __construct(array $config = [])
     {
-        $stack = new HandlerStack();
-        $stack->setHandler(new CurlHandler());
-        $stack->push((new Middleware())->httpErrors(), 'http_errors_handler');
-        
-        $config['http_errors'] = false;
-        $config['handler'] = $stack;
-
+        $this->addHandler($config);
         parent::__construct($config);
+    }
+
+    protected function addHandler(array &$config = [])
+    {
+        $handler = $config['handler'];
+
+        if(isset($handler) && class_exists($handler) && (new $handler) instanceof HttpHandlerInterface) {
+            $config['handler'] = $handler::create($config);
+        }
     }
 }
