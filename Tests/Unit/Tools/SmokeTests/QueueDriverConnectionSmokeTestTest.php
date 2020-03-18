@@ -30,8 +30,8 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
         $test = new QueueDriverConnectionSmokeTest($queueDriver);
         $result = $test->run();
 
-        $this->assertInstanceOf(SmokeTestOutput::class, $result);
-        $this->assertTrue($result->isOK());
+        $this->assertInstanceOf(SmokeTestOutput::class, $result, sprintf('Expected a SmokeTestOutput instance as result, got %s instead', get_class($result)));
+        $this->assertTrue($result->isOK(), 'Connection failed on smoke test');
     }
 
     /**
@@ -48,8 +48,8 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
         $test = new QueueDriverConnectionSmokeTest($queueDriver);
         $result = $test->run();
 
-        $this->assertInstanceOf(SmokeTestOutput::class, $result);
-        $this->assertFalse($result->isOK());
+        $this->assertInstanceOf(SmokeTestOutput::class, $result, sprintf('Expected a SmokeTestOutput instance as result, got %s instead', get_class($result)));
+        $this->assertFalse($result->isOK(), 'Connection was successful. Should have failed.');
     }
 
     /**
@@ -69,9 +69,9 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
         $test = new QueueDriverConnectionSmokeTest($queueDriver);
         $result = $test->run();
 
-        $this->assertInstanceOf(SmokeTestOutput::class, $result);
-        $this->assertFalse($result->isOK());
-        $this->assertEquals('Failed to insert message in queue.', $result->getMessages()[0]->getValue());
+        $this->assertInstanceOf(SmokeTestOutput::class, $result, sprintf('Expected a SmokeTestOutput instance as result, got %s instead', get_class($result)));
+        $this->assertFalse($result->isOK(), 'Smoke test passed while it should have failed.');
+        $this->assertEquals('Failed to insert message in queue.', $result->getMessages()[0]->getValue(), sprintf('Expected a valid Exception message, got "%s" instead', $result->getMessages()[0]->getValue()));
     }
 
     /**

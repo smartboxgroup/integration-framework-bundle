@@ -80,7 +80,7 @@ class AbstractAsyncConsumerTest extends TestCase
         $consumer->consume($this->createMock(EndpointInterface::class));
         $stopwatch->stop('consume');
 
-        $this->assertGreaterThanOrEqual(AbstractAsyncConsumer::SLEEP_DURATION / 1000, $stopwatch->getEvent('consume')->getDuration());
+        $this->assertGreaterThanOrEqual(AbstractAsyncConsumer::SLEEP_DURATION / 1000, $stopwatch->getEvent('consume')->getDuration(), 'Somehow the consumer finished faster than it should have. It should have slept between messages.');
     }
 
     /**
@@ -117,7 +117,7 @@ class AbstractAsyncConsumerTest extends TestCase
         $consumer->consume($this->createMock(EndpointInterface::class));
         $stopwatch->stop('consume');
 
-        $this->assertLessThanOrEqual(AbstractAsyncConsumer::SLEEP_DURATION / 1000, $stopwatch->getEvent('consume')->getDuration());
+        $this->assertLessThanOrEqual(AbstractAsyncConsumer::SLEEP_DURATION / 1000, $stopwatch->getEvent('consume')->getDuration(), 'Consumer took longer than expected to consume a message, most likely it ignored the sleep flag.');
     }
 
     /**
