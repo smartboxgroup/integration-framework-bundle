@@ -261,6 +261,8 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
             $client->getConnection()->setReadTimeout($this->timeout);
             $client->setVersions([$this->stompVersion]);
             $client->setVhostname($this->vhost);
+            $client->connect();
+
             $this->statefulStomp = new StatefulStomp($client);
         }
     }
