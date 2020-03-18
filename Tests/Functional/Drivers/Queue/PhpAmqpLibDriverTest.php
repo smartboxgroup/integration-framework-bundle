@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exception\AMQPConnectionClosedException;
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
@@ -160,10 +161,11 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      * Tests that tries to declare a channel without having a connection
      *
      * @group channel-exception
-     * @expectedException \Exception
      */
     public function testDeclareChannelWithoutConnnection()
     {
+        $this->expectException(AMQPConnectionClosedException::class);
+        $this->expectExceptionMessage('Broken pipe or closed connection');
         $this->assertTrue($this->driver->isConnected());
         $this->driver->declareChannel();
         $this->driver->destroy($this->createConsumer()->getName());

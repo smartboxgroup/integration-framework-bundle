@@ -164,6 +164,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function destroy(string $consumerTag)
     {
         $this->channel->basic_cancel($consumerTag);
+        $this->channel = null;
         $this->disconnect();
     }
 

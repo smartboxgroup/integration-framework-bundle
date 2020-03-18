@@ -4,6 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumers;
 
 use JMS\Serializer\SerializerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
+use PhpAmqpLib\Wire\AMQPTable;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
@@ -66,12 +67,25 @@ class AsyncQueueConsumerTest extends TestCase
             ->method('getFormat')
             ->willReturn('json');
 
+        $messageHeaders = new AMQPTable([
+            'ttl' => 86400,
+            'expiration' => 86400000,
+            'expires' => 1584634937000,
+            'destination' => 'api-test',
+            'priority' => 4
+        ]);
+
+        $message = $this->getMockBuilder(AMQPMessage::class)
+            ->setMethods(['setBody'])
+            ->getMock();
+        $message->method('setBody')->with('an amqp message');
+        $message->set('application_headers', $messageHeaders);
+        $message->delivery_info = ['delivery_tag' => 1];
+
         $consumer = new AsyncQueueConsumer();
         $consumer->setSmartesbHelper($this->getHelper($driver));
         $consumer->setSerializer($serializer);
         $callback = $consumer->callback($this->createMock(EndpointInterface::class));
-
-        $message = new AMQPMessage('an amqp message', []);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('I cöuld nót dese�rialize that JSON strin��������');
