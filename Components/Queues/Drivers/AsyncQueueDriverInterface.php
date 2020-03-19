@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
-
 /**
  * Interface AsyncQueueDriverInterface
  */
@@ -37,7 +34,7 @@ interface AsyncQueueDriverInterface extends QueueDriverInterface
     /**
      * Clean all the opened resources, must be called just before terminating the current request.
      *
-     * @param string $consumerTag // String that identifies the consumer that should be destroyed \,,/
+     * @param string $consumerTag
      */
     public function destroy(string $consumerTag);
 }

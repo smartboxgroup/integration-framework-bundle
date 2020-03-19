@@ -4,6 +4,8 @@
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+
 interface SyncQueueDriverInterface extends QueueDriverInterface
 {
 
@@ -19,7 +21,7 @@ interface SyncQueueDriverInterface extends QueueDriverInterface
      *
      * @param string $queue Queue to subscribe
      */
-    public function subscribe($queue);
+    public function subscribe(string $queue);
 
     /**
      * Destroys the created subscription with a queue.
@@ -31,7 +33,7 @@ interface SyncQueueDriverInterface extends QueueDriverInterface
      *
      * It requires to subscribe previously to a specific queue
      *
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface|null
+     * @return QueueMessageInterface|null
      *
      * @throws \Exception
      */

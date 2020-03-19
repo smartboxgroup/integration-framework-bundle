@@ -18,7 +18,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
 
     protected $connected = false;
     protected $subscribedQueue = false;
-    protected $unacknowledgedFrame = null;
+    protected $unacknowledgedFrame;
 
     /**
      * @var string
@@ -34,6 +34,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /**
+     * @param $queue
      * @return array
      */
     public function getArrayForQueue($queue)
@@ -79,7 +80,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
      *
      * @return bool
      */
-    public function isConnected()
+    public function isConnected(): bool
     {
         return $this->connected;
     }
@@ -100,7 +101,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
      * @param string      $queue    Queue to subscribe
      * @param string|null $selector If supported, it is an expression filters the messages on the queue
      */
-    public function subscribe($queue, $selector = null)
+    public function subscribe(string $queue, $selector = null)
     {
         $this->subscribedQueue = $queue;
     }
@@ -115,8 +116,9 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Acknowledges the processing of the last received object.
-     *
      * The object should be removed from the queue.
+     *
+     * @param QueueMessageInterface|null $message
      */
     public function ack(QueueMessageInterface $message = null)
     {
@@ -125,8 +127,9 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Acknowledges a failure on processing the last received object.
-     *
      * The object could be moved to the DLQ or be delivered to another subscription for retrial
+     *
+     * @param QueueMessageInterface|null $message
      */
     public function nack(QueueMessageInterface $message = null)
     {
@@ -134,7 +137,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /** {@inheritdoc} */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = [])
+    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
     {
         $destination = $destination ? $destination : $message->getQueue();
 
@@ -158,9 +161,9 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /**
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface
+     * @return QueueMessageInterface
      */
-    public function createQueueMessage()
+    public function createQueueMessage(): QueueMessageInterface
     {
         /*
          * This driver will ignore all the headers so it can use any message that implements QueueMessageInterface
@@ -183,7 +186,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * @return string
      */
-    public function getFormat()
+    public function getFormat(): string
     {
         return $this->format;
     }

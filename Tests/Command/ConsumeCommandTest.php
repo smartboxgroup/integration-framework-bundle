@@ -3,14 +3,14 @@
 namespace Smartbox\FrameworkBundle\Tests\Command;
 
 use Smartbox\Integration\FrameworkBundle\Command\ConsumeCommand;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
-use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class ConsumeCommandTest extends KernelTestCase
 {
@@ -18,6 +18,11 @@ class ConsumeCommandTest extends KernelTestCase
     const URI = 'queue://main/api';
 
     protected $mockConsumer;
+
+    /**
+     * @var MockObject
+     */
+    private $mockQueueDriver;
 
     public function setUp()
     {
@@ -29,33 +34,72 @@ class ConsumeCommandTest extends KernelTestCase
         $msg = new QueueMessage(new Message());
 
         $this->mockQueueDriver = $this
-            ->getMockBuilder(StompQueueDriver::class)
-            ->setMethods(['connect', 'send'])
+            ->getMockBuilder(QueueDriverInterface::class)
+            ->setMethods([
+                'configure',
+                'connect',
+                'disconnect',
+                'isConnected',
+                'send',
+                'ack',
+                'nack',
+                'createQueueMessage',
+                'setFormat',
+                'getFormat',
+                'getInternalType'
+            ])
             ->getMock();
+        $this->mockQueueDriver
+            ->method('configure');
         $this->mockQueueDriver
             ->method('connect');
         $this->mockQueueDriver
+            ->method('disconnect');
+        $this->mockQueueDriver
+            ->method('isConnected');
+        $this->mockQueueDriver
             ->method('send')
             ->with($msg);
+        $this->mockQueueDriver
+            ->method('ack');
+        $this->mockQueueDriver
+            ->method('nack');
+        $this->mockQueueDriver
+            ->method('createQueueMessage');
+        $this->mockQueueDriver
+            ->method('setFormat');
+        $this->mockQueueDriver
+            ->method('getFormat');
+        $this->mockQueueDriver
+            ->method('getInternalType');
 
-        self::$kernel->getContainer()->set(StompQueueDriver::class, $this->mockQueueDriver);
+        self::$kernel->getContainer()->set(QueueDriverInterface::class, $this->mockQueueDriver);
     }
 
     public function setMockConsumer($expirationCount)
     {
         $this->mockConsumer = $this
-            ->getMockBuilder(QueueConsumer::class)
-            ->setMethods(['consume', 'setExpirationCount'])
+            ->getMockBuilder(ConsumerInterface::class)
+            ->setMethods(['stop', 'consume', 'setExpirationCount', 'setSmartesbHelper', 'getName', 'getId', 'getInternalType'])
             ->getMock();
+        $this->mockConsumer
+            ->method('stop');
+        $this->mockConsumer
+            ->method('consume')
+            ->willReturn(true);
         $this->mockConsumer
             ->method('setExpirationCount')
             ->with($expirationCount);
         $this->mockConsumer
-            ->method('consume')
-            ->willReturn(true);
+            ->method('setSmartesbHelper');
+        $this->mockConsumer
+            ->method('getName');
+        $this->mockConsumer
+            ->method('getId');
+        $this->mockConsumer
+            ->method('getInternalType');
 
         self::$kernel->getContainer()->set('smartesb.consumers.queue', $this->mockConsumer);
-        self::$kernel->getContainer()->set('doctrine', $this->createMock(RegistryInterface::class));
     }
 
     public function testExecuteWithKillAfter()

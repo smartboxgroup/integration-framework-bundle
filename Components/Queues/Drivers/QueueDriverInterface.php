@@ -41,7 +41,7 @@ interface QueueDriverInterface extends SerializableInterface
      *
      * @return bool
      */
-    public function isConnected();
+    public function isConnected(): bool;
 
     /**
      * Acknowledges the message in the message broker. $messageId is nullable for backwards compatibility with the
@@ -68,24 +68,24 @@ interface QueueDriverInterface extends SerializableInterface
      *
      * @return bool
      */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []);
+    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool;
 
     /**
      * @return QueueMessageInterface
      */
-    public function createQueueMessage();
+    public function createQueueMessage(): QueueMessageInterface;
 
     /**
      * Returns the format used on serialize/deserialize function.
      *
      * @return string
      */
-    public function getFormat();
+    public function getFormat(): string ;
 
     /**
      * Set the format used on serialize/deserialize function.
      *
-     * @return string
+     * @param string|null $format
      */
     public function setFormat(string $format = null);
 }

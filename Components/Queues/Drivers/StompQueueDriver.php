@@ -30,8 +30,8 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     const STOMP_VERSION = '1.1';
 
-    /** @var \Stomp\Transport\Frame */
-    protected $currentFrame = null;
+    /** @var Frame */
+    protected $currentFrame;
 
     /** @var string */
     protected $format = QueueDriverInterface::FORMAT_JSON;
@@ -180,7 +180,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * @return string
      */
-    public function getFormat()
+    public function getFormat(): string
     {
         return $this->format;
     }
@@ -270,7 +270,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function isConnected()
+    public function isConnected(): bool
     {
         return $this->statefulStomp && $this->statefulStomp->getClient()->isConnected();
     }
@@ -291,8 +291,10 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         return false !== $this->subscriptionId;
     }
 
-    /** {@inheritdoc} */
-    public function subscribe($destination, $selector = null)
+    /**
+     * {@inheritdoc}
+     */
+    public function subscribe(string $destination, $selector = null)
     {
         $destinationUri = $destination;
         if ($this->urlEncodeDestination) {
@@ -316,8 +318,10 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         $this->disconnect();
     }
 
-    /** {@inheritdoc} */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = [])
+    /**
+     * {@inheritdoc}
+     */
+    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
     {
         $destination = $destination ? $destination : $message->getQueue();
         $destinationUri = $destination;
@@ -418,7 +422,10 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         $this->currentFrame = null;
     }
 
-    public function createQueueMessage()
+    /**
+     * @return QueueMessageInterface
+     */
+    public function createQueueMessage(): QueueMessageInterface
     {
         $msg = new QueueMessage();
         $msg->setContext(new Context());

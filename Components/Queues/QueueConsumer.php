@@ -2,9 +2,9 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
@@ -12,7 +12,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 /**
  * Class QueueConsumer.
  */
-class QueueConsumer extends AbstractConsumer implements ConsumerInterface
+class QueueConsumer extends AbstractConsumer
 {
     /**
      * @var int The time it took in ms to deserialize the message
@@ -37,9 +37,9 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     /**
      * @param EndpointInterface $endpoint
      *
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface
+     * @return QueueDriverInterface
      */
-    protected function getQueueDriver(EndpointInterface $endpoint)
+    protected function getQueueDriver(EndpointInterface $endpoint): QueueDriverInterface
     {
         $options = $endpoint->getOptions();
         $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
@@ -104,7 +104,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
      */
     protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
     {
-        $intervalMs = $intervalMs + $this->dequeueingTimeMs;
+        $intervalMs += $this->dequeueingTimeMs;
 
         parent::dispatchConsumerTimingEvent($intervalMs, $message);
     }

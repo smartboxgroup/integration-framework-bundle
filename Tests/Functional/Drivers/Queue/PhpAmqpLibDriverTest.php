@@ -4,9 +4,9 @@ namespace Smartbox\Integration\FrameworkBundle\Tests;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exception\AMQPConnectionClosedException;
+use PhpAmqpLib\Exception\AMQPProtocolException;
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
@@ -80,7 +80,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $this->consumer = $this->createConsumer();
         $consumerTag = $this->consumer->getName();
         $this->driver->declareChannel();
-        $this->driver->declareQueue($this->queueName, AMQP_DURABLE, []);
+        $this->driver->declareQueue($this->queueName, QueueMessage::DELIVERY_MODE_PERSISTENT, []);
         $return = $this->driver->consume($consumerTag, $this->queueName);
         $this->assertNull($return);
     }
@@ -185,7 +185,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
 
     /**
      * @group amqp-connection
-     * @throws \AMQPConnectionException
+     * @throws AMQPProtocolException
      */
     public function testConnectWithoutData()
     {
