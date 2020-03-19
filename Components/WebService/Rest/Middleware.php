@@ -25,12 +25,12 @@ class Middleware
         return function (callable $handler) {
             return function (RequestInterface $request, array $options) use ($handler) {
                 return $handler($request, $options)->then(
-                    function (ResponseInterface $response) use ($request, $handler, $options) {
+                    function (ResponseInterface $response) use ($request, $options) {
                         $code = $response->getStatusCode();
                         if ($code < 400) {
                             return $response;
                         }
-                        $truncateResponseSize = $options['truncate_response_size'] ?: 0;
+                        $truncateResponseSize = isset($options['truncate_response_size']) ?: 0;
                         HttpClientRequestException::setTruncateResponseSize($truncateResponseSize);
                         throw HttpClientRequestException::create($request, $response);
                     }
