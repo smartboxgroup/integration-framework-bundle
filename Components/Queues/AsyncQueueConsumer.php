@@ -159,11 +159,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
                 $queueMessage->setMessageId($message->getDeliveryTag());
             } catch (\Exception $exception) {
                 $this->consumptionDuration = (microtime(true) - $start) * 1000;
-                $this->getExceptionHandler()($exception, [
-                    'headers' => $message->get('application_headers')->getNativeData(),
-                    'body' => $message->getBody(),
-                    'messageId' => $message->delivery_info['delivery_tag']]
-                );
+                $this->getExceptionHandler()($exception, ['message' => $message]);
                 return false;
             }
 
