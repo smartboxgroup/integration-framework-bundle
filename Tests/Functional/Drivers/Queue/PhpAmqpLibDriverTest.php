@@ -251,6 +251,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $queueMessage->setTTL(rand(60, 600));
         $queueMessage->setPriority(rand(0, 255));
         $queueMessage->setMessageType(md5(rand(0, 255)));
+        $queueMessage->setPersistent(true);
 
         $this->driver->send($queueMessage);
         $this->consumer = $this->createConsumer();
@@ -259,6 +260,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
             $this->assertEquals($amqpMessage->get('expiration'), $queueMessage->getHeader('expiration'));
             $this->assertEquals($amqpMessage->get('priority'), $queueMessage->getPriority());
             $this->assertEquals($amqpMessage->get('type'), $queueMessage->getMessageType());
+            $this->assertEquals($amqpMessage->get('delivery_mode'), QueueMessage::DELIVERY_MODE_PERSISTENT);
         };
 
         $this->driver->consume($this->consumer->getName(), $this->queueName, $callback);
