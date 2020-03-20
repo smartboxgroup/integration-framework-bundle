@@ -7,6 +7,7 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverIn
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
+use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -74,6 +75,7 @@ class ConsumeCommandTest extends KernelTestCase
             ->method('getInternalType');
 
         self::$kernel->getContainer()->set(QueueDriverInterface::class, $this->mockQueueDriver);
+        self::$kernel->getContainer()->set('doctrine', $this->createMock(RegistryInterface::class));
     }
 
     public function setMockConsumer($expirationCount)
