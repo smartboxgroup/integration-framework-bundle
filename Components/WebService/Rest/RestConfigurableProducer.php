@@ -107,10 +107,6 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             );
         }
 
-        //setting the new error_handler
-        $handlerStack = $client->getConfig('handler');
-        $handlerStack->push(Middleware::httpErrors(), 'http_errors_handler');
-
         $stepParamsResolver = new OptionsResolver();
 
         $stepParamsResolver->setRequired([
@@ -206,6 +202,12 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $request = new Request($httpMethod, $resolvedURI, $requestHeaders);
         $response = null;
         try {
+
+            //setting the new error_handler
+            if(null !== $handlerStack = $client->getConfig('handler')) {
+                $handlerStack->push(Middleware::httpErrors(), 'http_errors_handler');
+            }
+
             $response = $client->send($request, $restOptions);
             $responseContent = $response->getBody()->getContents();
             $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context, $request, $requestBody, $response, $responseContent, $endpointOptions));
