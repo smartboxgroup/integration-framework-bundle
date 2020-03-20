@@ -201,13 +201,36 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     {
         $this->declareChannel();
         $this->declareQueue($message->getQueue(), QueueMessage::DELIVERY_MODE_PERSISTENT, $arguments);
+
         $messageBody = $this->getSerializer()->serialize($message, $this->format);
-        $messageHeaders = new AMQPTable($message->getHeaders());
         $amqpMessage = new AMQPMessage($messageBody);
-        $amqpMessage->set('application_headers', $messageHeaders);
+
+        $this->setAMQPMessageHeaders($amqpMessage, new AMQPTable($message->getHeaders()));
+
         $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $message->getQueue());
 
         return true;
+    }
+
+    /**
+     * Sets all the headers passed as an AMQPTable as the AMQPMessage headers.
+     *
+     * @param AMQPMessage $message
+     * @param AMQPTable $headers
+     */
+    protected function setAMQPMessageHeaders(AMQPMessage $message, AMQPTable $headers)
+    {
+        // Pass all the available headers as "application_headers" in case they cannot be matched as an AMQPMessage header
+        $message->set('application_headers', $headers);
+
+        foreach ($headers as $header => $value) {
+            try {
+                //In AMQPTables, $value[0] is the type and $value[1] is the content.
+                $message->set($header, $value[1]);
+            } catch (\OutOfBoundsException $e) {
+                // No valid AMQP header matched, ignore.
+            }
+        }
     }
 
     /**

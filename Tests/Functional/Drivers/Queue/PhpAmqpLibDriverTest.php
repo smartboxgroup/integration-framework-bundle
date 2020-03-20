@@ -241,4 +241,28 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $this->driver->declareChannel();
     }
 
+    /**
+     * Test that the QueueMessageInterface header compatible with AMQP Headers are sent to the queue and back to
+     * the consumer without changes.
+     */
+    public function testAMQPMessageHeaders()
+    {
+        $queueMessage = $this->createQueueMessage(new EntityX());
+        $queueMessage->setTTL(rand(60, 600));
+        $queueMessage->setPriority(rand(0, 255));
+        $queueMessage->setMessageType(md5(rand(0, 255)));
+
+        $this->driver->send($queueMessage);
+        $this->driver->declareChannel();
+        $this->consumer = $this->createConsumer();
+
+        $callback = function(AMQPMessage $amqpMessage) use ($queueMessage){
+            $this->assertEquals($amqpMessage->get('expiration'), $queueMessage->getHeader('expiration'));
+            $this->assertEquals($amqpMessage->get('priority'), $queueMessage->getPriority());
+            $this->assertEquals($amqpMessage->get('type'), $queueMessage->getMessageType());
+        };
+
+        $this->driver->consume($this->consumer->getName(), $this->queueName, $callback);
+        $this->driver->wait();
+    }
 }
