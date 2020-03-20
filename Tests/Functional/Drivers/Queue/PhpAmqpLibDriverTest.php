@@ -253,7 +253,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $queueMessage->setMessageType(md5(rand(0, 255)));
 
         $this->driver->send($queueMessage);
-        $this->driver->declareChannel();
         $this->consumer = $this->createConsumer();
 
         $callback = function(AMQPMessage $amqpMessage) use ($queueMessage){
