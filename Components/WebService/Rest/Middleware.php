@@ -11,6 +11,9 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\H
  */
 class Middleware
 {
+
+    public static $truncateResponseSize = 120;
+    
     /**
      * This method override the default one used by Guzzle.
      * Using this we can handle the RequestException the way we want by also overriding it with HttpClientRequestException
@@ -25,17 +28,52 @@ class Middleware
         return function (callable $handler) {
             return function (RequestInterface $request, array $options) use ($handler) {
                 return $handler($request, $options)->then(
-                    function (ResponseInterface $response) use ($request, $options) {
+                    function (ResponseInterface $response) use ($request, $handler, $options) {
                         $code = $response->getStatusCode();
                         if ($code < 400) {
                             return $response;
                         }
-                        $truncateResponseSize = isset($options['truncate_response_size']) ?: 0;
-                        HttpClientRequestException::setTruncateResponseSize($truncateResponseSize);
+
+                        if(isset($options['truncate_response_size'])) {
+                            self::$truncateResponseSize = $options['truncate_response_size'];
+                        }
+                        
                         throw HttpClientRequestException::create($request, $response);
                     }
                 );
             };
         };
     }
+
+    public static function handleResponseBody(ResponseInterface $response)
+    {
+        $body = $response->getBody();
+
+        if (!$body->isSeekable()) {
+            return null;
+        }
+
+        $size = $body->getSize();
+
+        if ($size === 0) {
+            return null;
+        }
+
+        $summary = $body->read($size);
+
+        if(self::$truncateResponseSize > 0 && $size > self::$truncateResponseSize) {
+
+            if(false === mb_detect_encoding($summary, 'UTF-8', true)) {
+                $summary = utf8_encode($summary);
+            }
+
+            $summary = mb_substr($summary, 0, self::$truncateResponseSize).' (truncated...)';
+        }
+
+        if (preg_match('/[^\pL\pM\pN\pP\pS\pZ\n\r\t]/', $summary)) {
+            return null;
+        }
+
+        return $summary;
+    } 
 }

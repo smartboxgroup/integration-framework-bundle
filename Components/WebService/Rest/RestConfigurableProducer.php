@@ -107,6 +107,10 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
             );
         }
 
+        //setting the new error_handler
+        $handlerStack = $client->getConfig('handler');
+        $handlerStack->push(Middleware::httpErrors(), 'http_errors_handler');
+
         $stepParamsResolver = new OptionsResolver();
 
         $stepParamsResolver->setRequired([
