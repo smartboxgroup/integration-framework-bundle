@@ -7,21 +7,19 @@ use Psr\Http\Message\ResponseInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\HttpClientRequestException;
 
 /**
- * Guzzle Middlewae to be used by HttpClient
+ * Guzzle Middlewae to be used by HttpClient.
  */
 class Middleware
 {
-
     public static $truncateResponseSize = 120;
-    
+
     /**
      * This method override the default one used by Guzzle.
-     * Using this we can handle the RequestException the way we want by also overriding it with HttpClientRequestException
+     * Using this we can handle the RequestException the way we want by also overriding it with HttpClientRequestException.
      *
      * If you need to manage the size of response, set it as int at truncate_response_size config parameter
      *
      * @return \Closure
-     * 
      */
     public static function httpErrors()
     {
@@ -34,10 +32,10 @@ class Middleware
                             return $response;
                         }
 
-                        if(isset($options['truncate_response_size'])) {
+                        if (isset($options['truncate_response_size'])) {
                             self::$truncateResponseSize = $options['truncate_response_size'];
                         }
-                        
+
                         throw HttpClientRequestException::create($request, $response);
                     }
                 );
@@ -55,15 +53,14 @@ class Middleware
 
         $size = $body->getSize();
 
-        if ($size === 0) {
+        if (0 === $size) {
             return null;
         }
 
         $summary = $body->read($size);
 
-        if(self::$truncateResponseSize > 0 && $size > self::$truncateResponseSize) {
-
-            if(false === mb_detect_encoding($summary, 'UTF-8', true)) {
+        if (self::$truncateResponseSize > 0 && $size > self::$truncateResponseSize) {
+            if (false === mb_detect_encoding($summary, 'UTF-8', true)) {
                 $summary = utf8_encode($summary);
             }
 
@@ -75,5 +72,5 @@ class Middleware
         }
 
         return $summary;
-    } 
+    }
 }
