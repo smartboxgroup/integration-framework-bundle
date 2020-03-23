@@ -6,6 +6,7 @@ use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exception\AMQPConnectionClosedException;
 use PhpAmqpLib\Exception\AMQPProtocolException;
 use PhpAmqpLib\Message\AMQPMessage;
+use Smartbox\CoreBundle\Type\Entity;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
@@ -247,7 +248,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     public function testAMQPMessageHeaders()
     {
-        $queueMessage = $this->createQueueMessage(new EntityX());
+        $queueMessage = $this->createQueueMessage(new Entity());
         $queueMessage->setTTL(rand(60, 600));
         $queueMessage->setPriority(rand(0, 255));
         $queueMessage->setMessageType(md5(rand(0, 255)));
@@ -256,11 +257,12 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $this->driver->send($queueMessage);
         $this->consumer = $this->createConsumer();
 
-        $callback = function(AMQPMessage $amqpMessage) use ($queueMessage){
-            $this->assertEquals($amqpMessage->get('expiration'), $queueMessage->getHeader('expiration'));
-            $this->assertEquals($amqpMessage->get('priority'), $queueMessage->getPriority());
-            $this->assertEquals($amqpMessage->get('type'), $queueMessage->getMessageType());
-            $this->assertEquals($amqpMessage->get('delivery_mode'), QueueMessage::DELIVERY_MODE_PERSISTENT);
+        $callback = function (AMQPMessage $amqpMessage) use ($queueMessage) {
+            $this->assertEquals($amqpMessage->get('expiration'), $queueMessage->getHeader('expiration'), sprintf('Expiration header was missing or different. Expected %s, got %s', $queueMessage->getHeader('expiration'), $amqpMessage->get('expiration')));
+            $this->assertEquals($amqpMessage->get('priority'), $queueMessage->getPriority(), sprintf('Priority header was missing or different. Expected %s, got %s', $queueMessage->getHeader('priority'), $amqpMessage->get('priority')));
+            $this->assertEquals($amqpMessage->get('type'), $queueMessage->getMessageType(), sprintf('Type header was missing or different. Expected %s, got %s', $queueMessage->getHeader('type'), $amqpMessage->get('type')));
+            $this->assertEquals($amqpMessage->get('delivery_mode'), QueueMessage::DELIVERY_MODE_PERSISTENT, sprintf('Delivery mode header was missing or different. Expected %s, got %s', QueueMessage::DELIVERY_MODE_PERSISTENT, $queueMessage->getHeader('delivery_mode')));
+            $this->assertEquals($amqpMessage->get('application_headers')->getNativeData(), $queueMessage->getHeaders(), 'Application Headers (meaning, all headers of the message, compatible and incompatible with AMQP headers) were missing or different to what was expected.');
         };
 
         $this->driver->consume($this->consumer->getName(), $this->queueName, $callback);

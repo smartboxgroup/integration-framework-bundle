@@ -202,35 +202,19 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
         $this->declareChannel();
         $this->declareQueue($message->getQueue(), QueueMessage::DELIVERY_MODE_PERSISTENT, $arguments);
 
-        $messageBody = $this->getSerializer()->serialize($message, $this->format);
-        $amqpMessage = new AMQPMessage($messageBody);
+        /*
+         * Headers are duplicated as "application_headers" too pass any other header coming from the MessageInterface
+         * that might not be compatible/relevant to AMQP headers.
+         */
+        $properties = $message->getHeaders();
+        $properties['application_headers'] = new AMQPTable($properties);
 
-        $this->setAMQPMessageHeaders($amqpMessage, new AMQPTable($message->getHeaders()));
+        $messageBody = $this->getSerializer()->serialize($message, $this->format);
+        $amqpMessage = new AMQPMessage($messageBody, $properties);
 
         $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $message->getQueue());
 
         return true;
-    }
-
-    /**
-     * Sets all the headers passed as an AMQPTable as the AMQPMessage headers.
-     *
-     * @param AMQPMessage $message
-     * @param AMQPTable $headers
-     */
-    protected function setAMQPMessageHeaders(AMQPMessage $message, AMQPTable $headers)
-    {
-        // Pass all the available headers as "application_headers" in case they cannot be matched as an AMQPMessage header
-        $message->set('application_headers', $headers);
-
-        foreach ($headers as $header => $value) {
-            try {
-                //In AMQPTables, $value[0] is the type and $value[1] is the content.
-                $message->set($header, $value[1]);
-            } catch (\OutOfBoundsException $e) {
-                // No valid AMQP header matched, ignore.
-            }
-        }
     }
 
     /**
