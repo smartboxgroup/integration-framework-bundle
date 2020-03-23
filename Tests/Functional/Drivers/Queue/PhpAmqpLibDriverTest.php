@@ -47,8 +47,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
 
     /**
      * Test the connection set in the driver initialization
-     *
-     * @group amqp-connection
      */
     public function testConnection()
     {
@@ -62,7 +60,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      * @dataProvider getMessages
      * @param MessageInterface $msg
      * @throws \Exception
-     * @group amqp-send
      */
     public function testSend(MessageInterface $msg)
     {
@@ -73,8 +70,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
 
     /**
      * Test the consume process without a callback in the return
-     *
-     * @group amqp-consume-no-callback
      */
     public function testConsumeWithoutCallback()
     {
@@ -90,7 +85,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      * Tests the consume process with a callback in return that receives the messages and ack this after
      *
      * @dataProvider getMessages
-     * @group amqp-consume-callback
      */
     public function testConsumeWithCallbackAckingMessage(MessageInterface $msg)
     {
@@ -119,7 +113,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      * Tests the consume process with a callback in return that receives the messages and nack this after
      *
      * @dataProvider getMessages
-     * @group amqp-consume-callback-nack
      */
     public function testConsumeNackingMessage(MessageInterface $msg)
     {
@@ -146,8 +139,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
 
     /**
      * Tests the function to destroy the connection and clean the variables related
-     *
-     * @group destroy
      */
     public function testDestroy()
     {
@@ -160,8 +151,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
 
      /**
      * Tests that tries to declare a channel without having a connection
-     *
-     * @group channel-exception
      */
     public function testDeclareChannelWithoutConnnection()
     {
@@ -175,7 +164,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     }
 
     /**
-     * @group format
+     * Test the format parameter set in the class
      */
     public function testFormat()
     {
@@ -185,7 +174,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     }
 
     /**
-     * @group amqp-connection
      * @throws AMQPProtocolException
      */
     public function testConnectWithoutData()
@@ -201,7 +189,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
 
     /**
      * @dataProvider getMessages
-     * @group amqp-consume-callback
      */
     public function testConsumeWaitNoBlock(MessageInterface $msg)
     {
