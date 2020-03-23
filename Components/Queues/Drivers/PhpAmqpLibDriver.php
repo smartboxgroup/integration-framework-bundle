@@ -106,11 +106,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Method responsible to open the connection with the broker.
-     *
-     * @param bool $shuffle - used to randomize the connections if exists more than one
-     *
+     * {@inheritDoc}
      * @throws \Exception
+     * @throws AMQPProtocolException
      */
     public function connect($shuffle = true)
     {
@@ -123,10 +121,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Responsible to disconnect with the broker.
-     *
+     * {@inheritDoc}
      * @throws \Exception
-     * @return void
+     * @throws \Exception
      */
     public function disconnect()
     {
@@ -136,9 +133,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Creates the QueueMessage object.
-     *
-     * @return QueueMessageInterface
+     * {@inheritDoc}
      */
     public function createQueueMessage(): QueueMessageInterface
     {
@@ -149,9 +144,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Verifies if there is some connection opened with the broker.
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function isConnected(): bool
     {
@@ -170,6 +163,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
+     * @throws \Exception
      */
     public function consume(string $consumerTag, string $queueName, callable $callback = null)
     {
@@ -196,6 +190,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
+     * @throws \Exception
      */
     public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
     {
@@ -250,9 +245,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Returns the format used on serialize function.
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function getFormat(): string
     {
@@ -260,9 +253,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Set the format used by serialize/deserialize functions
-     *
-     * @param string $format
+     * {@inheritDoc}
      */
     public function setFormat(string $format = null)
     {
@@ -283,6 +274,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
+     * @throws \ErrorException
      */
     public function waitNoBlock()
     {
@@ -291,6 +283,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
+     * @throws \ErrorException
      */
     public function wait()
     {

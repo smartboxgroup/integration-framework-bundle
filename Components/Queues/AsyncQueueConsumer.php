@@ -41,8 +41,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * @param EndpointInterface $endpoint
+     * Get the driver responsible to establish a communication with the broker.
      *
+     * @param EndpointInterface $endpoint
      * @return QueueDriverInterface
      */
     protected function getQueueDriver(EndpointInterface $endpoint): QueueDriverInterface
@@ -59,8 +60,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * Returns the consumer name.
-     *
      * {@inheritdoc}
      */
     public function getName(): string
@@ -128,6 +127,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
     /**
      * {@inheritdoc}
+     * @throws \Exception
      */
     protected function process(EndpointInterface $queueEndpoint, MessageInterface $message)
     {
@@ -141,9 +141,8 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
-     * Overrides the main callback function to convert the AMQPMessage from the queue into a QueueMessage.
-     *
      * {@inheritdoc}
+     * @return callable
      */
     public function callback(EndpointInterface $endpoint): callable
     {
