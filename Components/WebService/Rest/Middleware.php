@@ -60,10 +60,6 @@ class Middleware
         $summary = $body->read($size);
 
         if (self::$truncateResponseSize > 0 && $size > self::$truncateResponseSize) {
-            if (false === mb_detect_encoding($summary, 'UTF-8', true)) {
-                $summary = utf8_encode($summary);
-            }
-
             $summary = mb_substr($summary, 0, self::$truncateResponseSize).' (truncated...)';
         }
 

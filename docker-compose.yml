@@ -15,4 +15,4 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     ports:
-      - "8087:15672"
+      - "8081:15672"
