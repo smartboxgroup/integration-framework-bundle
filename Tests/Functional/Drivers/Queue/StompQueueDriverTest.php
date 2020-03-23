@@ -186,13 +186,4 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
             \array_map('self::mapTitle', $receivedMessages)
         );
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function createConsumer(): ConsumerInterface
-    {
-        return static::$kernel->getContainer()->get('smartesb.consumers.queue');
-    }
-
 }
