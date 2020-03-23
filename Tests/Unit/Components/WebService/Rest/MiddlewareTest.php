@@ -59,8 +59,6 @@ class MiddlewareTest extends TestCase
         $defaultTruncate = "Relationship type 'Experience-Component' cannot be applied on product type 'Experience' of child product 'Chasse au trés (truncated...)";
         $truncatedAt135 = "Relationship type 'Experience-Component' cannot be applied on product type 'Experience' of child product 'Chasse au trésor au Centre Po (truncated...)";
 
-        $encodedResponse = utf8_decode($response);
-
         return [
             'Full_response' => [
                 $response, $fullResponse, 0
@@ -70,9 +68,6 @@ class MiddlewareTest extends TestCase
             ],
             'Truncated_at_135' => [
                 $response, $truncatedAt135, 135
-            ],
-            'Encoded' => [
-                $encodedResponse, $defaultTruncate
             ]
         ];
     }
