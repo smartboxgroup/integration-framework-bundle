@@ -141,6 +141,8 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     }
 
     /**
+     * Overrides the main callback function to convert the AMQPMessage from the queue into a QueueMessage.
+     *
      * {@inheritdoc}
      * @return callable
      */
