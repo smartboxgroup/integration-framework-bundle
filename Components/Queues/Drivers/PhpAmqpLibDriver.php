@@ -78,11 +78,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function __destruct()
     {
-        try {
-            $this->disconnect();
-        } catch (\Exception $e) {
-            throw $e;
-        }
+        $this->disconnect();
     }
 
     /**
