@@ -250,6 +250,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setId', [$driverId]);
                     $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
                     $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
+                    $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
                     $container->setDefinition($driverId, $driverDef);
 

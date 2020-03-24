@@ -24,6 +24,7 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
             ->method('isConnected')
             ->willReturn(true);
         $queueDriver
+            ->expects($this->once())
             ->method('send')
             ->willReturn(true);
 
@@ -42,8 +43,7 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
         $queueDriver = $this->createMock(QueueDriverInterface::class);
         $queueDriver->expects($this->once())
             ->method('connect')
-            ->willThrowException(new class('LiteraryAnyException') extends \Exception {
-            });
+            ->willThrowException(new \Exception());
 
         $test = new QueueDriverConnectionSmokeTest($queueDriver);
         $result = $test->run();

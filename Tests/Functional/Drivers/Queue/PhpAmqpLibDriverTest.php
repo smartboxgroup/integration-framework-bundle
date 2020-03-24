@@ -42,7 +42,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     protected function createConsumer()
     {
-        return $this->getContainer()->get('smartesb.async_consumers.queue');
+        return $this->setMockConsumer();
     }
 
     /**
@@ -77,7 +77,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $consumerTag = $this->consumer->getName();
         $this->driver->declareChannel();
         $this->driver->declareQueue($this->queueName, QueueMessage::DELIVERY_MODE_PERSISTENT, []);
-        $return = $this->driver->consume($consumerTag, $this->queueName);
+        $return = $this->driver->consume($this->consumer->getName(), $this->queueName);
         $this->assertNull($return);
     }
 
@@ -85,6 +85,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      * Tests the consume process with a callback in return that receives the messages and ack this after
      *
      * @dataProvider getMessages
+     * @group test
      */
     public function testConsumeWithCallbackAckingMessage(MessageInterface $msg)
     {
@@ -99,14 +100,13 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         };
 
         $this->driver->consume($this->consumer->getName(), $this->queueName, $callback);
-        $this->driver->isConsuming();
+        $this->driver->declareChannel()->is_consuming();
         $this->driver->wait();
 
         $this->assertInstanceOf(AMQPMessage::class, $amqpMessage);
         $this->assertEquals($amqpMessage->delivery_info['routing_key'], $this->queueName);
-        $this->assertInstanceOf(AsyncQueueConsumer::class, $this->consumer);
         $this->assertEquals($amqpMessage->delivery_info['consumer_tag'], $this->consumer->getName());
-        $this->assertContains('QueueMessage', $amqpMessage->getBody());
+        $this->assertNotNull($amqpMessage->getBody());
     }
 
     /**
@@ -114,7 +114,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      *
      * @dataProvider getMessages
      */
-    public function testConsumeNackingMessage(MessageInterface $msg)
+    public function testConsumeWithCallbackNackingMessage(MessageInterface $msg)
     {
         $this->prepareToConsume($msg);
         $amqpMessage = null;
@@ -127,14 +127,13 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         };
 
         $this->driver->consume($this->consumer->getName(), $this->queueName, $callback);
-        $this->driver->isConsuming();
+        $this->driver->declareChannel()->is_consuming();
         $this->driver->wait();
 
         $this->assertInstanceOf(AMQPMessage::class, $amqpMessage);
         $this->assertEquals($amqpMessage->delivery_info['routing_key'], $this->queueName);
-        $this->assertInstanceOf(AsyncQueueConsumer::class, $this->consumer);
         $this->assertEquals($amqpMessage->delivery_info['consumer_tag'], $this->consumer->getName());
-        $this->assertContains('QueueMessage', $amqpMessage->getBody());
+        $this->assertNotNull($amqpMessage->getBody());
     }
 
     /**
@@ -142,7 +141,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     public function testDestroy()
     {
-        $this->driver->connect();
         $this->driver->declareChannel();
         $this->assertTrue($this->driver->isConnected());
         $this->driver->destroy($this->createConsumer()->getName());
@@ -203,30 +201,29 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         };
 
         $this->driver->consume($this->consumer->getName(), $this->queueName, $callback);
-        $this->driver->isConsuming();
+        $this->driver->declareChannel()->is_consuming();
         $this->driver->waitNoBlock();
 
         $this->assertInstanceOf(AMQPMessage::class, $amqpMessage);
         $this->assertEquals($amqpMessage->delivery_info['routing_key'], $this->queueName);
-        $this->assertInstanceOf(AsyncQueueConsumer::class, $this->consumer);
         $this->assertEquals($amqpMessage->delivery_info['consumer_tag'], $this->consumer->getName());
-        $this->assertContains('QueueMessage', $amqpMessage->getBody());
+        $this->assertNotNull($amqpMessage->getBody());
     }
 
     /**
      * Prepare the data and class to consume a message
      *
-     * @param QueueMessage $msg
+     * @param MessageInterface $msg
      * @return mixed
      */
     public function prepareToConsume(MessageInterface $msg)
     {
-        $this->endpoint = $this->createMock(EndpointInterface::class);
         $msgIn = $this->createQueueMessage($msg);
         $msgIn->addHeader('test_header', '12345');
         $this->driver->send($msgIn);
+        $this->driver->disconnect();
+        $this->driver->connect();
         $this->consumer = $this->createConsumer();
-        $this->driver->declareChannel();
     }
 
     /**

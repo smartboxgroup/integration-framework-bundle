@@ -236,7 +236,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function declareChannel(int $prefetchSize = self::PREFETCH_SIZE, int $prefetchCount = self::PREFETCH_COUNT): AMQPChannel
     {
-        if (!$this->channel instanceof AMQPChannel) {
+        if (!$this->channel instanceof AMQPChannel || !$this->channel->is_open()) {
             $this->channel = $this->stream->channel();
             $this->channel->basic_qos($prefetchSize, $prefetchCount, null);
         }
@@ -288,16 +288,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function wait()
     {
         $this->channel->wait();
-    }
-
-    /**
-     * Checks if any messages are being consumed
-     *
-     * @return bool
-     */
-    public function isConsuming(): bool
-    {
-        return $this->channel->is_consuming();
     }
 
     /**
