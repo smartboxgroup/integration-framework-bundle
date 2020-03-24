@@ -138,12 +138,17 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
 
     /**
      * Tests the function to destroy the connection and clean the variables related
+     *
+     * @dataProvider getMessages
+     * @group destroy
      */
-    public function testDestroy()
+    public function testDestroy(MessageInterface $msg)
     {
+        $this->prepareToConsume($msg);
         $this->driver->declareChannel();
         $this->assertTrue($this->driver->isConnected());
-        $this->driver->destroy($this->createConsumer()->getName());
+        $this->driver->consume($this->consumer->getName(), $this->queueName);
+        $this->driver->destroy($this->consumer->getName());
         $this->assertFalse($this->driver->isConnected());
     }
 
