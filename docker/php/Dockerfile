@@ -16,13 +16,11 @@ RUN docker-php-ext-install \
     sockets
 
 RUN pecl install apcu-5.1.8 \
-    amqp \
     mongodb \
     xdebug-2.7.2 #Latest version that supports PHP 7.0
 
 RUN docker-php-ext-enable \
     apcu \
-    amqp \
     mongodb \
     xdebug
 
