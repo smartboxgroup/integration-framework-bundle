@@ -255,7 +255,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * {@inheritDoc}
      */
-    public function setFormat(string $format)
+    public function setFormat(string $format = null)
     {
         $this->format = $format;
     }

@@ -188,7 +188,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * @param string $format
      */
-    public function setFormat(string $format)
+    public function setFormat(string $format = null)
     {
         $this->format = $format;
     }

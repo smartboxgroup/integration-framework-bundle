@@ -87,5 +87,5 @@ interface QueueDriverInterface extends SerializableInterface
      *
      * @param string|null $format
      */
-    public function setFormat(string $format);
+    public function setFormat(string $format = null);
 }
