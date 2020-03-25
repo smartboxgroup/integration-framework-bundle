@@ -3,6 +3,7 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
 use GuzzleHttp\ClientInterface;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Middleware;
 
 /**
  * Trait UsesGuzzleHttpClient.
@@ -26,5 +27,10 @@ trait UsesGuzzleHttpClient
     public function setHttpClient(ClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
+
+        if(null !== $handlerStack = $this->httpClient->getConfig('handler')) {
+            $handlerStack->push(Middleware::httpErrors(), 'http_errors_handler');
+        }
+
     }
 }
