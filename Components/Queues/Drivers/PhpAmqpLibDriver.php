@@ -102,10 +102,9 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * {@inheritdoc}
      * @throws AMQPProtocolException
      */
-    public function connect($shuffle = true)
+    public function connect()
     {
         if (!$this->validateConnection()) {
-            $this->shuffleConnections($shuffle);
             try {
                 $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, []);
             } catch (AMQPIOException $exception) {
@@ -249,18 +248,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function setFormat(string $format)
     {
         $this->format = $format;
-    }
-
-    /**
-     * Shuffles the connection in case there is more than one available.
-     *
-     * @param bool $shuffle
-     */
-    protected function shuffleConnections(bool $shuffle = true)
-    {
-        if ($shuffle) {
-            shuffle($this->connectionsData);
-        }
     }
 
     /**

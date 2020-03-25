@@ -184,7 +184,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $consumer = $this->createConsumer();
         $this->driver->destroy($consumer->getName());
         $this->driver->configure('', '', '', '');
-        $this->driver->connect(true);
+        $this->driver->connect();
         $this->assertTrue($this->driver->isConnected());
         $this->assertInstanceOf(AMQPStreamConnection::class, $this->driver->declareChannel()->getConnection());
     }
