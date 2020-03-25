@@ -108,6 +108,11 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
             $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $definition->addMethodCall('setName', [$producerName]);
+
+            if(method_exists($class, 'addHttpErrorHandler')) {
+                $definition->addMethodCall('addHttpErrorHandler');
+            }
+
             $container->setDefinition($producerId, $definition);
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {

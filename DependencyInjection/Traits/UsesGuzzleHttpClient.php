@@ -24,8 +24,14 @@ trait UsesGuzzleHttpClient
     public function setHttpClient(ClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
+    }
 
-        if (null !== $handlerStack = $this->httpClient->getConfig('handler')) {
+    /**
+     * Push a new Error Handler to the current client.
+     */
+    public function addHttpErrorHandler()
+    {
+        if (null !== $this->httpClient && null !== $handlerStack = $this->httpClient->getConfig('handler')) {
             $handlerStack->push(Middleware::httpErrors(), 'http_errors_handler');
         }
     }
