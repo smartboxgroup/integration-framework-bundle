@@ -194,7 +194,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * @param string $format
      */
-    public function setFormat(string $format = null)
+    public function setFormat(string $format)
     {
         $this->format = $format;
     }
