@@ -127,7 +127,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
     /**
      * {@inheritdoc}
-     * @throws \Exception
      */
     protected function process(EndpointInterface $queueEndpoint, MessageInterface $message)
     {

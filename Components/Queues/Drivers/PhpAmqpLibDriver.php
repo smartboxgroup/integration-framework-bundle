@@ -73,9 +73,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     protected $stream;
 
-    /**
-     * @throws \Exception
-     */
     public function __destruct()
     {
         $this->disconnect();
@@ -103,7 +100,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
      * @throws AMQPProtocolException
      */
     public function connect($shuffle = true)
@@ -118,8 +114,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritDoc}
-     * @throws \Exception
-     * @throws \Exception
      */
     public function disconnect()
     {
@@ -159,7 +153,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
-     * @throws \Exception
      */
     public function consume(string $consumerTag, string $queueName, callable $callback = null)
     {
@@ -186,7 +179,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
-     * @throws \Exception
      */
     public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
     {
@@ -228,7 +220,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @param int $prefetchSize
      * @param int $prefetchCount
      * @return AMQPChannel
-     * @throws \Exception
      */
     public function declareChannel(int $prefetchSize = self::PREFETCH_SIZE, int $prefetchCount = self::PREFETCH_COUNT): AMQPChannel
     {
@@ -270,7 +261,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
-     * @throws \ErrorException
      */
     public function waitNoBlock()
     {
@@ -279,7 +269,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
-     * @throws \ErrorException
      */
     public function wait()
     {
