@@ -85,7 +85,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      * Tests the consume process with a callback in return that receives the messages and ack this after
      *
      * @dataProvider getMessages
-     * @group test
      */
     public function testConsumeWithCallbackAckingMessage(MessageInterface $msg)
     {

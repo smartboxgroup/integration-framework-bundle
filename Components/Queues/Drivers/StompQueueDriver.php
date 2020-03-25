@@ -249,7 +249,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function connect()
     {

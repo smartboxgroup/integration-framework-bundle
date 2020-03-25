@@ -79,7 +79,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function configure(string $host, string $username, string $password, string $vhost = null)
     {
@@ -99,21 +99,25 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      * @throws AMQPProtocolException
      */
     public function connect($shuffle = true)
     {
-        $this->shuffleConnections($shuffle);
-        try {
-            $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, []);
-        } catch (AMQPIOException $exception) {
-            throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
+        if (!$this->validateConnection()) {
+            $this->shuffleConnections($shuffle);
+            try {
+                $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, []);
+            } catch (AMQPIOException $exception) {
+                throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
+            }
+        } else if ($this->validateConnection() && !$this->isConnected()) {
+            $this->stream->reconnect();
         }
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function disconnect()
     {
@@ -123,7 +127,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createQueueMessage(): QueueMessageInterface
     {
@@ -134,7 +138,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isConnected(): bool
     {
@@ -232,7 +236,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getFormat(): string
     {
@@ -240,7 +244,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setFormat(string $format)
     {
