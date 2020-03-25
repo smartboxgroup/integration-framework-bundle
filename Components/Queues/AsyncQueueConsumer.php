@@ -35,7 +35,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     protected function initialize(EndpointInterface $endpoint)
     {
-        $this->getQueueDriver($endpoint)->isConnected();
+        $this->getQueueDriver($endpoint)->connect();
     }
 
     /**

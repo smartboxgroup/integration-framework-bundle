@@ -8,7 +8,7 @@ services:
           - [ setId, ['smartesb.consumers.queue']]
           - [ setSmartesbHelper, ['@smartesb.helper']]
           - [ setEventDispatcher, ['@event_dispatcher']]
-  smartesb.async_consumers.queue:
+  smartesb.consumers.async_queue:
       class: Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer
       calls:
           - [ setId, ['smartesb.consumers.async_queue']]
