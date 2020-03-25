@@ -21,16 +21,12 @@ trait UsesGuzzleHttpClient
         return $this->httpClient;
     }
 
-    /**
-     * @param ClientInterface $httpClient
-     */
     public function setHttpClient(ClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
 
-        if(null !== $handlerStack = $this->httpClient->getConfig('handler')) {
+        if (null !== $handlerStack = $this->httpClient->getConfig('handler')) {
             $handlerStack->push(Middleware::httpErrors(), 'http_errors_handler');
         }
-
     }
 }

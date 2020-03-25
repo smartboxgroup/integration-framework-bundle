@@ -18,10 +18,10 @@ use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\R
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesGuzzleHttpClient;
+use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
 use Smartbox\Integration\FrameworkBundle\Exceptions\UnexpectedValueException;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
 
 /**
  * Class RestConfigurableProducer.
@@ -44,8 +44,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
     const REQUEST_EXPECTED_RESPONSE_TYPE = 'response_type';
 
     /**
-     * @param       $options
-     * @param array $endpointOptions
+     * @param $options
      *
      * @return array
      */
@@ -61,7 +60,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         ];
 
         $auth = $endpointOptions[RestConfigurableProtocol::OPTION_AUTH];
-        if ($auth === RestConfigurableProtocol::AUTH_BASIC) {
+        if (RestConfigurableProtocol::AUTH_BASIC === $auth) {
             $result['auth'] = [
                 $endpointOptions[Protocol::OPTION_USERNAME],
                 $endpointOptions[Protocol::OPTION_PASSWORD],
@@ -89,11 +88,6 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
     }
 
     /**
-     * @param \GuzzleHttp\ClientInterface $client
-     * @param array                       $stepActionParams
-     * @param array                       $endpointOptions
-     * @param array                       $context
-     *
      * @return \GuzzleHttp\Psr7\Response
      *
      * @throws RecoverableRestException
@@ -102,9 +96,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
     protected function request(ClientInterface $client, array $stepActionParams, array $endpointOptions, array &$context)
     {
         if (!is_array($stepActionParams)) {
-            throw new InvalidConfigurationException(
-                "Step 'request' in AbstractConfigurableProducer expected an array as configuration"
-            );
+            throw new InvalidConfigurationException("Step 'request' in AbstractConfigurableProducer expected an array as configuration");
         }
 
         $stepParamsResolver = new OptionsResolver();
@@ -186,9 +178,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         if ('GET' == $httpMethod) {
             $queryParameters = $this->confHelper->resolve($params[self::REQUEST_QUERY_PARAMETERS], $context);
             if (!$queryParameters) {
-                throw new InvalidConfigurationException(
-                    "'parameters' entry in 'request' configuration is mandatory for GET HTTP method"
-                );
+                throw new InvalidConfigurationException("'parameters' entry in 'request' configuration is mandatory for GET HTTP method");
             }
             $restOptions['query'] = $queryParameters;
         }
@@ -202,7 +192,6 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
         $request = new Request($httpMethod, $resolvedURI, $requestHeaders);
         $response = null;
         try {
-
             $response = $client->send($request, $restOptions);
             $responseContent = $response->getBody()->getContents();
             $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context, $request, $requestBody, $response, $responseContent, $endpointOptions));
@@ -217,7 +206,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
                     );
                 } catch (RuntimeException $e) {
                     // Assume that the exception is one of the JSON exceptions that will kill the workers
-                    if ($encoding === RestConfigurableProtocol::ENCODING_JSON && (json_last_error() != JSON_ERROR_SYNTAX)) {
+                    if (RestConfigurableProtocol::ENCODING_JSON === $encoding && (JSON_ERROR_SYNTAX != json_last_error())) {
                         throw new UnexpectedValueException($e->getMessage());
                     }
                     // if it cannot parse the response fallback to the textual content of the body
@@ -314,7 +303,6 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
 
     /**
      * @param $message
-     * @param array      $requestHeaders
      * @param string     $requestBody
      * @param array      $responseHeaders
      * @param string     $responseBody
@@ -344,7 +332,6 @@ class RestConfigurableProducer extends AbstractWebServiceProducer
 
     /**
      * @param $message
-     * @param array      $requestHeaders
      * @param string     $requestBody
      * @param array      $responseHeaders
      * @param string     $responseBody
