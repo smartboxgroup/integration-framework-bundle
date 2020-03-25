@@ -80,7 +80,7 @@ interface QueueDriverInterface extends SerializableInterface
      *
      * @return string
      */
-    public function getFormat(): string ;
+    public function getFormat(): string;
 
     /**
      * Set the format used on serialize/deserialize function.

@@ -1,14 +1,13 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
-
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 
 interface SyncQueueDriverInterface extends QueueDriverInterface
 {
-
     /**
      * Returns true if a subscription already exists, false otherwise.
      *
@@ -34,8 +33,6 @@ interface SyncQueueDriverInterface extends QueueDriverInterface
      * It requires to subscribe previously to a specific queue
      *
      * @return QueueMessageInterface|null
-     *
-     * @throws \Exception
      */
     public function receive();
 
