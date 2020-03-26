@@ -26,7 +26,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class RestConfigurableProducer.
  */
-class RestConfigurableProducer extends AbstractWebServiceProducer
+class RestConfigurableProducer extends AbstractWebServiceProducer implements RestConfigurableClientInterface
 {
     use UsesGuzzleHttpClient;
 
