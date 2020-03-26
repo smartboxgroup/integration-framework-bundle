@@ -37,19 +37,14 @@ class QueueConsumer extends AbstractConsumer
     /**
      * @param EndpointInterface $endpoint
      *
-     * @return QueueDriverInterface
+     * @return SyncQueueDriverInterface
      */
-    protected function getQueueDriver(EndpointInterface $endpoint): QueueDriverInterface
+    protected function getQueueDriver(EndpointInterface $endpoint): SyncQueueDriverInterface
     {
         $options = $endpoint->getOptions();
         $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
-        $queueDriver = $this->smartesbHelper->getQueueDriver($queueDriverName);
 
-        if ($queueDriver instanceof SyncQueueDriverInterface) {
-            return $queueDriver;
-        }
-
-        throw new \RuntimeException("Error in QueueConsumer, the driver with name $queueDriverName does not implement the interface SyncQueueDriverInterface");
+        return $this->smartesbHelper->getQueueDriver($queueDriverName);
     }
 
     /**
