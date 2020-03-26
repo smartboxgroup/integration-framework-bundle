@@ -191,7 +191,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
     {
         $this->declareChannel();
-        $this->declareQueue($message->getQueue(), QueueMessage::DELIVERY_MODE_PERSISTENT, $arguments);
+        $this->declareQueue(
+            $message->getQueue(),
+            QueueMessage::DELIVERY_MODE_PERSISTENT,
+            array_filter($message->getHeaders(), function ($value) {
+                return 0 === strpos($value, 'x-');
+            }, ARRAY_FILTER_USE_KEY));
 
         /*
          * Headers are duplicated as "application_headers" too pass any other header coming from the MessageInterface
