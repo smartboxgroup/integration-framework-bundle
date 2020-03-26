@@ -255,13 +255,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $container->setDefinition($driverId, $driverDef);
 
                     if ($exceptionHandlerId) {
-                        $container->findDefinition('smartesb.async_consumers.queue')
+                        $container->findDefinition('smartesb.consumers.async_queue')
                             ->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
                     }
 
                     if ($this->config['default_queue_driver'] == $driverName) {
                         $container->findDefinition('smartesb.protocols.queue')
-                            ->addMethodCall('setDefaultConsumer', [new Reference('smartesb.async_consumers.queue')]);
+                            ->addMethodCall('setDefaultConsumer', [new Reference('smartesb.consumers.async_queue')]);
                     }
 
                     break;

@@ -35,28 +35,21 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     protected function initialize(EndpointInterface $endpoint)
     {
-        if (!($driver = $this->getQueueDriver($endpoint))->isConnected()) {
-            $driver->connect();
-        }
+        $this->getQueueDriver($endpoint)->connect();
     }
 
     /**
      * Get the driver responsible to establish a communication with the broker.
      *
      * @param EndpointInterface $endpoint
-     * @return QueueDriverInterface
+     * @return AsyncQueueDriverInterface
      */
-    protected function getQueueDriver(EndpointInterface $endpoint): QueueDriverInterface
+    protected function getQueueDriver(EndpointInterface $endpoint): AsyncQueueDriverInterface
     {
         $options = $endpoint->getOptions();
         $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
-        $queueDriver = $this->smartesbHelper->getQueueDriver($queueDriverName);
 
-        if ($queueDriver instanceof AsyncQueueDriverInterface) {
-            return $queueDriver;
-        }
-
-        throw new \RuntimeException(sprintf('[AsyncQueueConsumer] Driver "%s" does not implement AsyncQueueDriverInterface', $queueDriverName));
+        return $this->smartesbHelper->getQueueDriver($queueDriverName);
     }
 
     /**
@@ -127,7 +120,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
     /**
      * {@inheritdoc}
-     * @throws \Exception
      */
     protected function process(EndpointInterface $queueEndpoint, MessageInterface $message)
     {

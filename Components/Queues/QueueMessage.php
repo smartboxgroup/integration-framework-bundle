@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
@@ -143,7 +145,7 @@ class QueueMessage extends Message implements QueueMessageInterface
         return $this->getHeader(Message::HEADER_FROM);
     }
 
-    public function getMessageId()
+    public function getMessageId(): int
     {
         return $this->messageId;
     }

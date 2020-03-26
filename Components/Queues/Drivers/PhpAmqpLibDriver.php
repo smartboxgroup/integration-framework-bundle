@@ -73,16 +73,13 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     protected $stream;
 
-    /**
-     * @throws \Exception
-     */
     public function __destruct()
     {
         $this->disconnect();
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function configure(string $host, string $username, string $password, string $vhost = null)
     {
@@ -102,24 +99,24 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
-     * @throws \Exception
+     * {@inheritdoc}
      * @throws AMQPProtocolException
      */
-    public function connect($shuffle = true)
+    public function connect()
     {
-        $this->shuffleConnections($shuffle);
-        try {
-            $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, []);
-        } catch (AMQPIOException $exception) {
-            throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
+        if (!$this->validateConnection()) {
+            try {
+                $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, []);
+            } catch (AMQPIOException $exception) {
+                throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
+            }
+        } else if ($this->validateConnection() && !$this->isConnected()) {
+            $this->stream->reconnect();
         }
     }
 
     /**
-     * {@inheritDoc}
-     * @throws \Exception
-     * @throws \Exception
+     * {@inheritdoc}
      */
     public function disconnect()
     {
@@ -129,7 +126,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function createQueueMessage(): QueueMessageInterface
     {
@@ -140,7 +137,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isConnected(): bool
     {
@@ -159,7 +156,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
-     * @throws \Exception
      */
     public function consume(string $consumerTag, string $queueName, callable $callback = null)
     {
@@ -186,7 +182,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
-     * @throws \Exception
      */
     public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
     {
@@ -233,7 +228,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @param int $prefetchSize
      * @param int $prefetchCount
      * @return AMQPChannel
-     * @throws \Exception
      */
     public function declareChannel(int $prefetchSize = self::PREFETCH_SIZE, int $prefetchCount = self::PREFETCH_COUNT): AMQPChannel
     {
@@ -246,7 +240,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getFormat(): string
     {
@@ -254,7 +248,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function setFormat(string $format)
     {
@@ -262,20 +256,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Shuffles the connection in case there is more than one available.
-     *
-     * @param bool $shuffle
-     */
-    protected function shuffleConnections(bool $shuffle = true)
-    {
-        if ($shuffle) {
-            shuffle($this->connectionsData);
-        }
-    }
-
-    /**
      * {@inheritdoc}
-     * @throws \ErrorException
      */
     public function waitNoBlock()
     {
@@ -284,7 +265,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
-     * @throws \ErrorException
      */
     public function wait()
     {
