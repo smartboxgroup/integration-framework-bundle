@@ -29,7 +29,7 @@ trait UsesGuzzleHttpClient
     /**
      * Push a new Error Handler to the current client.
      */
-    public function addHttpErrorHandler()
+    public function addHandler()
     {
         if (null !== $this->httpClient && null !== $handlerStack = $this->httpClient->getConfig('handler')) {
             $handlerStack->push(Middleware::httpErrors(), 'http_errors_handler');
