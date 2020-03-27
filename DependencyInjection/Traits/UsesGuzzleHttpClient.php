@@ -13,10 +13,7 @@ trait UsesGuzzleHttpClient
     /** @var ClientInterface */
     protected $httpClient;
 
-    /**
-     * @return ClientInterface
-     */
-    public function getHttpClient()
+    public function getHttpClient(): ClientInterface
     {
         return $this->httpClient;
     }
