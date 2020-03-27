@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\RestConfigurableClientInterface;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\HttpClientInterface;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -108,7 +108,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $definition->addMethodCall('setName', [$producerName]);
 
-            if (is_subclass_of($class, RestConfigurableClientInterface::class)) {
+            if (is_subclass_of($class, HttpClientInterface::class)) {
                 $definition->addMethodCall('addHandler');
             }
 

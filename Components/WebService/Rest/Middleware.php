@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Components\WebService\Rest;
 
 use Psr\Http\Message\RequestInterface;
@@ -18,10 +20,8 @@ class Middleware
      * Using this we can handle the RequestException the way we want by also overriding it with HttpClientRequestException.
      *
      * If you need to manage the size of response, set it as int at truncate_response_size config parameter
-     *
-     * @return \Closure
      */
-    public static function httpErrors()
+    public static function httpErrors(): \Closure
     {
         return function (callable $handler) {
             return function (RequestInterface $request, array $options) use ($handler) {

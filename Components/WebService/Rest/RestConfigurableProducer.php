@@ -23,10 +23,7 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\UnexpectedValueException;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * Class RestConfigurableProducer.
- */
-class RestConfigurableProducer extends AbstractWebServiceProducer implements RestConfigurableClientInterface
+class RestConfigurableProducer extends AbstractWebServiceProducer implements HttpClientInterface
 {
     use UsesGuzzleHttpClient;
 
