@@ -63,6 +63,9 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /** @var bool|int  */
     protected $subscriptionId = false;
 
+    /** @var @var int|null */
+    protected $prefetchCount;
+
     /**
      * @var string
      */
@@ -194,22 +197,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /**
-     * @return mixed
-     */
-    public function getTimeout()
-    {
-        return $this->timeout;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getVhost()
-    {
-        return $this->vhost;
-    }
-
-    /**
      * @return int
      */
     public function getDequeueingTimeMs()
@@ -223,6 +210,23 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     public function setDescription($description)
     {
         $this->description = $description;
+    }
+
+    /**
+     * @param int $prefetchCount
+     */
+    public function setPrefetchCount(int $prefetchCount = 1)
+    {
+        $this->prefetchCount = $prefetchCount;
+    }
+
+    /**
+     * @param int $seconds
+     */
+    public function setReadTimeout($seconds)
+    {
+        $this->timeout = $seconds;
+        $this->statefulStomp->getClient()->getConnection()->setReadTimeout($this->timeout);
     }
 
     /** {@inheritdoc} */
@@ -240,15 +244,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /**
-     * @param int $seconds
-     */
-    public function setReadTimeout($seconds)
-    {
-        $this->timeout = $seconds;
-        $this->statefulStomp->getClient()->getConnection()->setReadTimeout($this->timeout);
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function connect()
@@ -261,6 +256,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
             $client->getConnection()->setReadTimeout($this->timeout);
             $client->setVersions([$this->stompVersion]);
             $client->setVhostname($this->vhost);
+            $client->getProtocol()->setPrefetchCount($this->prefetchCount);
             $client->connect();
 
             $this->statefulStomp = new StatefulStomp($client);

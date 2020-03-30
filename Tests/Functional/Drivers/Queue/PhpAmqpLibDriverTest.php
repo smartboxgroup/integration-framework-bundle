@@ -11,7 +11,6 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue\AbstractQueueDriverTest;
 
@@ -74,7 +73,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     public function testConsumeWithoutCallback()
     {
         $this->consumer = $this->createConsumer();
-        $consumerTag = $this->consumer->getName();
         $this->driver->declareChannel();
         $this->driver->declareQueue($this->queueName, QueueMessage::DELIVERY_MODE_PERSISTENT, []);
         $return = $this->driver->consume($this->consumer->getName(), $this->queueName);

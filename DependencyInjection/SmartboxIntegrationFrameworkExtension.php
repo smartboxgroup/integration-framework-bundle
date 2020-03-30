@@ -202,7 +202,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setId', [$driverId]);
                     $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
                     $driverDef->addMethodCall('setStompVersion', [$driverConfig['version'] ?? StompQueueDriver::STOMP_VERSION]);
-                    $driverDef->addMethodCall('setTimeout', [$driverConfig['timeout']]);
+                    $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count']]);
                     $driverDef->addMethodCall('setSync', [$driverConfig['sync']]);
 
                     $driverDef->addMethodCall('configure', [
@@ -251,6 +251,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
                     $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+                    $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count']]);
 
                     $container->setDefinition($driverId, $driverDef);
 

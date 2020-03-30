@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;

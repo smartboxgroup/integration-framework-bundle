@@ -7,7 +7,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;

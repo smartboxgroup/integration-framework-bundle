@@ -73,6 +73,11 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     protected $stream;
 
+    /**
+     * @var int
+     */
+    protected $prefetchCount;
+
     public function __destruct()
     {
         $this->disconnect();
@@ -106,11 +111,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     {
         if (!$this->validateConnection()) {
             try {
+                shuffle($this->connectionsData);
                 $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, []);
             } catch (AMQPIOException $exception) {
                 throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
             }
-        } else if ($this->validateConnection() && !$this->isConnected()) {
+        } else if (!$this->isConnected()) {
             $this->stream->reconnect();
         }
     }
@@ -152,6 +158,34 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
         $this->channel->basic_cancel($consumerTag);
         $this->channel = null;
         $this->disconnect();
+    }
+
+    /**
+     * Set the value for prefetch_count option case it comes form configuration. Otherwise, takes the default value.
+     *
+     * @param int $prefetchCount
+     */
+    public function setPrefetchCount(int $prefetchCount = self::PREFETCH_COUNT)
+    {
+        $this->prefetchCount = $prefetchCount;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @param string $format
+     */
+    public function setFormat(string $format)
+    {
+        $this->format = $format;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return string
+     */
+    public function getFormat(): string
+    {
+        return $this->format;
     }
 
     /**
@@ -229,30 +263,14 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * @param int $prefetchCount
      * @return AMQPChannel
      */
-    public function declareChannel(int $prefetchSize = self::PREFETCH_SIZE, int $prefetchCount = self::PREFETCH_COUNT): AMQPChannel
+    public function declareChannel(): AMQPChannel
     {
         if (!$this->channel instanceof AMQPChannel || !$this->channel->is_open()) {
             $this->channel = $this->stream->channel();
-            $this->channel->basic_qos($prefetchSize, $prefetchCount, null);
+            $this->channel->basic_qos(self::PREFETCH_SIZE, $this->prefetchCount, null);
         }
 
         return $this->channel;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getFormat(): string
-    {
-        return $this->format;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setFormat(string $format)
-    {
-        $this->format = $format;
     }
 
     /**
@@ -278,4 +296,5 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     {
         return $this->stream instanceof AbstractConnection;
     }
+
 }
