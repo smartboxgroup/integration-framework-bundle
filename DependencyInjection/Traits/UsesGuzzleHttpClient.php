@@ -3,7 +3,6 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
 
 use GuzzleHttp\ClientInterface;
-use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Middleware;
 
 /**
  * Trait UsesGuzzleHttpClient.
@@ -23,13 +22,10 @@ trait UsesGuzzleHttpClient
         $this->httpClient = $httpClient;
     }
 
-    /**
-     * Push a new Error Handler to the current client.
-     */
-    public function addHandler()
+    public function addHandler(callable $middleware, string $name)
     {
         if (null !== $this->httpClient && null !== $handlerStack = $this->httpClient->getConfig('handler')) {
-            $handlerStack->push(Middleware::httpErrors(), 'http_errors_handler');
+            $handlerStack->push($middleware, $name);
         }
     }
 }

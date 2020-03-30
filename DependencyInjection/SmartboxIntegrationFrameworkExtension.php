@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\HttpClientInterface;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Middleware;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -109,7 +110,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setName', [$producerName]);
 
             if (is_subclass_of($class, HttpClientInterface::class)) {
-                $definition->addMethodCall('addHandler');
+                $definition->addMethodCall('addHandler', [Middleware::httpErrors(), 'http_error_handler']);
             }
 
             $container->setDefinition($producerId, $definition);
