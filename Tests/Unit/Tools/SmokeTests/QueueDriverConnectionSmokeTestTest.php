@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Tools\SmokeTests;
 
-use PhpAmqpLib\Exception\AMQPProtocolException;
 use PHPUnit\Framework\TestCase;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
@@ -21,6 +20,7 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
     {
         $queueDriver = $this->createMock(QueueDriverInterface::class);
         $queueDriver
+            ->expects($this->once())
             ->method('isConnected')
             ->willReturn(true);
         $queueDriver
@@ -59,10 +59,12 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
     {
         $queueDriver = $this->createMock(QueueDriverInterface::class);
         $queueDriver
+            ->expects($this->once())
             ->method('isConnected')
             ->willReturn(true);
 
         $queueDriver
+            ->expects($this->once())
             ->method('send')
             ->willReturn(false);
 
@@ -81,6 +83,7 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
     {
         $queueDriver = $this->createMock(QueueDriverInterface::class);
         $queueDriver
+            ->expects($this->once())
             ->method('isConnected')
             ->willReturn(true);
 
