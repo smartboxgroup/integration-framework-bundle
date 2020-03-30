@@ -41,6 +41,7 @@ smartbox_integration_framework:
             password: "%rabbitmq.password%"
             format: json
             vhost: '%rabbitmq.vhost%'
+            timeout: '%rabbitmq.timeout%'
             prefetch_count: '%rabbitmq.prefetch_count%'
         amqp:
             type: amqp
