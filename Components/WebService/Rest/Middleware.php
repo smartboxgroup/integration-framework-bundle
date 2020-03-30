@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\HttpClientRequestException;
 
 /**
- * Guzzle Middlewae to be used by HttpClient.
+ * Guzzle Middleware to be used by HttpClient.
  */
 class Middleware
 {
