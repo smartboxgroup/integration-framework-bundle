@@ -25,7 +25,7 @@ trait UsesGuzzleHttpClient
     public function addHandler(callable $middleware, string $name)
     {
         if (null !== $this->httpClient && null !== $handlerStack = $this->httpClient->getConfig('handler')) {
-            $handlerStack->push($middleware(), $name);
+            $handlerStack->push($middleware, $name);
         }
     }
 }

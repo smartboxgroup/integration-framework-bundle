@@ -15,7 +15,7 @@ class Middleware
 {
     public static $truncateResponseSize = 120;
 
-    public function __invoke()
+    public static function httpErrors(): \Closure
     {
         return function (callable $handler) {
             return function (RequestInterface $request, array $options) use ($handler) {
