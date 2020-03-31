@@ -41,7 +41,8 @@ class MiddlewareTest extends TestCase
 
         $handlerStack = HandlerStack::create($mock);
 
-        $handlerStack->push(Middleware::httpErrors(), 'http_errors_handler_test');
+        $middleware = new Middleware();
+        $handlerStack->push($middleware(), 'http_errors_handler_test');
 
         $client = new Client(['handler' => $handlerStack, 'truncate_response_size'=> 30]);
 

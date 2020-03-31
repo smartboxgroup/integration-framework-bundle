@@ -110,7 +110,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setName', [$producerName]);
 
             if (is_subclass_of($class, HttpClientInterface::class)) {
-                $definition->addMethodCall('addHandler', [Middleware::httpErrors(), 'http_error_handler']);
+                $definition->addMethodCall('addHandler', [new Definition(Middleware::class), 'http_error_handler']);
             }
 
             $container->setDefinition($producerId, $definition);
