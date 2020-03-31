@@ -4,6 +4,7 @@ namespace Smartbox\FrameworkBundle\Tests\Command;
 
 use Smartbox\Integration\FrameworkBundle\Command\ConsumeCommand;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
+use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
