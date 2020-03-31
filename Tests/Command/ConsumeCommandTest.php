@@ -31,6 +31,7 @@ class ConsumeCommandTest extends KernelTestCase
         $this->mockConsumer->method('setExpirationCount')->with($expirationCount);
 
         self::$kernel->getContainer()->set('smartesb.consumers.queue', $this->mockConsumer);
+        self::$kernel->getContainer()->set('doctrine', $this->createMock(RegistryInterface::class));
     }
 
     public function testExecuteWithKillAfter()
