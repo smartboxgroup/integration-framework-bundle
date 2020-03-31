@@ -30,6 +30,8 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     const STOMP_VERSION = '1.1';
 
+    const PREFETCH_COUNT = 1;
+
     /** @var Frame */
     protected $currentFrame;
 
@@ -215,7 +217,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * @param int $prefetchCount
      */
-    public function setPrefetchCount(int $prefetchCount = 1)
+    public function setPrefetchCount(int $prefetchCount = self::PREFETCH_COUNT)
     {
         $this->prefetchCount = $prefetchCount;
     }
