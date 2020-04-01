@@ -39,7 +39,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
      */
     protected function createDriver(): QueueDriverInterface
     {
-        return $this->getContainer()->get('smartesb.drivers.queue.rabbitmq');
+        return $this->getContainer()->get('smartesb.drivers.queue.main');
     }
 
     /**
