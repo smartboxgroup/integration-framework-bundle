@@ -121,7 +121,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @return \Closure
      */
-    public function callback(EndpointInterface $endpoint): callable
+    protected function callback(EndpointInterface $endpoint): callable
     {
         return function (MessageInterface $message) use ($endpoint) {
             $start = microtime(true);

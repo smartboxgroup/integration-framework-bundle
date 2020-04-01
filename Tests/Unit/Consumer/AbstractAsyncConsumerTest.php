@@ -22,6 +22,38 @@ use Symfony\Component\Stopwatch\Stopwatch;
 class AbstractAsyncConsumerTest extends TestCase
 {
     /**
+     * @return MockObject
+     */
+    protected function getConsumer($message, $stopAfterConsuming = true): MockObject
+    {
+        /** @var AbstractAsyncConsumer|MockObject $consumer */
+        $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
+
+        /** @var \Closure $callback */
+        $callback = null;
+        $consumer->expects($this->once())
+            ->method('asyncConsume')
+            ->with(
+                $this->anything(),
+                // Steal the callback so we can call it manually and pretend we are "consuming"
+                $this->callback(function ($stolenCallback) use (&$callback) {
+                    return $callback = $stolenCallback;
+                }));
+        $consumer->expects($this->once())
+            ->method('waitNoBlock')
+            ->willReturnCallback(function () use (&$callback, $consumer, $stopAfterConsuming, $message) {
+                // Trigger the callback with an empty message and stop the consumer (to prevent an infinite loop)
+                if ($stopAfterConsuming) {
+                    $consumer->stop();
+                }
+
+                $callback($message);
+            });
+
+        return $consumer;
+    }
+
+    /**
      * Test that the consumer installs a callback by calling asyncConsume with a callable.
      */
     public function testConsumeInstallsCallback()
@@ -91,15 +123,26 @@ class AbstractAsyncConsumerTest extends TestCase
         // Extend the class and on the WaitNoBlock function, let it run twice while setting the sleep flag to false
         $consumer = new class extends AbstractAsyncConsumer {
             protected $rounds = 0;
-            protected function initialize(EndpointInterface $endpoint) {}
 
-            protected function cleanUp(EndpointInterface $endpoint) {}
+            protected function initialize(EndpointInterface $endpoint)
+            {
+            }
 
-            protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message) {}
+            protected function cleanUp(EndpointInterface $endpoint)
+            {
+            }
 
-            public function asyncConsume(EndpointInterface $endpoint, callable $callback) {}
+            protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message)
+            {
+            }
 
-            public function wait(EndpointInterface $endpoint) {}
+            public function asyncConsume(EndpointInterface $endpoint, callable $callback)
+            {
+            }
+
+            public function wait(EndpointInterface $endpoint)
+            {
+            }
 
             public function waitNoBlock(EndpointInterface $endpoint)
             {
@@ -130,16 +173,14 @@ class AbstractAsyncConsumerTest extends TestCase
             ->method('dispatch')
             ->with(
                 $this->isType('string'),
-                $this->callback(function(TimingEvent $event){
+                $this->callback(function (TimingEvent $event) {
                     return $event->getIntervalMs() > 0;
                 }));
 
         /** @var AbstractAsyncConsumer|MockObject $consumer */
-        $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
+        $consumer = $this->getConsumer(new QueueMessage());
         $consumer->setEventDispatcher($dispatcher);
-        $callback = $consumer->callback($this->createMock(EndpointInterface::class));
-
-        $callback(new QueueMessage());
+        $consumer->consume($this->createMock(EndpointInterface::class));
     }
 
     /**
@@ -148,18 +189,15 @@ class AbstractAsyncConsumerTest extends TestCase
     public function testMessageIsConfirmedAfterProcessing()
     {
         $message = new QueueMessage();
+        $consumer = $this->getConsumer($message);
 
-        /** @var AbstractAsyncConsumer|MockObject $consumer */
-        $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
         $consumer->expects($this->once())
             ->method('confirmMessage')
             ->with(
-                $this->isInstanceOf(EndpointInterface::class),
+                $this->anything(),
                 $this->equalTo($message));
 
-        $callback = $consumer->callback($this->createMock(EndpointInterface::class));
-
-        $callback($message);
+        $consumer->consume($this->createMock(EndpointInterface::class));
     }
 
     /**
@@ -167,8 +205,8 @@ class AbstractAsyncConsumerTest extends TestCase
      */
     public function testMessageIsNotConfirmedAfterFailedProcessing()
     {
-        /** @var AbstractAsyncConsumer|MockObject $consumer */
-        $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
+        $message = new QueueMessage();
+        $consumer = $this->getConsumer($message, false);
         $consumer->expects($this->never())
             ->method('confirmMessage');
 
@@ -177,11 +215,9 @@ class AbstractAsyncConsumerTest extends TestCase
             ->method('handle')
             ->willThrowException(new \RuntimeException());
 
-        $callback = $consumer->callback($endpoint);
-
         $this->expectException(\RuntimeException::class);
 
-        $callback(new QueueMessage());
+        $consumer->consume($endpoint);
     }
 
     /**
