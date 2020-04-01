@@ -4,14 +4,16 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\HttpClientInterface;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Middleware;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
-use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
-use Smartbox\Integration\FrameworkBundle\Events\MalformedInputEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
+use Smartbox\Integration\FrameworkBundle\Events\MalformedInputEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
@@ -74,9 +76,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $options = $producerConfig['options'];
 
             if (!$class || !in_array(ConfigurableProducerInterface::class, class_implements($class))) {
-                throw new InvalidConfigurationException(
-                    "Invalid class given for producer $producerName. The class must implement ConfigurableProducerInterface, '$class' given."
-                );
+                throw new InvalidConfigurationException("Invalid class given for producer $producerName. The class must implement ConfigurableProducerInterface, '$class' given.");
             }
 
             $definition = new Definition($class);
@@ -108,6 +108,14 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
             $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $definition->addMethodCall('setName', [$producerName]);
+
+            if (is_subclass_of($class, HttpClientInterface::class)) {
+                $definition->addMethodCall('addHandler', [
+                    (new Definition(Middleware::class))->setFactory([Middleware::class, 'httpErrors']),
+                    'http_error_handler'
+                ]);
+            }
+
             $container->setDefinition($producerId, $definition);
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {
@@ -127,9 +135,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $options = $consumerConfig['options'];
 
             if (!$class || !in_array(ConfigurableConsumerInterface::class, class_implements($class))) {
-                throw new InvalidConfigurationException(
-                    "Invalid class given for consumer $consumerName. The class must implement ConfigurableConsumerInterface, '$class' given."
-                );
+                throw new InvalidConfigurationException("Invalid class given for consumer $consumerName. The class must implement ConfigurableConsumerInterface, '$class' given.");
             }
 
             $definition = new Definition($class);
@@ -191,7 +197,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         foreach ($this->config['queue_drivers'] as $driverName => $driverConfig) {
             $driverId = self::QUEUE_DRIVER_PREFIX.$driverName;
 
-            $exceptionHandlerId =  strtolower($driverConfig['exception_handler']);
+            $exceptionHandlerId = strtolower($driverConfig['exception_handler']);
 
             $type = strtolower($driverConfig['type']);
             switch ($type) {
@@ -472,13 +478,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $this->config = $config;
 
         if ($this->getFlowsVersion() > $this->getLatestFlowsVersion()) {
-            throw new InvalidConfigurationException(
-                sprintf(
-                    'The flows version number(%s) can not be bigger than the latest version available(%s)',
-                    $this->getFlowsVersion(),
-                    $this->getLatestFlowsVersion()
-                )
-            );
+            throw new InvalidConfigurationException(sprintf('The flows version number(%s) can not be bigger than the latest version available(%s)', $this->getFlowsVersion(), $this->getLatestFlowsVersion()));
         }
 
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());
