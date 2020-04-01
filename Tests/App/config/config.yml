@@ -41,7 +41,10 @@ smartbox_integration_framework:
             password: "%rabbitmq.password%"
             format: json
             vhost: '%rabbitmq.vhost%'
-            timeout: '%rabbitmq.timeout%'
+            prefetch_count: '%rabbitmq.prefetch_count%'
+            read_timeout: '%rabbitmq.read_timeout%'
+            connection_timeout: '%rabbitmq.connection_timeout%'
+            heartbeat: '%rabbitmq.heartbeat%'
         amqp:
             type: amqp
             description: AMQP queue driver
@@ -50,6 +53,9 @@ smartbox_integration_framework:
             password: "%rabbitmq.password%"
             format: json
             vhost: "%rabbitmq.vhost%"
+            prefetch_count: '%rabbitmq.prefetch_count%'
+            read_timeout: '%rabbitmq.read_timeout%'
+            connection_timeout: '%rabbitmq.connection_timeout%'
 
     nosql_drivers: ~
 
