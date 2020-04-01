@@ -10,5 +10,4 @@ parameters:
     rabbitmq.password: guest
     rabbitmq.vhost: /
     rabbitmq.timeout: 15
-    rabbitmq.prefetch_count: null
 
