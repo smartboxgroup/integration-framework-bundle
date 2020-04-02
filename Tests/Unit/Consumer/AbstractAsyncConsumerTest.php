@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
@@ -22,9 +23,12 @@ use Symfony\Component\Stopwatch\Stopwatch;
 class AbstractAsyncConsumerTest extends TestCase
 {
     /**
+     * @param QueueMessageInterface $message Message to pass to the callback
+     * @param int $rounds Amount of messages to consume before stopping
+     *
      * @return MockObject
      */
-    protected function getConsumer($message, $stopAfterConsuming = true): MockObject
+    protected function getConsumer(QueueMessageInterface $message, int $rounds = -1): MockObject
     {
         /** @var AbstractAsyncConsumer|MockObject $consumer */
         $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
@@ -41,14 +45,11 @@ class AbstractAsyncConsumerTest extends TestCase
                 }));
         $consumer->expects($this->once())
             ->method('waitNoBlock')
-            ->willReturnCallback(function () use (&$callback, $consumer, $stopAfterConsuming, $message) {
-                // Trigger the callback with an empty message and stop the consumer (to prevent an infinite loop)
-                if ($stopAfterConsuming) {
-                    $consumer->stop();
-                }
-
+            ->willReturnCallback(function () use (&$callback, $consumer, $message) {
                 $callback($message);
             });
+
+        $consumer->setExpirationCount($rounds);
 
         return $consumer;
     }
@@ -178,7 +179,7 @@ class AbstractAsyncConsumerTest extends TestCase
                 }));
 
         /** @var AbstractAsyncConsumer|MockObject $consumer */
-        $consumer = $this->getConsumer(new QueueMessage());
+        $consumer = $this->getConsumer(new QueueMessage(), 1);
         $consumer->setEventDispatcher($dispatcher);
         $consumer->consume($this->createMock(EndpointInterface::class));
     }
@@ -189,7 +190,7 @@ class AbstractAsyncConsumerTest extends TestCase
     public function testMessageIsConfirmedAfterProcessing()
     {
         $message = new QueueMessage();
-        $consumer = $this->getConsumer($message);
+        $consumer = $this->getConsumer($message, 1);
 
         $consumer->expects($this->once())
             ->method('confirmMessage')
@@ -206,7 +207,7 @@ class AbstractAsyncConsumerTest extends TestCase
     public function testMessageIsNotConfirmedAfterFailedProcessing()
     {
         $message = new QueueMessage();
-        $consumer = $this->getConsumer($message, false);
+        $consumer = $this->getConsumer($message);
         $consumer->expects($this->never())
             ->method('confirmMessage');
 
