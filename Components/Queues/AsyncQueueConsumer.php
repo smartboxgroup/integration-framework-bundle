@@ -104,7 +104,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * {@inheritdoc}
      */
-    public function waitNoBlock(EndpointInterface $endpoint)
+    protected function waitNoBlock(EndpointInterface $endpoint)
     {
         $this->getQueueDriver($endpoint)->waitNoBlock();
     }
@@ -112,7 +112,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * {@inheritdoc}
      */
-    public function wait(EndpointInterface $endpoint)
+    protected function wait(EndpointInterface $endpoint)
     {
         $this->getQueueDriver($endpoint)->wait();
     }

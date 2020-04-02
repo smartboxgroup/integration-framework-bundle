@@ -161,7 +161,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @param EndpointInterface $endpoint
      */
-    abstract public function wait(EndpointInterface $endpoint);
+    abstract protected function wait(EndpointInterface $endpoint);
 
     /**
      * Waits for a message in a non-blocking way. If there's no message to consume, control is returned to the consumer.
@@ -169,7 +169,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @param EndpointInterface $endpoint
      */
-    abstract public function waitNoBlock(EndpointInterface $endpoint);
+    abstract protected function waitNoBlock(EndpointInterface $endpoint);
 
     /** {@inheritdoc} */
     public function getName(): string

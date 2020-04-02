@@ -135,36 +135,6 @@ class AsyncQueueConsumerTest extends TestCase
     }
 
     /**
-     * Expect one call to wait on the driver
-     */
-    public function testWait()
-    {
-        $driver = $this->createMock(AsyncQueueDriverInterface::class);
-        $driver->expects($this->once())
-            ->method('wait');
-
-        $consumer = new AsyncQueueConsumer();
-        $consumer->setSmartesbHelper($this->getHelper($driver));
-
-        $consumer->wait($this->createMock(EndpointInterface::class));
-    }
-
-    /**
-     * Expect one call to waitNoBlock on the driver
-     */
-    public function testWaitNoBlock()
-    {
-        $driver = $this->createMock(AsyncQueueDriverInterface::class);
-        $driver->expects($this->once())
-            ->method('waitNoBlock');
-
-        $consumer = new AsyncQueueConsumer();
-        $consumer->setSmartesbHelper($this->getHelper($driver));
-
-        $consumer->waitNoBlock($this->createMock(EndpointInterface::class));
-    }
-
-    /**
      * Returns a SmartESBHelper mock that returns the passed driver on getQueueDriver().
      *
      * @param AsyncQueueDriverInterface $driver
