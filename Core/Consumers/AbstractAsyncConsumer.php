@@ -153,7 +153,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * @param EndpointInterface $endpoint
      * @param callable $callback
      */
-    abstract public function asyncConsume(EndpointInterface $endpoint, callable $callback);
+    abstract protected function asyncConsume(EndpointInterface $endpoint, callable $callback);
 
     /**
      * Waits for a message in a blocking way. If the worker needs to listen to signals, use waitNoBlock() instead. This

@@ -95,7 +95,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * {@inheritdoc}
      */
-    public function asyncConsume(EndpointInterface $endpoint, callable $callback)
+    protected function asyncConsume(EndpointInterface $endpoint, callable $callback)
     {
         $queueName = $this->getQueueName($endpoint);
         $this->getQueueDriver($endpoint)->consume($this->getName(), $queueName, $callback);

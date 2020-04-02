@@ -43,7 +43,7 @@ class AbstractAsyncConsumerTest extends TestCase
                 $this->callback(function ($stolenCallback) use (&$callback) {
                     return $callback = $stolenCallback;
                 }));
-        $consumer->expects($this->once())
+        $consumer->expects(-1 === $rounds ? $this->any() : $this->exactly($rounds))
             ->method('waitNoBlock')
             ->willReturnCallback(function () use (&$callback, $consumer, $message) {
                 $callback($message);
@@ -121,40 +121,7 @@ class AbstractAsyncConsumerTest extends TestCase
      */
     public function testConsumerDoesNotSleepWhenFlagIsSet()
     {
-        // Extend the class and on the WaitNoBlock function, let it run twice while setting the sleep flag to false
-        $consumer = new class extends AbstractAsyncConsumer {
-            protected $rounds = 0;
-
-            protected function initialize(EndpointInterface $endpoint)
-            {
-            }
-
-            protected function cleanUp(EndpointInterface $endpoint)
-            {
-            }
-
-            protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message)
-            {
-            }
-
-            public function asyncConsume(EndpointInterface $endpoint, callable $callback)
-            {
-            }
-
-            public function wait(EndpointInterface $endpoint)
-            {
-            }
-
-            public function waitNoBlock(EndpointInterface $endpoint)
-            {
-                $this->sleep = false;
-                $this->rounds++;
-
-                if ($this->rounds > 2) {
-                    $this->stop();
-                }
-            }
-        };
+        $consumer = $this->getConsumer(new QueueMessage(), 2);
 
         $stopwatch = new Stopwatch();
         $stopwatch->start('consume');

@@ -45,10 +45,18 @@ class AsyncQueueConsumerTest extends TestCase
                 $this->isInstanceOf(\Closure::class)
             );
 
-        $consumer = new AsyncQueueConsumer();
-        $consumer->setSmartesbHelper($this->getHelper($driver));
+        // Consumer is extended with an anon class to fake the consumption of a message
+        $consumer = new class extends AsyncQueueConsumer {
+            public function waitNoBlock(EndpointInterface $endpoint)
+            {
+                --$this->expirationCount;
+            }
 
-        $consumer->asyncConsume($endpoint, function () {});
+        };
+        $consumer->setSmartesbHelper($this->getHelper($driver));
+        $consumer->setExpirationCount(1);
+
+        $consumer->consume($endpoint, function () {});
     }
 
     /**
