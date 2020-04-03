@@ -20,7 +20,7 @@ services:
         - [setId, ['smartesb.producers.json_file']]
         - [setSerializer, ['@jms_serializer']]
 
-  # STOMP
+  # STOMP | AMQP
   smartesb.producers.queue:
       class: "%smartesb.producers.queue.class%"
       calls:

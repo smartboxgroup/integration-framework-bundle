@@ -62,13 +62,15 @@ interface QueueDriverInterface extends SerializableInterface
     public function nack(QueueMessageInterface $message = null);
 
     /**
-     * @param QueueMessageInterface $message
-     * @param string|null $destination
-     * @param array $arguments
+     * Publish the message to the broker.
+     *
+     * @param string $body
+     * @param string $destination
+     * @param array $headers
      *
      * @return bool
      */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool;
+    public function send(string $body, string $destination, array $headers = []): bool;
 
     /**
      * @return QueueMessageInterface

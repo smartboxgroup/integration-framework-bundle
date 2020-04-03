@@ -231,7 +231,9 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         $this->statefulStomp->getClient()->getConnection()->setReadTimeout($this->timeout);
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function configure(string $host, string $username, string $password, string $vhost = null)
     {
         $this->host = $host;
@@ -319,18 +321,14 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
+    public function send(string $body, string $destination, array $headers = []): bool
     {
-        $destination = $destination ? $destination : $message->getQueue();
-        $destinationUri = $destination;
         if ($this->urlEncodeDestination) {
-            $destinationUri = urlencode($destination);
+            $destination = urlencode($destination);
         }
 
-        $serializedMsg = $this->getSerializer()->serialize($message, $this->format);
-
         try {
-            return $this->statefulStomp->send($destinationUri, new Message($serializedMsg, $message->getHeaders()));
+            return $this->statefulStomp->send($destination, new Message($body, $headers));
         } catch (ConnectionException $e) {
             $this->dropConnection();
 
@@ -345,7 +343,9 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         return array_key_exists('subscription', $headers) && $headers['subscription'] == $this->subscriptionId;
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function receive()
     {
         if ($this->currentFrame) {
@@ -398,7 +398,9 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         return str_replace(['\r', '\n', '\c', '\\\\'], ["\r", "\n", ':', '\\'], $string);
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function ack(QueueMessageInterface $message = null)
     {
         if (!$this->currentFrame) {
@@ -409,7 +411,9 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         $this->currentFrame = null;
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function nack(QueueMessageInterface $message = null)
     {
         if (!$this->currentFrame) {

@@ -136,21 +136,23 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
         $this->unacknowledgedFrame = false;
     }
 
-    /** {@inheritdoc} */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
+    /**
+     * {@inheritdoc}
+     */
+    public function send(string $body, string $destination, array $headers = []): bool
     {
-        $destination = $destination ? $destination : $message->getQueue();
-
         if (!array_key_exists($destination, self::$array)) {
             self::$array[$destination] = [];
         }
 
-        self::$array[$destination][] = $message;
+        self::$array[$destination][] = $body;
 
         return true;
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function receive()
     {
         if (array_key_exists($this->subscribedQueue, self::$array) && !empty(self::$array[$this->subscribedQueue])) {

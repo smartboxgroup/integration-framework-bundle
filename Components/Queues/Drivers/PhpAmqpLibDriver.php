@@ -14,7 +14,6 @@ use PhpAmqpLib\Wire\AMQPTable;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
@@ -22,8 +21,6 @@ use Smartbox\Integration\FrameworkBundle\Service;
  */
 class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 {
-    use UsesSerializer;
-
     /**
      * This field specifies the prefetch window size in octets.
      * The server will send a message in advance if it is equal to or smaller in size than the available prefetch size
@@ -217,13 +214,13 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
+    public function send(string $body, string $destination, array $headers = []): bool
     {
         $this->declareChannel();
         $this->declareQueue(
-            $message->getQueue(),
+            $destination,
             QueueMessage::DELIVERY_MODE_PERSISTENT,
-            array_filter($message->getHeaders(), function ($value) {
+            array_filter($headers, function ($value) {
                 return 0 === strpos($value, 'x-');
             }, ARRAY_FILTER_USE_KEY));
 
@@ -231,13 +228,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
          * Headers are duplicated as "application_headers" too pass any other header coming from the MessageInterface
          * that might not be compatible/relevant to AMQP headers.
          */
-        $properties = $message->getHeaders();
-        $properties['application_headers'] = new AMQPTable($properties);
+        $properties = $headers;
+        $properties['application_headers'] = new AMQPTable($headers);
 
-        $messageBody = $this->getSerializer()->serialize($message, $this->format);
-        $amqpMessage = new AMQPMessage($messageBody, $properties);
+        $amqpMessage = new AMQPMessage($body, $properties);
 
-        $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $message->getQueue());
+        $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $destination);
 
         return true;
     }
