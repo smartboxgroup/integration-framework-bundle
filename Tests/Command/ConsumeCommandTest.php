@@ -10,7 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
- * Class ConsumeCommandTest
+ * Class ConsumeCommandTest.
+ *
  * @group consume-command-test
  */
 class ConsumeCommandTest extends KernelTestCase

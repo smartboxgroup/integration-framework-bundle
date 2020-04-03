@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\FrameworkBundle\Tests\Command\ConsumeCommandTest;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
@@ -35,11 +32,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
      */
     protected $driver;
 
-    /**
-     * @var MockObject
-     */
-    private $mockConsumer;
-
     protected function setUp()
     {
         parent::setUp();
@@ -57,6 +49,7 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
 
     /**
      * @dataProvider getMessages
+     *
      * @param MessageInterface $msg
      */
     public function testSendShouldNotChangeMessage(MessageInterface $msg)
@@ -96,6 +89,7 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
 
     /**
      * @param QueueMessage $message
+     *
      * @return mixed
      */
     public static function mapTitle(QueueMessage $message)
@@ -116,9 +110,10 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
     abstract protected function createDriver(): QueueDriverInterface;
 
     /**
-     * Creates a QueueMessage object
+     * Creates a QueueMessage object.
      *
      * @param $message
+     *
      * @return QueueMessage
      */
     protected function createQueueMessage($message)
@@ -132,10 +127,11 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
     }
 
     /**
-     * Creates a simple entity for test purpose
+     * Creates a simple entity for test purpose.
      *
      * @param string $title
      * @param string $description
+     *
      * @return Message
      */
     protected function createSimpleEntity($title = 'item', $description = 'a simple item')
@@ -146,37 +142,5 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
         $entity->setNote('Note here');
 
         return new Message($entity);
-    }
-
-    /**
-     * Creates a mock based on the ConsumerInteface
-     *
-     * @return MockObject
-     */
-    public function setMockConsumer()
-    {
-        $this->mockConsumer = $this
-            ->getMockBuilder(ConsumerInterface::class)
-            ->setMethods(['stop', 'consume', 'setExpirationCount', 'setSmartesbHelper', 'getName', 'getId', 'getInternalType'])
-            ->getMock();
-        $this->mockConsumer
-            ->method('stop');
-        $this->mockConsumer
-            ->method('consume')
-            ->willReturn(true);
-        $this->mockConsumer
-            ->method('setExpirationCount')
-            ->with(ConsumeCommandTest::NB_MESSAGES);
-        $this->mockConsumer
-            ->method('setSmartesbHelper');
-        $this->mockConsumer
-            ->method('getName')
-            ->willReturn(sprintf(self::CONSUMER_TAG, gethostname(), getmypid()));
-        $this->mockConsumer
-            ->method('getId');
-        $this->mockConsumer
-            ->method('getInternalType');
-
-        return $this->mockConsumer;
     }
 }

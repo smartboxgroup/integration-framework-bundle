@@ -16,7 +16,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesb
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 
 /**
- * Class AsyncQueueConsumer
+ * Class AsyncQueueConsumer.
  */
 class AsyncQueueConsumer extends AbstractAsyncConsumer
 {
@@ -41,6 +41,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      * Get the driver responsible to establish a communication with the broker.
      *
      * @param EndpointInterface $endpoint
+     *
      * @return AsyncQueueDriverInterface
      */
     protected function getQueueDriver(EndpointInterface $endpoint): AsyncQueueDriverInterface
@@ -63,6 +64,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      * Returns the queue name properly treated with queue prefix.
      *
      * @param EndpointInterface $endpoint
+     *
      * @return string
      */
     protected function getQueueName(EndpointInterface $endpoint): string
@@ -135,6 +137,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      * Overrides the main callback function to convert the AMQPMessage from the queue into a QueueMessage.
      *
      * {@inheritdoc}
+     *
      * @return callable
      */
     public function callback(EndpointInterface $endpoint): callable
@@ -149,6 +152,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
             } catch (\Exception $exception) {
                 $this->consumptionDuration = (microtime(true) - $start) * 1000;
                 $this->getExceptionHandler()($exception, ['message' => $message]);
+
                 return false;
             }
 
