@@ -140,7 +140,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      *
      * @return callable
      */
-    public function callback(EndpointInterface $endpoint): callable
+    protected function callback(EndpointInterface $endpoint): callable
     {
         return function (AMQPMessage $message) use ($endpoint) {
             try {
