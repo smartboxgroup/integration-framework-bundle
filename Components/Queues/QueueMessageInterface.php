@@ -95,7 +95,7 @@ interface QueueMessageInterface extends MessageInterface
     public function setDestinationURI($uri);
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getDestinationURI();
 

@@ -27,11 +27,13 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * (and also falls into other prefetch limits).
      * May be set to zero, meaning "no specific limit", although other prefetch limits may still apply.
      * The prefetch-size is ignored if the no-ack option is set.
+     * This parameter is not implemented in RabbitMQ as checked in:
+     * https://www.rabbitmq.com/specification.html#method-status-basic.qos.
      */
     const PREFETCH_SIZE = null;
 
     /**
-     * Represents the amount of message to consume by iteration
+     * Represents the amount of message to consume by iteration.
      */
     const PREFETCH_COUNT = 10;
 
@@ -41,12 +43,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     const EXCHANGE_NAME = '';
 
     /**
-     * Default port to connection
+     * Default port to connection.
      */
     const DEFAULT_PORT = 5672;
 
     /**
-     * Default host to connect
+     * Default host to connect.
      */
     const DEFAULT_HOST = 'localhost';
 
@@ -102,6 +104,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
+     *
      * @throws AMQPProtocolException
      */
     public function connect()
@@ -113,7 +116,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
             } catch (AMQPIOException $exception) {
                 throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
             }
-        } else if (!$this->isConnected()) {
+        } elseif (!$this->isConnected()) {
             $this->stream->reconnect();
         }
     }
@@ -169,6 +172,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
+     *
      * @param string $format
      */
     public function setFormat(string $format)
@@ -178,6 +182,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * {@inheritdoc}
+     *
      * @return string
      */
     public function getFormat(): string
@@ -242,8 +247,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * Declares the queue to drive the message.
      *
      * @param string $queueName The name of the queue
-     * @param int $durable
-     * @param array $arguments See AMQPQueue::setArguments()
+     * @param int    $durable
+     * @param array  $arguments See AMQPQueue::setArguments()
      *
      * @return array|null
      */
@@ -257,6 +262,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      *
      * @param int $prefetchSize
      * @param int $prefetchCount
+     *
      * @return AMQPChannel
      */
     public function declareChannel(): AMQPChannel
@@ -286,11 +292,10 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     }
 
     /**
-     * Validate if there is some connection available
+     * Validate if there is some connection available.
      */
     protected function validateConnection()
     {
         return $this->stream instanceof AbstractConnection;
     }
-
 }

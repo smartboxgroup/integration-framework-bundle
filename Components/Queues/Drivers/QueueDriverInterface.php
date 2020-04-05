@@ -19,9 +19,9 @@ interface QueueDriverInterface extends SerializableInterface
     /**
      * Configures the driver.
      *
-     * @param string $host
-     * @param string $username
-     * @param string $password
+     * @param string      $host
+     * @param string      $username
+     * @param string      $password
      * @param string|null $vhost
      */
     public function configure(string $host, string $username, string $password, string $vhost = null);
