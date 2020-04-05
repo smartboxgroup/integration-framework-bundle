@@ -64,13 +64,13 @@ interface QueueDriverInterface extends SerializableInterface
     /**
      * Publish the message to the broker.
      *
-     * @param string $body
      * @param string $destination
+     * @param string $body
      * @param array $headers
      *
      * @return bool
      */
-    public function send(string $body, string $destination, array $headers = []): bool;
+    public function send(string $destination, string $body = '', array $headers = []): bool;
 
     /**
      * @return QueueMessageInterface

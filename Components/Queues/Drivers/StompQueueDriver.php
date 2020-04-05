@@ -321,7 +321,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(string $body, string $destination, array $headers = []): bool
+    public function send(string $destination, string $body = '', array $headers = []): bool
     {
         if ($this->urlEncodeDestination) {
             $destination = urlencode($destination);

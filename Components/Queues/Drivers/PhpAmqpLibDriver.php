@@ -214,7 +214,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(string $body, string $destination, array $headers = []): bool
+    public function send(string $destination, string $body = '', array $headers = []): bool
     {
         $this->declareChannel();
         $this->declareQueue(
