@@ -90,9 +90,7 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
         $queueDriver
             ->expects($this->once())
             ->method('send')
-            ->with($this->callback(function (QueueMessageInterface $message) {
-                return $message->getTTL() <= 1;
-            }));
+            ->with($this->equalTo('isalive'));
 
         $test = new QueueDriverConnectionSmokeTest($queueDriver);
         $test->run();

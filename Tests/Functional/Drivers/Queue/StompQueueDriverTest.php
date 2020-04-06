@@ -45,8 +45,10 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
      */
     public function testAfterNackShouldBeRetried($msg)
     {
+        $queueMessage = $this->createQueueMessage($msg);
+
         $this->driver->subscribe($this->queueName);
-        $this->driver->send($this->createQueueMessage($msg));
+        $this->driver->send($this->queueName, serialize($queueMessage->getBody()), $queueMessage->getHeaders());
 
         $this->driver->receive();
         $this->driver->nack();
@@ -71,7 +73,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         $queueMessage = $this->createQueueMessage($msg);
         $queueMessage->setTTL(1);
         $this->driver->subscribe($this->queueName);
-        $this->driver->send($queueMessage);
+        $this->driver->send($this->queueName, serialize($queueMessage->getBody()), $queueMessage->getHeaders());
         $this->driver->unSubscribe();
 
         // After > 2 seconds, the message is not there
@@ -93,7 +95,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         $sentMessages = [];
         for ($i = 0; $i < $numMessages; ++$i) {
             $message = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
-            $this->driver->send($message);
+            $this->driver->send($this->queueName, serialize($message->getBody()), $message->getHeaders());
             $sentMessages[] = $message;
         }
 
@@ -119,7 +121,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         $sentMessages = [];
         for ($i = 0; $i < $numMessagesSent; ++$i) {
             $message = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
-            $this->driver->send($message);
+            $this->driver->send($this->queueName, serialize($message->getBody()), $message->getHeaders());
             $sentMessages[] = $message;
         }
 
@@ -133,7 +135,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
 
         // send an additional message to the queue
         $message = $this->createQueueMessage($this->createSimpleEntity('item'.$numMessagesSent));
-        $this->driver->send($message);
+        $this->driver->send($this->queueName, serialize($message->getBody()), $message->getHeaders());
         $sentMessages[] = $message;
 
         // receives all the remaining messages in the queue
