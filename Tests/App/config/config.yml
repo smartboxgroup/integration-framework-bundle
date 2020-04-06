@@ -39,7 +39,6 @@ smartbox_integration_framework:
             host: "%rabbitmq.hostname%"
             username: "%rabbitmq.username%"
             password: "%rabbitmq.password%"
-            format: json
             vhost: '%rabbitmq.vhost%'
             timeout: '%rabbitmq.timeout%'
         amqp:
@@ -48,7 +47,6 @@ smartbox_integration_framework:
             host: "%hostname%"
             username: "%rabbitmq.username%"
             password: "%rabbitmq.password%"
-            format: json
             vhost: "%rabbitmq.vhost%"
 
     nosql_drivers: ~

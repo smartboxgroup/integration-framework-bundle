@@ -389,10 +389,6 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('password')->end()
 
-            ->scalarNode('format')
-            ->isRequired()
-            ->end()
-
             ->scalarNode('timeout')
             ->defaultValue(null)
             ->end()

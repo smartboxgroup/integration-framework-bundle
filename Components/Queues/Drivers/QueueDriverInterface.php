@@ -7,8 +7,6 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface
 
 interface QueueDriverInterface extends SerializableInterface
 {
-    const FORMAT_JSON = 'json';
-    const FORMAT_XML = 'xml';
     const DEFAULT_TTL = 86400;
 
     const HEADER_TTL = 'ttl';
@@ -76,18 +74,4 @@ interface QueueDriverInterface extends SerializableInterface
      * @return QueueMessageInterface
      */
     public function createQueueMessage(): QueueMessageInterface;
-
-    /**
-     * Returns the format used on serialize/deserialize function.
-     *
-     * @return string
-     */
-    public function getFormat(): string;
-
-    /**
-     * Set the format used on serialize/deserialize function.
-     *
-     * @param string|null $format
-     */
-    public function setFormat(string $format);
 }

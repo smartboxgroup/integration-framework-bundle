@@ -142,16 +142,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     }
 
     /**
-     * Test the format parameter set in the class.
-     */
-    public function testFormat()
-    {
-        $format = 'text/plain';
-        $this->driver->setFormat($format);
-        $this->assertEquals($format, $this->driver->getFormat());
-    }
-
-    /**
      * @throws AMQPProtocolException
      */
     public function testConnectWithoutData()

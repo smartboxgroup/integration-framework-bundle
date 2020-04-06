@@ -29,9 +29,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     protected $currentFrame;
 
     /** @var string */
-    protected $format = QueueDriverInterface::FORMAT_JSON;
-
-    /** @var string */
     protected $host;
 
     /** @var string */
@@ -169,30 +166,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     public function setUsername($username)
     {
         $this->username = $username;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFormat(): string
-    {
-        return $this->format;
-    }
-
-    /**
-     * @param string $format
-     */
-    public function setFormat(string $format)
-    {
-        $this->format = $format;
-    }
-
-    /**
-     * @return int
-     */
-    public function getDequeueingTimeMs()
-    {
-        return $this->dequeueingTimeMs;
     }
 
     /**

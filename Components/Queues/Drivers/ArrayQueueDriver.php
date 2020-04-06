@@ -21,19 +21,6 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     protected $unacknowledgedFrame;
 
     /**
-     * @var string
-     */
-    private $format;
-
-    /**
-     * @return int
-     */
-    public function getDequeueingTimeMs()
-    {
-        return 0;
-    }
-
-    /**
      * @param $queue
      *
      * @return array
@@ -184,21 +171,5 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     {
         // TODO: Implement doDestroy() method.
         // I have no time to do destroy the world.
-    }
-
-    /**
-     * @return string
-     */
-    public function getFormat(): string
-    {
-        return $this->format;
-    }
-
-    /**
-     * @param string $format
-     */
-    public function setFormat(string $format)
-    {
-        $this->format = $format;
     }
 }

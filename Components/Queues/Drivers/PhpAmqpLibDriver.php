@@ -53,11 +53,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     const DEFAULT_HOST = 'localhost';
 
     /**
-     * @var string
-     */
-    protected $format = AsyncQueueDriverInterface::FORMAT_JSON;
-
-    /**
      * @var AMQPChannel|null
      */
     private $channel;
@@ -168,26 +163,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     public function setPrefetchCount(int $prefetchCount = self::PREFETCH_COUNT)
     {
         $this->prefetchCount = $prefetchCount;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @param string $format
-     */
-    public function setFormat(string $format)
-    {
-        $this->format = $format;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
-    public function getFormat(): string
-    {
-        return $this->format;
     }
 
     /**
