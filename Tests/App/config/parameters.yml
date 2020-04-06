@@ -9,8 +9,4 @@ parameters:
     rabbitmq.username: guest
     rabbitmq.password: guest
     rabbitmq.vhost: /
-    rabbitmq.read_timeout: 15
-    rabbitmq.connection_timeout: 30
-    rabbitmq.prefetch_count: null
-    rabbitmq.heartbeat: 60
 

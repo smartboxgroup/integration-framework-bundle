@@ -397,7 +397,7 @@ class Configuration implements ConfigurationInterface
             ->defaultValue(null)
             ->end()
 
-            ->scalarNode('connection_timeout')
+            ->floatNode('connection_timeout')
             ->defaultValue(null)
             ->end()
 
