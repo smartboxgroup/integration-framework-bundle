@@ -7,6 +7,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Serialization;
 use JMS\Serializer\SerializerInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Serializers\QueueSerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\MessageDecodingFailedException;
 
@@ -23,9 +24,9 @@ class Serializer implements QueueSerializerInterface
         $this->format = $format;
     }
 
-    public function decode(array $encodedMessage): QueueMessageInterface
+    public function decode(array $encodedMessage): MessageInterface
     {
-        if (empty($encodedMessage['body']) || is_array($encodedMessage['headers'])) {
+        if (empty($encodedMessage['body']) || !is_array($encodedMessage['headers'])) {
             throw new MessageDecodingFailedException('Encoded message should have at least a "body" and some "headers"');
         }
 
@@ -42,7 +43,7 @@ class Serializer implements QueueSerializerInterface
         return $queueMessage;
     }
 
-    public function encode(QueueMessageInterface $queueMessage): array
+    public function encode(MessageInterface $queueMessage): array
     {
         return [
             'body' => $this->serializer->serialize($queueMessage->getBody(), $this->format),
