@@ -7,8 +7,8 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
+use Smartbox\Integration\FrameworkBundle\Core\Serializers\UsesQueueSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesDriverRegistry;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
@@ -16,8 +16,8 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class QueueProducer extends Producer
 {
-    use UsesSerializer;
     use UsesDriverRegistry;
+    use UsesQueueSerializer;
 
     protected $headersToPropagate = [
         Message::HEADER_EXPIRES,
@@ -71,9 +71,9 @@ class QueueProducer extends Producer
         // Send
         $queueDriver->connect();
 
-        $body = $this->getSerializer()->serialize($queueMessage, $queueDriver->getFormat());
+        $message = $this->getSerializer()->encode($queueMessage);
 
-        $success = $queueDriver->send($queueMessage->getQueue(), $body, $queueMessage->getHeaders());
+        $success = $queueDriver->send($queueMessage->getQueue(), $message['body'], $message['headers']);
 
         if (!$success) {
             throw new \RuntimeException("The message could not be delivered to the queue '$queueName' while using queue driver '$queueDriverName'");

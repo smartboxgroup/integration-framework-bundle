@@ -10,7 +10,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
+use Smartbox\Integration\FrameworkBundle\Core\Serializers\UsesQueueSerializer;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 
 /**
@@ -18,8 +18,8 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandler
  */
 class QueueConsumer extends AbstractConsumer
 {
-    use UsesSerializer;
     use UsesExceptionHandlerTrait;
+    use UsesQueueSerializer;
 
     /**
      * {@inheritdoc}
@@ -72,7 +72,10 @@ class QueueConsumer extends AbstractConsumer
         
         try {
             $start = microtime(true);
-            $queueMessage = $this->getSerializer()->deserialize($message->getBody(), SerializableInterface::class, $driver->getFormat());
+            $queueMessage = $this->getSerializer()->decode([
+                'body' => $message->getBody(),
+                'headers' => $message->getHeaders()
+            ]);
 
             $this->consumptionDuration += (microtime(true) - $start) * 1000;
         } catch (\Exception $exception) {

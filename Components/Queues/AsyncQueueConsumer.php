@@ -11,7 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
+use Smartbox\Integration\FrameworkBundle\Core\Serializers\UsesQueueSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
 use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 
@@ -20,9 +20,9 @@ use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandler
  */
 class AsyncQueueConsumer extends AbstractAsyncConsumer
 {
-    use UsesSmartesbHelper;
-    use UsesSerializer;
     use UsesExceptionHandlerTrait;
+    use UsesQueueSerializer;
+    use UsesSmartesbHelper;
 
     /**
      * Consumer identifier name.
@@ -145,7 +145,11 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
         return function (AMQPMessage $message) use ($endpoint) {
             try {
                 $start = microtime(true);
-                $queueMessage = $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->getQueueDriver($endpoint)->getFormat());
+                $queueMessage = $this->getSerializer()->decode([
+                    'body' => $message->getBody(),
+                    'headers' => []
+                ]);
+
                 $this->consumptionDuration = (microtime(true) - $start) * 1000;
 
                 $queueMessage->setMessageId($message->getDeliveryTag());
