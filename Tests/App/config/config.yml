@@ -41,7 +41,6 @@ smartbox_integration_framework:
             password: "%rabbitmq.password%"
             format: json
             vhost: '%rabbitmq.vhost%'
-            timeout: '%rabbitmq.timeout%'
         amqp:
             type: amqp
             description: AMQP queue driver
