@@ -20,7 +20,7 @@ class SmartboxIntegrationFrameworkBundle extends Bundle
         $container->addCompilerPass(new SmokeTestConnectivityCompilerPass());
         $container->addCompilerPass(new ExpressionLanguageCachePass());
 
-        if ($container->getParameter('kernel.environment') == 'test') {
+        if ('test' == $container->getParameter('kernel.environment')) {
             $container->addCompilerPass(new MockWebserviceClientsCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
         }
     }

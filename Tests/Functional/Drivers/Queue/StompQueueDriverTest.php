@@ -6,12 +6,9 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Stomp\Exception\ConnectionException;
 
 /**
  * @internal
- *
- * @group stomp
  */
 class StompQueueDriverTest extends AbstractQueueDriverTest
 {
@@ -19,7 +16,6 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
      * @dataProvider getMessages
      *
      * @param MessageInterface $msg
-     * @group stomp
      */
     public function testShouldSelect(MessageInterface $msg)
     {

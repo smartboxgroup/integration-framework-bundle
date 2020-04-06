@@ -35,6 +35,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * @param $queue
+     *
      * @return array
      */
     public function getArrayForQueue($queue)
@@ -49,9 +50,9 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Configures the driver.
      *
-     * @param string $host
-     * @param string $username Username to connect to the queuing system
-     * @param string $password Password to connect to the queuing system
+     * @param string      $host
+     * @param string      $username Username to connect to the queuing system
+     * @param string      $password Password to connect to the queuing system
      * @param string|null $vhost
      */
     public function configure(string $host, string $username, string $password, string $vhost = null)
@@ -127,7 +128,7 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Acknowledges a failure on processing the last received object.
-     * The object could be moved to the DLQ or be delivered to another subscription for retrial
+     * The object could be moved to the DLQ or be delivered to another subscription for retrial.
      *
      * @param QueueMessageInterface|null $message
      */

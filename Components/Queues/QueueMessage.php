@@ -50,7 +50,7 @@ class QueueMessage extends Message implements QueueMessageInterface
     {
         $this->setHeader(self::HEADER_TTL, $ttl);
 
-        if ($ttl != 0) {
+        if (0 != $ttl) {
             $this->setHeader(self::HEADER_EXPIRATION, $ttl * 1000);
             $this->setExpires((time() + $ttl) * 1000);
         }
@@ -138,7 +138,7 @@ class QueueMessage extends Message implements QueueMessageInterface
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getDestinationURI()
     {

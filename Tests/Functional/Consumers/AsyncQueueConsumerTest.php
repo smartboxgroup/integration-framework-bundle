@@ -16,7 +16,8 @@ use Smartbox\Integration\FrameworkBundle\Tests\Unit\Traits\ConsumerMockFactory;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 
 /**
- * Class AsyncQueueConsumerTest
+ * Class AsyncQueueConsumerTest.
+ *
  * @group async-queue-consumer
  */
 class AsyncQueueConsumerTest extends TestCase
@@ -24,7 +25,7 @@ class AsyncQueueConsumerTest extends TestCase
     use ConsumerMockFactory;
 
     /**
-     * Assert that the consume function passes the correct objects to the driver
+     * Assert that the consume function passes the correct objects to the driver.
      */
     public function testConsume()
     {
@@ -35,7 +36,7 @@ class AsyncQueueConsumerTest extends TestCase
                 [
                     QueueProtocol::OPTION_QUEUE_DRIVER => 'ya-know-what?',
                     'prefix' => 'doughnuts-',
-                    'queue' => 'should-be-plain'
+                    'queue' => 'should-be-plain',
                 ]
             );
 
@@ -49,12 +50,11 @@ class AsyncQueueConsumerTest extends TestCase
             );
 
         // Consumer is extended with an anon class to fake the consumption of a message
-        $consumer = new class extends AsyncQueueConsumer {
+        $consumer = new class() extends AsyncQueueConsumer {
             public function waitNoBlock(EndpointInterface $endpoint)
             {
                 --$this->expirationCount;
             }
-
         };
         $consumer->setSmartesbHelper($this->getHelper($driver));
         $consumer->setExpirationCount(1);
@@ -83,7 +83,7 @@ class AsyncQueueConsumerTest extends TestCase
             'expiration' => 86400000,
             'expires' => 1584634937000,
             'destination' => 'api-test',
-            'priority' => 4
+            'priority' => 4,
         ]);
 
         $message = $this->getMockBuilder(AMQPMessage::class)

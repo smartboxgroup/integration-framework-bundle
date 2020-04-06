@@ -67,7 +67,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /** @var string */
     protected $vhost;
 
-    /** @var bool|int  */
+    /** @var bool|int */
     protected $subscriptionId = false;
 
     /** @var @var int|null */
@@ -117,7 +117,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /**
-     * Set the version to Stomp driver
+     * Set the version to Stomp driver.
      *
      * @param string $version
      */
@@ -127,7 +127,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /**
-     * Set the timeout to Stomp driver
+     * Set the timeout to Stomp driver.
      *
      * @param int $connectionTimeout
      */
@@ -137,7 +137,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /**
-     * Set if the driver will work in synchronous or asynchronous mode
+     * Set if the driver will work in synchronous or asynchronous mode.
      *
      * @param bool $sync
      */
@@ -145,6 +145,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     {
         $this->sync = $sync;
     }
+
     /**
      * @return string
      */
@@ -392,6 +393,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
                 $this->getExceptionHandler()($exception, ['message' => $this->currentFrame]);
                 $this->ack();
                 $this->markDequeuedTime($start);
+
                 return null;
             }
             foreach ($this->currentFrame->getHeaders() as $header => $value) {

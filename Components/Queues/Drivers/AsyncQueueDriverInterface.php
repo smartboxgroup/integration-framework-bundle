@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 /**
- * Interface AsyncQueueDriverInterface
+ * Interface AsyncQueueDriverInterface.
  */
 interface AsyncQueueDriverInterface extends QueueDriverInterface
 {
@@ -13,8 +13,8 @@ interface AsyncQueueDriverInterface extends QueueDriverInterface
      * Declares a queue to be consumed and installs an optional callback function to be called once the worker is put
      * in wait state and a message arrives.
      *
-     * @param string $consumerTag
-     * @param string $queueName
+     * @param string        $consumerTag
+     * @param string        $queueName
      * @param callable|null $callback
      */
     public function consume(string $consumerTag, string $queueName, callable $callback = null);
@@ -34,7 +34,7 @@ interface AsyncQueueDriverInterface extends QueueDriverInterface
     /**
      * Clean all the opened resources, must be called just before terminating the current request.
      *
-     * @param string $consumerTag
+     * @param string $consumerTag String that identifies the consumer that should be destroyed \,,/
      */
     public function destroy(string $consumerTag);
 }
