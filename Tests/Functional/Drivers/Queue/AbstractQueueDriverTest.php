@@ -48,23 +48,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
     }
 
     /**
-     * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
-     */
-    public function testSendShouldNotChangeMessage(MessageInterface $msg)
-    {
-        $clone = clone $msg;
-        if (!$this->driver->isConnected()) {
-            $this->driver->connect();
-        }
-        $this->driver->send($this->createQueueMessage($msg));
-
-        $this->assertSame(serialize($clone), serialize($msg));
-        $this->driver->send($this->createQueueMessage($msg));
-    }
-
-    /**
      * @return array
      */
     public function getMessages()

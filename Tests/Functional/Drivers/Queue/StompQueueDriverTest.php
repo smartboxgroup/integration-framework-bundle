@@ -19,9 +19,9 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
      */
     public function testShouldSelect(MessageInterface $msg)
     {
-        $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header', '12345');
-        $this->driver->send($msgIn);
+        $queueMessage = $this->createQueueMessage($msg);
+        $queueMessage->addHeader('test_header', '12345');
+        $this->driver->send($queueMessage);
 
         $this->driver->subscribe($this->queueName, 'test_header = 12345');
 
@@ -120,9 +120,9 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         $numMessagesSent = 10;
         $sentMessages = [];
         for ($i = 0; $i < $numMessagesSent; ++$i) {
-            $message = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
-            $this->driver->send($this->queueName, serialize($message->getBody()), $message->getHeaders());
-            $sentMessages[] = $message;
+            $queueMessage = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
+            $this->driver->send($this->queueName, serialize($queueMessage->getBody()), $queueMessage->getHeaders());
+            $sentMessages[] = $queueMessage;
         }
 
         $this->driver->subscribe($this->queueName, null, $prefetchSize);
@@ -134,9 +134,9 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         $this->driver->ack();
 
         // send an additional message to the queue
-        $message = $this->createQueueMessage($this->createSimpleEntity('item'.$numMessagesSent));
-        $this->driver->send($this->queueName, serialize($message->getBody()), $message->getHeaders());
-        $sentMessages[] = $message;
+        $queueMessage = $this->createQueueMessage($this->createSimpleEntity('item'.$numMessagesSent));
+        $this->driver->send($this->queueName, serialize($queueMessage->getBody()), $queueMessage->getHeaders());
+        $sentMessages[] = $queueMessage;
 
         // receives all the remaining messages in the queue
         while (null !== ($receivedMessage = $this->driver->receive())) {

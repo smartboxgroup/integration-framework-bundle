@@ -51,9 +51,9 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     public function testSend(MessageInterface $msg)
     {
-        $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header', '12345');
-        $this->assertTrue($this->driver->send($msgIn->getQueue(), serialize($msgIn->getBody()), $msgIn->getHeaders()));
+        $queueMessage = $this->createQueueMessage($msg);
+        $queueMessage->addHeader('test_header', '12345');
+        $this->assertTrue($this->driver->send($queueMessage->getQueue(), serialize($queueMessage->getBody()), $queueMessage->getHeaders()));
     }
 
     /**
@@ -196,9 +196,9 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     private function prepareToConsume(MessageInterface $msg)
     {
-        $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header', '12345');
-        $this->driver->send($msgIn->getQueue(), serialize($msgIn->getBody()), $msgIn->getHeaders());
+        $queueMessage = $this->createQueueMessage($msg);
+        $queueMessage->addHeader('test_header', '12345');
+        $this->driver->send($queueMessage->getQueue(), serialize($queueMessage->getBody()), $queueMessage->getHeaders());
         $this->driver->disconnect();
         $this->driver->connect();
     }

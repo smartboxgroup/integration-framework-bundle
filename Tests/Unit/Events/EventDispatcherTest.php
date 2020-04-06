@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Events;
 
+use JMS\Serializer\SerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer;
@@ -51,9 +52,15 @@ class EventDispatcherTest extends \PHPUnit\Framework\TestCase
         $driverRegistry = new DriverRegistry();
         $driverRegistry->setDriver('array', $queueDriver);
 
+        $serializer = $this->createMock(SerializerInterface::class);
+        $serializer
+            ->expects($this->once())
+            ->method('serialize');
+
         $protocol = new QueueProtocol(true, 3600);
         $producer = new QueueProducer();
         $producer->setDriverRegistry($driverRegistry);
+        $producer->setSerializer($serializer);
 
         $resolver = new OptionsResolver();
 
