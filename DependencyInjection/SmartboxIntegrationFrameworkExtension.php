@@ -207,7 +207,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     ]);
 
                     $driverDef->addMethodCall('setId', [$driverId]);
-                    $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
                     $driverDef->addMethodCall('setStompVersion', [StompQueueDriver::STOMP_VERSION]);
                     $driverDef->addMethodCall('setTimeout', [$driverConfig['timeout']]);
                     $driverDef->addMethodCall('setSync', [$driverConfig['sync']]);
@@ -248,7 +247,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     ]);
 
                     $driverDef->addMethodCall('setId', [$driverId]);
-                    $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
                     $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? PhpAmqpLibDriver::PREFETCH_COUNT]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
