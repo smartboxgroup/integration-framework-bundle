@@ -250,7 +250,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setId', [$driverId]);
                     $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
                     $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? PhpAmqpLibDriver::PREFETCH_COUNT]);
-                    $driverDef->addMethodCall('setDescription', [$driverConfig['description']]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
