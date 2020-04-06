@@ -12,6 +12,7 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDri
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Tests\Unit\Traits\ConsumerMockFactory;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 
 /**
@@ -20,6 +21,8 @@ use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
  */
 class AsyncQueueConsumerTest extends TestCase
 {
+    use ConsumerMockFactory;
+
     /**
      * Assert that the consume function passes the correct objects to the driver
      */
@@ -45,10 +48,18 @@ class AsyncQueueConsumerTest extends TestCase
                 $this->isInstanceOf(\Closure::class)
             );
 
-        $consumer = new AsyncQueueConsumer();
-        $consumer->setSmartesbHelper($this->getHelper($driver));
+        // Consumer is extended with an anon class to fake the consumption of a message
+        $consumer = new class extends AsyncQueueConsumer {
+            public function waitNoBlock(EndpointInterface $endpoint)
+            {
+                --$this->expirationCount;
+            }
 
-        $consumer->asyncConsume($endpoint, function () {});
+        };
+        $consumer->setSmartesbHelper($this->getHelper($driver));
+        $consumer->setExpirationCount(1);
+
+        $consumer->consume($endpoint, function () {});
     }
 
     /**
@@ -82,15 +93,14 @@ class AsyncQueueConsumerTest extends TestCase
         $message->set('application_headers', $messageHeaders);
         $message->delivery_info = ['delivery_tag' => 1];
 
-        $consumer = new AsyncQueueConsumer();
+        $consumer = $this->getConsumer($this, AsyncQueueConsumer::class, $message, 1);
         $consumer->setSmartesbHelper($this->getHelper($driver));
         $consumer->setSerializer($serializer);
-        $callback = $consumer->callback($this->createMock(EndpointInterface::class));
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('I cöuld nót dese�rialize that JSON strin��������');
 
-        $callback($message);
+        $consumer->consume($this->createMock(EndpointInterface::class));
     }
 
     /**
@@ -99,61 +109,25 @@ class AsyncQueueConsumerTest extends TestCase
     public function testConsumerSetsMessageID()
     {
         $messageID = 42;
-        $queueMessage = new QueueMessage();
-        $queueMessage->setMessageId($messageID);
+        $queueMessage = $this->createMock(QueueMessage::class);
+        $queueMessage->expects($this->once())
+            ->method('setMessageId')
+            ->with($messageID);
 
         $serializer = $this->createMock(SerializerInterface::class);
         $serializer->expects($this->once())
             ->method('deserialize')
             ->willReturn($queueMessage);
 
-        $driver = $this->createMock(AsyncQueueDriverInterface::class);
-        $driver->expects($this->once())
-            ->method('ack')
-            ->with($queueMessage);
-
-        $consumer = $this->getMockBuilder(AsyncQueueConsumer::class)
-            // Prevent the parent class from processing the message, otherwise it would require mocking buncha stuff
-            ->setMethods(['process'])
-            ->getMock();
-        $consumer->setSerializer($serializer);
-        $consumer->setSmartesbHelper($this->getHelper($driver));
-        $callback = $consumer->callback($this->createMock(EndpointInterface::class));
-
         $message = new AMQPMessage('an amqp message');
         $message->delivery_info['delivery_tag'] = $messageID;
 
-        $callback($message);
-    }
+        $consumer = $this->getConsumer($this, AsyncQueueConsumer::class, $message, 1, ['process']);
 
-    /**
-     * Expect one call to wait on the driver
-     */
-    public function testWait()
-    {
-        $driver = $this->createMock(AsyncQueueDriverInterface::class);
-        $driver->expects($this->once())
-            ->method('wait');
+        $consumer->setSerializer($serializer);
+        $consumer->setSmartesbHelper($this->getHelper($this->createMock(AsyncQueueDriverInterface::class)));
 
-        $consumer = new AsyncQueueConsumer();
-        $consumer->setSmartesbHelper($this->getHelper($driver));
-
-        $consumer->wait($this->createMock(EndpointInterface::class));
-    }
-
-    /**
-     * Expect one call to waitNoBlock on the driver
-     */
-    public function testWaitNoBlock()
-    {
-        $driver = $this->createMock(AsyncQueueDriverInterface::class);
-        $driver->expects($this->once())
-            ->method('waitNoBlock');
-
-        $consumer = new AsyncQueueConsumer();
-        $consumer->setSmartesbHelper($this->getHelper($driver));
-
-        $consumer->waitNoBlock($this->createMock(EndpointInterface::class));
+        $consumer->consume($this->createMock(EndpointInterface::class));
     }
 
     /**

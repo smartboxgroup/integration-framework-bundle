@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Events\TimingEvent;
+use Smartbox\Integration\FrameworkBundle\Tests\Unit\Traits\ConsumerMockFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
@@ -21,6 +21,8 @@ use Symfony\Component\Stopwatch\Stopwatch;
  */
 class AbstractAsyncConsumerTest extends TestCase
 {
+    use ConsumerMockFactory;
+
     /**
      * Test that the consumer installs a callback by calling asyncConsume with a callable.
      */
@@ -88,29 +90,7 @@ class AbstractAsyncConsumerTest extends TestCase
      */
     public function testConsumerDoesNotSleepWhenFlagIsSet()
     {
-        // Extend the class and on the WaitNoBlock function, let it run twice while setting the sleep flag to false
-        $consumer = new class extends AbstractAsyncConsumer {
-            protected $rounds = 0;
-            protected function initialize(EndpointInterface $endpoint) {}
-
-            protected function cleanUp(EndpointInterface $endpoint) {}
-
-            protected function confirmMessage(EndpointInterface $endpoint, MessageInterface $message) {}
-
-            public function asyncConsume(EndpointInterface $endpoint, callable $callback) {}
-
-            public function wait(EndpointInterface $endpoint) {}
-
-            public function waitNoBlock(EndpointInterface $endpoint)
-            {
-                $this->sleep = false;
-                $this->rounds++;
-
-                if ($this->rounds > 2) {
-                    $this->stop();
-                }
-            }
-        };
+        $consumer = $this->getConsumer($this,AbstractAsyncConsumer::class, new QueueMessage(), 2);
 
         $stopwatch = new Stopwatch();
         $stopwatch->start('consume');
@@ -130,16 +110,14 @@ class AbstractAsyncConsumerTest extends TestCase
             ->method('dispatch')
             ->with(
                 $this->isType('string'),
-                $this->callback(function(TimingEvent $event){
+                $this->callback(function (TimingEvent $event) {
                     return $event->getIntervalMs() > 0;
                 }));
 
         /** @var AbstractAsyncConsumer|MockObject $consumer */
-        $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
+        $consumer = $this->getConsumer($this,AbstractAsyncConsumer::class, new QueueMessage(), 1);
         $consumer->setEventDispatcher($dispatcher);
-        $callback = $consumer->callback($this->createMock(EndpointInterface::class));
-
-        $callback(new QueueMessage());
+        $consumer->consume($this->createMock(EndpointInterface::class));
     }
 
     /**
@@ -148,18 +126,15 @@ class AbstractAsyncConsumerTest extends TestCase
     public function testMessageIsConfirmedAfterProcessing()
     {
         $message = new QueueMessage();
+        $consumer = $this->getConsumer($this,AbstractAsyncConsumer::class, $message, 1);
 
-        /** @var AbstractAsyncConsumer|MockObject $consumer */
-        $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
         $consumer->expects($this->once())
             ->method('confirmMessage')
             ->with(
-                $this->isInstanceOf(EndpointInterface::class),
+                $this->anything(),
                 $this->equalTo($message));
 
-        $callback = $consumer->callback($this->createMock(EndpointInterface::class));
-
-        $callback($message);
+        $consumer->consume($this->createMock(EndpointInterface::class));
     }
 
     /**
@@ -167,8 +142,8 @@ class AbstractAsyncConsumerTest extends TestCase
      */
     public function testMessageIsNotConfirmedAfterFailedProcessing()
     {
-        /** @var AbstractAsyncConsumer|MockObject $consumer */
-        $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
+        $message = new QueueMessage();
+        $consumer = $this->getConsumer($this,AbstractAsyncConsumer::class, $message);
         $consumer->expects($this->never())
             ->method('confirmMessage');
 
@@ -177,11 +152,9 @@ class AbstractAsyncConsumerTest extends TestCase
             ->method('handle')
             ->willThrowException(new \RuntimeException());
 
-        $callback = $consumer->callback($endpoint);
-
         $this->expectException(\RuntimeException::class);
 
-        $callback(new QueueMessage());
+        $consumer->consume($endpoint);
     }
 
     /**

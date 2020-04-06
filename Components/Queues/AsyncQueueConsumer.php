@@ -95,7 +95,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * {@inheritdoc}
      */
-    public function asyncConsume(EndpointInterface $endpoint, callable $callback)
+    protected function asyncConsume(EndpointInterface $endpoint, callable $callback)
     {
         $queueName = $this->getQueueName($endpoint);
         $this->getQueueDriver($endpoint)->consume($this->getName(), $queueName, $callback);
@@ -104,7 +104,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * {@inheritdoc}
      */
-    public function waitNoBlock(EndpointInterface $endpoint)
+    protected function waitNoBlock(EndpointInterface $endpoint)
     {
         $this->getQueueDriver($endpoint)->waitNoBlock();
     }
@@ -112,7 +112,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     /**
      * {@inheritdoc}
      */
-    public function wait(EndpointInterface $endpoint)
+    protected function wait(EndpointInterface $endpoint)
     {
         $this->getQueueDriver($endpoint)->wait();
     }
@@ -137,7 +137,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      * {@inheritdoc}
      * @return callable
      */
-    public function callback(EndpointInterface $endpoint): callable
+    protected function callback(EndpointInterface $endpoint): callable
     {
         return function (AMQPMessage $message) use ($endpoint) {
             try {

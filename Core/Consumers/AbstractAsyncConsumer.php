@@ -121,7 +121,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @return \Closure
      */
-    public function callback(EndpointInterface $endpoint): callable
+    protected function callback(EndpointInterface $endpoint): callable
     {
         return function (MessageInterface $message) use ($endpoint) {
             $start = microtime(true);
@@ -153,7 +153,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * @param EndpointInterface $endpoint
      * @param callable $callback
      */
-    abstract public function asyncConsume(EndpointInterface $endpoint, callable $callback);
+    abstract protected function asyncConsume(EndpointInterface $endpoint, callable $callback);
 
     /**
      * Waits for a message in a blocking way. If the worker needs to listen to signals, use waitNoBlock() instead. This
@@ -161,7 +161,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @param EndpointInterface $endpoint
      */
-    abstract public function wait(EndpointInterface $endpoint);
+    abstract protected function wait(EndpointInterface $endpoint);
 
     /**
      * Waits for a message in a non-blocking way. If there's no message to consume, control is returned to the consumer.
@@ -169,7 +169,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      *
      * @param EndpointInterface $endpoint
      */
-    abstract public function waitNoBlock(EndpointInterface $endpoint);
+    abstract protected function waitNoBlock(EndpointInterface $endpoint);
 
     /** {@inheritdoc} */
     public function getName(): string
