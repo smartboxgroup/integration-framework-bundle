@@ -40,7 +40,6 @@ smartbox_integration_framework:
             username: "%rabbitmq.username%"
             password: "%rabbitmq.password%"
             vhost: '%rabbitmq.vhost%'
-            timeout: '%rabbitmq.timeout%'
         amqp:
             type: amqp
             description: AMQP queue driver

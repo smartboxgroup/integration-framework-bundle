@@ -208,7 +208,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                     $driverDef->addMethodCall('setId', [$driverId]);
                     $driverDef->addMethodCall('setStompVersion', [StompQueueDriver::STOMP_VERSION]);
-                    $driverDef->addMethodCall('setTimeout', [$driverConfig['timeout']]);
+                    $driverDef->addMethodCall('setReadTimeout', [$driverConfig['read_timeout'] ?? StompQueueDriver::READ_TIMEOUT]);
+                    $driverDef->addMethodCall('setTimeout', [$driverConfig['connection_timeout'] ?? StompQueueDriver::CONNECTION_TIMEOUT]);
                     $driverDef->addMethodCall('setSync', [$driverConfig['sync']]);
                     $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? StompQueueDriver::PREFETCH_COUNT]);
                     $driverDef->addMethodCall('setDescription', [$driverConfig['description']]);
@@ -216,6 +217,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
+
                     $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
                     $driverDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
 
@@ -247,7 +249,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     ]);
 
                     $driverDef->addMethodCall('setId', [$driverId]);
+                    $driverDef->addMethodCall('setReadTimeout', [$driverConfig['read_timeout'] ?? PhpAmqpLibDriver::READ_TIMEOUT]);
+                    $driverDef->addMethodCall('setConnectionTimeout', [$driverConfig['connection_timeout'] ?? PhpAmqpLibDriver::CONNECTION_TIMEOUT]);
                     $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? PhpAmqpLibDriver::PREFETCH_COUNT]);
+                    $driverDef->addMethodCall('setHeartbeat', [$driverConfig['heartbeat'] ?? PhpAmqpLibDriver::HEARTBEAT]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);

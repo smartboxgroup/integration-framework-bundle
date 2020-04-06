@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Stomp\Client;
+use Stomp\Network\Connection;
 use Stomp\StatefulStomp;
 use Stomp\Transport\Frame;
 use Stomp\Transport\Message;
@@ -24,6 +25,10 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     const STOMP_VERSION = '1.1';
 
     const PREFETCH_COUNT = 1;
+
+    const READ_TIMEOUT = 15;
+
+    const CONNECTION_TIMEOUT = 30;
 
     /** @var Frame */
     protected $currentFrame;
@@ -66,6 +71,12 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /** @var bool */
     protected $sync;
 
+    /** @var float */
+    protected $readTimeout;
+
+    /** @var @var float */
+    protected $connectionTimeout;
+
     /**
      * @return bool
      */
@@ -103,11 +114,11 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Set the timeout to Stomp driver.
      *
-     * @param int $timeout
+     * @param int $connectionTimeout
      */
-    public function setTimeout(int $timeout = 3)
+    public function setTimeout(int $connectionTimeout = 3)
     {
-        $this->timeout = $timeout;
+        $this->connectionTimeout = $connectionTimeout;
     }
 
     /**
@@ -189,8 +200,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
      */
     public function setReadTimeout($seconds)
     {
-        $this->timeout = $seconds;
-        $this->statefulStomp->getClient()->getConnection()->setReadTimeout($this->timeout);
+        $this->readTimeout = $seconds;
     }
 
     /**
@@ -215,11 +225,12 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     public function connect()
     {
         if (!$this->isConnected()) {
-            $client = new Client($this->host);
+            $stompConnection = new Connection($this->host, $this->connectionTimeout);
+            $client = new Client($stompConnection);
             $client->setLogin($this->getUsername(), $this->getPass());
-            $client->setReceiptWait($this->timeout);
+            $client->setReceiptWait($this->readTimeout);
             $client->setSync($this->sync);
-            $client->getConnection()->setReadTimeout($this->timeout);
+            $client->getConnection()->setReadTimeout($this->readTimeout);
             $client->setVersions([$this->stompVersion]);
             $client->setVhostname($this->vhost);
             $client->getProtocol()->setPrefetchCount($this->prefetchCount);

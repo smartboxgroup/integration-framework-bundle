@@ -9,5 +9,4 @@ parameters:
     rabbitmq.username: guest
     rabbitmq.password: guest
     rabbitmq.vhost: /
-    rabbitmq.timeout: 15
 
