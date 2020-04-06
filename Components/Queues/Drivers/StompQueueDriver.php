@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use JMS\Serializer\DeserializationContext;
-use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 use Smartbox\Integration\FrameworkBundle\Service;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Stomp\Client;
 use Stomp\StatefulStomp;
 use Stomp\Transport\Frame;
@@ -25,9 +21,6 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
  */
 class StompQueueDriver extends Service implements SyncQueueDriverInterface
 {
-    use UsesSerializer;
-    use UsesExceptionHandlerTrait;
-
     const STOMP_VERSION = '1.1';
 
     const PREFETCH_COUNT = 1;
@@ -72,11 +65,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
      * @var string
      */
     protected $description;
-
-    /**
-     * @var int The time it took in ms to deserialize the message
-     */
-    protected $dequeueingTimeMs = 0;
 
     /** @var bool */
     protected $sync;
@@ -355,49 +343,13 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
             );
         }
 
-        $this->dequeueingTimeMs = 0;
-
         $this->currentFrame = $this->statefulStomp->read();
 
         while ($this->currentFrame && !$this->isFrameFromSubscription($this->currentFrame)) {
             $this->currentFrame = $this->statefulStomp->read();
         }
 
-        $msg = null;
-
-        if ($this->currentFrame) {
-            $start = microtime(true);
-            $deserializationContext = new DeserializationContext();
-            if (!empty($version)) {
-                $deserializationContext->setVersion($version);
-            }
-
-            if (!empty($group)) {
-                $deserializationContext->setGroups([$group]);
-            }
-            try {
-                /** @var QueueMessageInterface $msg */
-                $msg = $this->getSerializer()->deserialize($this->currentFrame->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
-            } catch (\Exception $exception) {
-                $this->getExceptionHandler()($exception, ['message' => $this->currentFrame]);
-                $this->ack();
-                $this->markDequeuedTime($start);
-
-                return null;
-            }
-            foreach ($this->currentFrame->getHeaders() as $header => $value) {
-                $msg->setHeader($header, $this->unescape($value));
-            }
-
-            $this->markDequeuedTime($start);
-        }
-
-        return $msg;
-    }
-
-    private function unescape($string)
-    {
-        return str_replace(['\r', '\n', '\c', '\\\\'], ["\r", "\n", ':', '\\'], $string);
+        return $this->currentFrame;
     }
 
     /**
@@ -471,13 +423,5 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     protected function dropConnection()
     {
         $this->statefulStomp->getClient()->getConnection()->disconnect();
-    }
-
-    /**
-     * @param float $start
-     */
-    private function markDequeuedTime($start)
-    {
-        $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
     }
 }

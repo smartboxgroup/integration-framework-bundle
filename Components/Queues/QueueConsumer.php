@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
+use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
+use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 
 /**
  * Class QueueConsumer.
  */
 class QueueConsumer extends AbstractConsumer
 {
-    /**
-     * @var int The time it took in ms to deserialize the message
-     */
-    protected $dequeueingTimeMs = 0;
+    use UsesSerializer;
+    use UsesExceptionHandlerTrait;
 
     /**
      * {@inheritdoc}
@@ -63,9 +64,27 @@ class QueueConsumer extends AbstractConsumer
     protected function readMessage(EndpointInterface $endpoint)
     {
         $driver = $this->getQueueDriver($endpoint);
-        $this->dequeueingTimeMs = $driver->getDequeueingTimeMs();
+        $message = $driver->receive();
 
-        return $driver->receive();
+        if (!$message) {
+            return null;
+        }
+        
+        try {
+            $start = microtime(true);
+            $queueMessage = $this->getSerializer()->deserialize($message->getBody(), SerializableInterface::class, $driver->getFormat());
+
+            $this->consumptionDuration += (microtime(true) - $start) * 1000;
+        } catch (\Exception $exception) {
+            $this->getExceptionHandler()($exception, ['message' => $message]);
+            $driver->ack();
+
+            $this->consumptionDuration += (microtime(true) - $start) * 1000;
+
+            return null;
+        }
+
+        return $queueMessage;
     }
 
     /**
@@ -89,19 +108,5 @@ class QueueConsumer extends AbstractConsumer
     {
         $driver = $this->getQueueDriver($endpoint);
         $driver->ack();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @param $intervalMs int the timing interval that we would like to emanate
-     *
-     * @return mixed
-     */
-    protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
-    {
-        $intervalMs += $this->dequeueingTimeMs;
-
-        parent::dispatchConsumerTimingEvent($intervalMs, $message);
     }
 }

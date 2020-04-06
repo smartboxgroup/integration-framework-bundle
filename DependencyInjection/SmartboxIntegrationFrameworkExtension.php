@@ -198,14 +198,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                 case 'activemq':
                     $urlEncodeDestination = ('rabbitmq' == $type);
 
-                    $driverDef = new Definition(StompQueueDriver::class, []);
-                    $driverDef->addMethodCall('setId', [$driverId]);
-                    $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
-                    $driverDef->addMethodCall('setStompVersion', [$driverConfig['version'] ?? StompQueueDriver::STOMP_VERSION]);
-                    $driverDef->addMethodCall('setTimeout', [$driverConfig['timeout']]);
-                    $driverDef->addMethodCall('setSync', [$driverConfig['sync']]);
-                    $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? StompQueueDriver::PREFETCH_COUNT]);
-
+                    $driverDef = new Definition(StompQueueDriver::class);
                     $driverDef->addMethodCall('configure', [
                         $driverConfig['host'],
                         $driverConfig['username'],
@@ -213,18 +206,26 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         $driverConfig['vhost']
                     ]);
 
+                    $driverDef->addMethodCall('setId', [$driverId]);
+                    $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
+                    $driverDef->addMethodCall('setStompVersion', [StompQueueDriver::STOMP_VERSION]);
+                    $driverDef->addMethodCall('setTimeout', [$driverConfig['timeout']]);
+                    $driverDef->addMethodCall('setSync', [$driverConfig['sync']]);
+                    $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? StompQueueDriver::PREFETCH_COUNT]);
                     $driverDef->addMethodCall('setDescription', [$driverConfig['description']]);
-                    $driverDef->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
                     $driverDef->addMethodCall('setUrlEncodeDestination', [$urlEncodeDestination]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
-                    if ($exceptionHandlerId) {
-                        $driverDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
-                    }
+
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
                     $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
                     $driverDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
 
                     $container->setDefinition($driverId, $driverDef);
+
+                    if ($exceptionHandlerId) {
+                        $container->findDefinition('smartesb.consumers.queue')
+                            ->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
+                    }
 
                     if ($this->config['default_queue_driver'] == $driverName) {
                         $container->findDefinition('smartesb.protocols.queue')
@@ -246,12 +247,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         $driverConfig['vhost']
                     ]);
 
-                    $queueDriverRegistry->addMethodCall('setDriver', [$driverName, $driverDef]);
-
                     $driverDef->addMethodCall('setId', [$driverId]);
                     $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
+                    $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? PhpAmqpLibDriver::PREFETCH_COUNT])
+                    $driverDef->addMethodCall('setDescription', [$driverConfig['description']]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
-                    $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? PhpAmqpLibDriver::PREFETCH_COUNT]);
+
+                    $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 
                     $container->setDefinition($driverId, $driverDef);
 

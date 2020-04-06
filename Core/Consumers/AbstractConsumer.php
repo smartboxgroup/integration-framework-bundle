@@ -20,6 +20,13 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     use UsesSmartesbHelper;
 
     /**
+     * Hold the amount of time it took to consume a message.
+     *
+     * @var int
+     */
+    protected $consumptionDuration = 0;
+
+    /**
      * Initializes the consumer for a given endpoint.
      *
      * @param EndpointInterface $endpoint
@@ -86,6 +93,8 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
         while (!$this->shouldStop()) {
             try {
+                $this->consumptionDuration = 0;
+
                 // Receive
                 $message = $this->readMessage($endpoint);
 
@@ -101,8 +110,8 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
                     $this->confirmMessage($endpoint, $message);
 
-                    $endConsumeTime = microtime(true);
-                    $this->dispatchConsumerTimingEvent((int) (($endConsumeTime - $startConsumeTime) * 1000), $message);
+                    $this->consumptionDuration += (microtime(true) - $startConsumeTime) * 1000;
+                    $this->dispatchConsumerTimingEvent($message);
                 }
             } catch (\Exception $ex) {
                 if (!$this->stop) {
@@ -124,17 +133,14 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     }
 
     /**
-     * This function dispatchs a timing event with the amount of time it took to consume a message.
+     * Dispatches a timing event with the amount of time it took to process a message.
      *
-     * @param $intervalMs int the timing interval that we would like to emanate
      * @param MessageInterface $message
-     *
-     * @return mixed
      */
-    protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
+    protected function dispatchConsumerTimingEvent(MessageInterface $message)
     {
         $event = new TimingEvent(TimingEvent::CONSUMER_TIMING);
-        $event->setIntervalMs($intervalMs);
+        $event->setIntervalMs($this->consumptionDuration);
         $event->setMessage($message);
 
         if (null !== ($dispatcher = $this->getEventDispatcher())) {

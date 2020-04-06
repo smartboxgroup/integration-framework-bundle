@@ -1,13 +1,11 @@
-parameters:
-  smartesb.consumers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer
-
 services:
   smartesb.consumers.queue:
-      class: "%smartesb.consumers.queue.class%"
+      class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer
       calls:
           - [ setId, ['smartesb.consumers.queue']]
           - [ setSmartesbHelper, ['@smartesb.helper']]
           - [ setEventDispatcher, ['@event_dispatcher']]
+          - [ setSerializer, ['@jms_serializer']]
   smartesb.consumers.async_queue:
       class: Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer
       calls:
