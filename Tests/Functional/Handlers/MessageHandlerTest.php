@@ -170,10 +170,14 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
         $serializer
             ->expects($this->once())
             ->method('encode')
-            ->willReturn([
-                'body' => 'body',
-                'headers' => [],
-            ]);
+            ->willReturnCallback(
+                function ($message) {
+                    return [
+                        'body' => serialize($message),
+                        'headers' => $message->getHeaders(),
+                    ];
+                }
+            );
 
         $failedProducer = new QueueProducer();
         $failedProducer->setMessageFactory($this->factory);
