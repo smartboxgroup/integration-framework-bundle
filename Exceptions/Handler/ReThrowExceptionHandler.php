@@ -11,7 +11,7 @@ final class ReThrowExceptionHandler implements ExceptionHandlerInterface
      *
      * @throws \Exception
      */
-    public function __invoke(\Exception $e, EndpointInterface $endpoint, $context)
+    public function __invoke(\Exception $exception, EndpointInterface $endpoint, $context)
     {
         throw $exception;
     }

@@ -24,7 +24,7 @@ final class ClosureExceptionHandler implements ExceptionHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function __invoke(\Exception $e, EndpointInterface $endpoint, $context)
+    public function __invoke(\Exception $exception, EndpointInterface $endpoint, $context)
     {
         ($this->closure)($exception, $endpoint, $context);
     }

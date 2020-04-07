@@ -7,9 +7,9 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 interface ExceptionHandlerInterface
 {
     /**
-     * @param \Exception $e
+     * @param \Exception $exception
      * @param EndpointInterface $endpoint
      * @param mixed $context
      */
-    public function __invoke(\Exception $e, EndpointInterface $endpoint, $context);
+    public function __invoke(\Exception $exception, EndpointInterface $endpoint, $context);
 }
