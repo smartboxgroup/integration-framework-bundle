@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Serialization;
 
+use JMS\Serializer\Exception\RuntimeException;
 use JMS\Serializer\SerializerInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
@@ -24,6 +25,9 @@ class Serializer implements QueueSerializerInterface
         $this->format = $format;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function decode(array $encodedMessage): MessageInterface
     {
         if (empty($encodedMessage['body']) || !is_array($encodedMessage['headers'])) {
@@ -31,23 +35,26 @@ class Serializer implements QueueSerializerInterface
         }
 
         try {
-            $queueMessage = $this->serializer->deserialize($encodedMessage['body'], SerializableInterface::class, $this->format);
-        } catch(\Exception $e) {
+            $message = $this->serializer->deserialize($encodedMessage['body'], SerializableInterface::class, $this->format);
+        } catch(RuntimeException $e) {
             throw new MessageDecodingFailedException(sprintf('Could not decode message: %s.', $e->getMessage()), $e->getCode(), $e);
         }
 
         foreach ($encodedMessage['headers'] as $header => $value) {
-            $queueMessage->setHeader($header, $value);
+            $message->setHeader($header, $value);
         }
         
-        return $queueMessage;
+        return $message;
     }
 
-    public function encode(MessageInterface $queueMessage): array
+    /**
+     * {@inheritdoc}
+     */
+    public function encode(MessageInterface $message): array
     {
         return [
-            'body' => $this->serializer->serialize($queueMessage->getBody(), $this->format),
-            'headers' => $queueMessage->getHeaders(),
+            'body' => $this->serializer->serialize($message, $this->format),
+            'headers' => $message->getHeaders(),
         ];
     }
 }

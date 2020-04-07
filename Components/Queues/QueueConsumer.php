@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
-use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
@@ -64,22 +63,22 @@ class QueueConsumer extends AbstractConsumer
     protected function readMessage(EndpointInterface $endpoint)
     {
         $driver = $this->getQueueDriver($endpoint);
-        $message = $driver->receive();
+        $encodedMessage = $driver->receive();
 
-        if (!$message) {
+        if (!$encodedMessage) {
             return null;
         }
         
         try {
             $start = microtime(true);
-            $queueMessage = $this->getSerializer()->decode([
-                'body' => $message->getBody(),
-                'headers' => $message->getHeaders()
+            $message = $this->getSerializer()->decode([
+                'body' => $encodedMessage->getBody(),
+                'headers' => $encodedMessage->getHeaders()
             ]);
 
             $this->consumptionDuration += (microtime(true) - $start) * 1000;
         } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, ['message' => $message]);
+            $this->getExceptionHandler()($exception, ['message' => $encodedMessage]);
             $driver->ack();
 
             $this->consumptionDuration += (microtime(true) - $start) * 1000;
@@ -87,7 +86,7 @@ class QueueConsumer extends AbstractConsumer
             return null;
         }
 
-        return $queueMessage;
+        return $message;
     }
 
     /**
