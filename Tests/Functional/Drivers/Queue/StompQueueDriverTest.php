@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
+use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Stomp\Transport\Frame;
 
 /**
  * @internal
@@ -21,7 +25,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
     {
         $queueMessage = $this->createQueueMessage($msg);
         $queueMessage->addHeader('test_header', '12345');
-        $this->driver->send($queueMessage);
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
 
         $this->driver->subscribe($this->queueName, 'test_header = 12345');
 
@@ -48,7 +52,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         $queueMessage = $this->createQueueMessage($msg);
 
         $this->driver->subscribe($this->queueName);
-        $this->driver->send($this->queueName, serialize($queueMessage->getBody()), $queueMessage->getHeaders());
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
 
         $this->driver->receive();
         $this->driver->nack();
@@ -73,7 +77,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         $queueMessage = $this->createQueueMessage($msg);
         $queueMessage->setTTL(1);
         $this->driver->subscribe($this->queueName);
-        $this->driver->send($this->queueName, serialize($queueMessage->getBody()), $queueMessage->getHeaders());
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
         $this->driver->unSubscribe();
 
         // After > 2 seconds, the message is not there
@@ -83,7 +87,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         if ($msgOut) {
             $this->driver->ack();
         }
-        $this->assertNull($msgOut);
+        $this->assertFalse($msgOut);
 
         $this->driver->disconnect();
     }
@@ -94,17 +98,17 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         $numMessages = 3;
         $sentMessages = [];
         for ($i = 0; $i < $numMessages; ++$i) {
-            $message = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
-            $this->driver->send($this->queueName, serialize($message->getBody()), $message->getHeaders());
-            $sentMessages[] = $message;
+            $queueMessage = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
+            $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
+            $sentMessages[] = $queueMessage;
         }
 
-        $this->driver->subscribe($this->queueName, null, $numMessages);
+        $this->driver->subscribe($this->queueName);
 
         $receivedMessages = [];
-        while (null !== ($receivedMessage = $this->driver->receive())) {
+        while ($receivedMessage = $this->driver->receive()) {
             $this->driver->ack();
-            $receivedMessages[] = $receivedMessage;
+            $receivedMessages[] = unserialize($receivedMessage->getBody());
         }
 
         $this->assertSame(
@@ -116,32 +120,31 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
     public function testPrefetchSizeShouldWorkAlsoWhenNotReceivingAllThePrefetchedMessagesAtOnce()
     {
         // populate the queue
-        $prefetchSize = 3;
         $numMessagesSent = 10;
         $sentMessages = [];
         for ($i = 0; $i < $numMessagesSent; ++$i) {
             $queueMessage = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
-            $this->driver->send($this->queueName, serialize($queueMessage->getBody()), $queueMessage->getHeaders());
+            $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
             $sentMessages[] = $queueMessage;
         }
 
-        $this->driver->subscribe($this->queueName, null, $prefetchSize);
+        $this->driver->subscribe($this->queueName);
 
         $receivedMessages = [];
 
         // receive just one message
-        $receivedMessages[] = $this->driver->receive();
+        $receivedMessages[] = unserialize($this->driver->receive()->getBody());
         $this->driver->ack();
 
         // send an additional message to the queue
         $queueMessage = $this->createQueueMessage($this->createSimpleEntity('item'.$numMessagesSent));
-        $this->driver->send($this->queueName, serialize($queueMessage->getBody()), $queueMessage->getHeaders());
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
         $sentMessages[] = $queueMessage;
 
         // receives all the remaining messages in the queue
-        while (null !== ($receivedMessage = $this->driver->receive())) {
+        while ($receivedMessage = $this->driver->receive()) {
             $this->driver->ack();
-            $receivedMessages[] = $receivedMessage;
+            $receivedMessages[] = unserialize($receivedMessage->getBody());
         }
 
         $this->assertSame(

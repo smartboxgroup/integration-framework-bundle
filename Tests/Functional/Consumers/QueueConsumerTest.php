@@ -54,32 +54,39 @@ class QueueConsumerTest extends BaseKernelTestCase
     public function testExecute()
     {
         $consumer = $this->getConsumer();
+        $serializer = $consumer->getSerializer();
         $queueDriver = $this->getQueueDriver('main');
         $queueDriver->connect();
 
         $message1 = $this->createMessage(new EntityX(111));
-        $msg = $queueDriver->createQueueMessage();
-        $msg->setQueue(self::QUEUE);
-        $msg->setHeader(Message::HEADER_FROM, self::QUEUE);
-        $msg->setBody($message1);
-        $msg->setDestinationURI('direct://test');
-        $queueDriver->send($msg);
+        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage->setQueue(self::QUEUE);
+        $queueMessage->setHeader(Message::HEADER_FROM, self::QUEUE);
+        $queueMessage->setBody($message1);
+        $queueMessage->setDestinationURI('direct://test');
+
+        $encodedMessage = $serializer->encode($queueMessage);
+        $queueDriver->send($queueMessage->getQueue(), $encodedMessage['body'], $encodedMessage['headers']);
 
         $message2 = $this->createMessage(new EntityX(222));
-        $msg = $queueDriver->createQueueMessage();
-        $msg->setQueue(self::QUEUE);
-        $msg->setHeader(Message::HEADER_FROM, self::QUEUE);
-        $msg->setBody($message2);
-        $msg->setDestinationURI('direct://test');
-        $queueDriver->send($msg);
+        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage->setQueue(self::QUEUE);
+        $queueMessage->setHeader(Message::HEADER_FROM, self::QUEUE);
+        $queueMessage->setBody($message2);
+        $queueMessage->setDestinationURI('direct://test');
+
+        $encodedMessage = $serializer->encode($queueMessage);
+        $queueDriver->send($queueMessage->getQueue(), $encodedMessage['body'], $encodedMessage['headers']);
 
         $message3 = $this->createMessage(new EntityX(333));
-        $msg = $queueDriver->createQueueMessage();
-        $msg->setQueue(self::QUEUE);
-        $msg->setHeader(Message::HEADER_FROM, self::QUEUE);
-        $msg->setBody($message3);
-        $msg->setDestinationURI('direct://test');
-        $queueDriver->send($msg);
+        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage->setQueue(self::QUEUE);
+        $queueMessage->setHeader(Message::HEADER_FROM, self::QUEUE);
+        $queueMessage->setBody($message3);
+        $queueMessage->setDestinationURI('direct://test');
+
+        $encodedMessage = $serializer->encode($queueMessage);
+        $queueDriver->send($queueMessage->getQueue(), $encodedMessage['body'], $encodedMessage['headers']);
 
         $messages = [$message1, $message2, $message3];
         $queues = [self::QUEUE];
@@ -133,16 +140,19 @@ class QueueConsumerTest extends BaseKernelTestCase
     public function testExecuteWithNullLogger()
     {
         $consumer = $this->getConsumer();
+        $serializer = $this->getConsumer()->getSerializer();
         $queueDriver = $this->getQueueDriver('main');
         $queueDriver->connect();
 
         $message1 = $this->createMessage(new EntityX(111));
-        $msg = $queueDriver->createQueueMessage();
-        $msg->setQueue(self::QUEUE);
-        $msg->setHeader(Message::HEADER_FROM, self::QUEUE);
-        $msg->setBody($message1);
-        $msg->setDestinationURI('direct://test');
-        $queueDriver->send($msg);
+        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage->setQueue(self::QUEUE);
+        $queueMessage->setHeader(Message::HEADER_FROM, self::QUEUE);
+        $queueMessage->setBody($message1);
+        $queueMessage->setDestinationURI('direct://test');
+
+        $encodedMessage = $serializer->encode($queueMessage);
+        $queueDriver->send($queueMessage->getQueue(), $encodedMessage['body'], $encodedMessage['headers']);
 
         $messages = [$message1];
         $queues = [self::QUEUE];

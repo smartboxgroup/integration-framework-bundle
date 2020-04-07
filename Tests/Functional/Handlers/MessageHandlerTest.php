@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
-use JMS\Serializer\SerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer;
@@ -18,6 +17,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItineraryResolver;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactoryInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
+use Smartbox\Integration\FrameworkBundle\Core\Serializers\QueueSerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\FakeProcessor;
@@ -166,17 +166,20 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
             ->method('getDriver')
             ->willReturn($failedQueueDriver);
 
-        $serializer = $this->createMock(SerializerInterface::class);
+        $serializer = $this->createMock(QueueSerializerInterface::class);
         $serializer
             ->expects($this->once())
-            ->method('serialize')
-            ->willReturn('body message');
+            ->method('encode')
+            ->willReturn([
+                'body' => 'body',
+                'headers' => [],
+
+            ]);
 
         $failedProducer = new QueueProducer();
         $failedProducer->setMessageFactory($this->factory);
         $failedProducer->setDriverRegistry($driverRegistryMock);
         $failedProducer->setSerializer($serializer);
-
 
         $optionsResolver = new OptionsResolver();
 

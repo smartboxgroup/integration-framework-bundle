@@ -2,7 +2,6 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumers;
 
-use JMS\Serializer\SerializerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -12,6 +11,7 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDri
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Serializers\QueueSerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\Unit\Traits\ConsumerMockFactory;
 use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 
@@ -68,15 +68,12 @@ class AsyncQueueConsumerTest extends TestCase
      */
     public function testUsesExceptionHandlerOnSerializationErrors()
     {
-        $serializer = $this->createMock(SerializerInterface::class);
+        $serializer = $this->createMock(QueueSerializerInterface::class);
         $serializer->expects($this->once())
-            ->method('deserialize')
+            ->method('decode')
             ->willThrowException(new \RuntimeException('I cöuld nót dese�rialize that JSON strin��������'));
 
         $driver = $this->createMock(AsyncQueueDriverInterface::class);
-        $driver->expects($this->once())
-            ->method('getFormat')
-            ->willReturn('json');
 
         $messageHeaders = new AMQPTable([
             'ttl' => 86400,
@@ -114,9 +111,9 @@ class AsyncQueueConsumerTest extends TestCase
             ->method('setMessageId')
             ->with($messageID);
 
-        $serializer = $this->createMock(SerializerInterface::class);
+        $serializer = $this->createMock(QueueSerializerInterface::class);
         $serializer->expects($this->once())
-            ->method('deserialize')
+            ->method('decode')
             ->willReturn($queueMessage);
 
         $message = new AMQPMessage('an amqp message');
