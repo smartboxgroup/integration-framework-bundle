@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AmqpQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
@@ -281,7 +281,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         throw new \LogicException('To use the AMQP driver, you\'ll need the php-amqplib library. Please run \'composer require php-amqplib/php-amqplib\' to install it.');
                     }
 
-                    $driverDef = new Definition(PhpAmqpLibDriver::class);
+                    $driverDef = new Definition(AmqpQueueDriver::class);
                     $driverDef->addMethodCall('configure', [
                         $driverConfig['host'],
                         $driverConfig['username'],
@@ -290,10 +290,10 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     ]);
 
                     $driverDef->addMethodCall('setId', [$driverId]);
-                    $driverDef->addMethodCall('setReadTimeout', [$driverConfig['read_timeout'] ?? PhpAmqpLibDriver::READ_TIMEOUT]);
-                    $driverDef->addMethodCall('setConnectionTimeout', [$driverConfig['connection_timeout'] ?? PhpAmqpLibDriver::CONNECTION_TIMEOUT]);
-                    $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? PhpAmqpLibDriver::PREFETCH_COUNT]);
-                    $driverDef->addMethodCall('setHeartbeat', [$driverConfig['heartbeat'] ?? PhpAmqpLibDriver::HEARTBEAT]);
+                    $driverDef->addMethodCall('setReadTimeout', [$driverConfig['read_timeout'] ?? AmqpQueueDriver::READ_TIMEOUT]);
+                    $driverDef->addMethodCall('setConnectionTimeout', [$driverConfig['connection_timeout'] ?? AmqpQueueDriver::CONNECTION_TIMEOUT]);
+                    $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? AmqpQueueDriver::PREFETCH_COUNT]);
+                    $driverDef->addMethodCall('setHeartbeat', [$driverConfig['heartbeat'] ?? AmqpQueueDriver::HEARTBEAT]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
 
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);

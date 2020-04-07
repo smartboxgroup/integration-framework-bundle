@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exception\AMQPConnectionClosedException;
@@ -14,9 +14,9 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue\AbstractQueueDriverTest;
 
 /**
- * Class PhpAmqpLibDriverTest.
+ * Class AmqpQueueDriverTest.
  */
-class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
+class AmqpQueueDriverTest extends AbstractQueueDriverTest
 {
     /**
      * @var ConsumerInterface

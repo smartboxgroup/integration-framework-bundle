@@ -17,9 +17,9 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
- * Class PhpAmqpLibDriver.
+ * Class AmqpQueueDriver.
  */
-class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
+class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
 {
     /**
      * This field specifies the prefetch window size in octets.
