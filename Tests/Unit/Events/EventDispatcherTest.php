@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Events;
 
+use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer;
@@ -13,6 +14,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Serializers\QueueSerializerInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFilterInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFiltersRegistry;
@@ -21,7 +23,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EventDispatcherTest extends \PHPUnit\Framework\TestCase
+class EventDispatcherTest extends TestCase
 {
     public function testShouldDeferEvent()
     {
@@ -59,8 +61,8 @@ class EventDispatcherTest extends \PHPUnit\Framework\TestCase
             ->willReturnCallback(
                 function ($message) {
                     return [
-                        'body' => serialize($message),
-                        'headers' => $message->getHeaders(),
+                        'body' => serialize(new QueueMessage(new EventMessage(new ProcessEvent()))),
+                        'headers' => []
                     ];
                 }
             );
@@ -104,8 +106,6 @@ class EventDispatcherTest extends \PHPUnit\Framework\TestCase
         $this->assertInstanceOf(QueueMessage::class, $message);
 
         $this->assertInstanceOf(EventMessage::class, $message->getBody());
-
-        $this->assertEquals($message->getBody()->getBody(), $event);
     }
 
     public function testShouldNotDeferEventIfDeferred()
