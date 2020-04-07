@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Serializers;
 
-use JMS\Serializer\SerializerInterface;
-
 trait UsesQueueSerializer
 {
     private $serializer;
 
     /**
-     * @return SerializerInterface
+     * @return QueueSerializerInterface
      */
     public function getSerializer()
     {
