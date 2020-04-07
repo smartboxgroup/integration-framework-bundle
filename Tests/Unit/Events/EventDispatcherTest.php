@@ -62,7 +62,7 @@ class EventDispatcherTest extends TestCase
                 function ($message) {
                     return [
                         'body' => serialize(new QueueMessage(new EventMessage(new ProcessEvent()))),
-                        'headers' => []
+                        'headers' => [],
                     ];
                 }
             );
