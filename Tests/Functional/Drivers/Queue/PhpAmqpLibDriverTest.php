@@ -51,7 +51,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     {
         $queueMessage = $this->createQueueMessage($msg);
         $queueMessage->addHeader('test_header', '12345');
-        $this->assertTrue($this->driver->send($queueMessage->getQueue(), serialize($queueMessage->getBody()), $queueMessage->getHeaders()));
+        $this->assertTrue($this->driver->send($queueMessage->getQueue(), serialize($queueMessage), $queueMessage->getHeaders()));
     }
 
     /**
@@ -184,7 +184,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     {
         $queueMessage = $this->createQueueMessage($msg);
         $queueMessage->addHeader('test_header', '12345');
-        $this->driver->send($queueMessage->getQueue(), serialize($queueMessage->getBody()), $queueMessage->getHeaders());
+        $this->driver->send($queueMessage->getQueue(), serialize($queueMessage), $queueMessage->getHeaders());
         $this->driver->disconnect();
         $this->driver->connect();
     }
@@ -201,7 +201,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $queueMessage->setMessageType(md5(rand(0, 255)));
         $queueMessage->setPersistent(true);
 
-        $this->driver->send($this->queueName, serialize($queueMessage->getBody()), $queueMessage->getHeaders());
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
 
         $callback = function (AMQPMessage $amqpMessage) use ($queueMessage) {
             $this->assertEquals($amqpMessage->get('expiration'), $queueMessage->getHeader('expiration'), sprintf('Expiration header was missing or different. Expected %s, got %s', $queueMessage->getHeader('expiration'), $amqpMessage->get('expiration')));
