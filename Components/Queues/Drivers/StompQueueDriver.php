@@ -106,7 +106,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
      *
      * @param string $version
      */
-    public function setStompVersion(string $version = self::STOMP_VERSION)
+    public function setStompVersion(string $version)
     {
         $this->stompVersion = $version;
     }
@@ -116,7 +116,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
      *
      * @param int $connectionTimeout
      */
-    public function setTimeout(int $connectionTimeout = 3)
+    public function setTimeout(int $connectionTimeout)
     {
         $this->connectionTimeout = $connectionTimeout;
     }
@@ -126,7 +126,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
      *
      * @param bool $sync
      */
-    public function setSync(bool $sync = true)
+    public function setSync(bool $sync)
     {
         $this->sync = $sync;
     }

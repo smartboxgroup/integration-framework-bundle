@@ -194,7 +194,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      *
      * @param int $prefetchCount
      */
-    public function setPrefetchCount(int $prefetchCount = self::PREFETCH_COUNT)
+    public function setPrefetchCount(int $prefetchCount)
     {
         $this->prefetchCount = $prefetchCount;
     }
