@@ -518,7 +518,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $loader->load('exceptions.yml');
         $loader->load('protocols.yml');
         $loader->load('producers.yml');
-        $loader->load('consumers.yml');
         $loader->load('events_deferring.yml');
         $loader->load('routing.yml');
         $loader->load('smoke_tests.yml');

@@ -32,6 +32,13 @@ smartbox_core:
 
 smartbox_integration_framework:
     defer_events_to_uri: queue://events
+
+    queue_consumers:
+        async_queue:
+            type: async
+        queue:
+            type: sync
+
     queue_drivers:
         main:
             type: rabbitmq
@@ -50,6 +57,7 @@ smartbox_integration_framework:
 
     nosql_drivers: ~
 
+    default_queue_consumer: queue
     default_queue_driver: main
     default_nosql_driver: ~
 
