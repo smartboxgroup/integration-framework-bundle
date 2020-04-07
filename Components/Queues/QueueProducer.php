@@ -71,9 +71,9 @@ class QueueProducer extends Producer
         // Send
         $queueDriver->connect();
 
-        $message = $this->getSerializer()->encode($queueMessage);
+        $encodedMessage = $this->getSerializer()->encode($queueMessage);
 
-        $success = $queueDriver->send($queueMessage->getQueue(), $message['body'], $message['headers']);
+        $success = $queueDriver->send($queueMessage->getQueue(), $encodedMessage['body'], $encodedMessage['headers']);
 
         if (!$success) {
             throw new \RuntimeException("The message could not be delivered to the queue '$queueName' while using queue driver '$queueDriverName'");
