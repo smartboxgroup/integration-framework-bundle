@@ -2,6 +2,8 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Exceptions\Handler;
 
+use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+
 final class ClosureExceptionHandler implements ExceptionHandlerInterface
 {
     /**
@@ -20,11 +22,10 @@ final class ClosureExceptionHandler implements ExceptionHandlerInterface
     }
 
     /**
-     * @param \Exception $exception
-     * @param mixed $context
+     * {@inheritdoc}
      */
-    public function __invoke(\Exception $exception, $context)
+    public function __invoke(\Exception $e, EndpointInterface $endpoint, $context)
     {
-        ($this->closure)($exception, $context);
+        ($this->closure)($exception, $endpoint, $context);
     }
 }
