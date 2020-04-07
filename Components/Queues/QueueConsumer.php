@@ -78,7 +78,7 @@ class QueueConsumer extends AbstractConsumer
 
             $this->consumptionDuration += (microtime(true) - $start) * 1000;
         } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, $endpoint, ['body' => $message->getBody(), 'headers' => $message->getHeaders()]);
+            $this->getExceptionHandler()($exception, $endpoint, ['body' => $encodedMessage->getBody(), 'headers' => $encodedMessage->getHeaders()]);
             $driver->ack();
 
             $this->consumptionDuration += (microtime(true) - $start) * 1000;
