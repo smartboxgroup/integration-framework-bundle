@@ -142,32 +142,32 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      */
     protected function callback(EndpointInterface $endpoint): callable
     {
-        return function (AMQPMessage $message) use ($endpoint) {
+        return function (AMQPMessage $encodedMessage) use ($endpoint) {
             $driver = $this->getQueueDriver($endpoint);
 
             try {
                 $start = microtime(true);
-                $queueMessage = $this->getSerializer()->decode([
-                    'body' => $message->getBody(),
+                $message = $this->getSerializer()->decode([
+                    'body' => $encodedMessage->getBody(),
                     'headers' => []
                 ]);
 
                 $this->consumptionDuration = (microtime(true) - $start) * 1000;
 
-                $queueMessage->setMessageId($message->getDeliveryTag());
+                $message->setMessageId($encodedMessage->getDeliveryTag());
             } catch (\Exception $exception) {
-                $this->getExceptionHandler()($exception, $endpoint, ['body' => $message->getBody(), 'headers' => $message->get('application_headers')->getNativeData()]);
+                $this->getExceptionHandler()($exception, $endpoint, ['body' => $encodedMessage->getBody(), 'headers' => $encodedMessage->get('application_headers')->getNativeData()]);
 
-                $queueMessage = $driver->createQueueMessage();
-                $queueMessage->setMessageId($message->getDeliveryTag());
-                $driver->ack($queueMessage);
+                $message = $driver->createQueueMessage();
+                $message->setMessageId($encodedMessage->getDeliveryTag());
+                $driver->ack($message);
 
                 $this->consumptionDuration = (microtime(true) - $start) * 1000;
 
                 return false;
             }
 
-            parent::callback($endpoint)($queueMessage);
+            parent::callback($endpoint)($message);
         };
     }
 }
