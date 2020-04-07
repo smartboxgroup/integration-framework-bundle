@@ -58,6 +58,9 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('defer_events_to_uri')
             ->isRequired()->end()
 
+            ->scalarNode('default_queue_consumer')
+            ->isRequired()->end()
+
             ->scalarNode('default_queue_driver')
             ->isRequired()->end()
 
@@ -73,6 +76,7 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->append($this->addProducersNode())
             ->append($this->addConsumersNode())
+            ->append($this->addQueueConsumersNode())
             ->append($this->addQueueDriversNode())
             ->append($this->addNoSQLDriversNode())
             ->append($this->addHandlersNode())
@@ -410,11 +414,6 @@ class Configuration implements ConfigurationInterface
             ->defaultValue(true)
             ->end()
 
-            ->scalarNode('exception_handler')
-            ->info('The service id of an exception handler to use when a message can not be de-serialized')
-            ->defaultValue(null)
-            ->end()
-
             ->end()
 
             ->end()
@@ -466,6 +465,31 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->isRequired()
         ;
+
+        return $node;
+    }
+
+    private function addQueueConsumersNode()
+    {
+        $builder = new TreeBuilder();
+
+        $node = $builder->root('queue_consumers');
+        $node->info('Section where the queue consumers are defined');
+
+        $node->useAttributeAsKey('name')
+            ->prototype('array')
+            ->children()
+                ->enumNode('type')
+                    ->info('Consumer type')
+                    ->values(['sync', 'async'])
+                    ->isRequired()
+                ->end()
+                ->scalarNode('exception_handler')
+                    ->info('The service id of an exception handler to use when a message can not be de-serialized')
+                    ->defaultValue(null)
+                ->end()
+            ->end()
+            ->isRequired();
 
         return $node;
     }

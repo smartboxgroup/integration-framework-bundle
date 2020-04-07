@@ -3,8 +3,10 @@
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\MongoDBDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -173,6 +175,61 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         }
     }
 
+    private function loadQueueConsumers(ContainerBuilder $container)
+    {
+        if (!isset($this->config['queue_consumers'][$this->config['default_queue_consumer']])) {
+            throw new InvalidDefinitionException(sprintf('Invalid default queue consumer "%s"', $this->config['default_queue_consumer']));
+        }
+
+        // Create services for queue consumers
+        foreach ($this->config['queue_consumers'] as $consumerName => $consumerConfig) {
+            $consumerId = self::CONSUMER_PREFIX.$consumerName;
+
+            $exceptionHandlerId = $consumerConfig['exception_handler'];
+
+            switch ($consumerConfig['type']) {
+                case 'sync':
+                    $consumerDef = new Definition(QueueConsumer::class);
+                    $consumerDef->addMethodCall('setId', [$consumerId]);
+                    $consumerDef->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
+                    $consumerDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
+                    $consumerDef->addMethodCall('setSerializer', [new Reference('smartesb.serialization.queue.jms_serializer')]);
+
+                    if ($exceptionHandlerId) {
+                        $consumerDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
+                    }
+
+                    if ($this->config['default_queue_consumer'] == $consumerName) {
+                        $container->findDefinition('smartesb.protocols.queue')
+                            ->addMethodCall('setDefaultConsumer', [new Reference($consumerId)]);
+                    }
+
+                    $container->setDefinition($consumerId, $consumerDef);
+                    
+                    break;
+                case 'async':
+                    $consumerDef = new Definition(AsyncQueueConsumer::class);
+                    $consumerDef->addMethodCall('setId', [$consumerId]);
+                    $consumerDef->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
+                    $consumerDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
+                    $consumerDef->addMethodCall('setSerializer', [new Reference('smartesb.serialization.queue.jms_serializer')]);
+
+                    if ($exceptionHandlerId) {
+                        $consumerDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
+                    }
+
+                    if ($this->config['default_queue_consumer'] == $consumerName) {
+                        $container->findDefinition('smartesb.protocols.queue')
+                            ->addMethodCall('setDefaultConsumer', [new Reference($consumerId)]);
+                    }
+
+                    $container->setDefinition($consumerId, $consumerDef);
+                    
+                    break;
+            }
+        }
+    }
+
     protected function loadQueueDrivers(ContainerBuilder $container)
     {
         $queueDriverRegistry = new Definition(DriverRegistry::class);
@@ -185,8 +242,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         // Create services for queue drivers
         foreach ($this->config['queue_drivers'] as $driverName => $driverConfig) {
             $driverId = self::QUEUE_DRIVER_PREFIX.$driverName;
-
-            $exceptionHandlerId = strtolower($driverConfig['exception_handler']);
 
             $type = strtolower($driverConfig['type']);
             switch ($type) {
@@ -219,16 +274,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                     $container->setDefinition($driverId, $driverDef);
 
-                    if ($exceptionHandlerId) {
-                        $container->findDefinition('smartesb.consumers.queue')
-                            ->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
-                    }
-
-                    if ($this->config['default_queue_driver'] == $driverName) {
-                        $container->findDefinition('smartesb.protocols.queue')
-                            ->addMethodCall('setDefaultConsumer', [new Reference('smartesb.consumers.queue')]);
-                    }
-
                     break;
 
                 case 'amqp':
@@ -254,16 +299,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 
                     $container->setDefinition($driverId, $driverDef);
-
-                    if ($exceptionHandlerId) {
-                        $container->findDefinition('smartesb.consumers.async_queue')
-                            ->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
-                    }
-
-                    if ($this->config['default_queue_driver'] == $driverName) {
-                        $container->findDefinition('smartesb.protocols.queue')
-                            ->addMethodCall('setDefaultConsumer', [new Reference('smartesb.consumers.async_queue')]);
-                    }
 
                     break;
 
@@ -500,6 +535,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         $this->loadHandlers($container);
         $this->loadConfigurableConsumers($container);
+        $this->loadQueueConsumers($container);
         $this->loadQueueDrivers($container);
         $this->loadNoSQLDrivers($container);
         $this->loadConfigurableProducers($container);
