@@ -14,14 +14,13 @@ trait UsesExceptionHandlerTrait
     public function getExceptionHandler()
     {
         if (null === $this->exceptionHandler) {
-            $this->exceptionHandler = new ReThrowExceptionHandler;
+            $this->exceptionHandler = new ReThrowExceptionHandler();
         }
 
         return $this->exceptionHandler;
     }
 
     /**
-     * @param ExceptionHandlerInterface $exceptionHandler
      * @return UsesExceptionHandlerTrait
      */
     public function setExceptionHandler(ExceptionHandlerInterface $exceptionHandler)

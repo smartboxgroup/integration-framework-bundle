@@ -205,7 +205,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     }
 
                     $container->setDefinition($consumerId, $consumerDef);
-                    
+
                     break;
                 case 'async':
                     $consumerDef = new Definition(AsyncQueueConsumer::class);
@@ -224,7 +224,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     }
 
                     $container->setDefinition($consumerId, $consumerDef);
-                    
+
                     break;
             }
         }
