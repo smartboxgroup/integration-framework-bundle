@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Core\Consumers;
 
 use Smartbox\CoreBundle\Utils\Helper\DateTimeCreator;

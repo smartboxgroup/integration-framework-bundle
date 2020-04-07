@@ -50,7 +50,7 @@ class AmqpQueueDriverTest extends AbstractQueueDriverTest
     {
         $queueMessage = $this->createQueueMessage($msg);
         $queueMessage->addHeader('test_header', '12345');
-        $this->assertTrue($this->driver->send($queueMessage->getQueue(), serialize($queueMessage), $queueMessage->getHeaders()));
+        $this->assertTrue($this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders()));
     }
 
     /**
@@ -183,7 +183,7 @@ class AmqpQueueDriverTest extends AbstractQueueDriverTest
     {
         $queueMessage = $this->createQueueMessage($msg);
         $queueMessage->addHeader('test_header', '12345');
-        $this->driver->send($queueMessage->getQueue(), serialize($queueMessage), $queueMessage->getHeaders());
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
         $this->driver->disconnect();
         $this->driver->connect();
     }
