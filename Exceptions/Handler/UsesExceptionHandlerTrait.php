@@ -1,15 +1,15 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Exceptions\Handler;
 
-
 trait UsesExceptionHandlerTrait
 {
-    protected $exceptionHandler;
+    private $exceptionHandler;
 
     /**
-     * @return mixed
+     * @return ExceptionHandlerInterface
      */
     public function getExceptionHandler()
     {
@@ -27,7 +27,7 @@ trait UsesExceptionHandlerTrait
     public function setExceptionHandler(ExceptionHandlerInterface $exceptionHandler)
     {
         $this->exceptionHandler = $exceptionHandler;
-        
+
         return $this;
     }
 }
