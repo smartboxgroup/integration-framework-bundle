@@ -3,8 +3,8 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
@@ -173,7 +173,6 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
             ->willReturn([
                 'body' => 'body',
                 'headers' => [],
-
             ]);
 
         $failedProducer = new QueueProducer();

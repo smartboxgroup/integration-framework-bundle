@@ -6,13 +6,13 @@ use Smartbox\Integration\FrameworkBundle\Components\DB\NoSQL\Drivers\MongoDB\Mon
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PhpAmqpLibDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
-use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\ConfigurableProducerInterface;
 use Smartbox\Integration\FrameworkBundle\Events\ExternalSystemHTTPEvent;
-use Smartbox\Integration\FrameworkBundle\Events\MalformedInputEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
+use Smartbox\Integration\FrameworkBundle\Events\MalformedInputEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\CanCheckConnectivityInterface;
@@ -69,9 +69,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $options = $producerConfig['options'];
 
             if (!$class || !in_array(ConfigurableProducerInterface::class, class_implements($class))) {
-                throw new InvalidConfigurationException(
-                    "Invalid class given for producer $producerName. The class must implement ConfigurableProducerInterface, '$class' given."
-                );
+                throw new InvalidConfigurationException("Invalid class given for producer $producerName. The class must implement ConfigurableProducerInterface, '$class' given.");
             }
 
             $definition = new Definition($class);
@@ -122,9 +120,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $options = $consumerConfig['options'];
 
             if (!$class || !in_array(ConfigurableConsumerInterface::class, class_implements($class))) {
-                throw new InvalidConfigurationException(
-                    "Invalid class given for consumer $consumerName. The class must implement ConfigurableConsumerInterface, '$class' given."
-                );
+                throw new InvalidConfigurationException("Invalid class given for consumer $consumerName. The class must implement ConfigurableConsumerInterface, '$class' given.");
             }
 
             $definition = new Definition($class);
@@ -203,7 +199,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         $driverConfig['host'],
                         $driverConfig['username'],
                         $driverConfig['password'],
-                        $driverConfig['vhost']
+                        $driverConfig['vhost'],
                     ]);
 
                     $driverDef->addMethodCall('setId', [$driverId]);
@@ -245,7 +241,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                         $driverConfig['host'],
                         $driverConfig['username'],
                         $driverConfig['password'],
-                        $driverConfig['vhost']
+                        $driverConfig['vhost'],
                     ]);
 
                     $driverDef->addMethodCall('setId', [$driverId]);
@@ -279,7 +275,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         // set default queue driver alias
         if (null !== $this->config['default_queue_driver']) {
-            $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX . $this->config['default_queue_driver']);
+            $defaultQueueDriverAlias = new Alias(self::QUEUE_DRIVER_PREFIX.$this->config['default_queue_driver']);
             $container->setAlias('smartesb.default_queue_driver', $defaultQueueDriverAlias);
         }
     }
@@ -468,13 +464,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $this->config = $config;
 
         if ($this->getFlowsVersion() > $this->getLatestFlowsVersion()) {
-            throw new InvalidConfigurationException(
-                sprintf(
-                    'The flows version number(%s) can not be bigger than the latest version available(%s)',
-                    $this->getFlowsVersion(),
-                    $this->getLatestFlowsVersion()
-                )
-            );
+            throw new InvalidConfigurationException(sprintf('The flows version number(%s) can not be bigger than the latest version available(%s)', $this->getFlowsVersion(), $this->getLatestFlowsVersion()));
         }
 
         $container->setParameter('smartesb.flows_version', $this->getFlowsVersion());

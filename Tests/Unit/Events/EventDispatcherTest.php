@@ -9,10 +9,10 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Serializers\QueueSerializerInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFilterInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFiltersRegistry;
@@ -57,7 +57,7 @@ class EventDispatcherTest extends \PHPUnit\Framework\TestCase
             ->expects($this->once())
             ->method('encode')
             ->willReturnCallback(
-                function ($message)  {
+                function ($message) {
                     return [
                         'body' => serialize($message),
                         'headers' => $message->getHeaders(),

@@ -13,8 +13,6 @@ final class ClosureExceptionHandler implements ExceptionHandlerInterface
 
     /**
      * ClosureExceptionHandler constructor.
-     *
-     * @param \Closure $closure
      */
     public function __construct(\Closure $closure)
     {

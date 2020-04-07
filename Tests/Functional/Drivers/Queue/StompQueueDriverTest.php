@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
-use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Stomp\Transport\Frame;
 
 /**
  * @internal
@@ -18,8 +15,6 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
 {
     /**
      * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
      */
     public function testShouldSelect(MessageInterface $msg)
     {
@@ -69,8 +64,6 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
 
     /**
      * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
      */
     public function testAfterTtlShouldDiscard(MessageInterface $msg)
     {

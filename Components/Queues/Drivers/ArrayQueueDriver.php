@@ -37,10 +37,8 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Configures the driver.
      *
-     * @param string      $host
-     * @param string      $username Username to connect to the queuing system
-     * @param string      $password Password to connect to the queuing system
-     * @param string|null $vhost
+     * @param string $username Username to connect to the queuing system
+     * @param string $password Password to connect to the queuing system
      */
     public function configure(string $host, string $username, string $password, string $vhost = null)
     {
@@ -65,8 +63,6 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Returns true if a connection already exists with the queing system, false otherwise.
-     *
-     * @return bool
      */
     public function isConnected(): bool
     {
@@ -105,8 +101,6 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Acknowledges the processing of the last received object.
      * The object should be removed from the queue.
-     *
-     * @param QueueMessageInterface|null $message
      */
     public function ack(QueueMessageInterface $message = null)
     {
@@ -116,8 +110,6 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Acknowledges a failure on processing the last received object.
      * The object could be moved to the DLQ or be delivered to another subscription for retrial.
-     *
-     * @param QueueMessageInterface|null $message
      */
     public function nack(QueueMessageInterface $message = null)
     {
@@ -150,9 +142,6 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
         return $this->unacknowledgedFrame;
     }
 
-    /**
-     * @return QueueMessageInterface
-     */
     public function createQueueMessage(): QueueMessageInterface
     {
         /*

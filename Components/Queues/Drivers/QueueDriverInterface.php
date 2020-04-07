@@ -16,11 +16,6 @@ interface QueueDriverInterface extends SerializableInterface
 
     /**
      * Configures the driver.
-     *
-     * @param string      $host
-     * @param string      $username
-     * @param string      $password
-     * @param string|null $vhost
      */
     public function configure(string $host, string $username, string $password, string $vhost = null);
 
@@ -36,8 +31,6 @@ interface QueueDriverInterface extends SerializableInterface
 
     /**
      * Returns true if a connection already exists with the queing system, false otherwise.
-     *
-     * @return bool
      */
     public function isConnected(): bool;
 
@@ -45,8 +38,6 @@ interface QueueDriverInterface extends SerializableInterface
      * Acknowledges the message in the message broker. $messageId is nullable for backwards compatibility with the
      * SyncQueueDriverInterface. In practice, unless your driver is keeping track of messages, $message should always
      * be passed to this function.
-     *
-     * @param QueueMessageInterface|null $message
      */
     public function ack(QueueMessageInterface $message = null);
 
@@ -54,24 +45,13 @@ interface QueueDriverInterface extends SerializableInterface
      * Negative acknowledgement of a message.
      *
      * @see ack() for extra information about this function.
-     *
-     * @param QueueMessageInterface|null $message
      */
     public function nack(QueueMessageInterface $message = null);
 
     /**
      * Publish the message to the broker.
-     *
-     * @param string $destination
-     * @param string $body
-     * @param array $headers
-     *
-     * @return bool
      */
     public function send(string $destination, string $body = '', array $headers = []): bool;
 
-    /**
-     * @return QueueMessageInterface
-     */
     public function createQueueMessage(): QueueMessageInterface;
 }

@@ -9,7 +9,6 @@ use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 
@@ -71,8 +70,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
     }
 
     /**
-     * @param QueueMessage $message
-     *
      * @return mixed
      */
     public static function mapTitle(QueueMessage $message)
@@ -87,8 +84,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
 
     /**
      * Create an instance of the queue driver to be tested.
-     *
-     * @return QueueDriverInterface
      */
     abstract protected function createDriver(): QueueDriverInterface;
 

@@ -9,11 +9,11 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Stomp\Client;
+use Stomp\Exception\ConnectionException;
 use Stomp\Network\Connection;
 use Stomp\StatefulStomp;
 use Stomp\Transport\Frame;
 use Stomp\Transport\Message;
-use Stomp\Exception\ConnectionException;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 
@@ -103,8 +103,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Set the version to Stomp driver.
-     *
-     * @param string $version
      */
     public function setStompVersion(string $version)
     {
@@ -113,8 +111,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Set the timeout to Stomp driver.
-     *
-     * @param int $connectionTimeout
      */
     public function setTimeout(int $connectionTimeout)
     {
@@ -123,8 +119,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Set if the driver will work in synchronous or asynchronous mode.
-     *
-     * @param bool $sync
      */
     public function setSync(bool $sync)
     {
@@ -187,9 +181,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         $this->description = $description;
     }
 
-    /**
-     * @param int $prefetchCount
-     */
     public function setPrefetchCount(int $prefetchCount = self::PREFETCH_COUNT)
     {
         $this->prefetchCount = $prefetchCount;
@@ -322,9 +313,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     public function receive()
     {
         if ($this->currentFrame) {
-            throw new \RuntimeException(
-                'StompQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages.'
-            );
+            throw new \RuntimeException('StompQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages.');
         }
 
         $this->currentFrame = $this->statefulStomp->read();
@@ -362,9 +351,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         $this->currentFrame = null;
     }
 
-    /**
-     * @return QueueMessageInterface
-     */
     public function createQueueMessage(): QueueMessageInterface
     {
         $msg = new QueueMessage();
@@ -383,8 +369,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Close the opened connections on kernel terminate.
-     *
-     * @param PostResponseEvent $event
      */
     public function onKernelTerminate(PostResponseEvent $event)
     {
@@ -393,8 +377,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Calls the doDestroy method on console.terminate event.
-     *
-     * @param ConsoleTerminateEvent $event
      */
     public function onConsoleTerminate(ConsoleTerminateEvent $event)
     {

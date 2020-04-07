@@ -28,14 +28,10 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
     /**
      * Initializes the consumer for a given endpoint.
-     *
-     * @param EndpointInterface $endpoint
      */
     abstract protected function initialize(EndpointInterface $endpoint);
 
     /**
-     * @param EndpointInterface $endpoint
-     *
      * @return mixed
      */
     abstract protected function cleanUp(EndpointInterface $endpoint);
@@ -51,9 +47,6 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
      * must return null to indicate that.
      *
      * @return MessageInterface
-     *
-     * @param EndpointInterface $endpoint
-     *
      * @return MessageInterface | null
      */
     abstract protected function readMessage(EndpointInterface $endpoint);
@@ -62,9 +55,6 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
      * After the execution of this method, it will be considered that the message was successfully handled,
      * therefore, if there was any problem, an exception must be thrown and not continue. This is important to ensure
      * the Message Delivery Guarantee.
-     *
-     * @param EndpointInterface $endpoint
-     * @param MessageInterface  $message
      */
     protected function process(EndpointInterface $endpoint, MessageInterface $message)
     {
@@ -74,9 +64,6 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     /**
      * This function is called to confirm that a message was successfully handled. Until this point, the message should
      * not be removed from the source Endpoint, this is very important to ensure the Message delivery guarantee.
-     *
-     * @param EndpointInterface $endpoint
-     * @param MessageInterface  $message
      *
      * @return MessageInterface
      */
@@ -134,8 +121,6 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
     /**
      * Dispatches a timing event with the amount of time it took to process a message.
-     *
-     * @param MessageInterface $message
      */
     protected function dispatchConsumerTimingEvent(MessageInterface $message)
     {
@@ -157,11 +142,9 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
             $now = DateTimeCreator::getNowDateTime();
 
             $this->logger->info(
-            'A message was consumed on {date}', [
-            'date' => $now->format('Y-m-d H:i:s.u'),
-            ]
-        );
+                'A message was consumed on {date}',
+                ['date' => $now->format('Y-m-d H:i:s.u')]
+            );
+        }
     }
-}
-
 }

@@ -36,10 +36,7 @@ class QueueProducer extends Producer
         /** @var QueueDriverInterface $queueDriver */
         $queueDriver = $this->getDriverRegistry()->getDriver($queueDriverName);
         if (!$queueDriver) {
-            throw new ResourceNotFoundException(
-                "Queue driver $queueDriverName not found in QueueProducer while trying to send message to endpoint with URI: "
-                .$endpoint->getURI()
-            );
+            throw new ResourceNotFoundException("Queue driver $queueDriverName not found in QueueProducer while trying to send message to endpoint with URI: ".$endpoint->getURI());
         }
 
         if (!($queueDriver instanceof QueueDriverInterface)) {
@@ -83,8 +80,7 @@ class QueueProducer extends Producer
     /**
      * A hook to allow for modifying the queue message before we send it.
      *
-     * @param QueueMessage $queueMessage
-     * @param array        $options      The options set for this endpoint
+     * @param array $options The options set for this endpoint
      */
     protected function beforeSend(QueueMessage $queueMessage, $options)
     {

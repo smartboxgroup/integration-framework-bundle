@@ -46,8 +46,6 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
     /**
      * Reads a message from the NoSQL database executing the configured steps.
      *
-     * @param EndpointInterface $endpoint
-     *
      * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\Message
      */
     protected function readMessage(EndpointInterface $endpoint)
@@ -90,9 +88,6 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
 
     /**
      * Executes the necessary actions after the message has been consumed.
-     *
-     * @param EndpointInterface $endpoint
-     * @param MessageInterface  $message
      */
     protected function onConsume(EndpointInterface $endpoint, MessageInterface $message)
     {
@@ -106,9 +101,6 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
         $this->configurableStepsProvider->executeSteps($steps, $options, $context);
     }
 
-    /**
-     * @param EndpointInterface $endpoint
-     */
     public function consume(EndpointInterface $endpoint)
     {
         $this->stop = false;

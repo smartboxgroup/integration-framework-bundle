@@ -7,7 +7,6 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Serialization;
 use JMS\Serializer\Exception\RuntimeException;
 use JMS\Serializer\SerializerInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Serializers\QueueSerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Exceptions\MessageDecodingFailedException;
@@ -36,14 +35,14 @@ class Serializer implements QueueSerializerInterface
 
         try {
             $message = $this->serializer->deserialize($encodedMessage['body'], SerializableInterface::class, $this->format);
-        } catch(RuntimeException $e) {
+        } catch (RuntimeException $e) {
             throw new MessageDecodingFailedException(sprintf('Could not decode message: %s.', $e->getMessage()), $e->getCode(), $e);
         }
 
         foreach ($encodedMessage['headers'] as $header => $value) {
             $message->setHeader($header, $value);
         }
-        
+
         return $message;
     }
 

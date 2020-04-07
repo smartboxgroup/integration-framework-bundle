@@ -5,7 +5,6 @@ namespace Smartbox\Integration\FrameworkBundle\Tools\SmokeTests;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\CoreBundle\Utils\SmokeTest\SmokeTestInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 
 /**
  * Class QueueDriverConnectionSmokeTest.
@@ -41,7 +40,7 @@ class QueueDriverConnectionSmokeTest implements SmokeTestInterface
 
             if (!$this->queueDriver->send('isalive')) {
                 throw new \RuntimeException('Failed to insert message in queue.');
-            };
+            }
 
             $smokeTestOutput->addSuccessMessage('Connection for default queue driver checked.');
         } catch (\Exception $e) {

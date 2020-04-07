@@ -15,7 +15,7 @@ trait UsesQueueSerializer
     {
         return $this->serializer;
     }
-    
+
     public function setSerializer(QueueSerializerInterface $serializer)
     {
         $this->serializer = $serializer;

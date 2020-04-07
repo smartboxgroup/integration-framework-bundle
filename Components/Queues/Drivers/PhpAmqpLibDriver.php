@@ -53,17 +53,17 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     const DEFAULT_HOST = 'localhost';
 
     /**
-     * Default value to connection timeout
+     * Default value to connection timeout.
      */
     const CONNECTION_TIMEOUT = 3.0;
 
     /**
-     * Default value to read timeout
+     * Default value to read timeout.
      */
     const READ_TIMEOUT = 10;
 
     /**
-     * Default value to heartbeat
+     * Default value to heartbeat.
      */
     const HEARTBEAT = 60;
 
@@ -88,12 +88,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     protected $prefetchCount;
 
     /**
-     * @var double
+     * @var float
      */
     protected $connectionTimeout;
 
     /**
-     * @var double
+     * @var float
      */
     protected $readTimeout;
 
@@ -140,7 +140,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
                 $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, [
                     'read_write_timeout' => $this->readTimeout,
                     'connection_timeout' => $this->connectionTimeout,
-                    'heartbeat' => $this->heartbeat
+                    'heartbeat' => $this->heartbeat,
                 ]);
             } catch (AMQPIOException $exception) {
                 throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
@@ -191,33 +191,22 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * Set the value for prefetch_count option case it comes form configuration. Otherwise, takes the default value.
-     *
-     * @param int $prefetchCount
      */
     public function setPrefetchCount(int $prefetchCount)
     {
         $this->prefetchCount = $prefetchCount;
     }
 
-    /**
-     * @param float $connectionTimeout
-     */
     public function setConnectionTimeout(float $connectionTimeout)
     {
         $this->connectionTimeout = $connectionTimeout;
     }
 
-    /**
-     * @param float $readTimeout
-     */
     public function setReadTimeout(float $readTimeout)
     {
         $this->readTimeout = $readTimeout;
     }
 
-    /**
-     * @param int $heartbeat
-     */
     public function setHeartbeat(int $heartbeat)
     {
         $this->heartbeat = $heartbeat;
@@ -280,7 +269,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * Declares the queue to drive the message.
      *
      * @param string $queueName The name of the queue
-     * @param int    $durable
      * @param array  $arguments See AMQPQueue::setArguments()
      *
      * @return array|null
@@ -292,8 +280,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * Catch a channel inside the connection.
-     *
-     * @return AMQPChannel
      */
     public function declareChannel(): AMQPChannel
     {

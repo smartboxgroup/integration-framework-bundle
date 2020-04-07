@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use PhpAmqpLib\Message\AMQPMessage;
-use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
@@ -39,10 +38,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
     /**
      * Get the driver responsible to establish a communication with the broker.
-     *
-     * @param EndpointInterface $endpoint
-     *
-     * @return AsyncQueueDriverInterface
      */
     protected function getQueueDriver(EndpointInterface $endpoint): AsyncQueueDriverInterface
     {
@@ -62,10 +57,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
     /**
      * Returns the queue name properly treated with queue prefix.
-     *
-     * @param EndpointInterface $endpoint
-     *
-     * @return string
      */
     protected function getQueueName(EndpointInterface $endpoint): string
     {
@@ -137,8 +128,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      * Overrides the main callback function to convert the AMQPMessage from the queue into a QueueMessage.
      *
      * {@inheritdoc}
-     *
-     * @return callable
      */
     protected function callback(EndpointInterface $endpoint): callable
     {
@@ -149,7 +138,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
                 $start = microtime(true);
                 $message = $this->getSerializer()->decode([
                     'body' => $encodedMessage->getBody(),
-                    'headers' => []
+                    'headers' => [],
                 ]);
 
                 $this->consumptionDuration = (microtime(true) - $start) * 1000;

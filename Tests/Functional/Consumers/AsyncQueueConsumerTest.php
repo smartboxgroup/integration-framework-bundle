@@ -130,8 +130,6 @@ class AsyncQueueConsumerTest extends TestCase
     /**
      * Returns a SmartESBHelper mock that returns the passed driver on getQueueDriver().
      *
-     * @param AsyncQueueDriverInterface $driver
-     *
      * @return MockObject
      */
     protected function getHelper(AsyncQueueDriverInterface $driver)

@@ -35,11 +35,6 @@ class QueueConsumer extends AbstractConsumer
         $driver->subscribe($queuePath);
     }
 
-    /**
-     * @param EndpointInterface $endpoint
-     *
-     * @return SyncQueueDriverInterface
-     */
     protected function getQueueDriver(EndpointInterface $endpoint): SyncQueueDriverInterface
     {
         $options = $endpoint->getOptions();
@@ -68,12 +63,12 @@ class QueueConsumer extends AbstractConsumer
         if (!$encodedMessage) {
             return null;
         }
-        
+
         try {
             $start = microtime(true);
             $message = $this->getSerializer()->decode([
                 'body' => $encodedMessage->getBody(),
-                'headers' => $encodedMessage->getHeaders()
+                'headers' => $encodedMessage->getHeaders(),
             ]);
 
             $this->consumptionDuration += (microtime(true) - $start) * 1000;

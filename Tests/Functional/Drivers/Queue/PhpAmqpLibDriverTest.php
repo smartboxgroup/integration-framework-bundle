@@ -45,8 +45,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      *
      * @dataProvider getMessages
      *
-     * @param MessageInterface $msg
-     *
      * @throws \Exception
      */
     public function testSend(MessageInterface $msg)
@@ -179,8 +177,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
 
     /**
      * Prepare the data and class to consume a message.
-     *
-     * @param MessageInterface $msg
      *
      * @return mixed
      */
