@@ -6,6 +6,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Dtos\Message as MessageDto;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Stomp\Client;
@@ -322,7 +323,21 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
             $this->currentFrame = $this->statefulStomp->read();
         }
 
-        return $this->currentFrame;
+        if (false === $this->currentFrame) {
+            return null;
+        }
+
+        $headers = [];
+        foreach ($this->currentFrame->getHeaders() as $name => $value) {
+            $headers[$name] = $this->unescape($value);
+        }
+
+        return new MessageDto($this->currentFrame->getBody(), $headers);
+    }
+
+    private function unescape($string)
+    {
+        return str_replace(['\r', '\n', '\c', '\\\\'], ["\r", "\n", ':', '\\'], $string);
     }
 
     /**

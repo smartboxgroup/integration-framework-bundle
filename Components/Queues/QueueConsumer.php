@@ -60,7 +60,7 @@ class QueueConsumer extends AbstractConsumer
         $driver = $this->getQueueDriver($endpoint);
         $encodedMessage = $driver->receive();
 
-        if (!$encodedMessage) {
+        if (null === $encodedMessage) {
             return null;
         }
 

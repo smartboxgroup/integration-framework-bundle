@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
 /**
@@ -80,7 +79,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         if ($msgOut) {
             $this->driver->ack();
         }
-        $this->assertFalse($msgOut);
+        $this->assertNull($msgOut);
 
         $this->driver->disconnect();
     }
@@ -99,7 +98,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         $this->driver->subscribe($this->queueName);
 
         $receivedMessages = [];
-        while ($receivedMessage = $this->driver->receive()) {
+        while (null !== ($receivedMessage = $this->driver->receive())) {
             $this->driver->ack();
             $receivedMessages[] = unserialize($receivedMessage->getBody());
         }
@@ -135,7 +134,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
         $sentMessages[] = $queueMessage;
 
         // receives all the remaining messages in the queue
-        while ($receivedMessage = $this->driver->receive()) {
+        while (null !== ($receivedMessage = $this->driver->receive())) {
             $this->driver->ack();
             $receivedMessages[] = unserialize($receivedMessage->getBody());
         }
