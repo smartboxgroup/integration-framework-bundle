@@ -16,7 +16,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
  */
 class AmqpQueueDriverTest extends AbstractQueueDriverTest
 {
-
     /**
      * {@inheritdoc}
      */
