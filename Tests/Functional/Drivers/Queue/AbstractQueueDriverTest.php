@@ -96,12 +96,12 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
      */
     protected function createQueueMessage($message)
     {
-        $msg = $this->driver->createQueueMessage();
-        $msg->setPersistent(false);
-        $msg->setBody($message);
-        $msg->setQueue($this->queueName);
+        $queueMessage = new QueueMessage();
+        $queueMessage->setPersistent(false);
+        $queueMessage->setBody($message);
+        $queueMessage->setQueue($this->queueName);
 
-        return $msg;
+        return $queueMessage;
     }
 
     /**

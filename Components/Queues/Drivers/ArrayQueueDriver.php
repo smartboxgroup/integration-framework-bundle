@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
@@ -140,17 +138,6 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
         }
 
         return $this->unacknowledgedFrame;
-    }
-
-    public function createQueueMessage(): QueueMessageInterface
-    {
-        /*
-         * This driver will ignore all the headers so it can use any message that implements QueueMessageInterface
-         */
-        $msg = new QueueMessage();
-        $msg->setContext(new Context([Context::FLOWS_VERSION => $this->getFlowsVersion()]));
-
-        return $msg;
     }
 
     /**

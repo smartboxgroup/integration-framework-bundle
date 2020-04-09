@@ -148,11 +148,9 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
                     'body' => $encodedMessage->getBody(),
                     'headers' => $encodedMessage->get('application_headers')->getNativeData(),
                 ]);
-                $driver = $this->getQueueDriver($endpoint);
-
-                $message = $driver->createQueueMessage();
+                $message = new QueueMessage();
                 $message->setMessageId($encodedMessage->getDeliveryTag());
-                $driver->ack($message);
+                $this->getQueueDriver($endpoint)->ack($message);
 
                 $this->consumptionDuration = (microtime(true) - $start) * 1000;
 

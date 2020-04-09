@@ -7,6 +7,7 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\Core\Serializers\UsesQueueSerializer;
@@ -45,7 +46,7 @@ class QueueProducer extends Producer
             throw new \RuntimeException("Found queue driver with name '$queueDriverName' that doesn't implement QueueDriverInterface");
         }
 
-        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage = $this->createQueueMessage();
         $queueMessage->setBody($inMessage);
         $queueMessage->setTTL($options[QueueProtocol::OPTION_TTL]);
         $queueMessage->setQueue($queueName);
@@ -86,5 +87,16 @@ class QueueProducer extends Producer
      */
     protected function beforeSend(QueueMessage $queueMessage, $options)
     {
+    }
+
+    /**
+     * Creates a brand new queue message with empty context.
+     */
+    protected function createQueueMessage(): QueueMessageInterface
+    {
+        $queueMessage = new QueueMessage();
+        $queueMessage->setContext(new Context());
+
+        return $queueMessage;
     }
 }

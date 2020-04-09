@@ -13,7 +13,6 @@ use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
@@ -158,17 +157,6 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
         if ($this->validateConnection()) {
             $this->stream->close();
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createQueueMessage(): QueueMessageInterface
-    {
-        $msg = new QueueMessage();
-        $msg->setContext(new Context());
-
-        return $msg;
     }
 
     /**

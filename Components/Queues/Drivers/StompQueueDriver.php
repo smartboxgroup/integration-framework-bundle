@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Dtos\Message as MessageDto;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 use Stomp\Client;
 use Stomp\Exception\ConnectionException;
@@ -364,14 +362,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
         $this->statefulStomp->nack($this->currentFrame);
         $this->currentFrame = null;
-    }
-
-    public function createQueueMessage(): QueueMessageInterface
-    {
-        $msg = new QueueMessage();
-        $msg->setContext(new Context());
-
-        return $msg;
     }
 
     /**

@@ -54,6 +54,4 @@ interface QueueDriverInterface extends SerializableInterface
      * Publish the message to the broker.
      */
     public function send(string $destination, string $body = '', array $headers = []): bool;
-
-    public function createQueueMessage(): QueueMessageInterface;
 }

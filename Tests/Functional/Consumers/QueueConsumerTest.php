@@ -5,6 +5,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumers;
 use Psr\Log\NullLogger;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -59,7 +60,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $queueDriver->connect();
 
         $message1 = $this->createMessage(new EntityX(111));
-        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage = new QueueMessage();
         $queueMessage->setQueue(self::QUEUE);
         $queueMessage->setHeader(Message::HEADER_FROM, self::QUEUE);
         $queueMessage->setBody($message1);
@@ -69,7 +70,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $queueDriver->send($queueMessage->getQueue(), $encodedMessage['body'], $encodedMessage['headers']);
 
         $message2 = $this->createMessage(new EntityX(222));
-        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage = new QueueMessage();
         $queueMessage->setQueue(self::QUEUE);
         $queueMessage->setHeader(Message::HEADER_FROM, self::QUEUE);
         $queueMessage->setBody($message2);
@@ -79,7 +80,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $queueDriver->send($queueMessage->getQueue(), $encodedMessage['body'], $encodedMessage['headers']);
 
         $message3 = $this->createMessage(new EntityX(333));
-        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage = new QueueMessage();
         $queueMessage->setQueue(self::QUEUE);
         $queueMessage->setHeader(Message::HEADER_FROM, self::QUEUE);
         $queueMessage->setBody($message3);
@@ -145,7 +146,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         $queueDriver->connect();
 
         $message1 = $this->createMessage(new EntityX(111));
-        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage = new QueueMessage();
         $queueMessage->setQueue(self::QUEUE);
         $queueMessage->setHeader(Message::HEADER_FROM, self::QUEUE);
         $queueMessage->setBody($message1);
