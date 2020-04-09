@@ -48,6 +48,9 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const CONSUMER_PREFIX = 'smartesb.consumers.';
     const PARAM_DEFERRED_EVENTS_URI = 'smartesb.uris.deferred_events';
 
+    const CONSUMER_TYPE_SYNC = 'sync';
+    const CONSUMER_TYPE_ASYNC = 'async';
+
     protected $config;
 
     public function getFlowsVersion()
@@ -187,48 +190,33 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         foreach ($this->config['queue_consumers'] as $consumerName => $consumerConfig) {
             $consumerId = self::CONSUMER_PREFIX.$consumerName;
 
-            $exceptionHandlerId = $consumerConfig['exception_handler'];
-
             switch ($consumerConfig['type']) {
-                case 'sync':
+                case self::CONSUMER_TYPE_SYNC:
                     $consumerDef = new Definition(QueueConsumer::class);
-                    $consumerDef->addMethodCall('setId', [$consumerId]);
-                    $consumerDef->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
-                    $consumerDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
-                    $consumerDef->addMethodCall('setSerializer', [new Reference('smartesb.serialization.queue.jms_serializer')]);
-
-                    if ($exceptionHandlerId) {
-                        $consumerDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
-                    }
-
-                    if ($this->config['default_queue_consumer'] == $consumerName) {
-                        $container->findDefinition('smartesb.protocols.queue')
-                            ->addMethodCall('setDefaultConsumer', [new Reference($consumerId)]);
-                    }
-
-                    $container->setDefinition($consumerId, $consumerDef);
 
                     break;
-                case 'async':
+                case self::CONSUMER_TYPE_ASYNC:
                     $consumerDef = new Definition(AsyncQueueConsumer::class);
-                    $consumerDef->addMethodCall('setId', [$consumerId]);
-                    $consumerDef->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
-                    $consumerDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
-                    $consumerDef->addMethodCall('setSerializer', [new Reference('smartesb.serialization.queue.jms_serializer')]);
-
-                    if ($exceptionHandlerId) {
-                        $consumerDef->addMethodCall('setExceptionHandler', [new Reference($exceptionHandlerId)]);
-                    }
-
-                    if ($this->config['default_queue_consumer'] == $consumerName) {
-                        $container->findDefinition('smartesb.protocols.queue')
-                            ->addMethodCall('setDefaultConsumer', [new Reference($consumerId)]);
-                    }
-
-                    $container->setDefinition($consumerId, $consumerDef);
 
                     break;
             }
+
+            $consumerDef->addMethodCall('setId', [$consumerId]);
+            $consumerDef->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
+            $consumerDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
+            $consumerDef->addMethodCall('setSerializer', [new Reference('smartesb.serialization.queue.jms_serializer')]);
+
+            $decodeExceptionHandlerId = $consumerConfig['decode_exception_handler'];
+            if ($decodeExceptionHandlerId) {
+                $consumerDef->addMethodCall('setDecodeExceptionHandler', [new Reference($decodeExceptionHandlerId)]);
+            }
+
+            if ($this->config['default_queue_consumer'] == $consumerName) {
+                $container->findDefinition('smartesb.protocols.queue')
+                    ->addMethodCall('setDefaultConsumer', [new Reference($consumerId)]);
+            }
+
+            $container->setDefinition($consumerId, $consumerDef);
         }
     }
 

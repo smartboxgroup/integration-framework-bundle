@@ -7,19 +7,19 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\Handlers\UsesDecodeExceptionHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Serializers\UsesQueueSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
-use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 
 /**
  * Class AsyncQueueConsumer.
  */
 class AsyncQueueConsumer extends AbstractAsyncConsumer
 {
-    use UsesExceptionHandlerTrait;
+    use UsesDecodeExceptionHandler;
     use UsesQueueSerializer;
     use UsesSmartesbHelper;
 
@@ -132,30 +132,36 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     protected function callback(EndpointInterface $endpoint): callable
     {
         return function (AMQPMessage $encodedMessage) use ($endpoint) {
+            $body = $encodedMessage->getBody();
+            $headers = $encodedMessage->get('application_headers')->getNativeData();
+
             try {
                 $start = microtime(true);
                 $message = $this->getSerializer()->decode([
-                    'body' => $encodedMessage->getBody(),
-                    'headers' => [],
+                    'body' => $body,
+                    'headers' => $headers,
                 ]);
-
-                $this->consumptionDuration = (microtime(true) - $start) * 1000;
-
-                $message->setMessageId($encodedMessage->getDeliveryTag());
             } catch (\Exception $exception) {
-                $this->getExceptionHandler()->handle($exception, [
+                $message = $this->getDecodeExceptionHandler()->handle($exception, [
                     'endpoint' => $endpoint,
-                    'body' => $encodedMessage->getBody(),
-                    'headers' => $encodedMessage->get('application_headers')->getNativeData(),
+                    'body' => $body,
+                    'headers' => $headers,
                 ]);
-                $message = new QueueMessage();
-                $message->setMessageId($encodedMessage->getDeliveryTag());
-                $this->getQueueDriver($endpoint)->ack($message);
 
-                $this->consumptionDuration = (microtime(true) - $start) * 1000;
+                if (null === $message) {
+                    $message = new QueueMessage();
+                    $message->setMessageId($encodedMessage->getDeliveryTag());
+                    $this->getQueueDriver($endpoint)->ack($message);
 
-                return null;
+                    $this->consumptionDuration = (microtime(true) - $start) * 1000;
+
+                    return null;
+                }
             }
+
+            $this->consumptionDuration = (microtime(true) - $start) * 1000;
+
+            $message->setMessageId($encodedMessage->getDeliveryTag());
 
             parent::callback($endpoint)($message);
         };

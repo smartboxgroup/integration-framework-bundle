@@ -116,7 +116,9 @@ class AsyncQueueConsumerTest extends TestCase
             ->method('decode')
             ->willReturn($queueMessage);
 
-        $message = new AMQPMessage('an amqp message');
+        $properties['application_headers'] = new AMQPTable(['header' => 'I am AMKP']);
+
+        $message = new AMQPMessage('an amqp message', $properties);
         $message->delivery_info['delivery_tag'] = $messageID;
 
         $consumer = $this->getConsumer($this, AsyncQueueConsumer::class, $message, 1, ['process']);

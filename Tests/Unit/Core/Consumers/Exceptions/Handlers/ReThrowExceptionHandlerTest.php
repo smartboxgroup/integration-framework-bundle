@@ -1,9 +1,9 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Exceptions\Handler;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Consumers\Exceptions\Handlers;
 
 use PHPUnit\Framework\TestCase;
-use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\ReThrowExceptionHandler;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\Handlers\ReThrowExceptionHandler;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableException;
 
 class ReThrowExceptionHandlerTest extends TestCase

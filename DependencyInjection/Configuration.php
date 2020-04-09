@@ -483,11 +483,14 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->enumNode('type')
                     ->info('Consumer type')
-                    ->values(['sync', 'async'])
+                    ->values([
+                        SmartboxIntegrationFrameworkExtension::CONSUMER_TYPE_SYNC,
+                        SmartboxIntegrationFrameworkExtension::CONSUMER_TYPE_ASYNC,
+                    ])
                     ->isRequired()
                 ->end()
-                ->scalarNode('exception_handler')
-                    ->info('The service id of an exception handler to use when a message can not be de-serialized')
+                ->scalarNode('decode_exception_handler')
+                    ->info('The service id of an exception handler to use when a message can not be decoded')
                     ->defaultValue(null)
                 ->end()
             ->end()

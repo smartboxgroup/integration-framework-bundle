@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Smartbox\Integration\FrameworkBundle\Exceptions\Handler;
+namespace Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\Handlers;
 
-class ReThrowExceptionHandler implements ExceptionHandlerInterface
+class ReThrowExceptionHandler implements DecodeExceptionHandlerInterface
 {
     /**
      * {@inheritdoc}

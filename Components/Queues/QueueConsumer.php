@@ -6,18 +6,18 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
+use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\Handlers\UsesDecodeExceptionHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Serializers\UsesQueueSerializer;
-use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 
 /**
  * Class QueueConsumer.
  */
 class QueueConsumer extends AbstractConsumer
 {
-    use UsesExceptionHandlerTrait;
+    use UsesDecodeExceptionHandler;
     use UsesQueueSerializer;
 
     /**
@@ -64,26 +64,32 @@ class QueueConsumer extends AbstractConsumer
             return null;
         }
 
+        $body = $encodedMessage->getBody();
+        $headers = $encodedMessage->getHeaders();
+
         try {
             $start = microtime(true);
             $message = $this->getSerializer()->decode([
-                'body' => $encodedMessage->getBody(),
-                'headers' => $encodedMessage->getHeaders(),
+                'body' => $body,
+                'headers' => $headers,
             ]);
-
-            $this->consumptionDuration += (microtime(true) - $start) * 1000;
         } catch (\Exception $exception) {
-            $this->getExceptionHandler()->handle($exception, [
+            $message = $this->getDecodeExceptionHandler()->handle($exception, [
                 'endpoint' => $endpoint,
-                'body' => $encodedMessage->getBody(),
-                'headers' => $encodedMessage->getHeaders(),
+                'body' => $body,
+                'headers' => $headers,
             ]);
-            $driver->ack();
 
-            $this->consumptionDuration += (microtime(true) - $start) * 1000;
+            if (null === $message) {
+                $driver->ack();
 
-            return null;
+                $this->consumptionDuration += (microtime(true) - $start) * 1000;
+
+                return null;
+            }
         }
+
+        $this->consumptionDuration += (microtime(true) - $start) * 1000;
 
         return $message;
     }
