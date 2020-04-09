@@ -10,8 +10,8 @@ use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
-use Smartbox\Integration\FrameworkBundle\Core\Serializers\UsesQueueSerializer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesDriverRegistry;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesQueueSerializer;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**

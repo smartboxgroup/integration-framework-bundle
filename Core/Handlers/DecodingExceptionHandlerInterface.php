@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\Handlers;
+namespace Smartbox\Integration\FrameworkBundle\Core\Handlers;
 
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
-interface DecodeExceptionHandlerInterface
+interface DecodingExceptionHandlerInterface
 {
     /**
      * @param mixed $context

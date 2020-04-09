@@ -206,9 +206,9 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $consumerDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $consumerDef->addMethodCall('setSerializer', [new Reference('smartesb.serialization.queue.jms_serializer')]);
 
-            $decodeExceptionHandlerId = $consumerConfig['decode_exception_handler'];
-            if ($decodeExceptionHandlerId) {
-                $consumerDef->addMethodCall('setDecodeExceptionHandler', [new Reference($decodeExceptionHandlerId)]);
+            $decodingExceptionHandlerId = $consumerConfig['decoding_exception_handler'];
+            if ($decodingExceptionHandlerId) {
+                $consumerDef->addMethodCall('setDecodingExceptionHandler', [new Reference($decodingExceptionHandlerId)]);
             }
 
             if ($this->config['default_queue_consumer'] == $consumerName) {

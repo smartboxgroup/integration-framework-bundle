@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Smartbox\Integration\FrameworkBundle\Core\Serializers;
+namespace Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits;
+
+use Smartbox\Integration\FrameworkBundle\Core\Serializers\QueueSerializerInterface;
 
 trait UsesQueueSerializer
 {

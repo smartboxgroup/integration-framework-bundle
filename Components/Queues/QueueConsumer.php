@@ -6,18 +6,18 @@ namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\Exceptions\Handlers\UsesDecodeExceptionHandler;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Serializers\UsesQueueSerializer;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesDecodingExceptionHandler;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesQueueSerializer;
 
 /**
  * Class QueueConsumer.
  */
 class QueueConsumer extends AbstractConsumer
 {
-    use UsesDecodeExceptionHandler;
+    use UsesDecodingExceptionHandler;
     use UsesQueueSerializer;
 
     /**
@@ -74,7 +74,7 @@ class QueueConsumer extends AbstractConsumer
                 'headers' => $headers,
             ]);
         } catch (\Exception $exception) {
-            $message = $this->getDecodeExceptionHandler()->handle($exception, [
+            $message = $this->getDecodingExceptionHandler()->handle($exception, [
                 'endpoint' => $endpoint,
                 'body' => $body,
                 'headers' => $headers,

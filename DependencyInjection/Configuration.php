@@ -489,7 +489,7 @@ class Configuration implements ConfigurationInterface
                     ])
                     ->isRequired()
                 ->end()
-                ->scalarNode('decode_exception_handler')
+                ->scalarNode('decoding_exception_handler')
                     ->info('The service id of an exception handler to use when a message can not be decoded')
                     ->defaultValue(null)
                 ->end()
