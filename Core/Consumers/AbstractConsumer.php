@@ -22,7 +22,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
     use UsesSmartesbHelper;
 
     /**
-     * Hold the amount of time it took to consume a message.
+     * Holds the amount of time it took to consume a message.
      *
      * @var int
      */

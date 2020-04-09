@@ -132,8 +132,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
     protected function callback(EndpointInterface $endpoint): callable
     {
         return function (AMQPMessage $encodedMessage) use ($endpoint) {
-            $driver = $this->getQueueDriver($endpoint);
-
             try {
                 $start = microtime(true);
                 $message = $this->getSerializer()->decode([
@@ -150,6 +148,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
                     'body' => $encodedMessage->getBody(),
                     'headers' => $encodedMessage->get('application_headers')->getNativeData(),
                 ]);
+                $driver = $this->getQueueDriver($endpoint);
 
                 $message = $driver->createQueueMessage();
                 $message->setMessageId($encodedMessage->getDeliveryTag());
