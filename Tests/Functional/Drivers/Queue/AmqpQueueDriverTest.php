@@ -9,7 +9,6 @@ use PhpAmqpLib\Message\AMQPMessage;
 use Smartbox\CoreBundle\Type\Entity;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
 /**
@@ -17,10 +16,6 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
  */
 class AmqpQueueDriverTest extends AbstractQueueDriverTest
 {
-    /**
-     * @var ConsumerInterface
-     */
-    protected $consumer;
 
     /**
      * {@inheritdoc}
