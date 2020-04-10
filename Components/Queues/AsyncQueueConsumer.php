@@ -146,6 +146,7 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
                     'headers' => $headers,
                 ]);
 
+                // If the exception handler doesn't return a new message, consider it poisoned and discard it.
                 if (null === $message) {
                     $message = new QueueMessage();
                     $message->setMessageId($encodedMessage->getDeliveryTag());

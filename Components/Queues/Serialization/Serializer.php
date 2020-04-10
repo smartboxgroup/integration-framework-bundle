@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Serialization;
 
+use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use JMS\Serializer\Exception\RuntimeException;
 use JMS\Serializer\SerializerInterface;
 use Smartbox\CoreBundle\Type\SerializableInterface;
@@ -37,10 +38,16 @@ class Serializer implements QueueSerializerInterface
             $message = $this->serializer->deserialize($encodedMessage['body'], SerializableInterface::class, $this->format);
         } catch (RuntimeException $e) {
             throw new MessageDecodingFailedException(sprintf('Could not decode message: %s.', $e->getMessage()), $e->getCode(), $e);
+        } catch (InvalidArgumentException $e) {
+            // @TODO Remove when JsonDeserializationVisitor is able to catch invalid messages like "123" or "null"
+            throw new MessageDecodingFailedException(sprintf('Could not decode message: %s.', $e->getMessage()), $e->getCode(), $e);
         }
 
         foreach ($encodedMessage['headers'] as $header => $value) {
-            $message->setHeader($header, $value);
+            // @TODO Remove this when Message and Exchange allow array as header value
+            if (is_scalar($value)) {
+                $message->setHeader($header, $value);
+            }
         }
 
         return $message;

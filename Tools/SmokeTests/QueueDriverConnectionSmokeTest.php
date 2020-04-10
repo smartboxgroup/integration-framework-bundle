@@ -12,6 +12,11 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverIn
 class QueueDriverConnectionSmokeTest implements SmokeTestInterface
 {
     /**
+     * Message expiration time (in microseconds).
+     */
+    const EXPIRATION_TIME = 1000;
+
+    /**
      * @var QueueDriverInterface
      */
     protected $queueDriver;
@@ -38,7 +43,7 @@ class QueueDriverConnectionSmokeTest implements SmokeTestInterface
                 throw new \RuntimeException('Function isConnected() returned false.');
             }
 
-            if (!$this->queueDriver->send('isalive')) {
+            if (!$this->queueDriver->send('isalive', '', ['expiration' => self::EXPIRATION_TIME])) {
                 throw new \RuntimeException('Failed to insert message in queue.');
             }
 

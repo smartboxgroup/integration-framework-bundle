@@ -80,6 +80,7 @@ class QueueConsumer extends AbstractConsumer
                 'headers' => $headers,
             ]);
 
+            // If the exception handler doesn't return a new message, consider it poisoned and discard it.
             if (null === $message) {
                 $driver->ack();
 
