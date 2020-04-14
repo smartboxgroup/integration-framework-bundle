@@ -92,7 +92,7 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
             ->with(
                 $this->equalTo('isalive'),
                 $this->equalTo(''),
-                $this->equalTo(['expiration' => QueueDriverConnectionSmokeTest::EXPIRATION_TIME])
+                $this->equalTo(['x-message-ttl' => QueueDriverConnectionSmokeTest::EXPIRATION_TIME])
             );
 
         $test = new QueueDriverConnectionSmokeTest($queueDriver);
