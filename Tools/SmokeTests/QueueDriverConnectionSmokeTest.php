@@ -43,7 +43,7 @@ class QueueDriverConnectionSmokeTest implements SmokeTestInterface
                 throw new \RuntimeException('Function isConnected() returned false.');
             }
 
-            if (!$this->queueDriver->send('isalive', '', ['expiration' => self::EXPIRATION_TIME])) {
+            if (!$this->queueDriver->send('isalive', '', ['x-message-ttl' => self::EXPIRATION_TIME])) {
                 throw new \RuntimeException('Failed to insert message in queue.');
             }
 
