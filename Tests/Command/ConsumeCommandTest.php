@@ -19,21 +19,19 @@ class ConsumeCommandTest extends KernelTestCase
     const NB_MESSAGES = 1;
     const URI = 'queue://main/api';
 
-    protected $mockConsumer;
-
-    public function setUp()
+    protected function setUp()
     {
         self::bootKernel();
+        self::$kernel->getContainer()->set('doctrine', $this->createMock(RegistryInterface::class));
     }
 
     public function setMockConsumer($expirationCount)
     {
-        $this->mockConsumer = $this->createMock(ConsumerInterface::class);
-        $this->mockConsumer->method('consume')->willReturn(true);
-        $this->mockConsumer->method('setExpirationCount')->with($expirationCount);
+        $mockConsumer = $this->createMock(ConsumerInterface::class);
+        $mockConsumer->method('consume')->willReturn(true);
+        $mockConsumer->method('setExpirationCount')->with($expirationCount);
 
-        self::$kernel->getContainer()->set('smartesb.consumers.queue', $this->mockConsumer);
-        self::$kernel->getContainer()->set('doctrine', $this->createMock(RegistryInterface::class));
+        self::$kernel->getContainer()->set('smartesb.consumers.queue', $mockConsumer);
     }
 
     public function testExecuteWithKillAfter()
@@ -46,11 +44,11 @@ class ConsumeCommandTest extends KernelTestCase
         $command = $application->find('smartesb:consumer:start');
 
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
+        $commandTester->execute([
             'command' => $command->getName(),
             'uri' => self::URI, // argument
             '--killAfter' => self::NB_MESSAGES, // option
-        ));
+        ]);
 
         $output = $commandTester->getDisplay();
         $this->assertContains('limited to', $output);
@@ -66,10 +64,10 @@ class ConsumeCommandTest extends KernelTestCase
 
         $command = $application->find('smartesb:consumer:start');
         $commandTester = new CommandTester($command);
-        $commandTester->execute(array(
+        $commandTester->execute([
             'command' => $command->getName(),
             'uri' => self::URI, // argument
-        ));
+        ]);
 
         $output = $commandTester->getDisplay();
         $this->assertNotContains('limited to', $output);
