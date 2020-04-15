@@ -203,7 +203,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setFormat', [$driverConfig['format']]);
                     $driverDef->addMethodCall('setStompVersion', [$driverConfig['version'] ?? StompQueueDriver::STOMP_VERSION]);
                     $driverDef->addMethodCall('setReadTimeout', [$driverConfig['read_timeout'] ?? StompQueueDriver::READ_TIMEOUT]);
-                    $driverDef->addMethodCall('setTimeout', [$driverConfig['connection_timeout'] ?? StompQueueDriver::CONNECTION_TIMEOUT]);
+                    $driverDef->addMethodCall('setConnectionTimeout', [$driverConfig['connection_timeout'] ?? StompQueueDriver::CONNECTION_TIMEOUT]);
                     $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? StompQueueDriver::PREFETCH_COUNT]);
                     $driverDef->addMethodCall('setSync', [$driverConfig['sync']]);
 
