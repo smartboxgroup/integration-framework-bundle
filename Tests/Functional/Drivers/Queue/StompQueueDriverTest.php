@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Dtos\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
 /**
@@ -31,17 +32,37 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
     /**
      * {@inheritdoc}
      */
-    protected function createDriver(): QueueDriverInterface
+    protected function createDriver(): SyncQueueDriverInterface
     {
         return $this->getContainer()->get('smartesb.drivers.queue.main');
     }
 
     /**
      * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
      */
-    public function testAfterNackShouldBeRetried($msg)
+    public function testShouldSendReceiveAndAckOnce(MessageInterface $msg)
+    {
+        $queueMessage = $this->createQueueMessage($msg);
+        $this->driver->subscribe($this->queueName);
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
+
+        $this->assertInstanceOf(Message::class, $this->driver->receive());
+
+        $this->driver->ack();
+
+        \sleep(1);
+
+        $msgOut = $this->driver->receive();
+
+        $this->assertNull($msgOut);
+
+        $this->driver->unSubscribe();
+    }
+
+    /**
+     * @dataProvider getMessages
+     */
+    public function testAfterNackShouldBeRetried(MessageInterface $msg)
     {
         $queueMessage = $this->createQueueMessage($msg);
 

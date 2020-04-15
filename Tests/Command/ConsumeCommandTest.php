@@ -11,8 +11,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * Class ConsumeCommandTest.
- *
- * @group consume-command-test
  */
 class ConsumeCommandTest extends KernelTestCase
 {

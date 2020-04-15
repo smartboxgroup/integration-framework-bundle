@@ -19,8 +19,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
 {
     const QUEUE_PREFIX = '/test/';
 
-    const CONSUMER_TAG = 'consumer-test-%s-%s';
-
     /**
      * @var string
      */
@@ -85,7 +83,7 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
     /**
      * Create an instance of the queue driver to be tested.
      */
-    abstract protected function createDriver(): QueueDriverInterface;
+    abstract protected function createDriver();
 
     /**
      * Creates a QueueMessage object.
