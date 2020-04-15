@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Dtos\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
 /**
@@ -41,11 +42,11 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
      */
     public function testShouldSendReceiveAndAckOnce(MessageInterface $msg)
     {
-        $messageToSend = $this->createQueueMessage($msg);
+        $queueMessage = $this->createQueueMessage($msg);
         $this->driver->subscribe($this->queueName);
-        $this->driver->send($messageToSend);
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
 
-        $this->assertInstanceOf(MessageInterface::class, $this->driver->receive(5));
+        $this->assertInstanceOf(Message::class, $this->driver->receive());
 
         $this->driver->ack();
 
