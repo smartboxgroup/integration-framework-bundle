@@ -14,8 +14,6 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
 {
     /**
      * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
      */
     public function testShouldSelect(MessageInterface $msg)
     {
@@ -40,10 +38,30 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
 
     /**
      * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
      */
-    public function testAfterNackShouldBeRetried($msg)
+    public function testShouldSendReceiveAndAckOnce(MessageInterface $msg)
+    {
+        $messageToSend = $this->createQueueMessage($msg);
+        $this->driver->subscribe($this->queueName);
+        $this->driver->send($messageToSend);
+
+        $this->assertInstanceOf(MessageInterface::class, $this->driver->receive(5));
+
+        $this->driver->ack();
+
+        \sleep(1);
+
+        $msgOut = $this->driver->receive();
+
+        $this->assertNull($msgOut);
+
+        $this->driver->unSubscribe();
+    }
+
+    /**
+     * @dataProvider getMessages
+     */
+    public function testAfterNackShouldBeRetried(MessageInterface $msg)
     {
         $this->driver->subscribe($this->queueName);
         $this->driver->send($this->createQueueMessage($msg));
@@ -63,8 +81,6 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
 
     /**
      * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
      */
     public function testAfterTtlShouldDiscard(MessageInterface $msg)
     {
