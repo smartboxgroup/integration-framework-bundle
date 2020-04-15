@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumers;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumer;
 
 use JMS\Serializer\SerializerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
