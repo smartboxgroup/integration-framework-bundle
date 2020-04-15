@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
 /**
@@ -31,7 +31,7 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
     /**
      * {@inheritdoc}
      */
-    protected function createDriver(): QueueDriverInterface
+    protected function createDriver(): SyncQueueDriverInterface
     {
         return $this->getContainer()->get('smartesb.drivers.queue.main');
     }

@@ -20,8 +20,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
 {
     const QUEUE_PREFIX = '/test/';
 
-    const CONSUMER_TAG = 'consumer-test-%s-%s';
-
     /**
      * @var string
      */
@@ -49,8 +47,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
 
     /**
      * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
      */
     public function testSendShouldNotChangeMessage(MessageInterface $msg)
     {
@@ -88,8 +84,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
     }
 
     /**
-     * @param QueueMessage $message
-     *
      * @return mixed
      */
     public static function mapTitle(QueueMessage $message)
@@ -107,7 +101,7 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
      *
      * @return QueueDriverInterface
      */
-    abstract protected function createDriver(): QueueDriverInterface;
+    abstract protected function createDriver();
 
     /**
      * Creates a QueueMessage object.
