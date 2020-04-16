@@ -1,28 +1,27 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumer;
+declare(strict_types=1);
+
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Consumers;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Events\TimingEvent;
-use Smartbox\Integration\FrameworkBundle\Tests\Unit\Traits\ConsumerMockFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 /**
- * Class AbstractAsyncConsumerTest
- * @package Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumer
+ * Class AbstractAsyncConsumerTest.
  *
  * @group abstract-async-consumer
  * @group time-sensitive
  */
 class AbstractAsyncConsumerTest extends TestCase
 {
-    use ConsumerMockFactory;
-
     /**
      * Test that the consumer installs a callback by calling asyncConsume with a callable.
      */
@@ -46,7 +45,7 @@ class AbstractAsyncConsumerTest extends TestCase
     }
 
     /**
-     * Test that the consumer can be forced to leave the wait loop when a stop signal is issued
+     * Test that the consumer can be forced to leave the wait loop when a stop signal is issued.
      */
     public function testConsumerIsStoppable()
     {
@@ -63,7 +62,7 @@ class AbstractAsyncConsumerTest extends TestCase
     }
 
     /**
-     * Test that the consumer won't cause a CPU spike by usleeping x amount of microseconds if there's nothing to process
+     * Test that the consumer won't cause a CPU spike by usleeping x amount of microseconds if there's nothing to process.
      */
     public function testConsumerSleepsWhenFlagIsSet()
     {
@@ -90,7 +89,7 @@ class AbstractAsyncConsumerTest extends TestCase
      */
     public function testConsumerDoesNotSleepWhenFlagIsSet()
     {
-        $consumer = $this->getConsumer($this,AbstractAsyncConsumer::class, new QueueMessage(), 2);
+        $consumer = $this->getConsumer(new QueueMessage(), 2);
 
         $stopwatch = new Stopwatch();
         $stopwatch->start('consume');
@@ -101,7 +100,7 @@ class AbstractAsyncConsumerTest extends TestCase
     }
 
     /**
-     * Test that consumer dispatches an event with timing information
+     * Test that consumer dispatches an event with timing information.
      */
     public function testCallbackMeasuresProcessingDuration()
     {
@@ -115,18 +114,18 @@ class AbstractAsyncConsumerTest extends TestCase
                 }));
 
         /** @var AbstractAsyncConsumer|MockObject $consumer */
-        $consumer = $this->getConsumer($this,AbstractAsyncConsumer::class, new QueueMessage(), 1);
+        $consumer = $this->getConsumer(new QueueMessage(), 1);
         $consumer->setEventDispatcher($dispatcher);
         $consumer->consume($this->createMock(EndpointInterface::class));
     }
 
     /**
-     * Test that messages are confirmed once they were successfully processed
+     * Test that messages are confirmed once they were successfully processed.
      */
     public function testMessageIsConfirmedAfterProcessing()
     {
         $message = new QueueMessage();
-        $consumer = $this->getConsumer($this,AbstractAsyncConsumer::class, $message, 1);
+        $consumer = $this->getConsumer($message, 1);
 
         $consumer->expects($this->once())
             ->method('confirmMessage')
@@ -142,8 +141,10 @@ class AbstractAsyncConsumerTest extends TestCase
      */
     public function testMessageIsNotConfirmedAfterFailedProcessing()
     {
+        $this->expectException(\RuntimeException::class);
+
         $message = new QueueMessage();
-        $consumer = $this->getConsumer($this,AbstractAsyncConsumer::class, $message);
+        $consumer = $this->getConsumer($message);
         $consumer->expects($this->never())
             ->method('confirmMessage');
 
@@ -151,8 +152,6 @@ class AbstractAsyncConsumerTest extends TestCase
         $endpoint->expects($this->once())
             ->method('handle')
             ->willThrowException(new \RuntimeException());
-
-        $this->expectException(\RuntimeException::class);
 
         $consumer->consume($endpoint);
     }
@@ -174,5 +173,34 @@ class AbstractAsyncConsumerTest extends TestCase
             });
 
         $consumer->consume($this->createMock(EndpointInterface::class));
+    }
+
+    /**
+     * @param MessageInterface $message Message to pass to the callback
+     * @param int              $rounds  Amount of messages to consume before stopping
+     */
+    private function getConsumer(MessageInterface $message, int $rounds = -1): MockObject
+    {
+        $consumer = $this->getMockForAbstractClass(AbstractAsyncConsumer::class);
+
+        /** @var \Closure $callback */
+        $callback = null;
+        $consumer->expects($this->once())
+            ->method('asyncConsume')
+            ->with(
+                $this->anything(),
+                // Steal the callback so we can call it manually and pretend we are "consuming"
+                $this->callback(function ($stolenCallback) use (&$callback) {
+                    return $callback = $stolenCallback;
+                }));
+        $consumer->expects(-1 === $rounds ? $this->any() : $this->exactly($rounds))
+            ->method('waitNoBlock')
+            ->willReturnCallback(function () use (&$callback, $consumer, $message) {
+                $callback($message);
+            });
+
+        $consumer->setExpirationCount($rounds);
+
+        return $consumer;
     }
 }

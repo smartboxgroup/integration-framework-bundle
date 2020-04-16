@@ -29,7 +29,6 @@ class AmqpQueueDriverTest extends AbstractQueueDriverTest
      */
     public function testConnection()
     {
-        $this->assertInstanceOf(AMQPStreamConnection::class, $this->driver->declareChannel()->getConnection());
         $this->assertTrue($this->driver->isConnected());
     }
 

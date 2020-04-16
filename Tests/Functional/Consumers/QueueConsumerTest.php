@@ -1,9 +1,9 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumers;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Consumers;
 
 use Psr\Log\NullLogger;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
@@ -19,7 +19,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class QueueConsumerTest extends BaseKernelTestCase
 {
-    const QUEUE = '/test/command';
+    const QUEUE = '/test/sync';
 
     /**
      * @return QueueConsumer
@@ -29,12 +29,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         return $this->helper->getConsumer('queue');
     }
 
-    /**
-     * @param string $queueDriverName
-     *
-     * @return QueueDriverInterface
-     */
-    private function getQueueDriver($queueDriverName)
+    private function getQueueDriver(string $queueDriverName): SyncQueueDriverInterface
     {
         return $this->helper->getQueueDriver($queueDriverName);
     }

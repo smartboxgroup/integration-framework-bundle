@@ -111,7 +111,7 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Set the timeout to Stomp driver.
      */
-    public function setTimeout(int $connectionTimeout)
+    public function setConnectionTimeout(int $connectionTimeout)
     {
         $this->connectionTimeout = $connectionTimeout;
     }

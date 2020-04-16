@@ -59,12 +59,12 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
     /**
      * Default value to read timeout.
      */
-    const READ_TIMEOUT = 10;
+    const READ_TIMEOUT = 200;
 
     /**
      * Default value to heartbeat.
      */
-    const HEARTBEAT = 60;
+    const HEARTBEAT = 90;
 
     /**
      * @var AMQPChannel|null
