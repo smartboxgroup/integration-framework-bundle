@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
@@ -19,19 +17,6 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     protected $connected = false;
     protected $subscribedQueue = false;
     protected $unacknowledgedFrame;
-
-    /**
-     * @var string
-     */
-    private $format;
-
-    /**
-     * @return int
-     */
-    public function getDequeueingTimeMs()
-    {
-        return 0;
-    }
 
     /**
      * @param $queue
@@ -50,10 +35,8 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Configures the driver.
      *
-     * @param string      $host
-     * @param string      $username Username to connect to the queuing system
-     * @param string      $password Password to connect to the queuing system
-     * @param string|null $vhost
+     * @param string $username Username to connect to the queuing system
+     * @param string $password Password to connect to the queuing system
      */
     public function configure(string $host, string $username, string $password, string $vhost = null)
     {
@@ -78,8 +61,6 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Returns true if a connection already exists with the queing system, false otherwise.
-     *
-     * @return bool
      */
     public function isConnected(): bool
     {
@@ -118,8 +99,6 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Acknowledges the processing of the last received object.
      * The object should be removed from the queue.
-     *
-     * @param QueueMessageInterface|null $message
      */
     public function ack(QueueMessageInterface $message = null)
     {
@@ -129,29 +108,29 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * Acknowledges a failure on processing the last received object.
      * The object could be moved to the DLQ or be delivered to another subscription for retrial.
-     *
-     * @param QueueMessageInterface|null $message
      */
     public function nack(QueueMessageInterface $message = null)
     {
         $this->unacknowledgedFrame = false;
     }
 
-    /** {@inheritdoc} */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
+    /**
+     * {@inheritdoc}
+     */
+    public function send(string $destination, string $body = '', array $headers = []): bool
     {
-        $destination = $destination ? $destination : $message->getQueue();
-
         if (!array_key_exists($destination, self::$array)) {
             self::$array[$destination] = [];
         }
 
-        self::$array[$destination][] = $message;
+        self::$array[$destination][] = $body;
 
         return true;
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function receive()
     {
         if (array_key_exists($this->subscribedQueue, self::$array) && !empty(self::$array[$this->subscribedQueue])) {
@@ -162,41 +141,11 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /**
-     * @return QueueMessageInterface
-     */
-    public function createQueueMessage(): QueueMessageInterface
-    {
-        /*
-         * This driver will ignore all the headers so it can use any message that implements QueueMessageInterface
-         */
-        $msg = new QueueMessage();
-        $msg->setContext(new Context([Context::FLOWS_VERSION => $this->getFlowsVersion()]));
-
-        return $msg;
-    }
-
-    /**
      * Clean all the opened resources, must be called just before terminating the current request.
      */
     public function destroy()
     {
         // TODO: Implement doDestroy() method.
         // I have no time to do destroy the world.
-    }
-
-    /**
-     * @return string
-     */
-    public function getFormat(): string
-    {
-        return $this->format;
-    }
-
-    /**
-     * @param string $format
-     */
-    public function setFormat(string $format)
-    {
-        $this->format = $format;
     }
 }

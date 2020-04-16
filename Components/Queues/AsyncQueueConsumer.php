@@ -5,24 +5,21 @@ declare(strict_types=1);
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use PhpAmqpLib\Message\AMQPMessage;
-use Smartbox\CoreBundle\Type\SerializableInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractAsyncConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSmartesbHelper;
-use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesDecodingExceptionHandler;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesQueueSerializer;
 
 /**
  * Class AsyncQueueConsumer.
  */
 class AsyncQueueConsumer extends AbstractAsyncConsumer
 {
-    use UsesSmartesbHelper;
-    use UsesSerializer;
-    use UsesExceptionHandlerTrait;
+    use UsesDecodingExceptionHandler;
+    use UsesQueueSerializer;
 
     /**
      * Consumer identifier name.
@@ -39,10 +36,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
     /**
      * Get the driver responsible to establish a communication with the broker.
-     *
-     * @param EndpointInterface $endpoint
-     *
-     * @return AsyncQueueDriverInterface
      */
     protected function getQueueDriver(EndpointInterface $endpoint): AsyncQueueDriverInterface
     {
@@ -62,10 +55,6 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
 
     /**
      * Returns the queue name properly treated with queue prefix.
-     *
-     * @param EndpointInterface $endpoint
-     *
-     * @return string
      */
     protected function getQueueName(EndpointInterface $endpoint): string
     {
@@ -137,26 +126,43 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
      * Overrides the main callback function to convert the AMQPMessage from the queue into a QueueMessage.
      *
      * {@inheritdoc}
-     *
-     * @return callable
      */
     protected function callback(EndpointInterface $endpoint): callable
     {
-        return function (AMQPMessage $message) use ($endpoint) {
+        return function (AMQPMessage $encodedMessage) use ($endpoint) {
+            $body = $encodedMessage->getBody();
+            $headers = $encodedMessage->get('application_headers')->getNativeData();
+
             try {
                 $start = microtime(true);
-                $queueMessage = $this->serializer->deserialize($message->getBody(), SerializableInterface::class, $this->getQueueDriver($endpoint)->getFormat());
-                $this->consumptionDuration = (microtime(true) - $start) * 1000;
-
-                $queueMessage->setMessageId($message->getDeliveryTag());
+                $message = $this->getSerializer()->decode([
+                    'body' => $body,
+                    'headers' => $headers,
+                ]);
             } catch (\Exception $exception) {
-                $this->consumptionDuration = (microtime(true) - $start) * 1000;
-                $this->getExceptionHandler()($exception, ['message' => $message]);
+                $message = $this->getDecodingExceptionHandler()->handle($exception, [
+                    'endpoint' => $endpoint,
+                    'body' => $body,
+                    'headers' => $headers,
+                ]);
 
-                return false;
+                // If the exception handler doesn't return a new message, consider it poisoned and discard it.
+                if (null === $message) {
+                    $message = new QueueMessage();
+                    $message->setMessageId($encodedMessage->getDeliveryTag());
+                    $this->getQueueDriver($endpoint)->ack($message);
+
+                    $this->consumptionDuration = (microtime(true) - $start) * 1000;
+
+                    return null;
+                }
             }
 
-            parent::callback($endpoint)($queueMessage);
+            $this->consumptionDuration = (microtime(true) - $start) * 1000;
+
+            $message->setMessageId($encodedMessage->getDeliveryTag());
+
+            parent::callback($endpoint)($message);
         };
     }
 }

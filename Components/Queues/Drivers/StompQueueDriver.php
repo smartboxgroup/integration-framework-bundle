@@ -4,20 +4,15 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use JMS\Serializer\DeserializationContext;
-use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
+use Smartbox\Integration\FrameworkBundle\Core\Dtos\Message as MessageDto;
 use Smartbox\Integration\FrameworkBundle\Service;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Stomp\Client;
+use Stomp\Exception\ConnectionException;
 use Stomp\Network\Connection;
 use Stomp\StatefulStomp;
 use Stomp\Transport\Frame;
 use Stomp\Transport\Message;
-use Stomp\Exception\ConnectionException;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 
@@ -26,9 +21,6 @@ use Symfony\Component\HttpKernel\Event\PostResponseEvent;
  */
 class StompQueueDriver extends Service implements SyncQueueDriverInterface
 {
-    use UsesSerializer;
-    use UsesExceptionHandlerTrait;
-
     const STOMP_VERSION = '1.1';
 
     const PREFETCH_COUNT = 1;
@@ -39,9 +31,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     /** @var Frame */
     protected $currentFrame;
-
-    /** @var string */
-    protected $format = QueueDriverInterface::FORMAT_JSON;
 
     /** @var string */
     protected $host;
@@ -78,11 +67,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
      */
     protected $description;
 
-    /**
-     * @var int The time it took in ms to deserialize the message
-     */
-    protected $dequeueingTimeMs = 0;
-
     /** @var bool */
     protected $sync;
 
@@ -118,30 +102,24 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Set the version to Stomp driver.
-     *
-     * @param string $version
      */
-    public function setStompVersion(string $version = self::STOMP_VERSION)
+    public function setStompVersion(string $version)
     {
         $this->stompVersion = $version;
     }
 
     /**
      * Set the timeout to Stomp driver.
-     *
-     * @param int $connectionTimeout
      */
-        public function setConnectionTimeout(int $connectionTimeout = 3)
+    public function setConnectionTimeout(int $connectionTimeout)
     {
         $this->connectionTimeout = $connectionTimeout;
     }
 
     /**
      * Set if the driver will work in synchronous or asynchronous mode.
-     *
-     * @param bool $sync
      */
-    public function setSync(bool $sync = true)
+    public function setSync(bool $sync)
     {
         $this->sync = $sync;
     }
@@ -195,30 +173,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     }
 
     /**
-     * @return string
-     */
-    public function getFormat(): string
-    {
-        return $this->format;
-    }
-
-    /**
-     * @param string $format
-     */
-    public function setFormat(string $format)
-    {
-        $this->format = $format;
-    }
-
-    /**
-     * @return int
-     */
-    public function getDequeueingTimeMs()
-    {
-        return $this->dequeueingTimeMs;
-    }
-
-    /**
      * @param $description
      */
     public function setDescription($description)
@@ -226,9 +180,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         $this->description = $description;
     }
 
-    /**
-     * @param int $prefetchCount
-     */
     public function setPrefetchCount(int $prefetchCount = self::PREFETCH_COUNT)
     {
         $this->prefetchCount = $prefetchCount;
@@ -242,7 +193,9 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         $this->readTimeout = $seconds;
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function configure(string $host, string $username, string $password, string $vhost = null)
     {
         $this->host = $host;
@@ -331,18 +284,14 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
+    public function send(string $destination, string $body = '', array $headers = []): bool
     {
-        $destination = $destination ? $destination : $message->getQueue();
-        $destinationUri = $destination;
         if ($this->urlEncodeDestination) {
-            $destinationUri = urlencode($destination);
+            $destination = urlencode($destination);
         }
 
-        $serializedMsg = $this->getSerializer()->serialize($message, $this->format);
-
         try {
-            return $this->statefulStomp->send($destinationUri, new Message($serializedMsg, $message->getHeaders()));
+            return $this->statefulStomp->send($destination, new Message($body, $headers));
         } catch (ConnectionException $e) {
             $this->dropConnection();
 
@@ -357,16 +306,14 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         return array_key_exists('subscription', $headers) && $headers['subscription'] == $this->subscriptionId;
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function receive()
     {
         if ($this->currentFrame) {
-            throw new \RuntimeException(
-                'StompQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages.'
-            );
+            throw new \RuntimeException('StompQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages.');
         }
-
-        $this->dequeueingTimeMs = 0;
 
         $this->currentFrame = $this->statefulStomp->read();
 
@@ -374,36 +321,16 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
             $this->currentFrame = $this->statefulStomp->read();
         }
 
-        $msg = null;
-
-        if ($this->currentFrame) {
-            $start = microtime(true);
-            $deserializationContext = new DeserializationContext();
-            if (!empty($version)) {
-                $deserializationContext->setVersion($version);
-            }
-
-            if (!empty($group)) {
-                $deserializationContext->setGroups([$group]);
-            }
-            try {
-                /** @var QueueMessageInterface $msg */
-                $msg = $this->getSerializer()->deserialize($this->currentFrame->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
-            } catch (\Exception $exception) {
-                $this->getExceptionHandler()($exception, ['message' => $this->currentFrame]);
-                $this->ack();
-                $this->markDequeuedTime($start);
-
-                return null;
-            }
-            foreach ($this->currentFrame->getHeaders() as $header => $value) {
-                $msg->setHeader($header, $this->unescape($value));
-            }
-
-            $this->markDequeuedTime($start);
+        if (false === $this->currentFrame) {
+            return null;
         }
 
-        return $msg;
+        $headers = [];
+        foreach ($this->currentFrame->getHeaders() as $name => $value) {
+            $headers[$name] = $this->unescape($value);
+        }
+
+        return new MessageDto($this->currentFrame->getBody(), $headers);
     }
 
     private function unescape($string)
@@ -411,7 +338,9 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         return str_replace(['\r', '\n', '\c', '\\\\'], ["\r", "\n", ':', '\\'], $string);
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function ack(QueueMessageInterface $message = null)
     {
         if (!$this->currentFrame) {
@@ -422,7 +351,9 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         $this->currentFrame = null;
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     */
     public function nack(QueueMessageInterface $message = null)
     {
         if (!$this->currentFrame) {
@@ -431,17 +362,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
         $this->statefulStomp->nack($this->currentFrame);
         $this->currentFrame = null;
-    }
-
-    /**
-     * @return QueueMessageInterface
-     */
-    public function createQueueMessage(): QueueMessageInterface
-    {
-        $msg = new QueueMessage();
-        $msg->setContext(new Context());
-
-        return $msg;
     }
 
     /**
@@ -454,8 +374,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Close the opened connections on kernel terminate.
-     *
-     * @param PostResponseEvent $event
      */
     public function onKernelTerminate(PostResponseEvent $event)
     {
@@ -464,8 +382,6 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
 
     /**
      * Calls the doDestroy method on console.terminate event.
-     *
-     * @param ConsoleTerminateEvent $event
      */
     public function onConsoleTerminate(ConsoleTerminateEvent $event)
     {
@@ -478,13 +394,5 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     protected function dropConnection()
     {
         $this->statefulStomp->getClient()->getConnection()->disconnect();
-    }
-
-    /**
-     * @param float $start
-     */
-    private function markDequeuedTime($start)
-    {
-        $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
     }
 }

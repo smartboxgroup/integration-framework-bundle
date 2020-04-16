@@ -9,7 +9,6 @@ use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 
@@ -43,21 +42,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
         $this->driver->disconnect();
         $this->driver = null;
         parent::tearDown();
-    }
-
-    /**
-     * @dataProvider getMessages
-     */
-    public function testSendShouldNotChangeMessage(MessageInterface $msg)
-    {
-        $clone = clone $msg;
-        if (!$this->driver->isConnected()) {
-            $this->driver->connect();
-        }
-        $this->driver->send($this->createQueueMessage($msg));
-
-        $this->assertSame(serialize($clone), serialize($msg));
-        $this->driver->send($this->createQueueMessage($msg));
     }
 
     /**
@@ -98,8 +82,6 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
 
     /**
      * Create an instance of the queue driver to be tested.
-     *
-     * @return QueueDriverInterface
      */
     abstract protected function createDriver();
 
@@ -112,12 +94,12 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
      */
     protected function createQueueMessage($message)
     {
-        $msg = $this->driver->createQueueMessage();
-        $msg->setPersistent(false);
-        $msg->setBody($message);
-        $msg->setQueue($this->queueName);
+        $queueMessage = new QueueMessage();
+        $queueMessage->setPersistent(false);
+        $queueMessage->setBody($message);
+        $queueMessage->setQueue($this->queueName);
 
-        return $msg;
+        return $queueMessage;
     }
 
     /**

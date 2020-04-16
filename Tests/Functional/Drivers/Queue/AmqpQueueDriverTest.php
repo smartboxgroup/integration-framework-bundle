@@ -12,9 +12,9 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 
 /**
- * Class PhpAmqpLibDriverTest.
+ * Class AmqpQueueDriverTest.
  */
-class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
+class AmqpQueueDriverTest extends AbstractQueueDriverTest
 {
     /**
      * {@inheritdoc}
@@ -41,9 +41,9 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     public function testSend(MessageInterface $msg)
     {
-        $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header', '12345');
-        $this->assertTrue($this->driver->send($msgIn));
+        $queueMessage = $this->createQueueMessage($msg);
+        $queueMessage->addHeader('test_header', '12345');
+        $this->assertTrue($this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders()));
     }
 
     /**
@@ -135,16 +135,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
     }
 
     /**
-     * Test the format parameter set in the class.
-     */
-    public function testFormat()
-    {
-        $format = 'text/plain';
-        $this->driver->setFormat($format);
-        $this->assertEquals($format, $this->driver->getFormat());
-    }
-
-    /**
      * @throws AMQPProtocolException
      */
     public function testConnectWithoutData()
@@ -187,9 +177,9 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     private function prepareToConsume(MessageInterface $msg)
     {
-        $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header', '12345');
-        $this->driver->send($msgIn);
+        $queueMessage = $this->createQueueMessage($msg);
+        $queueMessage->addHeader('test_header', '12345');
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
         $this->driver->disconnect();
         $this->driver->connect();
     }
@@ -206,7 +196,7 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
         $queueMessage->setMessageType(md5(rand(0, 255)));
         $queueMessage->setPersistent(true);
 
-        $this->driver->send($queueMessage);
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
 
         $callback = function (AMQPMessage $amqpMessage) use ($queueMessage) {
             $this->assertEquals($amqpMessage->get('expiration'), $queueMessage->getHeader('expiration'), sprintf('Expiration header was missing or different. Expected %s, got %s', $queueMessage->getHeader('expiration'), $amqpMessage->get('expiration')));

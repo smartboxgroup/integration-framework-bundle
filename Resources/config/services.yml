@@ -109,3 +109,8 @@ services:
 
   smartesb.handlers.async:
       class: '%smartesb.handlers.message_routing.class%'
+
+  # Serializers
+  smartesb.serialization.queue.jms_serializer:
+      class: Smartbox\Integration\FrameworkBundle\Components\Queues\Serialization\Serializer
+      arguments: ['@jms_serializer']

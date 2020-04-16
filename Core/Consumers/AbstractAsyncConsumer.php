@@ -37,7 +37,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     /**
      * Holds the amount of time it took to process a message once the callback is triggered. Due to the asynchronicity
      * nature of this consumer, it's not possible to measure how long it takes to get a message from the queue and send
-     * it to the callback
+     * it to the callback.
      *
      * @var int
      */
@@ -45,15 +45,11 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
 
     /**
      * Initializes the consumer for a given endpoint.
-     *
-     * @param EndpointInterface $endpoint
      */
     abstract protected function initialize(EndpointInterface $endpoint);
 
     /**
      * Cleans up and closes connections before shutting down.
-     *
-     * @param EndpointInterface $endpoint
      *
      * @return mixed
      */
@@ -63,9 +59,6 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * After the execution of this method, it will be considered that the message was successfully handled,
      * therefore, if there was any problem, an exception must be thrown and not continue. This is important to ensure
      * the Message Delivery Guarantee.
-     *
-     * @param EndpointInterface $endpoint
-     * @param MessageInterface $message
      */
     protected function process(EndpointInterface $endpoint, MessageInterface $message)
     {
@@ -76,7 +69,6 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * This function is called to confirm that a message was successfully handled. Until this point, the message should
      * not be removed from the source Endpoint, this is very important to ensure the Message delivery guarantee.
      *
-     * @param EndpointInterface $endpoint
      * @param $message
      *
      * @return MessageInterface
@@ -117,14 +109,14 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
      * confirming the message if no exception was thrown, reducing the expiration count and preventing the consumer
      * from sleeping in the next round.
      *
-     * @param EndpointInterface $endpoint
-     *
      * @return \Closure
      */
     protected function callback(EndpointInterface $endpoint): callable
     {
         return function (MessageInterface $message) use ($endpoint) {
             $start = microtime(true);
+
+            --$this->expirationCount;
 
             try {
                 $this->process($endpoint, $message);
@@ -135,12 +127,13 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
                 throw $exception;
             }
 
+            $this->logConsumeMessage();
+
+            $this->confirmMessage($endpoint, $message);
+
             $this->consumptionDuration += (microtime(true) - $start) * 1000;
             $this->dispatchConsumerTimingEvent($message);
 
-            $this->confirmMessage($endpoint, $message);
-            $this->logConsumeMessage();
-            --$this->expirationCount;
             $this->consumptionDuration = 0;
             $this->sleep = false;
         };
@@ -149,25 +142,18 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
     /**
      * Hooks the consumer with the source of information and passes the callback function to be called once a message
      * is received.
-     *
-     * @param EndpointInterface $endpoint
-     * @param callable $callback
      */
     abstract protected function asyncConsume(EndpointInterface $endpoint, callable $callback);
 
     /**
      * Waits for a message in a blocking way. If the worker needs to listen to signals, use waitNoBlock() instead. This
      * function won't return the control to the consumer until a message arrives and the callback function finishes.
-     *
-     * @param EndpointInterface $endpoint
      */
     abstract protected function wait(EndpointInterface $endpoint);
 
     /**
      * Waits for a message in a non-blocking way. If there's no message to consume, control is returned to the consumer.
      * Needs to be called in a loop in order to keep checking for messages.
-     *
-     * @param EndpointInterface $endpoint
      */
     abstract protected function waitNoBlock(EndpointInterface $endpoint);
 
@@ -182,8 +168,6 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
 
     /**
      * Dispatches a timing event with the amount of time it took to process a message.
-     *
-     * @param MessageInterface $message
      */
     protected function dispatchConsumerTimingEvent(MessageInterface $message)
     {

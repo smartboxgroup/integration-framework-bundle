@@ -9,16 +9,16 @@ use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesDecodingExceptionHandler;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesQueueSerializer;
 
 /**
  * Class QueueConsumer.
  */
 class QueueConsumer extends AbstractConsumer
 {
-    /**
-     * @var int The time it took in ms to deserialize the message
-     */
-    protected $dequeueingTimeMs = 0;
+    use UsesDecodingExceptionHandler;
+    use UsesQueueSerializer;
 
     /**
      * {@inheritdoc}
@@ -35,11 +35,6 @@ class QueueConsumer extends AbstractConsumer
         $driver->subscribe($queuePath);
     }
 
-    /**
-     * @param EndpointInterface $endpoint
-     *
-     * @return SyncQueueDriverInterface
-     */
     protected function getQueueDriver(EndpointInterface $endpoint): SyncQueueDriverInterface
     {
         $options = $endpoint->getOptions();
@@ -63,9 +58,41 @@ class QueueConsumer extends AbstractConsumer
     protected function readMessage(EndpointInterface $endpoint)
     {
         $driver = $this->getQueueDriver($endpoint);
-        $this->dequeueingTimeMs = $driver->getDequeueingTimeMs();
+        $encodedMessage = $driver->receive();
 
-        return $driver->receive();
+        if (null === $encodedMessage) {
+            return null;
+        }
+
+        $body = $encodedMessage->getBody();
+        $headers = $encodedMessage->getHeaders();
+
+        try {
+            $start = microtime(true);
+            $message = $this->getSerializer()->decode([
+                'body' => $body,
+                'headers' => $headers,
+            ]);
+        } catch (\Exception $exception) {
+            $message = $this->getDecodingExceptionHandler()->handle($exception, [
+                'endpoint' => $endpoint,
+                'body' => $body,
+                'headers' => $headers,
+            ]);
+
+            // If the exception handler doesn't return a new message, consider it poisoned and discard it.
+            if (null === $message) {
+                $driver->ack();
+
+                $this->consumptionDuration += (microtime(true) - $start) * 1000;
+
+                return null;
+            }
+        }
+
+        $this->consumptionDuration += (microtime(true) - $start) * 1000;
+
+        return $message;
     }
 
     /**
@@ -89,19 +116,5 @@ class QueueConsumer extends AbstractConsumer
     {
         $driver = $this->getQueueDriver($endpoint);
         $driver->ack();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @param $intervalMs int the timing interval that we would like to emanate
-     *
-     * @return mixed
-     */
-    protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
-    {
-        $intervalMs += $this->dequeueingTimeMs;
-
-        parent::dispatchConsumerTimingEvent($intervalMs, $message);
     }
 }

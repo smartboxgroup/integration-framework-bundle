@@ -13,17 +13,13 @@ use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
- * Class PhpAmqpLibDriver.
+ * Class AmqpQueueDriver.
  */
-class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
+class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
 {
-    use UsesSerializer;
-
     /**
      * This field specifies the prefetch window size in octets.
      * The server will send a message in advance if it is equal to or smaller in size than the available prefetch size
@@ -56,24 +52,19 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     const DEFAULT_HOST = 'localhost';
 
     /**
-     * Default value to connection timeout
+     * Default value to connection timeout.
      */
     const CONNECTION_TIMEOUT = 30.0;
 
     /**
-     * Default value to read timeout
+     * Default value to read timeout.
      */
     const READ_TIMEOUT = 200;
 
     /**
-     * Default value to heartbeat
+     * Default value to heartbeat.
      */
     const HEARTBEAT = 90;
-
-    /**
-     * @var string
-     */
-    protected $format = AsyncQueueDriverInterface::FORMAT_JSON;
 
     /**
      * @var AMQPChannel|null
@@ -96,12 +87,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     protected $prefetchCount;
 
     /**
-     * @var double
+     * @var float
      */
     protected $connectionTimeout;
 
     /**
-     * @var double
+     * @var float
      */
     protected $readTimeout;
 
@@ -148,7 +139,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
                 $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, [
                     'read_write_timeout' => $this->readTimeout,
                     'connection_timeout' => $this->connectionTimeout,
-                    'heartbeat' => $this->heartbeat
+                    'heartbeat' => $this->heartbeat,
                 ]);
             } catch (AMQPIOException $exception) {
                 throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
@@ -171,17 +162,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function createQueueMessage(): QueueMessageInterface
-    {
-        $msg = new QueueMessage();
-        $msg->setContext(new Context());
-
-        return $msg;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function isConnected(): bool
     {
         return $this->validateConnection() && $this->stream->isConnected();
@@ -199,56 +179,25 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * Set the value for prefetch_count option case it comes form configuration. Otherwise, takes the default value.
-     *
-     * @param int $prefetchCount
      */
-    public function setPrefetchCount(int $prefetchCount = self::PREFETCH_COUNT)
+    public function setPrefetchCount(int $prefetchCount)
     {
         $this->prefetchCount = $prefetchCount;
     }
 
-    /**
-     * @param float $connectionTimeout
-     */
     public function setConnectionTimeout(float $connectionTimeout)
     {
         $this->connectionTimeout = $connectionTimeout;
     }
 
-    /**
-     * @param float $readTimeout
-     */
     public function setReadTimeout(float $readTimeout)
     {
         $this->readTimeout = $readTimeout;
     }
 
-    /**
-     * @param int $heartbeat
-     */
     public function setHeartbeat(int $heartbeat)
     {
         $this->heartbeat = $heartbeat;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @param string $format
-     */
-    public function setFormat(string $format)
-    {
-        $this->format = $format;
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
-    public function getFormat(): string
-    {
-        return $this->format;
     }
 
     /**
@@ -280,13 +229,13 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function send(QueueMessageInterface $message, $destination = null): bool
+    public function send(string $destination, string $body = '', array $headers = []): bool
     {
         $this->declareChannel();
         $this->declareQueue(
-            $message->getQueue(),
+            $destination,
             QueueMessage::DELIVERY_MODE_PERSISTENT,
-            array_filter($message->getHeaders(), function ($value) {
+            array_filter($headers, function ($value) {
                 return 0 === strpos($value, 'x-');
             }, ARRAY_FILTER_USE_KEY));
 
@@ -294,13 +243,12 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
          * Headers are duplicated as "application_headers" too pass any other header coming from the MessageInterface
          * that might not be compatible/relevant to AMQP headers.
          */
-        $properties = $message->getHeaders();
-        $properties['application_headers'] = new AMQPTable($properties);
+        $properties = $headers;
+        $properties['application_headers'] = new AMQPTable($headers);
 
-        $messageBody = $this->getSerializer()->serialize($message, $this->format);
-        $amqpMessage = new AMQPMessage($messageBody, $properties);
+        $amqpMessage = new AMQPMessage($body, $properties);
 
-        $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $message->getQueue());
+        $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $destination);
 
         return true;
     }
@@ -309,7 +257,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      * Declares the queue to drive the message.
      *
      * @param string $queueName The name of the queue
-     * @param int    $durable
      * @param array  $arguments See AMQPQueue::setArguments()
      *
      * @return array|null
@@ -321,8 +268,6 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
 
     /**
      * Catch a channel inside the connection.
-     *
-     * @return AMQPChannel
      */
     public function declareChannel(): AMQPChannel
     {

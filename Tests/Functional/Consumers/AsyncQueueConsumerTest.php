@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Consumers;
 
-use JMS\Serializer\SerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
+use Smartbox\Integration\FrameworkBundle\Exceptions\MessageDecodingFailedException;
 use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -36,15 +37,18 @@ class AsyncQueueConsumerTest extends BaseKernelTestCase
     public function testConsume()
     {
         $consumer = $this->getConsumer();
+        $serializer = $consumer->getSerializer();
         $queueDriver = $this->getQueueDriver('amqp');
+        $queueDriver->connect();
 
         $message = $this->createMessage(new EntityX(333));
-        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage = new QueueMessage();
         $queueMessage->setQueue(self::QUEUE);
         $queueMessage->setDestinationURI('direct://test');
         $queueMessage->setBody($message);
-        $queueDriver->connect();
-        $queueDriver->send($queueMessage);
+
+        $encodedMessage = $serializer->encode($queueMessage);
+        $queueDriver->send($queueMessage->getQueue(), $encodedMessage['body'], $encodedMessage['headers']);
 
         $handlerMock = $this->createMock(MessageHandler::class);
         $handlerMock->expects($this->once())->method('handle');
@@ -68,31 +72,17 @@ class AsyncQueueConsumerTest extends BaseKernelTestCase
     }
 
     /**
-     * Callback should call the exception handler when it fails to deserialize a message. By default, the
+     * Check if decoding exception handler is triggered when consumers fails to deserialize a message. By default, the
      * ReThrowExceptionHandler is used which simply throws the exception again.
      */
     public function testUsesExceptionHandlerOnSerializationErrors()
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('I cöuld nót dese�rialize that JSON strin��������');
+        $this->expectException(MessageDecodingFailedException::class);
 
         $consumer = $this->getConsumer();
         $queueDriver = $this->getQueueDriver('amqp');
-
-        $message = $this->createMessage(new EntityX(666));
-        $queueMessage = $queueDriver->createQueueMessage();
-        $queueMessage->setQueue(self::QUEUE);
-        $queueMessage->setDestinationURI('direct://test');
-        $queueMessage->setBody($message);
         $queueDriver->connect();
-        $queueDriver->send($queueMessage);
-
-        $serializer = $this->createMock(SerializerInterface::class);
-        $serializer->expects($this->once())
-            ->method('deserialize')
-            ->willThrowException(new \RuntimeException('I cöuld nót dese�rialize that JSON strin��������'));
-
-        $consumer->setSerializer($serializer);
+        $queueDriver->send(self::QUEUE, '123', [QueueMessage::HEADER_FROM => 'direct://test']);
 
         $queueProtocol = new QueueProtocol(true, 3600);
         $optionsResolver = new OptionsResolver();

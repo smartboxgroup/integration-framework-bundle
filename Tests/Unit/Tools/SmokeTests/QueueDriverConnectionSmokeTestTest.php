@@ -5,7 +5,6 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Tools\SmokeTests;
 use PHPUnit\Framework\TestCase;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutput;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\QueueDriverConnectionSmokeTest;
 
 /**
@@ -14,7 +13,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\QueueDriverConnectionS
 class QueueDriverConnectionSmokeTestTest extends TestCase
 {
     /**
-     * Test that the smoke test can be test...ed
+     * Test that the smoke test can be test...ed.
      */
     public function testHappyPath()
     {
@@ -90,9 +89,11 @@ class QueueDriverConnectionSmokeTestTest extends TestCase
         $queueDriver
             ->expects($this->once())
             ->method('send')
-            ->with($this->callback(function (QueueMessageInterface $message) {
-                return $message->getTTL() <= 1;
-            }));
+            ->with(
+                $this->equalTo('isalive'),
+                $this->equalTo(''),
+                $this->equalTo(['x-message-ttl' => QueueDriverConnectionSmokeTest::EXPIRATION_TIME])
+            );
 
         $test = new QueueDriverConnectionSmokeTest($queueDriver);
         $test->run();
