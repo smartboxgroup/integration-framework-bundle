@@ -34,20 +34,21 @@ smartbox_integration_framework:
     defer_events_to_uri: queue://events
     queue_drivers:
         main:
-            type: RabbitMQ
+            type: rabbitmq
             description: RabbitMQ queue driver
             host: "%rabbitmq.hostname%"
             username: "%rabbitmq.username%"
             password: "%rabbitmq.password%"
             format: json
             vhost: '%rabbitmq.vhost%'
-            timeout: '%rabbitmq.timeout%'
         amqp:
-            type: AMQP
+            type: amqp
             description: AMQP queue driver
+            host: "%hostname%"
+            username: "%rabbitmq.username%"
+            password: "%rabbitmq.password%"
             format: json
-            connections:
-                - "amqp://%rabbitmq.username%:%rabbitmq.password%@%hostname%/%rabbitmq.vhost%"
+            vhost: "%rabbitmq.vhost%"
 
     nosql_drivers: ~
 
@@ -56,7 +57,7 @@ smartbox_integration_framework:
 
     message_handlers:
         sync:
-            description: Message hanlder to handle messages comming from the API
+            description: Message handler to handle messages comming from the API
             retries_max: 5
             retry_delay: 0
             failed_uri: queue://main/sync/failed
@@ -65,7 +66,7 @@ smartbox_integration_framework:
             defer_new_exchanges: false
 
         async:
-            description: Message hanlder to handle messages comming from a queue
+            description: Message handler to handle messages comming from a queue
             retries_max: 5
             retry_delay: 0
             failed_uri: queue://main/async/failed

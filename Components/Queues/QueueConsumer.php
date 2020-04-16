@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
-use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
@@ -12,7 +13,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 /**
  * Class QueueConsumer.
  */
-class QueueConsumer extends AbstractConsumer implements ConsumerInterface
+class QueueConsumer extends AbstractConsumer
 {
     /**
      * @var int The time it took in ms to deserialize the message
@@ -37,19 +38,14 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
     /**
      * @param EndpointInterface $endpoint
      *
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface
+     * @return SyncQueueDriverInterface
      */
-    protected function getQueueDriver(EndpointInterface $endpoint)
+    protected function getQueueDriver(EndpointInterface $endpoint): SyncQueueDriverInterface
     {
         $options = $endpoint->getOptions();
         $queueDriverName = $options[QueueProtocol::OPTION_QUEUE_DRIVER];
-        $queueDriver = $this->smartesbHelper->getQueueDriver($queueDriverName);
 
-        if ($queueDriver instanceof QueueDriverInterface) {
-            return $queueDriver;
-        }
-
-        throw new \RuntimeException("Error in QueueConsumer, the driver with name $queueDriverName does not implement the interface QueueDriverInterface");
+        return $this->smartesbHelper->getQueueDriver($queueDriverName);
     }
 
     /**
@@ -104,7 +100,7 @@ class QueueConsumer extends AbstractConsumer implements ConsumerInterface
      */
     protected function dispatchConsumerTimingEvent($intervalMs, MessageInterface $message)
     {
-        $intervalMs = $intervalMs + $this->dequeueingTimeMs;
+        $intervalMs += $this->dequeueingTimeMs;
 
         parent::dispatchConsumerTimingEvent($intervalMs, $message);
     }

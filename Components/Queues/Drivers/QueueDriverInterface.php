@@ -19,12 +19,12 @@ interface QueueDriverInterface extends SerializableInterface
     /**
      * Configures the driver.
      *
-     * @param $host
-     * @param string $username Username to connect to the queuing system
-     * @param string $password Password to connect to the queuing system
-     * @param string $format
+     * @param string      $host
+     * @param string      $username
+     * @param string      $password
+     * @param string|null $vhost
      */
-    public function configure($host, $username, $password, $format = self::FORMAT_JSON);
+    public function configure(string $host, string $username, string $password, string $vhost = null);
 
     /**
      * Opens a connection with a queuing system.
@@ -41,72 +41,51 @@ interface QueueDriverInterface extends SerializableInterface
      *
      * @return bool
      */
-    public function isConnected();
+    public function isConnected(): bool;
 
     /**
-     * Returns true if a subscription already exists, false otherwise.
+     * Acknowledges the message in the message broker. $messageId is nullable for backwards compatibility with the
+     * SyncQueueDriverInterface. In practice, unless your driver is keeping track of messages, $message should always
+     * be passed to this function.
      *
-     * @return bool
+     * @param QueueMessageInterface|null $message
      */
-    public function isSubscribed();
+    public function ack(QueueMessageInterface $message = null);
 
     /**
-     * Creates a subscription to the given $queue, allowing to receive messages from it.
+     * Negative acknowledgement of a message.
      *
-     * @param string $queue Queue to subscribe
-     */
-    public function subscribe($queue);
-
-    /**
-     * Destroys the created subscription with a queue.
-     */
-    public function unSubscribe();
-
-    /**
-     * Acknowledges the processing of the last received object.
+     * @see ack() for extra information about this function.
      *
-     * The object should be removed from the queue.
+     * @param QueueMessageInterface|null $message
      */
-    public function ack();
-
-    /**
-     * Acknowledges a failure on processing the last received object.
-     *
-     * The object could be moved to the DLQ or be delivered to another subscription for retrial
-     */
-    public function nack();
+    public function nack(QueueMessageInterface $message = null);
 
     /**
      * @param QueueMessageInterface $message
      * @param string|null           $destination
+     * @param array                 $arguments
      *
      * @return bool
      */
-    public function send(QueueMessageInterface $message, $destination = null);
-
-    /**
-     * Returns One Serializable object from the queue.
-     *
-     * It requires to subscribe previously to a specific queue
-     *
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface|null
-     *
-     * @throws \Exception
-     */
-    public function receive();
+    public function send(QueueMessageInterface $message, $destination = null): bool;
 
     /**
      * @return QueueMessageInterface
      */
-    public function createQueueMessage();
+    public function createQueueMessage(): QueueMessageInterface;
 
     /**
-     * Clean all the opened resources, must be called just before terminating the current request.
+     * Returns the format used on serialize/deserialize function.
+     *
+     * @return string
      */
-    public function doDestroy();
+    public function getFormat(): string;
 
     /**
-     * @return int The time it took in ms to de-queue and deserialize the message
+     * Set the format used on serialize/deserialize function.
+     *
+     * @param string|null $format
      */
-    public function getDequeueingTimeMs();
+    public function setFormat(string $format);
 }

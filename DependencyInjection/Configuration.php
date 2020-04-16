@@ -393,22 +393,25 @@ class Configuration implements ConfigurationInterface
             ->isRequired()
             ->end()
 
-            ->scalarNode('timeout')
+            ->scalarNode('read_timeout')
             ->defaultValue(null)
             ->end()
 
-            ->scalarNode('port')
-            ->defaultValue(5672)
+            ->floatNode('connection_timeout')
+            ->defaultValue(null)
+            ->end()
+
+            ->scalarNode('prefetch_count')
+            ->defaultValue(null)
+            ->end()
+
+            ->scalarNode('heartbeat')
+            ->defaultValue(null)
             ->end()
 
             ->scalarNode('sync')
             ->info('This parameter define if the stomp driver will be synchronous or not')
             ->defaultValue(true)
-            ->end()
-
-            ->arrayNode('connections')
-                ->info('The list of connection URI to use with then AMQP queue driver.')
-                ->prototype('scalar')->end()
             ->end()
 
             ->scalarNode('exception_handler')

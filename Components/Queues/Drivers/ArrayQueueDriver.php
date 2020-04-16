@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
@@ -10,13 +12,18 @@ use Smartbox\Integration\FrameworkBundle\Service;
 /**
  * Class ArrayQueueDriver.
  */
-class ArrayQueueDriver extends Service implements QueueDriverInterface
+class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
 {
     public static $array = [];
 
     protected $connected = false;
     protected $subscribedQueue = false;
-    protected $unacknowledgedFrame = null;
+    protected $unacknowledgedFrame;
+
+    /**
+     * @var string
+     */
+    private $format;
 
     /**
      * @return int
@@ -27,6 +34,8 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
     }
 
     /**
+     * @param $queue
+     *
      * @return array
      */
     public function getArrayForQueue($queue)
@@ -41,11 +50,12 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
     /**
      * Configures the driver.
      *
-     * @param string $uri      URI of the queuing system
-     * @param string $username Username to connect to the queuing system
-     * @param string $password Password to connect to the queuing system
+     * @param string      $host
+     * @param string      $username Username to connect to the queuing system
+     * @param string      $password Password to connect to the queuing system
+     * @param string|null $vhost
      */
-    public function configure($host, $username, $password, $format = '')
+    public function configure(string $host, string $username, string $password, string $vhost = null)
     {
         self::$array = [];
     }
@@ -71,7 +81,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
      *
      * @return bool
      */
-    public function isConnected()
+    public function isConnected(): bool
     {
         return $this->connected;
     }
@@ -92,7 +102,7 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
      * @param string      $queue    Queue to subscribe
      * @param string|null $selector If supported, it is an expression filters the messages on the queue
      */
-    public function subscribe($queue, $selector = null)
+    public function subscribe(string $queue, $selector = null)
     {
         $this->subscribedQueue = $queue;
     }
@@ -107,26 +117,28 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
 
     /**
      * Acknowledges the processing of the last received object.
-     *
      * The object should be removed from the queue.
+     *
+     * @param QueueMessageInterface|null $message
      */
-    public function ack()
+    public function ack(QueueMessageInterface $message = null)
     {
         $this->unacknowledgedFrame = false;
     }
 
     /**
      * Acknowledges a failure on processing the last received object.
+     * The object could be moved to the DLQ or be delivered to another subscription for retrial.
      *
-     * The object could be moved to the DLQ or be delivered to another subscription for retrial
+     * @param QueueMessageInterface|null $message
      */
-    public function nack()
+    public function nack(QueueMessageInterface $message = null)
     {
         $this->unacknowledgedFrame = false;
     }
 
     /** {@inheritdoc} */
-    public function send(QueueMessageInterface $message, $destination = null)
+    public function send(QueueMessageInterface $message, $destination = null, array $arguments = []): bool
     {
         $destination = $destination ? $destination : $message->getQueue();
 
@@ -150,9 +162,9 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
     }
 
     /**
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface
+     * @return QueueMessageInterface
      */
-    public function createQueueMessage()
+    public function createQueueMessage(): QueueMessageInterface
     {
         /*
          * This driver will ignore all the headers so it can use any message that implements QueueMessageInterface
@@ -166,9 +178,25 @@ class ArrayQueueDriver extends Service implements QueueDriverInterface
     /**
      * Clean all the opened resources, must be called just before terminating the current request.
      */
-    public function doDestroy()
+    public function destroy()
     {
         // TODO: Implement doDestroy() method.
         // I have no time to do destroy the world.
+    }
+
+    /**
+     * @return string
+     */
+    public function getFormat(): string
+    {
+        return $this->format;
+    }
+
+    /**
+     * @param string $format
+     */
+    public function setFormat(string $format)
+    {
+        $this->format = $format;
     }
 }

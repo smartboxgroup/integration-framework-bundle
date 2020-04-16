@@ -69,10 +69,7 @@ class QueueProducer extends Producer
         $this->beforeSend($queueMessage, $options);
 
         // Send
-        if (!$queueDriver->isConnected()) {
-            $queueDriver->connect();
-        }
-
+        $queueDriver->connect();
         $success = $queueDriver->send($queueMessage);
 
         if (!$success) {
@@ -81,13 +78,12 @@ class QueueProducer extends Producer
     }
 
     /**
-     * A hook to allow for modifying the queue message before we send it
+     * A hook to allow for modifying the queue message before we send it.
      *
      * @param QueueMessage $queueMessage
-     * @param array $options The options set for this endpoint
+     * @param array        $options      The options set for this endpoint
      */
     protected function beforeSend(QueueMessage $queueMessage, $options)
     {
-
     }
 }

@@ -34,4 +34,3 @@ services:
       calls:
         - [setId, ['smartesb.producers.service']]
         - [setContainer, ['@service_container']]
-
