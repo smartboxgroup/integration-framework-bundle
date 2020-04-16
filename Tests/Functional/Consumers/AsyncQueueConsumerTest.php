@@ -35,7 +35,7 @@ class AsyncQueueConsumerTest extends BaseKernelTestCase
      */
     public function testConsume()
     {
-        $consumer = $consumer = $this->getConsumer();
+        $consumer = $this->getConsumer();
         $queueDriver = $this->getQueueDriver('amqp');
 
         $message = $this->createMessage(new EntityX(333));
@@ -76,7 +76,7 @@ class AsyncQueueConsumerTest extends BaseKernelTestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('I cöuld nót dese�rialize that JSON strin��������');
 
-        $consumer = $consumer = $this->getConsumer();
+        $consumer = $this->getConsumer();
         $queueDriver = $this->getQueueDriver('amqp');
 
         $message = $this->createMessage(new EntityX(666));
