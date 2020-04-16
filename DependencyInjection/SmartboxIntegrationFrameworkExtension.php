@@ -9,6 +9,8 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AmqpQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\StompQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueConsumer;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\HttpClientInterface;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Middleware;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConfigurableConsumerInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Handlers\MessageHandler;
@@ -108,6 +110,14 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
             $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $definition->addMethodCall('setName', [$producerName]);
+
+            if (is_subclass_of($class, HttpClientInterface::class)) {
+                $definition->addMethodCall('addHandler', [
+                    (new Definition(Middleware::class))->setFactory([Middleware::class, 'httpErrors']),
+                    'http_error_handler'
+                ]);
+            }
+
             $container->setDefinition($producerId, $definition);
 
             if (in_array(CanCheckConnectivityInterface::class, class_implements($definition->getClass()))) {

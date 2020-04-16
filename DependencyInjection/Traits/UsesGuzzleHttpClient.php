@@ -12,19 +12,20 @@ trait UsesGuzzleHttpClient
     /** @var ClientInterface */
     protected $httpClient;
 
-    /**
-     * @return ClientInterface
-     */
-    public function getHttpClient()
+    public function getHttpClient(): ClientInterface
     {
         return $this->httpClient;
     }
 
-    /**
-     * @param ClientInterface $httpClient
-     */
     public function setHttpClient(ClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
+    }
+
+    public function addHandler(callable $middleware, string $name)
+    {
+        if (null !== $this->httpClient && null !== $handlerStack = $this->httpClient->getConfig('handler')) {
+            $handlerStack->push($middleware, $name);
+        }
     }
 }
