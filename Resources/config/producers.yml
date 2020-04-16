@@ -2,7 +2,6 @@ parameters:
   ########## PRODUCER CLASSES  ##########
   smartesb.producers.direct.class: Smartbox\Integration\FrameworkBundle\Core\Producers\DirectProducer
   smartesb.producers.json_file.class: Smartbox\Integration\FrameworkBundle\Components\JsonFileLoader\JsonFileLoaderProducer
-  smartesb.producers.queue.class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer
   smartesb.producers.service.class: Smartbox\Integration\FrameworkBundle\Components\SymfonyService\SymfonyServiceProducer
   smartesb.producers.csv_file.class: Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableProducer
 
@@ -20,12 +19,12 @@ services:
         - [setId, ['smartesb.producers.json_file']]
         - [setSerializer, ['@jms_serializer']]
 
-  # STOMP
+  # STOMP | AMQP
   smartesb.producers.queue:
-      class: "%smartesb.producers.queue.class%"
+      class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer
       calls:
         - [setId, ['smartesb.producers.queue']]
-        - [setSerializer, ['@jms_serializer']]
+        - [setSerializer, ['@smartesb.serialization.queue.jms_serializer']]
         - [setDriverRegistry, ['@smartesb.drivers.queue._registry']]
 
   # NoSQL
@@ -34,4 +33,3 @@ services:
       calls:
         - [setId, ['smartesb.producers.service']]
         - [setContainer, ['@service_container']]
-

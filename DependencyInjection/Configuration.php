@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\DependencyInjection;
 
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
@@ -58,6 +60,9 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('defer_events_to_uri')
             ->isRequired()->end()
 
+            ->scalarNode('default_queue_consumer')
+            ->isRequired()->end()
+
             ->scalarNode('default_queue_driver')
             ->isRequired()->end()
 
@@ -73,6 +78,7 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->append($this->addProducersNode())
             ->append($this->addConsumersNode())
+            ->append($this->addQueueConsumersNode())
             ->append($this->addQueueDriversNode())
             ->append($this->addNoSQLDriversNode())
             ->append($this->addHandlersNode())
@@ -389,31 +395,25 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('password')->end()
 
-            ->scalarNode('format')
-            ->isRequired()
-            ->end()
-
-            ->scalarNode('timeout')
+            ->scalarNode('read_timeout')
             ->defaultValue(null)
             ->end()
 
-            ->scalarNode('port')
-            ->defaultValue(5672)
+            ->floatNode('connection_timeout')
+            ->defaultValue(null)
+            ->end()
+
+            ->scalarNode('prefetch_count')
+            ->defaultValue(null)
+            ->end()
+
+            ->scalarNode('heartbeat')
+            ->defaultValue(null)
             ->end()
 
             ->scalarNode('sync')
             ->info('This parameter define if the stomp driver will be synchronous or not')
             ->defaultValue(true)
-            ->end()
-
-            ->arrayNode('connections')
-                ->info('The list of connection URI to use with then AMQP queue driver.')
-                ->prototype('scalar')->end()
-            ->end()
-
-            ->scalarNode('exception_handler')
-            ->info('The service id of an exception handler to use when a message can not be de-serialized')
-            ->defaultValue(null)
             ->end()
 
             ->end()
@@ -467,6 +467,34 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->isRequired()
         ;
+
+        return $node;
+    }
+
+    private function addQueueConsumersNode()
+    {
+        $builder = new TreeBuilder();
+
+        $node = $builder->root('queue_consumers');
+        $node->info('Section where the queue consumers are defined');
+
+        $node->useAttributeAsKey('name')
+            ->prototype('array')
+            ->children()
+                ->enumNode('type')
+                    ->info('Consumer type')
+                    ->values([
+                        SmartboxIntegrationFrameworkExtension::CONSUMER_TYPE_SYNC,
+                        SmartboxIntegrationFrameworkExtension::CONSUMER_TYPE_ASYNC,
+                    ])
+                    ->isRequired()
+                ->end()
+                ->scalarNode('decoding_exception_handler')
+                    ->info('The service id of an exception handler to use when a message can not be decoded')
+                    ->defaultValue(null)
+                ->end()
+            ->end()
+            ->isRequired();
 
         return $node;
     }

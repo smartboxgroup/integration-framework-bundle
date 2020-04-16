@@ -4,290 +4,302 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use JMS\Serializer\DeserializationContext;
-use Smartbox\CoreBundle\Type\SerializableInterface;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueManager;
+use PhpAmqpLib\Channel\AMQPChannel;
+use PhpAmqpLib\Connection\AbstractConnection;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exception\AMQPIOException;
+use PhpAmqpLib\Exception\AMQPProtocolException;
+use PhpAmqpLib\Message\AMQPMessage;
+use PhpAmqpLib\Wire\AMQPTable;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
-use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\UsesExceptionHandlerTrait;
 use Smartbox\Integration\FrameworkBundle\Service;
 
-class AmqpQueueDriver extends Service implements PurgeableQueueDriverInterface
+/**
+ * Class AmqpQueueDriver.
+ */
+class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
 {
-    use UsesSerializer;
-    use UsesExceptionHandlerTrait;
+    /**
+     * This field specifies the prefetch window size in octets.
+     * The server will send a message in advance if it is equal to or smaller in size than the available prefetch size
+     * (and also falls into other prefetch limits).
+     * May be set to zero, meaning "no specific limit", although other prefetch limits may still apply.
+     * The prefetch-size is ignored if the no-ack option is set.
+     * This parameter is not implemented in RabbitMQ as checked in:
+     * https://www.rabbitmq.com/specification.html#method-status-basic.qos.
+     */
+    const PREFETCH_SIZE = null;
 
     /**
-     * Maximum amount of time (in seconds) to wait for a message.
+     * Represents the amount of message to consume by iteration.
      */
-    const WAIT_TIMEOUT = 10;
-    const WAIT_PERIOD = 0.2;
+    const PREFETCH_COUNT = 10;
+
+    /*
+     * Default exchange name
+     */
+    const EXCHANGE_NAME = '';
 
     /**
-     * @var \AMQPQueue
+     * Default port to connection.
      */
-    private $queue;
+    const DEFAULT_PORT = 5672;
 
     /**
-     * @var \AMQPEnvelope
+     * Default host to connect.
      */
-    private $currentEnvelope;
-
-    private $dequeueingTimeMs = 0;
+    const DEFAULT_HOST = 'localhost';
 
     /**
-     * @var string
+     * Default value to connection timeout.
      */
-    private $format;
-    /**
-     * @var QueueManager
-     */
-    private $manager;
+    const CONNECTION_TIMEOUT = 30.0;
 
     /**
-     * AmqpQueueDriver constructor.
-     *
-     * @param QueueManager $manager
+     * Default value to read timeout.
      */
-    public function __construct(QueueManager $manager)
-    {
-        parent::__construct();
-        $this->manager = $manager;
-    }
+    const READ_TIMEOUT = 200;
+
+    /**
+     * Default value to heartbeat.
+     */
+    const HEARTBEAT = 90;
+
+    /**
+     * @var AMQPChannel|null
+     */
+    private $channel;
+
+    /**
+     * @var array|null
+     */
+    protected $connectionsData;
+
+    /**
+     * @var AMQPStreamConnection
+     */
+    protected $stream;
+
+    /**
+     * @var int
+     */
+    protected $prefetchCount;
+
+    /**
+     * @var float
+     */
+    protected $connectionTimeout;
+
+    /**
+     * @var float
+     */
+    protected $readTimeout;
+
+    /**
+     * @var int
+     */
+    protected $heartbeat;
 
     public function __destruct()
     {
-        if ($this->currentEnvelope) {
-            trigger_error('AmqpQueueDriver: A message was left unacknowledged.');
-        }
-
-        $this->doDestroy();
+        $this->disconnect();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function configure($host, $username, $password, $format = self::FORMAT_JSON)
+    public function configure(string $host, string $username, string $password, string $vhost = null)
     {
-        $this->format = $format;
+        $urls = explode(',', $host);
+
+        foreach ($urls as $url) {
+            $parsedUrl = parse_url($url);
+
+            $this->connectionsData[] = [
+                'host' => $parsedUrl['host'] ?? self::DEFAULT_HOST,
+                'user' => $username,
+                'password' => $password,
+                'vhost' => $vhost,
+                'port' => $parsedUrl['port'] ?? self::DEFAULT_PORT,
+            ];
+        }
     }
 
     /**
-     * Opens a connection with a queuing system.
+     * {@inheritdoc}
+     *
+     * @throws AMQPProtocolException
      */
     public function connect()
     {
-        if (!$this->isConnected()) {
-            $this->manager->connect();
+        if (!$this->validateConnection()) {
+            try {
+                shuffle($this->connectionsData);
+                $this->stream = AMQPStreamConnection::create_connection($this->connectionsData, [
+                    'read_write_timeout' => $this->readTimeout,
+                    'connection_timeout' => $this->connectionTimeout,
+                    'heartbeat' => $this->heartbeat,
+                ]);
+            } catch (AMQPIOException $exception) {
+                throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
+            }
+        } elseif (!$this->isConnected()) {
+            $this->stream->reconnect();
         }
     }
 
     /**
-     * Destroys the connection with the queuing system.
+     * {@inheritdoc}
      */
     public function disconnect()
     {
-        if ($this->currentEnvelope) {
-            throw new \RuntimeException('Trying to disconnect with an unacknoleged message.');
+        if ($this->validateConnection()) {
+            $this->stream->close();
         }
-
-        $this->manager->disconnect();
-    }
-
-    /**
-     * Returns true if a connection already exists with the queing system, false otherwise.
-     *
-     * @return bool
-     */
-    public function isConnected()
-    {
-        return $this->manager->isConnected();
-    }
-
-    /**
-     * Returns true if a subscription already exists, false otherwise.
-     *
-     * @return bool
-     */
-    public function isSubscribed()
-    {
-        return null !== $this->queue;
-    }
-
-    /**
-     * Creates a subscription to the given $queue, allowing to receive messages from it.
-     *
-     * @param string $queue Queue to subscribe
-     */
-    public function subscribe($queue)
-    {
-        if ($this->currentEnvelope) {
-            throw new \RuntimeException('Don\'t be greedy and process the message you already have!');
-        }
-
-        $this->queue = $this->manager->getQueue((string) $queue);
-    }
-
-    /**
-     * Destroys the created subscription with a queue.
-     */
-    public function unSubscribe()
-    {
-        $this->disconnect();
-        $this->queue = $this->currentEnvelope = null;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function ack()
+    public function isConnected(): bool
     {
-        if (!$this->currentEnvelope) {
-            throw new \RuntimeException('You must first receive a message, before acking it');
-        }
-
-        $this->queue->ack($this->currentEnvelope->getDeliveryTag());
-        $this->currentEnvelope = null;
+        return $this->validateConnection() && $this->stream->isConnected();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function nack()
+    public function destroy(string $consumerTag)
     {
-        if (!$this->currentEnvelope) {
-            throw new \RuntimeException('You must first receive a message, before nacking it');
-        }
-
-        $this->queue->nack($this->currentEnvelope->getDeliveryTag(), AMQP_REQUEUE);
-        $this->currentEnvelope = null;
-    }
-
-    public function createQueueMessage()
-    {
-        $msg = new QueueMessage();
-        $msg->setContext(new Context());
-
-        return $msg;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function doDestroy()
-    {
+        $this->channel->basic_cancel($consumerTag);
+        $this->channel = null;
         $this->disconnect();
     }
 
     /**
+     * Set the value for prefetch_count option case it comes form configuration. Otherwise, takes the default value.
+     */
+    public function setPrefetchCount(int $prefetchCount)
+    {
+        $this->prefetchCount = $prefetchCount;
+    }
+
+    public function setConnectionTimeout(float $connectionTimeout)
+    {
+        $this->connectionTimeout = $connectionTimeout;
+    }
+
+    public function setReadTimeout(float $readTimeout)
+    {
+        $this->readTimeout = $readTimeout;
+    }
+
+    public function setHeartbeat(int $heartbeat)
+    {
+        $this->heartbeat = $heartbeat;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public function send(QueueMessageInterface $message, $destination = null)
+    public function consume(string $consumerTag, string $queueName, callable $callback = null)
     {
-        $this->manager->send(
-            $destination ?? $message->getQueue(),
-            $this->getSerializer()->serialize($message, $this->format),
-            $message->getHeaders()
-        );
+        $this->declareChannel();
+        $this->declareQueue($queueName);
+        $this->channel->basic_consume($queueName, $consumerTag, false, false, false, false, $callback);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function ack(QueueMessageInterface $message = null)
+    {
+        $this->channel->basic_ack($message->getMessageId());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function nack(QueueMessageInterface $message = null)
+    {
+        $this->channel->basic_nack($message->getMessageId());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function send(string $destination, string $body = '', array $headers = []): bool
+    {
+        $this->declareChannel();
+        $this->declareQueue(
+            $destination,
+            QueueMessage::DELIVERY_MODE_PERSISTENT,
+            array_filter($headers, function ($value) {
+                return 0 === strpos($value, 'x-');
+            }, ARRAY_FILTER_USE_KEY));
+
+        /*
+         * Headers are duplicated as "application_headers" too pass any other header coming from the MessageInterface
+         * that might not be compatible/relevant to AMQP headers.
+         */
+        $properties = $headers;
+        $properties['application_headers'] = new AMQPTable($headers);
+
+        $amqpMessage = new AMQPMessage($body, $properties);
+
+        $this->channel->basic_publish($amqpMessage, self::EXCHANGE_NAME, $destination);
 
         return true;
     }
 
     /**
-     * {@inheritdoc}
+     * Declares the queue to drive the message.
+     *
+     * @param string $queueName The name of the queue
+     * @param array  $arguments See AMQPQueue::setArguments()
+     *
+     * @return array|null
      */
-    public function receive()
+    public function declareQueue(string $queueName, int $durable = QueueMessage::DELIVERY_MODE_PERSISTENT, array $arguments = [])
     {
-        if ($this->currentEnvelope) {
-            throw new \LogicException('AmqpQueueDriver: You have to subscribe before receiving.');
-        }
-        $waited = 0;
-
-        while (null === ($msg = $this->receiveNoWait()) && static::WAIT_TIMEOUT > $waited) {
-            $this->sleep(static::WAIT_PERIOD);
-            $waited += static::WAIT_PERIOD;
-        }
-
-        return $msg;
+        return $this->channel->queue_declare($queueName, false, $durable, false, false, false, new AMQPTable($arguments));
     }
 
     /**
-     * Returns One Serializable object from the queue.
-     *
-     * It requires to subscribe previously to a specific queue
-     *
-     * @throws \Exception
-     *
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface|null
+     * Catch a channel inside the connection.
      */
-    public function receiveNoWait()
+    public function declareChannel(): AMQPChannel
     {
-        if ($this->currentEnvelope) {
-            throw new \RuntimeException(
-                'AmqpQueueDriver: This driver has a message that was not acknowledged yet. A message must be processed and acknowledged before receiving new messages.'
-            );
+        if (!$this->channel instanceof AMQPChannel || !$this->channel->is_open()) {
+            $this->channel = $this->stream->channel();
+            $this->channel->basic_qos(self::PREFETCH_SIZE, $this->prefetchCount, null);
         }
 
-        $this->dequeueingTimeMs = 0;
-
-        $this->currentEnvelope = $this->queue->get();
-
-        $msg = null;
-
-        if (!$this->currentEnvelope) {
-            return null;
-        }
-
-        $start = microtime(true);
-        $deserializationContext = new DeserializationContext();
-
-        try{
-            /** @var QueueMessageInterface $msg */
-            $msg = $this->getSerializer()->deserialize($this->currentEnvelope->getBody(), SerializableInterface::class, $this->format, $deserializationContext);
-        } catch (\Exception $exception) {
-            $this->getExceptionHandler()($exception, ['headers' => $this->currentEnvelope->getHeaders(), 'body' => $this->currentEnvelope->getBody()]);
-            $this->ack();
-            return null;
-        }
-        foreach ($this->currentEnvelope->getHeaders() as $header => $value) {
-            $msg->setHeader($header, $value);
-        }
-
-        // Calculate how long it took to deserilize the message
-        $this->dequeueingTimeMs = (int) ((microtime(true) - $start) * 1000);
-
-        return $msg;
-    }
-
-    /**
-     * @return int The time it took in ms to de-queue and deserialize the message
-     */
-    public function getDequeueingTimeMs()
-    {
-        return $this->dequeueingTimeMs;
+        return $this->channel;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function purge(string $queue)
+    public function waitNoBlock()
     {
-        $this->manager->getQueue($queue)->purge();
+        $this->channel->wait(null, true);
     }
 
     /**
-     * Sleep the script for a given number of seconds.
-     *
-     * @param int|float $seconds
+     * {@inheritdoc}
      */
-    public function sleep($seconds)
+    public function wait()
     {
-        if ($seconds < 1) {
-            usleep((int) $seconds * 1000000);
-        } else {
-            sleep((int) $seconds);
-        }
+        $this->channel->wait();
+    }
+
+    /**
+     * Validate if there is some connection available.
+     */
+    protected function validateConnection()
+    {
+        return $this->stream instanceof AbstractConnection;
     }
 }

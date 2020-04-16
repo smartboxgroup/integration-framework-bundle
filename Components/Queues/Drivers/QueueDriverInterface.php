@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 use Smartbox\CoreBundle\Type\SerializableInterface;
@@ -7,8 +9,6 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface
 
 interface QueueDriverInterface extends SerializableInterface
 {
-    const FORMAT_JSON = 'json';
-    const FORMAT_XML = 'xml';
     const DEFAULT_TTL = 86400;
 
     const HEADER_TTL = 'ttl';
@@ -18,13 +18,8 @@ interface QueueDriverInterface extends SerializableInterface
 
     /**
      * Configures the driver.
-     *
-     * @param $host
-     * @param string $username Username to connect to the queuing system
-     * @param string $password Password to connect to the queuing system
-     * @param string $format
      */
-    public function configure($host, $username, $password, $format = self::FORMAT_JSON);
+    public function configure(string $host, string $username, string $password, string $vhost = null);
 
     /**
      * Opens a connection with a queuing system.
@@ -38,75 +33,25 @@ interface QueueDriverInterface extends SerializableInterface
 
     /**
      * Returns true if a connection already exists with the queing system, false otherwise.
+     */
+    public function isConnected(): bool;
+
+    /**
+     * Acknowledges the message in the message broker. $messageId is nullable for backwards compatibility with the
+     * SyncQueueDriverInterface. In practice, unless your driver is keeping track of messages, $message should always
+     * be passed to this function.
+     */
+    public function ack(QueueMessageInterface $message = null);
+
+    /**
+     * Negative acknowledgement of a message.
      *
-     * @return bool
+     * @see ack() for extra information about this function.
      */
-    public function isConnected();
+    public function nack(QueueMessageInterface $message = null);
 
     /**
-     * Returns true if a subscription already exists, false otherwise.
-     *
-     * @return bool
+     * Publish the message to the broker.
      */
-    public function isSubscribed();
-
-    /**
-     * Creates a subscription to the given $queue, allowing to receive messages from it.
-     *
-     * @param string $queue Queue to subscribe
-     */
-    public function subscribe($queue);
-
-    /**
-     * Destroys the created subscription with a queue.
-     */
-    public function unSubscribe();
-
-    /**
-     * Acknowledges the processing of the last received object.
-     *
-     * The object should be removed from the queue.
-     */
-    public function ack();
-
-    /**
-     * Acknowledges a failure on processing the last received object.
-     *
-     * The object could be moved to the DLQ or be delivered to another subscription for retrial
-     */
-    public function nack();
-
-    /**
-     * @param QueueMessageInterface $message
-     * @param string|null           $destination
-     *
-     * @return bool
-     */
-    public function send(QueueMessageInterface $message, $destination = null);
-
-    /**
-     * Returns One Serializable object from the queue.
-     *
-     * It requires to subscribe previously to a specific queue
-     *
-     * @return \Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface|null
-     *
-     * @throws \Exception
-     */
-    public function receive();
-
-    /**
-     * @return QueueMessageInterface
-     */
-    public function createQueueMessage();
-
-    /**
-     * Clean all the opened resources, must be called just before terminating the current request.
-     */
-    public function doDestroy();
-
-    /**
-     * @return int The time it took in ms to de-queue and deserialize the message
-     */
-    public function getDequeueingTimeMs();
+    public function send(string $destination, string $body = '', array $headers = []): bool;
 }

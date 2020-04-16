@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Producers\Producer;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesDriverRegistry;
-use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesQueueSerializer;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
@@ -16,8 +19,8 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
  */
 class QueueProducer extends Producer
 {
-    use UsesSerializer;
     use UsesDriverRegistry;
+    use UsesQueueSerializer;
 
     protected $headersToPropagate = [
         Message::HEADER_EXPIRES,
@@ -36,17 +39,14 @@ class QueueProducer extends Producer
         /** @var QueueDriverInterface $queueDriver */
         $queueDriver = $this->getDriverRegistry()->getDriver($queueDriverName);
         if (!$queueDriver) {
-            throw new ResourceNotFoundException(
-                "Queue driver $queueDriverName not found in QueueProducer while trying to send message to endpoint with URI: "
-                .$endpoint->getURI()
-            );
+            throw new ResourceNotFoundException("Queue driver $queueDriverName not found in QueueProducer while trying to send message to endpoint with URI: ".$endpoint->getURI());
         }
 
         if (!($queueDriver instanceof QueueDriverInterface)) {
             throw new \RuntimeException("Found queue driver with name '$queueDriverName' that doesn't implement QueueDriverInterface");
         }
 
-        $queueMessage = $queueDriver->createQueueMessage();
+        $queueMessage = $this->createQueueMessage();
         $queueMessage->setBody($inMessage);
         $queueMessage->setTTL($options[QueueProtocol::OPTION_TTL]);
         $queueMessage->setQueue($queueName);
@@ -69,11 +69,11 @@ class QueueProducer extends Producer
         $this->beforeSend($queueMessage, $options);
 
         // Send
-        if (!$queueDriver->isConnected()) {
-            $queueDriver->connect();
-        }
+        $queueDriver->connect();
 
-        $success = $queueDriver->send($queueMessage);
+        $encodedMessage = $this->getSerializer()->encode($queueMessage);
+
+        $success = $queueDriver->send($queueMessage->getQueue(), $encodedMessage['body'], $encodedMessage['headers']);
 
         if (!$success) {
             throw new \RuntimeException("The message could not be delivered to the queue '$queueName' while using queue driver '$queueDriverName'");
@@ -81,13 +81,22 @@ class QueueProducer extends Producer
     }
 
     /**
-     * A hook to allow for modifying the queue message before we send it
+     * A hook to allow for modifying the queue message before we send it.
      *
-     * @param QueueMessage $queueMessage
      * @param array $options The options set for this endpoint
      */
     protected function beforeSend(QueueMessage $queueMessage, $options)
     {
+    }
 
+    /**
+     * Creates a brand new queue message with empty context.
+     */
+    protected function createQueueMessage(): QueueMessageInterface
+    {
+        $queueMessage = new QueueMessage();
+        $queueMessage->setContext(new Context());
+
+        return $queueMessage;
     }
 }

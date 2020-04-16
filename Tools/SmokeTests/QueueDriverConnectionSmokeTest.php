@@ -12,6 +12,11 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverIn
 class QueueDriverConnectionSmokeTest implements SmokeTestInterface
 {
     /**
+     * Message expiration time (in microseconds).
+     */
+    const EXPIRATION_TIME = 1000;
+
+    /**
      * @var QueueDriverInterface
      */
     protected $queueDriver;
@@ -34,9 +39,13 @@ class QueueDriverConnectionSmokeTest implements SmokeTestInterface
         try {
             $this->queueDriver->connect();
 
-            //we need to subscribe to a queue to connect
-            $this->queueDriver->subscribe('prod');
-            $this->queueDriver->unSubscribe();  // tidy up
+            if (!$this->queueDriver->isConnected()) {
+                throw new \RuntimeException('Function isConnected() returned false.');
+            }
+
+            if (!$this->queueDriver->send('isalive', '', ['x-message-ttl' => self::EXPIRATION_TIME])) {
+                throw new \RuntimeException('Failed to insert message in queue.');
+            }
 
             $smokeTestOutput->addSuccessMessage('Connection for default queue driver checked.');
         } catch (\Exception $e) {

@@ -22,10 +22,10 @@
         "symfony/event-dispatcher": "^2.8 || ^3.4"
     },
     "require-dev": {
-        "ext-amqp": "*",
         "doctrine/doctrine-bundle": "^1.6",
         "jms/serializer-bundle": "^2.4",
         "mongodb/mongodb": "~1.0",
+        "php-amqplib/php-amqplib": "^2.11",
         "stomp-php/stomp-php": "4.*",
         "symfony/monolog-bundle": "^2.4",
         "symfony/phpunit-bridge": "*",
@@ -37,6 +37,7 @@
     "minimum-stability": "dev",
     "prefer-stable" : true,
     "suggest": {
-        "enqueue/amqp-ext": "To use the AMQP driver."
+        "php-amqplib/php-amqplib": "To use the AMQP driver.",
+        "stomp-php/stomp-php": "To use the STOMP driver."
     }
 }

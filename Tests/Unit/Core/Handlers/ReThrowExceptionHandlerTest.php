@@ -1,9 +1,9 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Exceptions\Handler;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Handlers;
 
 use PHPUnit\Framework\TestCase;
-use Smartbox\Integration\FrameworkBundle\Exceptions\Handler\ReThrowExceptionHandler;
+use Smartbox\Integration\FrameworkBundle\Core\Handlers\ReThrowExceptionHandler;
 use Smartbox\Integration\FrameworkBundle\Exceptions\RecoverableException;
 
 class ReThrowExceptionHandlerTest extends TestCase
@@ -13,6 +13,6 @@ class ReThrowExceptionHandlerTest extends TestCase
         $this->expectException(RecoverableException::class);
 
         $handler = new ReThrowExceptionHandler();
-        $handler(new RecoverableException(), null);
+        $handler->handle(new RecoverableException(), null);
     }
 }

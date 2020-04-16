@@ -44,7 +44,6 @@ services:
       class: "%smartesb.protocols.queue.class%"
       calls:
         - [setDefaultProducer, ['@smartesb.producers.queue']]
-        - [setDefaultConsumer, ['@smartesb.consumers.queue']]
         - [setDefaultHandler, ['@smartesb.handlers.async']]
 
   #NoSQL

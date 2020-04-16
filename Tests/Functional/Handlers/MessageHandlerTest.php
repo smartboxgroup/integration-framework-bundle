@@ -3,8 +3,8 @@
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Handlers;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
@@ -17,6 +17,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Itinerary\ItineraryResolver;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactoryInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Protocols\Protocol;
+use Smartbox\Integration\FrameworkBundle\Core\Serializers\QueueSerializerInterface;
 use Smartbox\Integration\FrameworkBundle\Events\ProcessingErrorEvent;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Fixtures\Processors\FakeProcessor;
@@ -165,9 +166,23 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
             ->method('getDriver')
             ->willReturn($failedQueueDriver);
 
+        $serializer = $this->createMock(QueueSerializerInterface::class);
+        $serializer
+            ->expects($this->once())
+            ->method('encode')
+            ->willReturnCallback(
+                function ($message) {
+                    return [
+                        'body' => serialize($message),
+                        'headers' => $message->getHeaders(),
+                    ];
+                }
+            );
+
         $failedProducer = new QueueProducer();
         $failedProducer->setMessageFactory($this->factory);
         $failedProducer->setDriverRegistry($driverRegistryMock);
+        $failedProducer->setSerializer($serializer);
 
         $optionsResolver = new OptionsResolver();
 
@@ -175,9 +190,9 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
         $queueProtocol->configureOptionsResolver($optionsResolver);
 
         $failedEndpointOptions = $optionsResolver->resolve([
-                QueueProtocol::OPTION_QUEUE_DRIVER => 'array_queue_driver',
-                QueueProtocol::OPTION_QUEUE_NAME => $failedQueue,
-                QueueProtocol::OPTION_PREFIX => '',
+            QueueProtocol::OPTION_QUEUE_DRIVER => 'array_queue_driver',
+            QueueProtocol::OPTION_QUEUE_NAME => $failedQueue,
+            QueueProtocol::OPTION_PREFIX => '',
         ]);
 
         $failedUriEndpoint = new Endpoint($failedUri, $failedEndpointOptions, $queueProtocol, $failedProducer);
