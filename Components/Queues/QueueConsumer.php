@@ -84,13 +84,13 @@ class QueueConsumer extends AbstractConsumer
             if (null === $message) {
                 $driver->ack();
 
-                $this->consumptionDuration += (microtime(true) - $start) * 1000;
+                $this->consumptionDuration += (int) ((microtime(true) - $start) * 1000);
 
                 return null;
             }
         }
 
-        $this->consumptionDuration += (microtime(true) - $start) * 1000;
+        $this->consumptionDuration += (int) ((microtime(true) - $start) * 1000);
 
         return $message;
     }

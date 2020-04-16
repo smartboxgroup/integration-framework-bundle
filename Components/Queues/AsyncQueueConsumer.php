@@ -152,13 +152,13 @@ class AsyncQueueConsumer extends AbstractAsyncConsumer
                     $message->setMessageId($encodedMessage->getDeliveryTag());
                     $this->getQueueDriver($endpoint)->ack($message);
 
-                    $this->consumptionDuration = (microtime(true) - $start) * 1000;
+                    $this->consumptionDuration = (int) ((microtime(true) - $start) * 1000);
 
                     return null;
                 }
             }
 
-            $this->consumptionDuration = (microtime(true) - $start) * 1000;
+            $this->consumptionDuration = (int) ((microtime(true) - $start) * 1000);
 
             $message->setMessageId($encodedMessage->getDeliveryTag());
 
