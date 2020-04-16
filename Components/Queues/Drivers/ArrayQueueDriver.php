@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Dtos\Message;
 use Smartbox\Integration\FrameworkBundle\Service;
 
 /**
@@ -133,11 +134,15 @@ class ArrayQueueDriver extends Service implements SyncQueueDriverInterface
      */
     public function receive()
     {
+        $message = null;
+
         if (array_key_exists($this->subscribedQueue, self::$array) && !empty(self::$array[$this->subscribedQueue])) {
             $this->unacknowledgedFrame = array_shift(self::$array[$this->subscribedQueue]);
+
+            $message = new Message($this->unacknowledgedFrame);
         }
 
-        return $this->unacknowledgedFrame;
+        return $message;
     }
 
     /**
