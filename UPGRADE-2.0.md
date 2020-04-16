@@ -7,13 +7,16 @@
 
 ## AMQP Support
 
-The AMQP driver was revamped **to use the [php-amqplib](https://github.com/php-amqplib/php-amqplib) library** instead of the PHP's built-in AMQP functions. The reason behind this was to take advantage of the non-blocking `consume()` function of this library, which the native driver doesn't support. Naturally, now the php-amqplib is a [dev-dependency](https://getcomposer.org/doc/04-schema.md#require-dev) of this bundle **and a hard dependency** of your project if you plan to use AMQP.
+The AMQP driver was revamped **to use the [php-amqplib](https://github.com/php-amqplib/php-amqplib) library** instead of the PHP's built-in AMQP functions. The reason behind this was to take advantage of the non-blocking `consume()` function of this library, which the native driver doesn't support. The AMQP now does not ignore to posix signals what brings the possibility to stop the consumer gracefully with a `kill -s INT {pid}`. To facilitate this feature, now the consumer name in AMQP brings the PID number as the last part of the name.
+
+Naturally, now the php-amqplib is a [dev-dependency](https://getcomposer.org/doc/04-schema.md#require-dev) of this bundle **and a hard dependency** of your project if you plan to use AMQP.
 
 ### Parameters
 
-* `timeout` was renamed to `read_timeout`.
+* `timeout` was renamed to `read_timeout`. As part of a recommendation to work with the heartbeat parameter, this value should be greater than 2 times the heartbeat value;
+* `connection_timeout` was added to work with both drivers. The default value is 30 seconds;   
 * `prefetch_count` was added. STOMP defaults to 1 (and currently only supports that value) and AMQP to 10.
-* `hearbeat` was added and defaults to 60 seconds.
+* `hearbeat` was added and defaults to 60 seconds. Available only for the AMQP driver.
 * `connections` was removed. Use `hostname` instead.
 * `default_queue_consumer` was added. Set your default queue consumer with this key. Useful to switch from STOMP to AMQP if you're already using this bundle.
 
