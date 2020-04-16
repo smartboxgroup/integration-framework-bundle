@@ -36,7 +36,7 @@ class AsyncQueueConsumerTest extends BaseKernelTestCase
      */
     public function testConsume()
     {
-        $consumer = $consumer = $this->getConsumer();
+        $consumer = $this->getConsumer();
         $serializer = $consumer->getSerializer();
         $queueDriver = $this->getQueueDriver('amqp');
         $queueDriver->connect();
@@ -79,8 +79,7 @@ class AsyncQueueConsumerTest extends BaseKernelTestCase
     {
         $this->expectException(MessageDecodingFailedException::class);
 
-        $consumer = $consumer = $this->getConsumer();
-
+        $consumer = $this->getConsumer();
         $queueDriver = $this->getQueueDriver('amqp');
         $queueDriver->connect();
         $queueDriver->send(self::QUEUE, '123', [QueueMessage::HEADER_FROM => 'direct://test']);

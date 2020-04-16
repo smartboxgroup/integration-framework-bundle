@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\FrameworkBundle\Tests\Command;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Command;
 
 use Smartbox\Integration\FrameworkBundle\Command\ConsumeCommand;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface;

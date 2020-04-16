@@ -54,7 +54,7 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
     /**
      * Default value to connection timeout.
      */
-    const CONNECTION_TIMEOUT = 3.0;
+    const CONNECTION_TIMEOUT = 30.0;
 
     /**
      * Default value to read timeout.
