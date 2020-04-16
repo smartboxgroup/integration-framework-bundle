@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exception\AMQPConnectionClosedException;
@@ -10,7 +10,6 @@ use Smartbox\CoreBundle\Type\Entity;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue\AbstractQueueDriverTest;
 
 /**
  * Class PhpAmqpLibDriverTest.
@@ -30,7 +29,6 @@ class PhpAmqpLibDriverTest extends AbstractQueueDriverTest
      */
     public function testConnection()
     {
-        $this->assertInstanceOf(AMQPStreamConnection::class, $this->driver->declareChannel()->getConnection());
         $this->assertTrue($this->driver->isConnected());
     }
 
