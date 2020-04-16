@@ -1,14 +1,15 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Consumer;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Core\Consumers;
 
+use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Core\Consumers\AbstractConsumer;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
 use Smartbox\Integration\FrameworkBundle\Events\TimingEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AbstractConsumerTest extends \PHPUnit\Framework\TestCase
+class AbstractConsumerTest extends TestCase
 {
     public function testConsumerTimeDispatched()
     {
