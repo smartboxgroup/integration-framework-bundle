@@ -114,7 +114,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             if (is_subclass_of($class, HttpClientInterface::class)) {
                 $definition->addMethodCall('addHandler', [
                     (new Definition(Middleware::class))->setFactory([Middleware::class, 'httpErrors']),
-                    'http_error_handler'
+                    'http_error_handler',
                 ]);
             }
 
@@ -209,6 +209,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $consumerDef = new Definition(AsyncQueueConsumer::class);
 
                     break;
+                default:
+                    throw new InvalidDefinitionException(sprintf('Invalid queue consumer type "%s"', $consumerConfig['type']));
             }
 
             $consumerDef->addMethodCall('setId', [$consumerId]);
@@ -304,7 +306,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                 default:
                     throw new InvalidDefinitionException(sprintf('Invalid queue driver type "%s"', $type));
-                    break;
             }
         }
 

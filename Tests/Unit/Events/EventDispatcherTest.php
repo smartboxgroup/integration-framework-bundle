@@ -58,14 +58,10 @@ class EventDispatcherTest extends TestCase
         $serializer
             ->expects($this->once())
             ->method('encode')
-            ->willReturnCallback(
-                function ($message) {
-                    return [
-                        'body' => serialize(new QueueMessage(new EventMessage(new ProcessEvent()))),
-                        'headers' => [],
-                    ];
-                }
-            );
+            ->willReturn([
+                'body' => serialize(new QueueMessage(new EventMessage(new ProcessEvent()))),
+                'headers' => [],
+            ]);
 
         $protocol = new QueueProtocol(true, 3600);
         $producer = new QueueProducer();

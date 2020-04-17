@@ -99,7 +99,7 @@ abstract class AbstractConsumer extends Service implements ConsumerInterface
 
                     $this->confirmMessage($endpoint, $message);
 
-                    $this->consumptionDuration += (microtime(true) - $startConsumeTime) * 1000;
+                    $this->consumptionDuration += (int) ((microtime(true) - $startConsumeTime) * 1000);
                     $this->dispatchConsumerTimingEvent($message);
                 }
             } catch (\Exception $ex) {
