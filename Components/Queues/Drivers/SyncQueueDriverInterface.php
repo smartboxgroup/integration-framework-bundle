@@ -40,4 +40,16 @@ interface SyncQueueDriverInterface extends QueueDriverInterface
      * Clean all the opened resources, must be called just before terminating the current request.
      */
     public function destroy();
+
+    /**
+     * Acknowledges the message in the message broker. In practice, the driver is keeping track of messages.
+     */
+    public function ack();
+
+    /**
+     * Negative acknowledgement of a message.
+     *
+     * @see ack() for extra information about this function.
+     */
+    public function nack();
 }

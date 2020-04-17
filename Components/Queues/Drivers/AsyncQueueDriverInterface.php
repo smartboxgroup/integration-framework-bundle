@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
+use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+
 /**
  * Interface AsyncQueueDriverInterface.
  */
@@ -37,4 +39,20 @@ interface AsyncQueueDriverInterface extends QueueDriverInterface
      * @param string $consumerTag String that identifies the consumer that should be destroyed \,,/
      */
     public function destroy(string $consumerTag);
+
+    /**
+     * Acknowledges the message in the message broker. Needs a message object that must contains a messageID to be acked.
+     *
+     * @param QueueMessageInterface|null $message
+     */
+    public function ack(QueueMessageInterface $message);
+
+    /**
+     * Negative acknowledgement of a message.
+     *
+     * @see ack() for extra information about this function.
+     *
+     * @param QueueMessageInterface|null $message
+     */
+    public function nack(QueueMessageInterface $message);
 }

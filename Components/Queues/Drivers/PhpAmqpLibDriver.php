@@ -151,7 +151,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
                     'heartbeat' => $this->heartbeat
                 ]);
             } catch (AMQPIOException $exception) {
-                throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
+                throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), []);
             }
         } elseif (!$this->isConnected()) {
             $this->stream->reconnect();
@@ -264,7 +264,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function ack(QueueMessageInterface $message = null)
+    public function ack(QueueMessageInterface $message)
     {
         $this->channel->basic_ack($message->getMessageId());
     }
@@ -316,7 +316,8 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
      */
     public function declareQueue(string $queueName, int $durable = QueueMessage::DELIVERY_MODE_PERSISTENT, array $arguments = [])
     {
-        return $this->channel->queue_declare($queueName, false, $durable, false, false, false, new AMQPTable($arguments));
+        $isDurable = $durable === QueueMessage::DELIVERY_MODE_PERSISTENT;
+        return $this->channel->queue_declare($queueName, false, $isDurable, false, false, false, new AMQPTable($arguments));
     }
 
     /**
@@ -328,7 +329,7 @@ class PhpAmqpLibDriver extends Service implements AsyncQueueDriverInterface
     {
         if (!$this->channel instanceof AMQPChannel || !$this->channel->is_open()) {
             $this->channel = $this->stream->channel();
-            $this->channel->basic_qos(self::PREFETCH_SIZE, $this->prefetchCount, null);
+            $this->channel->basic_qos(self::PREFETCH_SIZE, $this->prefetchCount, false);
         }
 
         return $this->channel;
