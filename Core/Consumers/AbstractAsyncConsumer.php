@@ -121,7 +121,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
             try {
                 $this->process($endpoint, $message);
             } catch (\Exception $exception) {
-                $this->consumptionDuration = (microtime(true) - $start) * 1000;
+                $this->consumptionDuration = (int) ((microtime(true) - $start) * 1000);
                 $this->dispatchConsumerTimingEvent($message);
 
                 throw $exception;
@@ -131,7 +131,7 @@ abstract class AbstractAsyncConsumer extends Service implements ConsumerInterfac
 
             $this->confirmMessage($endpoint, $message);
 
-            $this->consumptionDuration += (microtime(true) - $start) * 1000;
+            $this->consumptionDuration += (int) ((microtime(true) - $start) * 1000);
             $this->dispatchConsumerTimingEvent($message);
 
             $this->consumptionDuration = 0;

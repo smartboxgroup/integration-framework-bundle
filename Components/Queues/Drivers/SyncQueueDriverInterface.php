@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Dtos\Message;
 
 interface SyncQueueDriverInterface extends QueueDriverInterface
 {
@@ -32,7 +32,7 @@ interface SyncQueueDriverInterface extends QueueDriverInterface
      *
      * It requires to subscribe previously to a specific queue
      *
-     * @return QueueMessageInterface|null
+     * @return Message|null
      */
     public function receive();
 
