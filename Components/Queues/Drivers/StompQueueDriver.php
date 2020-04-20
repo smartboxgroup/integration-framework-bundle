@@ -188,9 +188,9 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /**
      * @param int $seconds
      */
-    public function setReadTimeout(int $seconds)
+    public function setReadTimeout(int $readTimeout)
     {
-        $this->readTimeout = $seconds;
+        $this->readTimeout = $readTimeout;
     }
 
     /**
