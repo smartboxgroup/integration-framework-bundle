@@ -11,7 +11,6 @@ use PhpAmqpLib\Exception\AMQPIOException;
 use PhpAmqpLib\Exception\AMQPProtocolException;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessageInterface;
 use Smartbox\Integration\FrameworkBundle\Service;
 
@@ -87,12 +86,12 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
     protected $prefetchCount;
 
     /**
-     * @var float
+     * @var int
      */
     protected $connectionTimeout;
 
     /**
-     * @var float
+     * @var int
      */
     protected $readTimeout;
 
@@ -263,7 +262,6 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
      * Declares the queue to drive the message.
      *
      * @param string $queueName The name of the queue
-     * @param bool   $durable
      * @param array  $arguments See AMQPQueue::setArguments()
      *
      * @return array|null

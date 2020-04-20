@@ -58,3 +58,4 @@ Naturally, now the php-amqplib is a [dev-dependency](https://getcomposer.org/doc
 
 * `QueueDriverInterface` was modified to decouple the serialization responsibility. Now the driver only accepts a string, instead of a `QueueMessage`. To achieve this, the `send()` function signature was changed to accept a `destination`, `body` (serialized payload), and `headers`.
 * The signature of the `receive()` function has been changed to return a `Smartbox\Integration\FrameworkBundle\Core\Dtos\Message` instead of a `QueueMessage`.
+* The function `createQueueMessage()` has been moved from the driver to the `QueueProducer`

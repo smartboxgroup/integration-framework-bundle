@@ -50,30 +50,25 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
     /** @var StatefulStomp */
     protected $statefulStomp;
 
-    /** @var int */
-    protected $timeout;
-
     /** @var string */
     protected $vhost;
 
     /** @var bool|int */
     protected $subscriptionId = false;
 
-    /** @var @var int|null */
+    /** @var @var int */
     protected $prefetchCount;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $description;
 
     /** @var bool */
     protected $sync;
 
-    /** @var float */
+    /** @var int */
     protected $readTimeout;
 
-    /** @var @var float */
+    /** @var @var int */
     protected $connectionTimeout;
 
     /**
@@ -180,14 +175,11 @@ class StompQueueDriver extends Service implements SyncQueueDriverInterface
         $this->description = $description;
     }
 
-    public function setPrefetchCount(int $prefetchCount = self::PREFETCH_COUNT)
+    public function setPrefetchCount(int $prefetchCount)
     {
         $this->prefetchCount = $prefetchCount;
     }
 
-    /**
-     * @param int $seconds
-     */
     public function setReadTimeout(int $readTimeout)
     {
         $this->readTimeout = $readTimeout;
