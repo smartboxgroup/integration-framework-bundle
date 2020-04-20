@@ -54,7 +54,7 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
     /**
      * Default value to connection timeout.
      */
-    const CONNECTION_TIMEOUT = 3.0;
+    const CONNECTION_TIMEOUT = 3;
 
     /**
      * Default value to read timeout.
@@ -142,7 +142,7 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
                     'heartbeat' => $this->heartbeat,
                 ]);
             } catch (AMQPIOException $exception) {
-                throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), null);
+                throw new AMQPProtocolException($exception->getCode(), $exception->getMessage(), []);
             }
         } elseif (!$this->isConnected()) {
             $this->stream->reconnect();
@@ -185,12 +185,12 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
         $this->prefetchCount = $prefetchCount;
     }
 
-    public function setConnectionTimeout(float $connectionTimeout)
+    public function setConnectionTimeout(int $connectionTimeout)
     {
         $this->connectionTimeout = $connectionTimeout;
     }
 
-    public function setReadTimeout(float $readTimeout)
+    public function setReadTimeout(int $readTimeout)
     {
         $this->readTimeout = $readTimeout;
     }
@@ -215,6 +215,9 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
      */
     public function ack(QueueMessageInterface $message = null)
     {
+        if (null === $message) {
+            throw new \InvalidArgumentException('The driver can not ack a null message');
+        }
         $this->channel->basic_ack($message->getMessageId());
     }
 
@@ -223,6 +226,9 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
      */
     public function nack(QueueMessageInterface $message = null)
     {
+        if (null === $message) {
+            throw new \InvalidArgumentException('The driver can not nack a null message');
+        }
         $this->channel->basic_nack($message->getMessageId());
     }
 
@@ -234,7 +240,7 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
         $this->declareChannel();
         $this->declareQueue(
             $destination,
-            QueueMessage::DELIVERY_MODE_PERSISTENT,
+            true,
             array_filter($headers, function ($value) {
                 return 0 === strpos($value, 'x-');
             }, ARRAY_FILTER_USE_KEY));
@@ -257,11 +263,12 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
      * Declares the queue to drive the message.
      *
      * @param string $queueName The name of the queue
+     * @param bool   $durable
      * @param array  $arguments See AMQPQueue::setArguments()
      *
      * @return array|null
      */
-    public function declareQueue(string $queueName, int $durable = QueueMessage::DELIVERY_MODE_PERSISTENT, array $arguments = [])
+    public function declareQueue(string $queueName, bool $durable = true, array $arguments = [])
     {
         return $this->channel->queue_declare($queueName, false, $durable, false, false, false, new AMQPTable($arguments));
     }
@@ -273,7 +280,7 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
     {
         if (!$this->channel instanceof AMQPChannel || !$this->channel->is_open()) {
             $this->channel = $this->stream->channel();
-            $this->channel->basic_qos(self::PREFETCH_SIZE, $this->prefetchCount, null);
+            $this->channel->basic_qos(self::PREFETCH_SIZE, $this->prefetchCount, false);
         }
 
         return $this->channel;

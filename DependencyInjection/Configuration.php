@@ -395,19 +395,19 @@ class Configuration implements ConfigurationInterface
 
             ->scalarNode('password')->end()
 
-            ->scalarNode('read_timeout')
+            ->integerNode('read_timeout')
             ->defaultValue(null)
             ->end()
 
-            ->floatNode('connection_timeout')
+            ->integerNode('connection_timeout')
             ->defaultValue(null)
             ->end()
 
-            ->scalarNode('prefetch_count')
+            ->integerNode('prefetch_count')
             ->defaultValue(null)
             ->end()
 
-            ->scalarNode('heartbeat')
+            ->integerNode('heartbeat')
             ->defaultValue(null)
             ->end()
 
