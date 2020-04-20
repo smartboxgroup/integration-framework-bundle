@@ -1,6 +1,6 @@
 <?php
 
-namespace Smartbox\Integration\FrameworkBundle\Tests\Command;
+namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Command;
 
 use Smartbox\Integration\FrameworkBundle\Command\JsonFilesValidationCommand;
 use Smartbox\Integration\FrameworkBundle\Tests\BaseKernelTestCase;

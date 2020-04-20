@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Events;
 
+use PHPUnit\Framework\TestCase;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\ArrayQueueDriver;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProducer;
@@ -9,9 +10,11 @@ use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Configurability\DriverRegistry;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
+use Smartbox\Integration\FrameworkBundle\Core\Serializers\QueueSerializerInterface;
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\SmartboxIntegrationFrameworkExtension;
 use Smartbox\Integration\FrameworkBundle\Events\HandlerEvent;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory;
+use Smartbox\Integration\FrameworkBundle\Events\ProcessEvent;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventDispatcher;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFilterInterface;
 use Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFiltersRegistry;
@@ -20,7 +23,7 @@ use Smartbox\Integration\FrameworkBundle\Tools\Helper\SmartesbHelper;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EventDispatcherTest extends \PHPUnit\Framework\TestCase
+class EventDispatcherTest extends TestCase
 {
     public function testShouldDeferEvent()
     {
@@ -51,9 +54,19 @@ class EventDispatcherTest extends \PHPUnit\Framework\TestCase
         $driverRegistry = new DriverRegistry();
         $driverRegistry->setDriver('array', $queueDriver);
 
+        $serializer = $this->createMock(QueueSerializerInterface::class);
+        $serializer
+            ->expects($this->once())
+            ->method('encode')
+            ->willReturn([
+                'body' => serialize(new QueueMessage(new EventMessage(new ProcessEvent()))),
+                'headers' => [],
+            ]);
+
         $protocol = new QueueProtocol(true, 3600);
         $producer = new QueueProducer();
         $producer->setDriverRegistry($driverRegistry);
+        $producer->setSerializer($serializer);
 
         $resolver = new OptionsResolver();
 
@@ -84,13 +97,11 @@ class EventDispatcherTest extends \PHPUnit\Framework\TestCase
 
         $this->assertCount(1, $messages);
         /** @var QueueMessage $message */
-        $message = $messages[0];
+        $message = unserialize($messages[0]);
 
         $this->assertInstanceOf(QueueMessage::class, $message);
 
         $this->assertInstanceOf(EventMessage::class, $message->getBody());
-
-        $this->assertEquals($message->getBody()->getBody(), $event);
     }
 
     public function testShouldNotDeferEventIfDeferred()

@@ -103,21 +103,14 @@ services:
       calls:
           - [ setItinerariesRouter, [ '@smartesb.router.itineraries' ] ]
 
-  # PLACEHOLDERS FOR CONFIGURED HANLDERS
+  # PLACEHOLDERS FOR CONFIGURED HANDLERS
   smartesb.handlers.sync:
       class: '%smartesb.handlers.message_routing.class%'
 
   smartesb.handlers.async:
       class: '%smartesb.handlers.message_routing.class%'
 
-  smartesb.amqp.queue_manager:
-    class: Smartbox\Integration\FrameworkBundle\Components\Queues\QueueManager
-    public: false
-
-  smartesb.drivers.queue.amqp:
-    class: Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AmqpQueueDriver
-    arguments: ['@smartesb.amqp.queue_manager']
-    calls:
-      - [setSerializer, ['@jms_serializer']]
-      - [setMessageFactory, ['@smartesb.message_factory']]
-    public: '%kernel.debug%'
+  # Serializers
+  smartesb.serialization.queue.jms_serializer:
+      class: Smartbox\Integration\FrameworkBundle\Components\Queues\Serialization\Serializer
+      arguments: ['@jms_serializer']

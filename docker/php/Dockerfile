@@ -12,16 +12,15 @@ RUN apt-get update && apt-get install -qq \
 
 RUN docker-php-ext-install \
     soap \
-    pcntl
+    pcntl \
+    sockets
 
 RUN pecl install apcu-5.1.8 \
-    amqp \
     mongodb \
-    xdebug
+    xdebug-2.7.2 #Latest version that supports PHP 7.0
 
 RUN docker-php-ext-enable \
     apcu \
-    amqp \
     mongodb \
     xdebug
 

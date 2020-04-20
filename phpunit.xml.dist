@@ -9,11 +9,16 @@
 >
     <php>
         <server name="KERNEL_DIR" value="Tests/App/" />
+        <env name="SYMFONY_PHPUNIT_VERSION" value="6.5.14" />
     </php>
 
     <testsuite name="Framework Bundle Suite">
         <directory>./Tests/</directory>
     </testsuite>
+
+    <php>
+        <ini name="error_reporting" value="-1" />
+    </php>
 
     <filter>
         <whitelist>

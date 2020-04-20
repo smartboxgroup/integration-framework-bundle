@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Smartbox\Integration\FrameworkBundle\Components\DB;
 
 use Smartbox\CoreBundle\Type\SerializableArray;
@@ -46,8 +48,6 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
     /**
      * Reads a message from the NoSQL database executing the configured steps.
      *
-     * @param EndpointInterface $endpoint
-     *
      * @return \Smartbox\Integration\FrameworkBundle\Core\Messages\Message
      */
     protected function readMessage(EndpointInterface $endpoint)
@@ -90,9 +90,6 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
 
     /**
      * Executes the necessary actions after the message has been consumed.
-     *
-     * @param EndpointInterface $endpoint
-     * @param MessageInterface  $message
      */
     protected function onConsume(EndpointInterface $endpoint, MessageInterface $message)
     {
@@ -106,9 +103,6 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
         $this->configurableStepsProvider->executeSteps($steps, $options, $context);
     }
 
-    /**
-     * @param EndpointInterface $endpoint
-     */
     public function consume(EndpointInterface $endpoint)
     {
         $this->stop = false;
@@ -131,8 +125,10 @@ class DBConfigurableConsumer extends AbstractConsumer implements ConfigurableCon
                 $this->logConsumeMessage();
 
                 $this->confirmMessage($endpoint, $message);
+
                 $endConsumeTime = $wakeup = microtime(true);
-                $this->dispatchConsumerTimingEvent((int) (($endConsumeTime - $startConsumeTime) * 1000), $message);
+                $this->consumptionDuration = (int) (($endConsumeTime - $startConsumeTime) * 1000);
+                $this->dispatchConsumerTimingEvent($message);
             }
 
             if ((microtime(true) - $wakeup) > $inactivityTrigger || $alwaysSleep) { // I did nothing since the last x seconds, so little nap...

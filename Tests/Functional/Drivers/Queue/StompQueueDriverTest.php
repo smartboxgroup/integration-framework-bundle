@@ -4,28 +4,23 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\SyncQueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Core\Dtos\Message;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
-use Stomp\Exception\ConnectionException;
-use Stomp\Network\Connection;
 
 /**
  * @internal
- *
- * @group stomp
  */
 class StompQueueDriverTest extends AbstractQueueDriverTest
 {
     /**
      * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
      */
     public function testShouldSelect(MessageInterface $msg)
     {
-        $msgIn = $this->createQueueMessage($msg);
-        $msgIn->addHeader('test_header', '12345');
-        $this->driver->send($msgIn);
+        $queueMessage = $this->createQueueMessage($msg);
+        $queueMessage->addHeader('test_header', '12345');
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
 
         $this->driver->subscribe($this->queueName, 'test_header = 12345');
 
@@ -37,43 +32,137 @@ class StompQueueDriverTest extends AbstractQueueDriverTest
     /**
      * {@inheritdoc}
      */
-    protected function createDriver(): QueueDriverInterface
+    protected function createDriver(): SyncQueueDriverInterface
     {
         return $this->getContainer()->get('smartesb.drivers.queue.main');
     }
 
     /**
-     * Test that in case we catch an exception during send(), the connection gets dropped to avoid interfering
-     * with the following messages.
-     *
-     * @runInSeparateProcess
+     * @dataProvider getMessages
      */
-    public function testConnectionGetsDroppedOnException()
+    public function testShouldSendReceiveAndAckOnce(MessageInterface $msg)
     {
-        $this->expectException(ConnectionException::class);
-        $this->overrideFwrite();
+        $queueMessage = $this->createQueueMessage($msg);
+        $this->driver->subscribe($this->queueName);
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
 
-        $msg = $this->createQueueMessage($this->createSimpleEntity());
-        $this->driver->send($msg);
+        $this->assertInstanceOf(Message::class, $this->driver->receive());
 
-        $this->assertFalse($this->driver->isConnected(), 'Driver still connected after exception.');
+        $this->driver->ack();
+
+        \sleep(1);
+
+        $msgOut = $this->driver->receive();
+
+        $this->assertNull($msgOut);
+
+        $this->driver->unSubscribe();
     }
 
-    /*
-     * Override native fwrite function. Test should be run in separate process (@runInSeparateProcess) to avoid
-     * overriding it for every other test.
+    /**
+     * @dataProvider getMessages
      */
-    protected function overrideFwrite()
+    public function testAfterNackShouldBeRetried(MessageInterface $msg)
     {
-        $function = '
-                namespace Stomp\Network;
+        $queueMessage = $this->createQueueMessage($msg);
 
-                function fwrite()
-                {
-                    return 0;
-                }
-            ';
+        $this->driver->subscribe($this->queueName);
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
 
-        eval($function);
+        $this->driver->receive();
+        $this->driver->nack();
+
+        \sleep(1);
+
+        $msgOut = $this->driver->receive();
+
+        $this->assertNotNull($msgOut, 'Message should be available');
+        $this->driver->ack();
+
+        $this->driver->unSubscribe();
+    }
+
+    /**
+     * @dataProvider getMessages
+     */
+    public function testAfterTtlShouldDiscard(MessageInterface $msg)
+    {
+        $queueMessage = $this->createQueueMessage($msg);
+        $queueMessage->setTTL(1);
+        $this->driver->subscribe($this->queueName);
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
+        $this->driver->unSubscribe();
+
+        // After > 2 seconds, the message is not there
+        \sleep(2);
+        $this->driver->subscribe($this->queueName);
+        $msgOut = $this->driver->receive();
+        if ($msgOut) {
+            $this->driver->ack();
+        }
+        $this->assertNull($msgOut);
+
+        $this->driver->disconnect();
+    }
+
+    public function testItShouldGetManyMessagesAtOnceUsingPrefetchSize()
+    {
+        // populate the queue with some messages
+        $numMessages = 3;
+        $sentMessages = [];
+        for ($i = 0; $i < $numMessages; ++$i) {
+            $queueMessage = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
+            $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
+            $sentMessages[] = $queueMessage;
+        }
+
+        $this->driver->subscribe($this->queueName);
+
+        $receivedMessages = [];
+        while (null !== ($receivedMessage = $this->driver->receive())) {
+            $this->driver->ack();
+            $receivedMessages[] = unserialize($receivedMessage->getBody());
+        }
+
+        $this->assertSame(
+            \array_map('self::mapTitle', $sentMessages),
+            \array_map('self::mapTitle', $receivedMessages)
+        );
+    }
+
+    public function testPrefetchSizeShouldWorkAlsoWhenNotReceivingAllThePrefetchedMessagesAtOnce()
+    {
+        // populate the queue
+        $numMessagesSent = 10;
+        $sentMessages = [];
+        for ($i = 0; $i < $numMessagesSent; ++$i) {
+            $queueMessage = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
+            $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
+            $sentMessages[] = $queueMessage;
+        }
+
+        $this->driver->subscribe($this->queueName);
+
+        $receivedMessages = [];
+
+        // receive just one message
+        $receivedMessages[] = unserialize($this->driver->receive()->getBody());
+        $this->driver->ack();
+
+        // send an additional message to the queue
+        $queueMessage = $this->createQueueMessage($this->createSimpleEntity('item'.$numMessagesSent));
+        $this->driver->send($this->queueName, serialize($queueMessage), $queueMessage->getHeaders());
+        $sentMessages[] = $queueMessage;
+
+        // receives all the remaining messages in the queue
+        while (null !== ($receivedMessage = $this->driver->receive())) {
+            $this->driver->ack();
+            $receivedMessages[] = unserialize($receivedMessage->getBody());
+        }
+
+        $this->assertSame(
+            \array_map('self::mapTitle', $sentMessages),
+            \array_map('self::mapTitle', $receivedMessages)
+        );
     }
 }

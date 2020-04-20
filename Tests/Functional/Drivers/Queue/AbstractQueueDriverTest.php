@@ -6,11 +6,9 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Drivers\Queue;
 
 use Smartbox\CoreBundle\Tests\Fixtures\Entity\TestEntity;
 use Smartbox\CoreBundle\Type\SerializableArray;
-use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\PurgeableQueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Message;
-use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Tests\EntityX;
 use Smartbox\Integration\FrameworkBundle\Tests\Functional\BaseTestCase;
 
@@ -21,6 +19,9 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
 {
     const QUEUE_PREFIX = '/test/';
 
+    /**
+     * @var string
+     */
     protected $queueName;
 
     /**
@@ -32,169 +33,20 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
     {
         parent::setUp();
         $this->driver = $this->createDriver();
+        $this->driver->connect();
         $this->queueName = static::QUEUE_PREFIX.(new \ReflectionClass($this->driver))->getShortName().md5(random_bytes(10));
     }
 
     protected function tearDown()
     {
-        if ($this->driver instanceof PurgeableQueueDriverInterface) {
-            $this->driver->purge($this->queueName);
-        }
-
         $this->driver->disconnect();
         $this->driver = null;
         parent::tearDown();
     }
 
     /**
-     * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
+     * @return array
      */
-    public function testSendShouldNotChangeMessage(MessageInterface $msg)
-    {
-        $clone = clone $msg;
-
-        $this->driver->send($this->createQueueMessage($msg));
-
-        $this->assertSame(serialize($clone), serialize($msg));
-        $this->driver->send($this->createQueueMessage($msg));
-    }
-
-    /**
-     * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
-     */
-    public function testShouldSendReceiveAndAckOnce(MessageInterface $msg)
-    {
-        $messageToSend = $this->createQueueMessage($msg);
-        $this->driver->subscribe($this->queueName);
-        $this->driver->send($messageToSend);
-
-        $this->assertInstanceOf(MessageInterface::class, $this->driver->receive(5));
-
-        $this->driver->ack();
-
-        \sleep(1);
-
-        $msgOut = $this->driver->receive();
-
-        $this->assertNull($msgOut);
-
-        $this->driver->unSubscribe();
-    }
-
-    /**
-     * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
-     */
-    public function testAfterNackShouldBeRetried($msg)
-    {
-        $this->driver->subscribe($this->queueName);
-        $this->driver->send($this->createQueueMessage($msg));
-
-        $this->driver->receive();
-        $this->driver->nack();
-
-        \sleep(1);
-
-        $msgOut = $this->driver->receive();
-
-        $this->assertNotNull($msgOut, 'Message should be available');
-        $this->driver->ack();
-
-        $this->driver->unSubscribe();
-    }
-
-    /**
-     * @dataProvider getMessages
-     *
-     * @param MessageInterface $msg
-     */
-    public function testAfterTtlShouldDiscard(MessageInterface $msg)
-    {
-        $queueMessage = $this->createQueueMessage($msg);
-        $queueMessage->setTTL(1);
-        $this->driver->subscribe($this->queueName);
-        $this->driver->send($queueMessage);
-        $this->driver->unSubscribe();
-
-        // After > 2 seconds, the message is not there
-        \sleep(2);
-        $this->driver->subscribe($this->queueName);
-        $msgOut = $this->driver->receive();
-        if ($msgOut) {
-            $this->driver->ack();
-        }
-        $this->assertNull($msgOut);
-
-        $this->driver->disconnect();
-    }
-
-    public function testItShouldGetManyMessagesAtOnceUsingPrefetchSize()
-    {
-        // populate the queue with some messages
-        $numMessages = 3;
-        $sentMessages = [];
-        for ($i = 0; $i < $numMessages; ++$i) {
-            $message = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
-            $this->driver->send($message);
-            $sentMessages[] = $message;
-        }
-
-        $this->driver->subscribe($this->queueName, null, $numMessages);
-
-        $receivedMessages = [];
-        while (null !== ($receivedMessage = $this->driver->receive())) {
-            $this->driver->ack();
-            $receivedMessages[] = $receivedMessage;
-        }
-
-        $this->assertSame(
-            \array_map('self::mapTitle', $sentMessages),
-            \array_map('self::mapTitle', $receivedMessages)
-        );
-    }
-
-    public function testPrefetchSizeShouldWorkAlsoWhenNotReceivingAllThePrefetchedMessagesAtOnce()
-    {
-        // populate the queue
-        $prefetchSize = 3;
-        $numMessagesSent = 10;
-        $sentMessages = [];
-        for ($i = 0; $i < $numMessagesSent; ++$i) {
-            $message = $this->createQueueMessage($this->createSimpleEntity('item'.$i));
-            $this->driver->send($message);
-            $sentMessages[] = $message;
-        }
-
-        $this->driver->subscribe($this->queueName, null, $prefetchSize);
-
-        $receivedMessages = [];
-
-        // receive just one message
-        $receivedMessages[] = $this->driver->receive();
-        $this->driver->ack();
-
-        // send an additional message to the queue
-        $message = $this->createQueueMessage($this->createSimpleEntity('item'.$numMessagesSent));
-        $this->driver->send($message);
-        $sentMessages[] = $message;
-
-        // receives all the remaining messages in the queue
-        while (null !== ($receivedMessage = $this->driver->receive())) {
-            $this->driver->ack();
-            $receivedMessages[] = $receivedMessage;
-        }
-
-        $this->assertSame(
-            \array_map('self::mapTitle', $sentMessages),
-            \array_map('self::mapTitle', $receivedMessages)
-        );
-    }
-
     public function getMessages()
     {
         $simple = $this->createSimpleEntity();
@@ -215,6 +67,9 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
         ];
     }
 
+    /**
+     * @return mixed
+     */
     public static function mapTitle(QueueMessage $message)
     {
         /** @var Message $wrappedMessage */
@@ -227,26 +82,34 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
 
     /**
      * Create an instance of the queue driver to be tested.
-     *
-     * @return QueueDriverInterface
      */
-    abstract protected function createDriver(): QueueDriverInterface;
+    abstract protected function createDriver();
 
     /**
+     * Creates a QueueMessage object.
+     *
      * @param $message
      *
      * @return QueueMessage
      */
     protected function createQueueMessage($message)
     {
-        $msg = $this->driver->createQueueMessage();
-        $msg->setPersistent(false);
-        $msg->setBody($message);
-        $msg->setQueue($this->queueName);
+        $queueMessage = new QueueMessage();
+        $queueMessage->setPersistent(false);
+        $queueMessage->setBody($message);
+        $queueMessage->setQueue($this->queueName);
 
-        return $msg;
+        return $queueMessage;
     }
 
+    /**
+     * Creates a simple entity for test purpose.
+     *
+     * @param string $title
+     * @param string $description
+     *
+     * @return Message
+     */
     protected function createSimpleEntity($title = 'item', $description = 'a simple item')
     {
         $entity = new TestEntity();
