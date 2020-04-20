@@ -22,7 +22,7 @@ Naturally, now the php-amqplib is a [dev-dependency](https://getcomposer.org/doc
 #### Consumer
 * `queue_consumers` was added to configure the consumers. For a consumer, the following can be configured:
     * `type` determines which type of consumer is going to be used (possible values are `sync` or `async`).
-    * `decoding_exception_handler` determines which exception handler should be used if a message can't be decoded. By default is used `ReThrowExceptionHandler`.
+    * `decoding_exception_handler` determines which exception handler should be used if a message can't be decoded. By default `ReThrowExceptionHandler` is used.
 * `default_queue_consumer` was added. Set your default queue consumer with this key. Useful to switch from STOMP to AMQP if you're already using this bundle.
 
 ### Interfaces and classes
