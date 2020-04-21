@@ -76,4 +76,4 @@ Author: @bruno.souza, @andres.rey, @david.camprubi
 People involved: @arthur.thevenet
 
 ## Measurements
-* Benchmark available at: 
+* Benchmark available at: Docs/architecture/benchmarks.
