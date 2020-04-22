@@ -8,72 +8,59 @@ Accepted
 
 ## Context
 
-There was a need to consume the messages in a non-blocking way for our application. In the former scenario of the application
-we didn't have an AMQP driver that works in this way. 
+There was a need to consume the messages **in a non-blocking way** on our ESB. The former driver -PHP's native driver- didn't support such functionality. 
 
-We also needed a support for posix signals by the AMQP driver to be able to kill the workers in a gracefully way, if we had some necessity.
+The former driver also ignored signals, due to its inability to acknowledge them **while waiting for a message**.
 
 The possible solutions were:
 
-  -  To discover a way to implement the non-blocking and posix signals by the native driver;
-  -  To use an AMQP lib that offers the support to these functionalities, like the php-amqp-lib;
+  - To find a way to implement a non-blocking `consume()` function with the native driver.
+  - To use an AMQP library that offers support for such functionalities, like php-amqp-lib.
 
-**Native Driver**
+### Native Driver
 
 *Pros*: 
-- Works a bit faster than using the lib;
-- Already implemented in the application;
+- Faster than any other library, due to it's a native extension written in C.
+- Already implemented in the application.
 
 *Cons*: 
-- Did not offer support to consume messages in a non-blocking way;  
-- Does not support posix signals;
+- Does not offer support to consume messages in a non-blocking way.  
+- Cannot listen to posix signals while consuming.
 
-**PHP-AMQP-LIB**
+### PHP-AMQP-LIB
 
 *Pros*: 
-- Is the standard lib to work with RabbitMQ in the documentation of the tool;
-- Offer the possibility to consume messages in a non-blocking way;
-- Offer the possibility to support the posix signals;
-- Offer options like: heartbeat, multiple channels and multiple hosts;
+- It's RabbitMQ's recommended library.
+- Offers the possibility to consume messages in a non-blocking way.
+- Signals can be dispatched to the worker even if it's consuming messages.
+- Offers other options like: heartbeats, channels, and multiple hosts.
 
 *Cons*:
-- Difficult to implement due to the great refactory needed in our application;
-- Different approach demands more time to learn and implement;
+- Difficult to implement correctly, without bypassing our own interfaces.
+- Different approach demands more time to learn and implement it.
 
 ## Decision
 
-We decided to use PHP-AMQP-LIB. 
+We decided to use the PHP-AMQP-LIB. 
 
-After spent some time studying a way to try to implement consume of messages in a non-blocking way with the native 
-driver, we realize that it was not viable. 
+An initial investigation was done to force the previous driver to listen to signals while consuming, but proved to be impossible. The `consume` function of PHP's native driver blocks the execution and nothing else can be done **until a message arrives to the consumer**. 
 
-We decided that was faster and better to use a lib that already offer the functionalities that we needed and don't
-reinvent the wheel. So, we spent a lot of time studying and learning how to implement the lib and to adapt this in our 
-application. This decision impacted a lot the application and became necessary a great refactory to do the adaptation of
-the lib and brought a series of changes giving the origin to the version 2.0 of the bundle.
-
-To see all the changes related to the application and more details, see the UPGRADE-2.0.md document.
+We decided that it was worth to adapt the library into the framework, which greatly impacted the structure of the consumers and queue drivers. Because these classes were designed with a sync protocol in mind (STOMP, in this case) they didn't fit the asynchronous nature of AMQP, prompting for a significant redesign **of all the interfaces and abstractions involved** - which ultimately drove us to break backwards compatibility and think in the 2.0 version of the framework.   
 
 ## Consequences
 
-The consumer has the approach to work in non-blocking way.
+* The driver will consume from RabbitMQ without blocking PHP's execution.
+* Posix signals will be delivered and acknowledged by the workers no matter what driver is being used.  
+* php-amqp-lib will be a development dependency of this bundle.
+* Reponse times will be lower when using the AMQP driver
+* `QueueDriverInterface` will be broken in two, to accomodate the different needs of sync and async drivers.
 
-The AMQP driver is listening and attending property the posix signal. 
-
-The php-amqp-lib is a dependency of this bundle if you have plans to use AMQP.
-
-The exception handler and serialization features was refactored to adapt the work with the new lib.
-
-The queue drivers has more options now which can be defined by parameters.
-
-The AMQP driver shows a performance gain in an average about 13% in relation to Stomp driver.
-
-The QueueDriverInterface has the main methods to work with both drivers. There are 2 new interfaces to work with sync flows (SyncQueueDriverInterface) and async flows (AsyncQueueDriverInterface).
+For the full list of changes, see the `UPGRADE-2.0.md` document.
 
 ## Metadata
-Author: @bruno.souza, @andres.rey, @david.camprubi
+Authors: @bruno.souza, @andres.rey, @david.camprubi
 
 People involved: @arthur.thevenet
 
 ## Measurements
-* Benchmark available at: Docs/architecture/benchmarks.
+* Benchmark available at: `Docs/architecture/benchmarks`.
