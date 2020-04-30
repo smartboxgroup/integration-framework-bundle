@@ -39,6 +39,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
     const VALIDATION_DISPLAY_MESSAGE = 'display_message';
     const VALIDATION_RECOVERABLE = 'recoverable';
     const REQUEST_EXPECTED_RESPONSE_TYPE = 'response_type';
+    const REQUEST_EXPECTED_RESPONSE_FORMAT = 'response_format';
 
     /**
      * @param $options
@@ -107,6 +108,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
 
         $stepParamsResolver->setDefault(self::DISPLAY_RESPONSE_ERROR, false);
         $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_TYPE, 'array');
+        $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_FORMAT, 'json');
         $stepParamsResolver->setDefined([
             RestConfigurableProtocol::OPTION_HEADERS,
             self::VALIDATION,
@@ -199,15 +201,15 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
                     $responseBody = $this->getSerializer()->deserialize(
                         $responseContent,
                         $params[self::REQUEST_EXPECTED_RESPONSE_TYPE],
-                        $encoding
+                        $params[self::REQUEST_EXPECTED_RESPONSE_FORMAT]
                     );
                 } catch (RuntimeException $e) {
                     // Assume that the exception is one of the JSON exceptions that will kill the workers
                     if (RestConfigurableProtocol::ENCODING_JSON === $encoding && (JSON_ERROR_SYNTAX != json_last_error())) {
                         throw new UnexpectedValueException($e->getMessage());
                     }
-                    // if it cannot parse the response fallback to the textual content of the body
-                    $responseBody = $responseContent;
+
+                    throw $e;
                 }
             }
 
