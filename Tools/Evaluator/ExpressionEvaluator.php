@@ -51,12 +51,13 @@ class ExpressionEvaluator
             'serializer' => $this->getSerializer(),
             'mapper' => $this->getMapper(),
         ]);
+
         try {
             $evaluated = $this->language->evaluate($expression, $vars);
         } catch (\Exception $e) {
-            $class = get_class($e);
-            throw new $class("Could not evaluate '{$expression}'. " . $e->getMessage(), $e->getCode(), $e );
+            throw new EvaluatorException(sprintf('Could not evaluate "%s": %s', $expression, $e->getMessage()), $e->getCode(), $e);
         }
+
         return $evaluated;
     }
 

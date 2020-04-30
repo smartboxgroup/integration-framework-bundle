@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluato
 use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesSerializer;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\RecoverableExternalSystemException;
 use Smartbox\Integration\FrameworkBundle\Components\WebService\Exception\UnrecoverableExternalSystemException;
+use Smartbox\Integration\FrameworkBundle\Tools\Evaluator\EvaluatorException;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -198,8 +199,19 @@ class ConfigurableServiceHelper
             $context[self::CONTEXT_VARS] = [];
         }
 
-        foreach ($definitions as $key => $definition) {
-            $context[self::CONTEXT_VARS][$key] = $this->resolve($definition, $context);
+        try {
+            foreach ($definitions as $key => $definition) {
+                $context[self::CONTEXT_VARS][$key] = $this->resolve($definition, $context);
+            }
+        } catch (EvaluatorException $e) {
+            /*
+             * Evaluation failed due to invalid mapping, either by the mapping defined or the payload provided.
+             * This creates an exception that won't expose the evaluation error to the user, but rather a generic message.
+             */
+            $exception = new RecoverableExternalSystemException($e->getMessage(), $e->getCode(), $e);
+            $exception->setExternalSystemName($context['producer']->getName());
+
+            throw $exception;
         }
     }
 
