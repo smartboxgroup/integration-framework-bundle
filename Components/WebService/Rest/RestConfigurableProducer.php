@@ -108,7 +108,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
 
         $stepParamsResolver->setDefault(self::DISPLAY_RESPONSE_ERROR, false);
         $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_TYPE, 'array');
-        $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_FORMAT, 'json');
+        $stepParamsResolver->setDefined(self::REQUEST_EXPECTED_RESPONSE_FORMAT);
         $stepParamsResolver->setDefined([
             RestConfigurableProtocol::OPTION_HEADERS,
             self::VALIDATION,
@@ -196,12 +196,13 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
             $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context, $request, $requestBody, $response, $responseContent, $endpointOptions));
             // Tries to parse the body and convert it into an object
             $responseBody = null;
+            $responseContent = 'dockte';
             if ($responseContent) {
                 try {
                     $responseBody = $this->getSerializer()->deserialize(
                         $responseContent,
                         $params[self::REQUEST_EXPECTED_RESPONSE_TYPE],
-                        $params[self::REQUEST_EXPECTED_RESPONSE_FORMAT]
+                        $params[self::REQUEST_EXPECTED_RESPONSE_FORMAT] ?? $encoding ?? RestConfigurableProtocol::ENCODING_JSON
                     );
                 } catch (RuntimeException $e) {
                     // Assume that the exception is one of the JSON exceptions that will kill the workers
@@ -209,7 +210,12 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
                         throw new UnexpectedValueException($e->getMessage());
                     }
 
-                    throw $e;
+                    if (isset($params[self::REQUEST_EXPECTED_RESPONSE_FORMAT])) {
+                        throw $e;
+                    }
+
+                    trigger_error('Falling back to the original payload when the deserialization failed and a custom response format isn\'t defined will throw an exception in v3.', E_USER_DEPRECATED);
+                    $responseBody = $responseContent;
                 }
             }
 
