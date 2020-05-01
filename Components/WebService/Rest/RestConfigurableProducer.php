@@ -196,7 +196,6 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
             $this->getEventDispatcher()->dispatch(ExternalSystemHTTPEvent::EVENT_NAME, $this->getExternalSystemHTTPEvent($context, $request, $requestBody, $response, $responseContent, $endpointOptions));
             // Tries to parse the body and convert it into an object
             $responseBody = null;
-            $responseContent = 'dockte';
             if ($responseContent) {
                 try {
                     $responseBody = $this->getSerializer()->deserialize(
