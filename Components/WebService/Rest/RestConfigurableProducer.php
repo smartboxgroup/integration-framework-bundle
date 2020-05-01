@@ -108,12 +108,12 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
 
         $stepParamsResolver->setDefault(self::DISPLAY_RESPONSE_ERROR, false);
         $stepParamsResolver->setDefault(self::REQUEST_EXPECTED_RESPONSE_TYPE, 'array');
-        $stepParamsResolver->setDefined(self::REQUEST_EXPECTED_RESPONSE_FORMAT);
         $stepParamsResolver->setDefined([
             RestConfigurableProtocol::OPTION_HEADERS,
             self::VALIDATION,
             self::REQUEST_QUERY_PARAMETERS,
             self::REQUEST_BASE_URI,
+            self::REQUEST_EXPECTED_RESPONSE_FORMAT
         ]);
 
         $stepParamsResolver->setAllowedValues(self::REQUEST_HTTP_VERB, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
@@ -201,7 +201,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
                     $responseBody = $this->getSerializer()->deserialize(
                         $responseContent,
                         $params[self::REQUEST_EXPECTED_RESPONSE_TYPE],
-                        $params[self::REQUEST_EXPECTED_RESPONSE_FORMAT] ?? $encoding ?? RestConfigurableProtocol::ENCODING_JSON
+                        $params[self::REQUEST_EXPECTED_RESPONSE_FORMAT] ?? $encoding
                     );
                 } catch (RuntimeException $e) {
                     // Assume that the exception is one of the JSON exceptions that will kill the workers
@@ -209,7 +209,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
                         throw new UnexpectedValueException($e->getMessage());
                     }
 
-                    if (isset($params[self::REQUEST_EXPECTED_RESPONSE_FORMAT])) {
+                    if (!$endpointOptions[RestConfigurableProtocol::OPTION_REQUEST_FALLBACK_ON_ERROR]) {
                         throw $e;
                     }
 
