@@ -15,7 +15,7 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements
     const OPTION_HEADERS = 'headers';
     const OPTION_AUTH = 'authentication';
     const OPTION_ENCODING = 'encoding';
-    // TODO: Remove on v3. Fallback will not happen in v3.
+    /** @deprecated: Will be removed on next major version. Fallback will not happen in v3. */
     const OPTION_REQUEST_FALLBACK_ON_ERROR = 'request_fallback';
 
     const ENCODING_JSON = 'json';
