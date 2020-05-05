@@ -68,6 +68,9 @@ class MiddlewareTest extends TestCase
             ],
             'Truncated_at_135' => [
                 $response, $truncatedAt135, 135
+            ],
+            'With UTF8 characters' => [
+                '’é€௵ဪ‱', '’é€௵ဪ‱', 0
             ]
         ];
     }

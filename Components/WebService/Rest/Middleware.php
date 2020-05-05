@@ -57,7 +57,7 @@ class Middleware
             $summary = mb_substr($summary, 0, self::$truncateResponseSize).' (truncated...)';
         }
 
-        if (preg_match('/[^\pL\pM\pN\pP\pS\pZ\n\r\t]/', $summary)) {
+        if (preg_match('/[^\pL\pM\pN\pP\pS\pZ\n\r\t]/u', $summary)) {
             return null;
         }
 
