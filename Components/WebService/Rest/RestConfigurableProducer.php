@@ -209,7 +209,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
                         throw new UnexpectedValueException($e->getMessage());
                     }
 
-                    if (!$endpointOptions[RestConfigurableProtocol::OPTION_REQUEST_FALLBACK_ON_ERROR]) {
+                    if (!$endpointOptions[RestConfigurableProtocol::OPTION_RESPONSE_FALLBACK_ON_ERROR]) {
                         throw $e;
                     }
 
