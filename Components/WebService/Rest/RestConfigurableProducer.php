@@ -213,7 +213,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
                         throw $e;
                     }
 
-                    trigger_error('Falling back to the original payload when the deserialization failed and a custom response format isn\'t defined will throw an exception in v3.', E_USER_DEPRECATED);
+                    trigger_error('Falling back to the original response payload when the deserialization fails and a custom response format isn\'t defined will throw an exception in v3.', E_USER_DEPRECATED);
                     $responseBody = $responseContent;
                 }
             }
