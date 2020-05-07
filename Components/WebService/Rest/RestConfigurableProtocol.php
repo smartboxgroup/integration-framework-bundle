@@ -75,6 +75,7 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements
         $resolver->setAllowedTypes(self::OPTION_AUTH, ['string', 'null']);
         $resolver->setAllowedTypes(self::OPTION_ENCODING, ['string']);
         $resolver->setAllowedValues(self::OPTION_ENCODING, [self::ENCODING_JSON, self::ENCODING_XML]);
+        $resolver->setAllowedTypes(self::OPTION_RESPONSE_FALLBACK_ON_ERROR, ['boolean']);
     }
 
     /**
