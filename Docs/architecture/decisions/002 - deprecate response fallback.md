@@ -1,0 +1,32 @@
+# 2. Deprecate the response fallback on the RestConfigurableProducer class
+
+Date: 2020-05-08
+
+## Status
+
+Accepted
+
+## Context
+
+Currently the RestConfigurableProducer will pass the payload received from the target system to the serializer. If this one fails, it will catch the exception, fallback to the original response, **and continue the execution**.
+
+This was done to allow certain APIs to return a non-deserializable response while still being able to continue the execution, either **by ignoring the payload** (i.e.: when the response code is enough) or to map it to something else.
+
+This makes the mapper vulnerable, as it has no guarantee that what it will expect is something **that can be mapped**.
+
+Due to the fallback is present by default, one endpoint **could randomly fail** if the target system decides to send back a response in a format that is not expected by this bundle.
+
+## Decision
+
+We decided to deprecate the fallback **in the next major version**. 
+
+A new parameter was introduced in the Producer configuration (`response_format`) that will define the expected response type, and this type is passed to the serializer to instanciate the appropiate visitor. For example, a PlainTextVisitor could be implemented that can process non-JSON responses while still producing **a mappable/processable object**.    
+
+## Consequences
+
+In order to introduce this change in a backwards compatible way, a new boolean option was introduced in the Producer configuration (`response_fallback`) that will prevent the fallback. Setting it to `false` **will throw an exception** when the payload cannot be deserialized.
+
+## Metadata
+Authors: @andres.rey, 
+
+People involved: @david.camprubi
