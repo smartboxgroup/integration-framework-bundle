@@ -10,7 +10,7 @@ Accepted
 
 Currently the RestConfigurableProducer will pass the payload received from the target system to the serializer. If this one fails, it will catch the exception, fallback to the original response, **and continue the execution**.
 
-This was done to allow certain APIs to return a non-deserializable response while still being able to continue the execution, either **by ignoring the payload** (i.e.: when the response code is enough) or to map it to something else.
+This was done to allow certain APIs to return a non-deserializable response while still being able to continue the execution, either **by ignoring the payload** (i.e.: when the response code is enough) or to evaluate it to something else.
 
 This makes the evaluator vulnerable, as it has no guarantee that what it will expect is something **that can be evaluated**.
 
