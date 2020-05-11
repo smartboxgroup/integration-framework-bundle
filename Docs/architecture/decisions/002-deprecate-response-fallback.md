@@ -27,6 +27,6 @@ A new parameter was introduced in the Producer configuration (`response_format`)
 In order to introduce this change in a backwards compatible way, a new boolean option was introduced in the Producer configuration (`response_fallback`) that will prevent the fallback. Setting it to `false` **will throw an exception** when the payload cannot be deserialized.
 
 ## Metadata
-Authors: @andres.rey, 
+Authors: @andres.rey
 
 People involved: @david.camprubi
