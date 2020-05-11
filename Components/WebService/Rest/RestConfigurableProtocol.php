@@ -15,6 +15,8 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements
     const OPTION_HEADERS = 'headers';
     const OPTION_AUTH = 'authentication';
     const OPTION_ENCODING = 'encoding';
+    /** @deprecated: Will be removed on next major version. Fallback will not happen in v3. */
+    const OPTION_RESPONSE_FALLBACK_ON_ERROR = 'response_fallback';
 
     const ENCODING_JSON = 'json';
     const ENCODING_XML = 'xml';
@@ -58,6 +60,7 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements
             self::OPTION_HEADERS => [],
             self::OPTION_AUTH => '',
             self::OPTION_ENCODING => self::ENCODING_JSON,
+            self::OPTION_RESPONSE_FALLBACK_ON_ERROR => true,
         ]);
 
         $resolver->setRequired([
@@ -72,6 +75,7 @@ class RestConfigurableProtocol extends ConfigurableWebserviceProtocol implements
         $resolver->setAllowedTypes(self::OPTION_AUTH, ['string', 'null']);
         $resolver->setAllowedTypes(self::OPTION_ENCODING, ['string']);
         $resolver->setAllowedValues(self::OPTION_ENCODING, [self::ENCODING_JSON, self::ENCODING_XML]);
+        $resolver->setAllowedTypes(self::OPTION_RESPONSE_FALLBACK_ON_ERROR, ['boolean']);
     }
 
     /**

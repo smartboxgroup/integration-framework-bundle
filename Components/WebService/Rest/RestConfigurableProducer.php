@@ -39,6 +39,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
     const VALIDATION_DISPLAY_MESSAGE = 'display_message';
     const VALIDATION_RECOVERABLE = 'recoverable';
     const REQUEST_EXPECTED_RESPONSE_TYPE = 'response_type';
+    const REQUEST_EXPECTED_RESPONSE_FORMAT = 'response_format';
 
     /**
      * @param $options
@@ -112,6 +113,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
             self::VALIDATION,
             self::REQUEST_QUERY_PARAMETERS,
             self::REQUEST_BASE_URI,
+            self::REQUEST_EXPECTED_RESPONSE_FORMAT
         ]);
 
         $stepParamsResolver->setAllowedValues(self::REQUEST_HTTP_VERB, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
@@ -199,14 +201,19 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
                     $responseBody = $this->getSerializer()->deserialize(
                         $responseContent,
                         $params[self::REQUEST_EXPECTED_RESPONSE_TYPE],
-                        $encoding
+                        $params[self::REQUEST_EXPECTED_RESPONSE_FORMAT] ?? $encoding
                     );
                 } catch (RuntimeException $e) {
                     // Assume that the exception is one of the JSON exceptions that will kill the workers
                     if (RestConfigurableProtocol::ENCODING_JSON === $encoding && (JSON_ERROR_SYNTAX != json_last_error())) {
                         throw new UnexpectedValueException($e->getMessage());
                     }
-                    // if it cannot parse the response fallback to the textual content of the body
+
+                    if (false === $endpointOptions[RestConfigurableProtocol::OPTION_RESPONSE_FALLBACK_ON_ERROR]) {
+                        throw $e;
+                    }
+
+                    trigger_error('Falling back to the original response payload when the deserialization fails and a custom response format isn\'t defined will throw an exception in v3.', E_USER_DEPRECATED);
                     $responseBody = $responseContent;
                 }
             }
