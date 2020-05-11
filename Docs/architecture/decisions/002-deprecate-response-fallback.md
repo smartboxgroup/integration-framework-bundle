@@ -20,7 +20,7 @@ Due to the fallback is present by default, one endpoint **could randomly fail** 
 
 We decided to deprecate the response fallback in this version and remove it **in the next major version**. 
 
-A new parameter was introduced in the Producer configuration (`response_format`) that will define the expected response type, and this type is passed to the serializer to instanciate the appropiate visitor. For example, a PlainTextVisitor could be implemented that can process non-JSON responses while still producing **a mappable/processable object**.    
+A new parameter was introduced in the `RestConfigurableProducer` (`response_format`) that will define the expected response format, and this format is passed to the deserialize function to instantiate the appropriate visitor. For example, a PlainTextVisitor could be implemented to process non-JSON responses while still producing **a evaluable object**. By default, if `response_format` is not setup, `encoding` will be passed.
 
 ## Consequences
 
