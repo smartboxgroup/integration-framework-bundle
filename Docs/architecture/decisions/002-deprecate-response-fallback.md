@@ -14,7 +14,7 @@ This was done to allow certain APIs to return a non-deserializable response whil
 
 This makes the evaluator vulnerable, as it has no guarantee that what it will expect is something **that can be evaluated**.
 
-Due to the fallback is present by default, one endpoint **could randomly fail** if the target system decides to send back a response in a format that is not expected by this bundle.
+Due to the fallback is present by default, one endpoint **could randomly fail** if the target system decides to send back a response in a format that is not expected by the application.
 
 ## Decision
 
