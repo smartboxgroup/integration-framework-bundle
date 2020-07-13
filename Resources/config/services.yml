@@ -118,3 +118,8 @@ services:
   # Flow exporter
   smartesb.util.flow_exporter:
       class: Smartbox\Integration\FrameworkBundle\Tools\FlowExporter\FlowExporter
+
+  Smartbox\Integration\FrameworkBundle\Command\ExportFlowsCommand:
+      arguments: ['@smartesb.util.flow_exporter']
+      tags:
+        -  { name: console.command }
