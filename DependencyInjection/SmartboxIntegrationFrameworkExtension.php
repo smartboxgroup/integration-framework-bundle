@@ -417,6 +417,13 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         }
     }
 
+    public function loadFlowExporter(ContainerBuilder $container)
+    {
+        $def = $container->findDefinition('smartesb.util.flow_exporter');
+        $def->addMethodCall('addMappings', [$this->config['mappings']]);
+        $def->addMethodCall('addProducers', [$this->config['producers']]);
+    }
+
     public function enableLogging(ContainerBuilder $container)
     {
         $def = new Definition('%smartesb.event_listener.events_logger.class%', [
@@ -540,5 +547,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $this->loadNoSQLDrivers($container);
         $this->loadConfigurableProducers($container);
         $this->loadMappings($container);
+        $this->loadFlowExporter($container);
     }
 }

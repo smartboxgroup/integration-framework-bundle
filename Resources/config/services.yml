@@ -114,3 +114,7 @@ services:
   smartesb.serialization.queue.jms_serializer:
       class: Smartbox\Integration\FrameworkBundle\Components\Queues\Serialization\Serializer
       arguments: ['@jms_serializer']
+
+  # Flow exporter
+  smartesb.util.flow_exporter:
+      class: Smartbox\Integration\FrameworkBundle\Tools\FlowExporter\FlowExporter
