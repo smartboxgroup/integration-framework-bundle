@@ -118,6 +118,9 @@ services:
   # Flow exporter
   smartesb.util.flow_exporter:
       class: Smartbox\Integration\FrameworkBundle\Tools\FlowExporter\FlowExporter
+      calls:
+        - [setEvaluator, ['@smartesb.util.evaluator']]
+        - [setConfHelper, ['@smartesb.configurable_service_helper']]
 
   Smartbox\Integration\FrameworkBundle\Command\ExportFlowsCommand:
       arguments: ['@smartesb.util.flow_exporter']

@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tools\FlowExporter;
 
-
-use Smartbox\BifrostBundle\Producers\VmsProducer;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\AbstractWebServiceProducer;
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\RestConfigurableProducer;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesConfigurableServiceHelper;
+use Smartbox\Integration\FrameworkBundle\DependencyInjection\Traits\UsesEvaluator;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class FlowExporter implements ContainerAwareInterface
 {
+    use UsesEvaluator;
+    use UsesConfigurableServiceHelper;
+
     /**
      * @var array
      */
@@ -42,18 +47,49 @@ class FlowExporter implements ContainerAwareInterface
         $this->container = $container;
     }
 
-    public function export()
+    public function getAvailableProducers()
     {
-        $this->buildProducers($this->producers);
+        return $this->producers;
     }
 
-    protected function buildProducers(array $producers)
+    public function getProducerMappings(string $producer = null)
     {
-        foreach ($producers as $producerName) {
-            /** @var VmsProducer $producer */
-            $producer = $this->container->get($producerName);
-            $test=$producer->getOptionsDescriptions();
-            $test=1;
+        $this->injectUnmapper();
+
+        if (false === array_search($producer, $this->producers, true)) {
+            throw new \LogicException(sprintf('[FlowExporter] No producer named %s available', $producer));
         }
+
+        return $this->buildProducer($this->container->get($producer));
+    }
+
+    protected function buildProducer(AbstractWebServiceProducer $producer): ProducerMapping
+    {
+        $mapping = new ProducerMapping($producer->getName());
+
+        foreach ($producer->getMethodsConfiguration() as $name => $definition) {
+            $method = new ProducerMethod($name, $definition);
+
+            $defineSteps = $method->getDefineSteps();
+            $flattened = [];
+            array_walk_recursive($defineSteps, function ($a, $b) use (&$flattened) {
+                $flattened[$b] = $a;
+            });
+
+            $request = $method->getRequestStep();
+
+            // @TODO on soap is "Parameters"
+            $body = $request[RestConfigurableProducer::REQUEST_BODY];
+            $mapping->addMethod($method->getName(), $this->getConfHelper()->evaluateStringOrExpression(!is_array($body) ? $body : reset($body), $flattened));
+        }
+
+        return $mapping;
+    }
+
+    protected function injectUnmapper()
+    {
+        $unmapper = new Unmapper();
+        $unmapper->addMappings($this->mappings);
+        $this->evaluator->setMapper($unmapper);
     }
 }
