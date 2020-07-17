@@ -42,6 +42,6 @@ class ExportFlowsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
+        var_dump($this->exporter->getProducerMappings('smartesb.producers.r2d2'));
     }
 }
