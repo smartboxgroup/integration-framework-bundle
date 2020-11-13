@@ -203,7 +203,7 @@ class RecipientListTest extends TestCase
             ->method('getId');
 
         $expression = "exchange.getHeader('recipientList')";
-        $recipientList = 'route_a,route_b';
+        $recipientList = '';
 
         $evaluator = $this->createMock(ExpressionEvaluator::class);
         $evaluator
