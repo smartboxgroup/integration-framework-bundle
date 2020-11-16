@@ -126,7 +126,7 @@ class RecipientList extends Processor
             );
         }
 
-        $uris = \explode($this->delimiter, $recipientList);
+        $uris = \preg_split('/' . preg_quote($this->delimiter) . '/', $recipientList, -1, PREG_SPLIT_NO_EMPTY);
 
         foreach ($uris as $uri) {
             switch ($this->aggregationStrategy) {

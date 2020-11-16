@@ -71,7 +71,7 @@ class RecipientListTest extends TestCase
         $this->expectException(ProcessingException::class);
 
         $expression = 'not good expression';
-        $exchange  = $this->createMock(Exchange::class);
+        $exchange = $this->createMock(Exchange::class);
 
         $evaluator = $this->createMock(ExpressionEvaluator::class);
         $evaluator
@@ -122,7 +122,7 @@ class RecipientListTest extends TestCase
             ->will($this->returnValue('123'));
 
         $expression = "exchange.getHeader('recipientList')";
-        $recipientList = 'route_a,route_b';
+        $recipientList = 'route_a!route_b';
 
         $evaluator = $this->createMock(ExpressionEvaluator::class);
         $evaluator
@@ -146,7 +146,7 @@ class RecipientListTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $this->recipientList->setDelimiter(',');
+        $this->recipientList->setDelimiter('!');
         $this->recipientList->setExpression($expression);
         $this->recipientList->setAggregationStrategy(RecipientList::AGGREGATION_STRATEGY_FIRE_AND_FORGET);
         $this->recipientList->setEvaluator($evaluator);
@@ -170,5 +170,83 @@ class RecipientListTest extends TestCase
         $this->recipientList->process($exchange);
 
         $this->assertSame(2, $dispatchedEventsCounter);
+    }
+
+    public function testItShouldAcceptEmptyRecipientLists()
+    {
+        $context = $this->createMock(Context::class);
+        $context
+            ->expects($this->any())
+            ->method('get')
+            ->with($this->equalTo('version'))
+            ->will($this->returnValue(1));
+
+        $message = $this->createMock(MessageInterface::class);
+        $message
+            ->expects($this->any())
+            ->method('getContext')
+            ->will($this->returnValue($context));
+
+        // No interaction with the exchange
+        $exchange = $this->createMock(Exchange::class);
+        $exchange
+            ->expects($this->never())
+            ->method('getIn');
+        $exchange
+            ->expects($this->never())
+            ->method('getItinerary');
+        $exchange
+            ->expects($this->never())
+            ->method('getHeaders');
+        $exchange
+            ->expects($this->never())
+            ->method('getId');
+
+        $expression = "exchange.getHeader('recipientList')";
+        $recipientList = '';
+
+        $evaluator = $this->createMock(ExpressionEvaluator::class);
+        $evaluator
+            ->expects($this->once())
+            ->method('evaluateWithExchange')
+            ->with($this->equalTo($expression), $this->equalTo($exchange))
+            ->will($this->returnValue($recipientList));
+
+        $itineraryParams = ['_itinerary' => $this->createMock(Itinerary::class)];
+
+        // No interaction with the itinerary resolver
+        $itineraryResolver = $this->createMock(ItineraryResolver::class);
+        $itineraryResolver
+            ->expects($this->never())
+            ->method('getItineraryParams');
+        $itineraryResolver
+            ->expects($this->never())
+            ->method('filterItineraryParamsToPropagate');
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+
+        $this->recipientList->setDelimiter(',');
+        $this->recipientList->setExpression($expression);
+        $this->recipientList->setAggregationStrategy(RecipientList::AGGREGATION_STRATEGY_FIRE_AND_FORGET);
+        $this->recipientList->setEvaluator($evaluator);
+        $this->recipientList->setItineraryResolver($itineraryResolver);
+        $this->recipientList->setEventDispatcher($eventDispatcher);
+
+        // No events should be dispatched if the list is empty
+        $exchangeEvents = false;
+        $eventDispatcher
+            ->expects($this->any())
+            ->method('dispatch')
+            ->with(($this->callback(function ($eventName) use($exchangeEvents){
+                if (NewExchangeEvent::TYPE_NEW_EXCHANGE_EVENT === $eventName) {
+                    return false;
+                }
+
+                return true;
+            })));
+
+        $this->recipientList->process($exchange);
+
+        $this->assertFalse($exchangeEvents, 'Exchange event was dispatched with an empty recipient list.');
     }
 }
