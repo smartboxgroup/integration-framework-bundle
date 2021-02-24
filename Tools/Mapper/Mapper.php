@@ -195,16 +195,6 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * @param array $elements
-     *
-     * @return array
-     */
-    public function shiftUp(array $elements)
-    {
-        return array_merge(...$elements);
-    }
-
-    /**
      * Convert a string to date.
      *
      * @param string $date

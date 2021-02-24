@@ -29,6 +29,7 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
             $this->createStrtoupperFunction(),
             $this->createGetKeyFunction(),
             $this->createGetValueFunction(),
+            $this->createShiftUpFunction()
         ];
     }
 
@@ -404,5 +405,28 @@ class CustomExpressionLanguageProvider implements ExpressionFunctionProviderInte
                 return $array['value'];
             }
         );
+    }
+
+    /**
+     * @param array $elements
+     *
+     * @return array
+     */
+    protected function createShiftUpFunction()
+    {
+        return new ExpressionFunction(
+            'shiftUp',
+            function($array) {
+                return sprintf('shiftUp(%s)', $array);
+            },
+            function ($arguments, $array) {
+                if (!is_array($array)) {
+                    throw new \RuntimeException('Argument passed to "shiftUp" should be an array.');
+                }
+
+                return array_merge(...$array);
+            }
+        );
+
     }
 }
