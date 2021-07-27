@@ -98,8 +98,6 @@ abstract class AbstractSoapConfigurableProducer extends AbstractWebServiceProduc
                 return $header;
             }, $soapHeaders);
 
-            $soapClient->setExecutionTimeout($endpointOptions[ConfigurableWebserviceProtocol::OPTION_TIMEOUT]);
-
             $response = $soapClient->__soapCall($methodName, $params, $soapOptions, $processedSoapHeaders);
 
             $lastResponseCode = $soapClient->__getLastResponseCode();
