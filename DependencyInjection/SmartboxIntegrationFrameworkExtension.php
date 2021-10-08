@@ -47,6 +47,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
     const NOSQL_DRIVER_PREFIX = 'smartesb.drivers.nosql.';
     const HANDLER_PREFIX = 'smartesb.handlers.';
     const PRODUCER_PREFIX = 'smartesb.producers.';
+    const PRODUCER_TAG = 'smartesb.producer';
     const CONSUMER_PREFIX = 'smartesb.consumers.';
     const PARAM_DEFERRED_EVENTS_URI = 'smartesb.uris.deferred_events';
 
@@ -110,6 +111,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $definition->addMethodCall('setSerializer', [new Reference('jms_serializer')]);
             $definition->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $definition->addMethodCall('setName', [$producerName]);
+            $definition->addTag(self::PRODUCER_TAG);
 
             if (is_subclass_of($class, HttpClientInterface::class)) {
                 $definition->addMethodCall('addHandler', [
@@ -417,6 +419,16 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         }
     }
 
+    public function loadFlowExporter(ContainerBuilder $container)
+    {
+        $def = $container->findDefinition('smartesb.util.flow_exporter');
+        $producers = array_keys($container->findTaggedServiceIds(self::PRODUCER_TAG));
+        // @TODO Use references to avoid needing the container. Or use service locator directly.
+        $def->addMethodCall('addProducers', [$producers]);
+        $def->addMethodCall('addMappings', [$this->config['mappings']]);
+        $def->addMethodCall('setContainer', [new Reference('service_container')]);
+    }
+
     public function enableLogging(ContainerBuilder $container)
     {
         $def = new Definition('%smartesb.event_listener.events_logger.class%', [
@@ -540,5 +552,6 @@ class SmartboxIntegrationFrameworkExtension extends Extension
         $this->loadNoSQLDrivers($container);
         $this->loadConfigurableProducers($container);
         $this->loadMappings($container);
+        $this->loadFlowExporter($container);
     }
 }
