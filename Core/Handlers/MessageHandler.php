@@ -2,6 +2,7 @@
 
 namespace Smartbox\Integration\FrameworkBundle\Core\Handlers;
 
+use Smartbox\Integration\FrameworkBundle\Components\WebService\Rest\Exceptions\UnrecoverableRestException;
 use Smartbox\Integration\FrameworkBundle\Configurability\Routing\InternalRouter;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
@@ -14,6 +15,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Messages\FailedExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\MessageInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\RetryExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\ThrottledExchangeEnvelope;
+use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\DelayException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ProcessingException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottledException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
@@ -405,6 +407,9 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
                 $this->dispatchEvent($exchangeBackup, HandlerEvent::THROTTLING_HANDLE_EVENT_NAME);
 
             } // If it's an exchange that can be retried later but it's failing due to an error
+            elseif ($originalException instanceof DelayException) {
+                throw new UnrecoverableRestException('Delay Interceptor triggered.');
+            }
             elseif ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
 
                 $retryExchangeEnvelope = new RetryExchangeEnvelope($exchangeBackup, $exception->getProcessingContext(), $retries + 1);
