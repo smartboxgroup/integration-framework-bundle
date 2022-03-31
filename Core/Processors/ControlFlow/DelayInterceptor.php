@@ -54,6 +54,8 @@ class DelayInterceptor extends Processor
      */
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
-        throw new DelayException();
+        if ($this->delayPeriod > 0 || $exchange->getIn()->getHeader('delay') > 0) {
+            throw new DelayException();
+        }
     }
 }
