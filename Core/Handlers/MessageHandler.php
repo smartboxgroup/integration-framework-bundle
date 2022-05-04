@@ -9,6 +9,7 @@ use Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointInterface;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\Context;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\DeferredExchangeEnvelope;
+use Smartbox\Integration\FrameworkBundle\Core\Messages\DelayedExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\ErrorExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\ExchangeEnvelope;
 use Smartbox\Integration\FrameworkBundle\Core\Messages\FailedExchangeEnvelope;
@@ -408,7 +409,11 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
             } // If it's an exchange that can be retried later but it's failing due to an error
             elseif ($originalException instanceof DelayException) {
-                throw new UnrecoverableRestException('Delay Interceptor triggered.');
+                $delayPeriod = $exchangeBackup->getIn()->getHeader('delay');
+                $delayExchangeEnvelope = new DelayedExchangeEnvelope($exchangeBackup, $delayPeriod);
+
+                $fromQueue = $exchangeBackup->getHeader('from');
+                $this->deferExchangeMessage($delayExchangeEnvelope, $fromQueue);
             }
             elseif ($originalException instanceof RecoverableExceptionInterface && $retries < $this->retriesMax) {
 
@@ -548,6 +553,10 @@ class MessageHandler extends Service implements HandlerInterface, ContainerAware
 
                     return;
                 }
+            } elseif ($message instanceof DelayedExchangeEnvelope) {
+                $headers = $message->getBody()->getIn()->getHeaders();
+                unset($headers['delay']);
+                $message->getBody()->getIn()->setHeaders($headers);
             }
         }
         // Otherwise create the exchange

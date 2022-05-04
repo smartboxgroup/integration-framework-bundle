@@ -5,8 +5,6 @@ namespace Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow;
 use Smartbox\CoreBundle\Type\SerializableArray;
 use Smartbox\Integration\FrameworkBundle\Core\Exchange;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\DelayException;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottledException;
-use Smartbox\Integration\FrameworkBundle\Core\Processors\Exceptions\ThrottlingLimitReachedException;
 use Smartbox\Integration\FrameworkBundle\Core\Processors\Processor;
 
 class DelayInterceptor extends Processor
@@ -49,12 +47,13 @@ class DelayInterceptor extends Processor
      * @param Exchange          $exchange
      * @param SerializableArray $processingContext
      *
-     * @throws ThrottlingLimitReachedException
-     * @throws ThrottledException
+     * @throws DelayException
      */
     protected function doProcess(Exchange $exchange, SerializableArray $processingContext)
     {
-        if ($this->delayPeriod > 0 || $exchange->getIn()->getHeader('delay') > 0) {
+        $delayPeriodInSeconds = $exchange->getIn()->getHeader('delay') ?? null;
+
+        if (!is_null($delayPeriodInSeconds)) {
             throw new DelayException();
         }
     }
