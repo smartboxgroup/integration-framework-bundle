@@ -53,7 +53,7 @@ class DelayInterceptor extends Processor
     {
         $delayPeriodInSeconds = $exchange->getIn()->getHeader('delay') ?? null;
 
-        if (!is_null($delayPeriodInSeconds)) {
+        if (!is_null($delayPeriodInSeconds) && (int) $delayPeriodInSeconds > 0) {
             throw new DelayException();
         }
     }
