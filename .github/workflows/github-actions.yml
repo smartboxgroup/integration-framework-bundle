@@ -39,6 +39,8 @@ jobs:
 #      - run: sudo systemctl enable rabbitmq-server
 #      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
 #      - run: sudo systemctl restart rabbitmq-server
+      - name: Checking rabbit
+        run: ping rabbit
       - run: sudo composer self-update
       - run: >-
           composer require symfony/framework-bundle:${SYMFONY_VERSION}
