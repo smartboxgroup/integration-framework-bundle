@@ -10,6 +10,7 @@ jobs:
         include:
           - os: ubuntu-18.04
             SYMFONY_VERSION: 6.0.*
+            SYMFONY_PHPUNIT_VERSION: '9.5'
     steps:
       - uses: actions/checkout@v2
       - name: Install PHP
@@ -36,9 +37,6 @@ jobs:
               $cmd -u $format
           }
           export -f nanoseconds
-        env:
-          SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
-          SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
       - run: sudo systemctl enable rabbitmq-server
       - run: sudo rabbitmq-plugins enable rabbitmq_stomp
       - run: sudo systemctl restart rabbitmq-server
@@ -48,6 +46,7 @@ jobs:
           --no-update
         env:
           SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
+          SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
       - run: composer install --prefer-dist --no-interaction
       - run: bin/simple-phpunit --coverage-text
 
