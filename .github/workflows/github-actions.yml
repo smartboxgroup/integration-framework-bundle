@@ -21,6 +21,8 @@ jobs:
           ini-values: "post_max_size=256M" #optional
       - name: Check PHP Version
         run: php -v
+      - run: sudo apt install librabbitmq-dev
+      - run: sudo apt install rabbitmq-server
       - run: sudo systemctl enable rabbitmq-server
       - run: sudo rabbitmq-plugins enable rabbitmq_stomp
       - run: sudo systemctl restart rabbitmq-server
