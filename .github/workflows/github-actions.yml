@@ -9,7 +9,7 @@ jobs:
         php-versions: ['8.0']
         include:
           - os: ubuntu-18.04
-            SYMFONY_VERSION: 6.0.*
+            SYMFONY_VERSION: 3.4.*
             SYMFONY_PHPUNIT_VERSION: '9.5'
 
     services:
