@@ -12,6 +12,13 @@ jobs:
             SYMFONY_VERSION: 6.0.*
             SYMFONY_PHPUNIT_VERSION: '9.5'
     steps:
+      - uses: mer-team/rabbitmq-mng-action@v1.2
+        with:
+          RABBITMQ_USER: 'guest'
+          RABBITMQ_PASS: 'guest'
+          RABBITMQ_PORT: 5672
+          RABBITMQ_MNG_PORT: 15672
+          RABBITMQ_TAG: 'rabbitmq'
       - uses: actions/checkout@v2
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -21,9 +28,11 @@ jobs:
           ini-values: "post_max_size=256M" #optional
       - name: Check PHP Version
         run: php -v
-      - run: sudo apt install librabbitmq-dev
-      - run: sudo apt install rabbitmq-server
-      - run: sudo systemctl enable rabbitmq-server
+      - name: Install librabbitmq-dev
+        run: sudo apt install librabbitmq-dev
+#      - name: Install rabbitMQ
+#        run: sudo apt install rabbitmq-server
+#      - run: sudo systemctl enable rabbitmq-server
       - run: sudo rabbitmq-plugins enable rabbitmq_stomp
       - run: sudo systemctl restart rabbitmq-server
       - run: sudo composer self-update
