@@ -1,0 +1,87 @@
+name: Workflow
+on: [push]
+jobs:
+  php_8_job:
+    runs-on: '${{ matrix.os }}'
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest]
+        php-versions: ['8.0']
+        include:
+          - os: ubuntu-18.04
+            SYMFONY_VERSION: 6.0.*
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: intl #optional
+          ini-values: "post_max_size=256M" #optional
+      - name: Check PHP Version
+        run: php -v
+      - run: |
+          # General configuration
+          set -e
+          stty cols 120
+          nanoseconds () {
+              local cmd="date"
+              local format="+%s%N"
+              local os=$(uname)
+              if hash gdate > /dev/null 2>&1; then
+                cmd="gdate"
+              elif [[ "$os" = Darwin ]]; then
+                format="+%s000000000"
+              fi
+              $cmd -u $format
+          }
+          export -f nanoseconds
+        env: &ref_0
+          SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
+          SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
+      - run: phpenv config-add travis/z_php.ini
+      - run: echo $TRAVIS_PHP_VERSION
+        env: *ref_0
+      - run: sudo systemctl enable rabbitmq-server
+      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
+      - run: sudo systemctl restart rabbitmq-server
+      - run: sudo composer self-update
+      - run: >-
+          composer require symfony/framework-bundle:${SYMFONY_VERSION}
+          --no-update
+        env:
+          SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
+      - run: composer install --prefer-dist --no-interaction
+      - run: bin/simple-phpunit --coverage-text
+
+#  php_7_job:
+#    runs-on: '${{ matrix.os }}'
+#    strategy:
+#      matrix:
+#        operating-system: [ubuntu-latest]
+#        php-versions: ['7.0','7.1','7.2','7.3','7.4']
+#        include:
+#          - os: ubuntu-18.04
+#            SYMFONY_VERSION: 3.4.*
+#          - os: ubuntu-18.04
+#            SYMFONY_VERSION: 5.4.*
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Install PHP
+#        uses: shivammathur/setup-php@v2
+#        with:
+#          php-version: ${{ matrix.php-versions }}
+#          extensions: intl #optional
+#          ini-values: "post_max_size=256M" #optional
+#      - name: Check PHP Version
+#        run: php -v
+#      - run: sudo composer self-update
+#      - run: >-
+#          composer require symfony/framework-bundle:${SYMFONY_VERSION}
+#          --no-update
+#        env:
+#          SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
+#      - run: composer install --prefer-dist --no-interaction
+#      - run: ./src/BeSimple/SoapClient/Tests/bin/phpwebserver.sh
+#      - run: ./src/BeSimple/SoapClient/Tests/bin/axis.sh
+#      - run: bin/simple-phpunit

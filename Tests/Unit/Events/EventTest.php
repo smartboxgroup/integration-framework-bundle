@@ -12,7 +12,7 @@ class EventTest extends \PHPUnit\Framework\TestCase
     /** @var Event|\PHPUnit_Framework_MockObject_MockObject */
     private $event;
 
-    public function setup()
+    public function setUp(): void
     {
         $this->event = $this->getMockBuilder(Event::class)
             ->enableOriginalConstructor()

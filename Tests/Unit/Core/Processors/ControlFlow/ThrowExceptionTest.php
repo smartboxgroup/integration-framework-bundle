@@ -22,7 +22,7 @@ class ThrowExceptionTest extends \PHPUnit\Framework\TestCase
     /** @var ThrowException */
     private $throwException;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         /** @var EventDispatcherInterface|\PHPUnit_Framework_MockObject_MockObject $eventDispatcherMock */
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
@@ -31,7 +31,7 @@ class ThrowExceptionTest extends \PHPUnit\Framework\TestCase
         $this->throwException->setEventDispatcher($eventDispatcherMock);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->throwException = null;
     }

@@ -49,6 +49,7 @@ abstract class Processor extends Service implements ProcessorInterface
     {
         $event = $this->createProcessEvent($exchange, $processingContext, ProcessEvent::TYPE_BEFORE);
         $this->onPreProcessEvent($event);
+        $ev = $this->getEventDispatcher();
         $this->getEventDispatcher()->dispatch(ProcessEvent::TYPE_BEFORE, $event);
     }
 

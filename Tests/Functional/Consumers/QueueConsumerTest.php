@@ -127,7 +127,7 @@ class QueueConsumerTest extends BaseKernelTestCase
         \pcntl_alarm(0);
 
         $output = $this->getActualOutput();
-        $this->assertNotContains('A message was consumed', $output); // The consumer should not display message information if no logger
+        $this->assertStringNotContainsString('A message was consumed', $output); // The consumer should not display message information if no logger
     }
 
     /**
@@ -197,6 +197,6 @@ class QueueConsumerTest extends BaseKernelTestCase
         \pcntl_alarm(0);
 
         $output = $this->getActualOutput();
-        $this->assertNotContains('A message was consumed', $output); // The consumer should not display message information with NullLogger
+        $this->assertStringNotContainsString('A message was consumed', $output); // The consumer should not display message information with NullLogger
     }
 }

@@ -68,7 +68,7 @@ class AsyncQueueConsumerTest extends BaseKernelTestCase
         $consumer->consume($endpoint);
 
         $output = $this->getActualOutput();
-        $this->assertNotContains('A message was consumed', $output);
+        $this->assertStringNotContainsString('A message was consumed', $output);
     }
 
     /**
