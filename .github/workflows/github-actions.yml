@@ -36,7 +36,7 @@ jobs:
               $cmd -u $format
           }
           export -f nanoseconds
-        env: &ref_0
+        env:
           SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
           SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
       - run: sudo systemctl enable rabbitmq-server
