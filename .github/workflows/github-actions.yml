@@ -13,7 +13,7 @@ jobs:
             SYMFONY_PHPUNIT_VERSION: '9.5'
 
     services:
-      rabbitmq:
+      rabbit:
         image: rabbitmq:3.8
         options: --hostname rabbit
         env:
