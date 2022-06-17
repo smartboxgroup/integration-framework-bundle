@@ -47,8 +47,7 @@ jobs:
           SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
           SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
           # The hostname used to communicate with the PostgreSQL service container
-          RABBITMQ__HOST: rabbit
-          # The default PostgreSQL port
+          RABBITMQ_HOST: 127.0.0.1
           RABBITMQ__PORT: 5672
       - run: composer install --prefer-dist --no-interaction
       - run: bin/simple-phpunit --coverage-text
