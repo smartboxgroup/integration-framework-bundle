@@ -21,22 +21,6 @@ jobs:
           ini-values: "post_max_size=256M" #optional
       - name: Check PHP Version
         run: php -v
-      - run: |
-          # General configuration
-          set -e
-          stty cols 120
-          nanoseconds () {
-              local cmd="date"
-              local format="+%s%N"
-              local os=$(uname)
-              if hash gdate > /dev/null 2>&1; then
-                cmd="gdate"
-              elif [[ "$os" = Darwin ]]; then
-                format="+%s000000000"
-              fi
-              $cmd -u $format
-          }
-          export -f nanoseconds
       - run: sudo systemctl enable rabbitmq-server
       - run: sudo rabbitmq-plugins enable rabbitmq_stomp
       - run: sudo systemctl restart rabbitmq-server
