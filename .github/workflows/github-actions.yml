@@ -39,9 +39,6 @@ jobs:
         env: &ref_0
           SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
           SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
-      - run: phpenv config-add travis/z_php.ini
-      - run: echo $TRAVIS_PHP_VERSION
-        env: *ref_0
       - run: sudo systemctl enable rabbitmq-server
       - run: sudo rabbitmq-plugins enable rabbitmq_stomp
       - run: sudo systemctl restart rabbitmq-server
