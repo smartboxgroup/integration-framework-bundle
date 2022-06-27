@@ -217,6 +217,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $consumerDef->addMethodCall('setSmartesbHelper', [new Reference('smartesb.helper')]);
             $consumerDef->addMethodCall('setEventDispatcher', [new Reference('event_dispatcher')]);
             $consumerDef->addMethodCall('setSerializer', [new Reference('smartesb.serialization.queue.jms_serializer')]);
+            $consumerDef->setPublic(true);
 
             $decodingExceptionHandlerId = $consumerConfig['decoding_exception_handler'];
             if ($decodingExceptionHandlerId) {
@@ -268,6 +269,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setDescription', [$driverConfig['description']]);
                     $driverDef->addMethodCall('setUrlEncodeDestination', [$urlEncodeDestination]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+                    $driverDef->setPublic(true);
 
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 
@@ -297,6 +299,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
                     $driverDef->addMethodCall('setPrefetchCount', [$driverConfig['prefetch_count'] ?? AmqpQueueDriver::PREFETCH_COUNT]);
                     $driverDef->addMethodCall('setHeartbeat', [$driverConfig['heartbeat'] ?? AmqpQueueDriver::HEARTBEAT]);
                     $driverDef->addMethodCall('setMessageFactory', [new Reference('smartesb.message_factory')]);
+                    $driverDef->setPublic(true);
 
                     $queueDriverRegistry->addMethodCall('setDriver', [$driverName, new Reference($driverId)]);
 
@@ -349,6 +352,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
                     $driverDef->addTag('kernel.event_listener', ['event' => KernelEvents::TERMINATE, 'method' => 'onKernelTerminate']);
                     $driverDef->addTag('kernel.event_listener', ['event' => ConsoleEvents::TERMINATE, 'method' => 'onConsoleTerminate']);
+                    $driverDef->setPublic(true);
 
                     $container->setDefinition($driverId, $driverDef);
 
@@ -389,6 +393,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             $handlerDef->addMethodCall('setRetryDelay', [$handlerConfig['retry_delay']]);
             $handlerDef->addMethodCall('setRetryStrategy', [$handlerConfig['retry_strategy']]);
             $handlerDef->addMethodCall('setRetryDelayFactor', [$handlerConfig['retry_delay_factor']]);
+            $handlerDef->setPublic(true);
             if ('original' != $handlerConfig['retry_uri']) {
                 $handlerDef->addMethodCall('setRetryURI', [$handlerConfig['retry_uri']]);
             } else {
@@ -487,6 +492,8 @@ class SmartboxIntegrationFrameworkExtension extends Extension
             'method' => 'onEvent',
         ]);
 
+        $def->setPublic(true);
+
         $container->setDefinition(self::EVENTS_LOGGER_ID, $def);
     }
 
@@ -532,6 +539,7 @@ class SmartboxIntegrationFrameworkExtension extends Extension
 
         $queueProtocolDef = $container->getDefinition('smartesb.protocols.queue');
         $queueProtocolDef->setArguments([$config['queues_default_persistence'], $config['queues_default_ttl']]);
+        $queueProtocolDef->setPublic(true);
 
         $this->loadHandlers($container);
         $this->loadConfigurableConsumers($container);

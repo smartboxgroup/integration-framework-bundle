@@ -34,5 +34,6 @@ class ExpressionLanguageCachePass implements CompilerPassInterface
         }
 
         $container->findDefinition('smartesb.util.expression_language')->addArgument(new Reference('cache.app'));
+        $container->findDefinition('smartesb.util.expression_language')->setPublic(true);
     }
 }

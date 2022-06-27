@@ -39,6 +39,14 @@ class MockWebserviceClientsCompilerPass implements CompilerPassInterface
             $serviceDef->replaceArgument(1,$soapClientOptions);
         }
 
+        foreach ($container->getDefinitions() as $id => $definition) {
+            $definition->setPublic(true);
+        }
+
+        foreach ($container->getAliases() as $id => $alias) {
+            $alias->setPublic(true);
+        }
+
         $restProducerIds = $container->findTaggedServiceIds(self::TAG_MOCKABLE_REST_CLIENT);
 
         foreach ($restProducerIds as $id => $parameters) {

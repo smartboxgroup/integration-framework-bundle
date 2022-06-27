@@ -23,7 +23,13 @@ composer-install: ## Execute composer instalation
 	$(COMPOSER) install --prefer-dist
 
 test: composer-install ## Execute composer instalation
-	$(RUN) bin/simple-phpunit
+#	$(RUN) bin/simple-phpunit --filter 'DbalStepsProviderTest::testDoctrineGetConnection' Tests/Unit/Components/DB/Dbal/DbalStepsProviderTest.php
+#	$(RUN) bin/simple-phpunit
+#	$(RUN) bin/simple-phpunit --filter 'AsyncQueueConsumerTest::testConsume' Tests/Functional/Consumers/AsyncQueueConsumerTest.php
+	$(RUN) bin/simple-phpunit --filter 'AbstractAsyncConsumerTest::testConsumerDoesNotSleepWhenFlagIsSet' Tests/Unit/Core/Consumers/AbstractAsyncConsumerTest.php
 
 tree:
 	$(COMPOSER) depends --tree jms/serializer
+php:
+	$(EXEC) .Tests/App/console --version
+
