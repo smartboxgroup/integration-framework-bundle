@@ -34,11 +34,11 @@ jobs:
         run: php -v
       - name: Install librabbitmq-dev
         run: sudo apt install librabbitmq-dev
-      - name: Install rabbitMQ
-        run: sudo apt install rabbitmq-server
-      - run: sudo systemctl enable rabbitmq-server
-      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
-      - run: sudo systemctl restart rabbitmq-server
+#      - name: Install rabbitMQ
+#        run: sudo apt install rabbitmq-server
+#      - run: sudo systemctl enable rabbitmq-server
+#      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
+#      - run: sudo systemctl restart rabbitmq-server
       - name: Checking rabbit
         run: ping rabbit
       - run: sudo composer self-update
