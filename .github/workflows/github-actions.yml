@@ -20,7 +20,7 @@ jobs:
           RABBITMQ_DEFAULT_USER: guest
           RABBITMQ_DEFAULT_PASS: guest
         ports:
-          - 5672
+          - 8081:15672
 
     steps:
       - uses: actions/checkout@v2
