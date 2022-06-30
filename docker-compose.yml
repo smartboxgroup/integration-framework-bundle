@@ -4,6 +4,8 @@ services:
   php:
     build: ./docker/php
     working_dir: /app
+    environment:
+      PHP_IDE_CONFIG: "serverName=INTEGRATIONS"
     volumes:
       - .:/app
     depends_on:
