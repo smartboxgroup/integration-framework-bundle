@@ -3,7 +3,7 @@ on: [push]
 jobs:
   php_8_job:
     runs-on: '${{ matrix.os }}'
-    container: nginx:1-alpine
+    container: nginx
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
