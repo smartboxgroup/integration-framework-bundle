@@ -24,9 +24,10 @@ composer-install: ## Execute composer instalation
 
 test: composer-install ## Execute composer instalation
 #	$(RUN) bin/simple-phpunit --filter 'DbalStepsProviderTest::testDoctrineGetConnection' Tests/Unit/Components/DB/Dbal/DbalStepsProviderTest.php
-#	$(RUN) bin/simple-phpunit
+	$(RUN) bin/simple-phpunit
 #	$(RUN) bin/simple-phpunit --filter 'AsyncQueueConsumerTest::testConsume' Tests/Functional/Consumers/AsyncQueueConsumerTest.php
-	$(RUN) bin/simple-phpunit --filter 'AbstractAsyncConsumerTest::testConsumerDoesNotSleepWhenFlagIsSet' Tests/Unit/Core/Consumers/AbstractAsyncConsumerTest.php
+#	$(RUN) bin/simple-phpunit --filter 'AbstractAsyncConsumerTest::testCallbackMeasuresProcessingDuration' Tests/Unit/Core/Consumers/AbstractAsyncConsumerTest.php
+#	$(RUN) bin/simple-phpunit --filter 'RecipientListTest::testItShouldDispatchAnEventForEveryRecipientOnProcess' Tests/Unit/Core/Processors/Routing/RecipientListTest.php
 
 tree:
 	$(COMPOSER) depends --tree jms/serializer
