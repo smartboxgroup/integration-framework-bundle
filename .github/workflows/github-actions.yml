@@ -43,7 +43,7 @@ jobs:
 #      - name: Checking rabbitmq
 #        run: ping rabbit
       - run: sudo apt-get update
-      - run: sudo apt-get install iputils-ping
+      - run: sudo apt-get -y install iputils-ping
       - name: Checking rabbitmq
         run: ping rabbit
       - run: sudo composer self-update
