@@ -35,8 +35,8 @@ jobs:
         run: php -v
 #      - name: Install librabbitmq-dev
 #        run: sudo apt install librabbitmq-dev
-#      - name: Install rabbitMQ
-#        run: sudo apt install rabbitmq-server
+      - name: Install rabbitMQ
+        run: sudo apt install rabbitmq-server
 #      - run: sudo systemctl enable rabbitmq-server
 #      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
 #      - run: sudo systemctl restart rabbitmq-server
@@ -52,11 +52,6 @@ jobs:
         run: ping rabbit -c 2
       - run: sudo composer self-update
       - run: sudo apt-get install -y libxml2-dev
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y  php-soap
-      - run: sudo apt-get clean -y
-      - run: sudo apt-get install -y php-mongodb
-      - run: sudo apt-get install -y php-apcu
       - run: >-
           composer require symfony/framework-bundle:${SYMFONY_VERSION}
           --no-update
