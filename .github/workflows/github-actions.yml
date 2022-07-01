@@ -47,7 +47,9 @@ jobs:
 #      - name: Checking rabbitmq
 #        run: ping rabbit
       - run: sudo composer self-update
-      - run: sudo apt-get install -y \ libxml2-dev \ php-soap
+      - run: sudo apt-get install -y libxml2-dev
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y  php-soap
       - run: sudo apt-get clean -y
       - run: sudo apt-get install docker-php-ext-install soap
       - run: >-
