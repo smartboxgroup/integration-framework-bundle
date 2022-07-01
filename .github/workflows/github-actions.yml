@@ -43,7 +43,7 @@ jobs:
 #      - name: Checking rabbitmq
 #        run: ping rabbit
       - run: sudo apt-get update
-      - run: sudo pecl install apcu-5.1.19
+#      - run: sudo pecl install apcu-5.1.19
       - run: sudo apt-get -y install iputils-ping
       - name: Checking rabbitmq
         run: ping rabbit -c 2
