@@ -51,6 +51,7 @@ jobs:
       - run: sudo apt-get update
       - run: sudo apt-get install -y  php-soap
       - run: sudo apt-get clean -y
+      - run: sudo apt-get install -y php-mongodb
       - run: >-
           composer require symfony/framework-bundle:${SYMFONY_VERSION}
           --no-update
