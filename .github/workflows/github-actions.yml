@@ -47,6 +47,7 @@ jobs:
       - run: sudo apt-get update
 #      - run: sudo pecl install apcu-5.1.19
       - run: sudo systemctl enable rabbitmq-server
+      - run: sudo rabbitmq-server
       - run: sudo systemctl start rabbitmq-server
       - run: sudo rabbitmq-plugins enable rabbitmq_stomp
       - run: sudo rabbitmqctl force_reset
