@@ -25,6 +25,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Install rabbitMQ
+        run: sudo apt install -y rabbitmq-server
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -35,8 +37,6 @@ jobs:
         run: php -v
 #      - name: Install librabbitmq-dev
 #        run: sudo apt install librabbitmq-dev
-      - name: Install rabbitMQ
-        run: sudo apt install rabbitmq-server
 #      - run: sudo systemctl enable rabbitmq-server
 #      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
 #      - run: sudo systemctl restart rabbitmq-server
