@@ -16,7 +16,7 @@ jobs:
     services:
       rabbit:
         image: rabbitmq:3.8
-        options: --hostname rabbit
+#        options: --hostname rabbit
         env:
           RABBITMQ_DEFAULT_USER: guest
           RABBITMQ_DEFAULT_PASS: guest
