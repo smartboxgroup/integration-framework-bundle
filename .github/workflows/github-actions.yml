@@ -25,14 +25,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Install rabbitMQ
-        run: sudo apt install -y rabbitmq-server
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: intl,soap,mongodb,apcu   #optional
           ini-values: "post_max_size=256M" #optional
+      - name: Install rabbitMQ
+        run: sudo apt-get install -y rabbitmq-server
       - name: Check PHP Version
         run: php -v
 #      - name: Install librabbitmq-dev
