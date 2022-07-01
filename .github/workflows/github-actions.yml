@@ -31,8 +31,10 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           extensions: intl,soap,mongodb,apcu   #optional
           ini-values: "post_max_size=256M" #optional
-      - name: Install rabbitMQ
+      - name: Install rabbitMQ lib
         run: sudo apt-get install -y rabbitmq-server
+      - name: Install rabbitMQ lib
+        run: sudo apt-get install -y librabbitmq-dev
       - name: Check PHP Version
         run: php -v
 #      - name: Install librabbitmq-dev
