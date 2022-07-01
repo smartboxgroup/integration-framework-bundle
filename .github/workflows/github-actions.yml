@@ -47,7 +47,7 @@ jobs:
 #      - name: Checking rabbitmq
 #        run: ping rabbit
       - run: sudo composer self-update
-      - run: sudo apt-get install php-soap
+      - run: sudo apt-get -y install php-soap
       - run: >-
           composer require symfony/framework-bundle:${SYMFONY_VERSION}
           --no-update
