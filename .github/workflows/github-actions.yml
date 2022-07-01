@@ -47,11 +47,9 @@ jobs:
 #      - name: Checking rabbitmq
 #        run: ping rabbit
       - run: sudo composer self-update
-      - run: sudo apt-get install -y \
-      libxml2-dev \
-      php-soap \
-  && apt-get clean -y \
-  && docker-php-ext-install soap
+      - run: sudo apt-get install -y \ libxml2-dev \ php-soap
+      - run: sudo apt-get clean -y
+      - run: sudo apt-get install docker-php-ext-install soap
       - run: >-
           composer require symfony/framework-bundle:${SYMFONY_VERSION}
           --no-update
