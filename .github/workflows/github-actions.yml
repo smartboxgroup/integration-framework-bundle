@@ -44,8 +44,8 @@ jobs:
 #        run: ping rabbit
       - run: sudo apt-get update
       - run: sudo apt-get -y install iputils-ping
-#      - name: Checking rabbitmq
-#        run: ping rabbit
+      - name: Checking rabbitmq
+        run: ping rabbit -t
       - run: sudo composer self-update
       - run: sudo apt-get install -y libxml2-dev
       - run: sudo apt-get update
