@@ -3,7 +3,7 @@ on: [push]
 jobs:
   php_8_job:
     runs-on: '${{ matrix.os }}'
-    container: php:8.0-cli
+    container: php:8.0-fpm
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
