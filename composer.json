@@ -9,7 +9,7 @@
       }
     },
     "require": {
-        "php": ">=7.2 || >=8.0",
+        "php": ">=7.4 || >=8.0",
         "ext-pcntl": "*",
         "guzzlehttp/guzzle": "^6.0",
         "smartbox/besimple-soap": "dev-MINT-5942 as 1.4",
@@ -19,7 +19,8 @@
         "symfony/options-resolver": "^2.8 || ^3.4",
         "symfony/validator": "^2.8 || ^3.4",
         "symfony/yaml": "^2.8 || ^3.4",
-        "symfony/event-dispatcher": "^2.8 || ^3.4"
+        "symfony/event-dispatcher": "^2.8 || ^3.4",
+        "symfony/translation": "^2.8 || ^3.4"
     },
     "require-dev": {
         "doctrine/doctrine-bundle": "^1.12",
