@@ -57,8 +57,8 @@ jobs:
       - run: sudo rabbitmqctl list_connections
       #      - run: sudo systemctl restart rabbitmq-server
       - run: sudo apt-get -y install iputils-ping
-#      - name: Checking rabbitmq
-#        run: ping rabbit -c 2
+      - name: Checking rabbitmq
+        run: ping rabbit -c 2
       - run: sudo composer self-update
       - run: sudo apt-get install -y libxml2-dev
       - run: >-
@@ -68,8 +68,8 @@ jobs:
           SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
           SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
           # The hostname used to communicate with the PostgreSQL service container
-#          RABBITMQ_HOST: rabbit
-#          RABBITMQ_PORT: ${{ job.services.rabbit.ports[5672] }}
+          RABBITMQ_HOST: rabbit
+          RABBITMQ_PORT: ${{ job.services.rabbit.ports[5672] }}
       - run: composer install --prefer-dist --no-interaction
       - run: bin/simple-phpunit --coverage-text
 
