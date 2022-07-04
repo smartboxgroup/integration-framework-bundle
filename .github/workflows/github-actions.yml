@@ -14,7 +14,7 @@ jobs:
             SYMFONY_PHPUNIT_VERSION: '9.5'
 
     services:
-      rabbit:
+      rabbit2:
         image: rabbitmq:3.8
         options: --hostname rabbit
         env:
@@ -51,7 +51,7 @@ jobs:
 #      - run: sudo rabbitmqctl list_connections
       - run: sudo apt-get -y install iputils-ping
       - name: Checking rabbitmq
-        run: ping rabbit -c 2
+        run: ping rabbit2 -c 2
 #      - run: sudo grep rabbit /etc/hosts
       - run: sudo composer self-update
       - run: sudo apt-get install -y libxml2-dev
