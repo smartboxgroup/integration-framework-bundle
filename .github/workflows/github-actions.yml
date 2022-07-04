@@ -52,7 +52,7 @@ jobs:
       - run: sudo rabbitmq-plugins enable rabbitmq_stomp
       - run: sudo rabbitmqctl start_app
       - run: sudo service rabbitmq-server status
-      - run: sudo systemctl restart rabbitmq-server
+#      - run: sudo systemctl restart rabbitmq-server
       - run: sudo apt-get -y install iputils-ping
       - name: Checking rabbitmq
         run: ping rabbit -c 2
