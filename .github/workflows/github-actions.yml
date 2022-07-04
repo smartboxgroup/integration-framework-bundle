@@ -3,7 +3,7 @@ on: [push]
 jobs:
   php_8_job:
     runs-on: '${{ matrix.os }}'
-#    container: ubuntu:latest
+    container: ubuntu:latest
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
@@ -31,31 +31,21 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           extensions: intl,soap,mongodb,apcu   #optional
           ini-values: "post_max_size=256M" #optional
-#      - name: Install rabbitMQ lib
-#        run: sudo apt-get install -y rabbitmq-server
-#      - name: Install rabbitMQ lib
-#        run: sudo apt-get install -y librabbitmq-dev
       - name: Check PHP Version
         run: php -v
-#      - name: Install librabbitmq-dev
-#        run: sudo apt install librabbitmq-dev
-#      - run: sudo systemctl enable rabbitmq-server
-#      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
-#      - run: sudo systemctl restart rabbitmq-server
-#      - name: Checking rabbitmq
-#        run: ping rabbit
       - run: sudo apt-get update
-#      - run: sudo pecl install apcu-5.1.19
-#      - run: sudo systemctl enable rabbitmq-server
-#      - run: sudo rabbitmq-server -detached
-##      - run: sudo systemctl start rabbitmq-server
-#      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
-#      - run: sudo rabbitmqctl start_app
-#      - run: sudo service rabbitmq-server status
-#      - run: sudo rabbitmqctl list_vhosts
-#      - run: sudo rabbitmqctl list_bindings
-#      - run: sudo rabbitmqctl list_connections
-      #      - run: sudo systemctl restart rabbitmq-server
+      - name: Install rabbitMQ lib
+        run: sudo apt-get install -y rabbitmq-server
+      - name: Install rabbitMQ lib
+        run: sudo apt-get install -y librabbitmq-dev
+      - run: sudo systemctl enable rabbitmq-server
+      - run: sudo rabbitmq-server -detached
+      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
+      - run: sudo rabbitmqctl start_app
+      - run: sudo service rabbitmq-server status
+      - run: sudo rabbitmqctl list_vhosts
+      - run: sudo rabbitmqctl list_bindings
+      - run: sudo rabbitmqctl list_connections
       - run: sudo apt-get -y install iputils-ping
       - name: Checking rabbitmq
         run: ping rabbit -c 2
