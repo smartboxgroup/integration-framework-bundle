@@ -34,18 +34,18 @@ jobs:
       - name: Check PHP Version
         run: php -v
       - run: sudo apt-get update
-      - name: Install rabbitMQ lib
-        run: sudo apt-get install -y rabbitmq-server
-      - name: Install rabbitMQ lib
-        run: sudo apt-get install -y librabbitmq-dev
-      - run: sudo systemctl enable rabbitmq-server
-      - run: sudo rabbitmq-server -detached
-      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
-      - run: sudo rabbitmqctl start_app
-      - run: sudo service rabbitmq-server status
-      - run: sudo rabbitmqctl list_vhosts
-      - run: sudo rabbitmqctl list_bindings
-      - run: sudo rabbitmqctl list_connections
+#      - name: Install rabbitMQ lib
+#        run: sudo apt-get install -y rabbitmq-server
+#      - name: Install rabbitMQ lib
+#        run: sudo apt-get install -y librabbitmq-dev
+#      - run: sudo systemctl enable rabbitmq-server
+#      - run: sudo rabbitmq-server -detached
+#      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
+#      - run: sudo rabbitmqctl start_app
+#      - run: sudo service rabbitmq-server status
+#      - run: sudo rabbitmqctl list_vhosts
+#      - run: sudo rabbitmqctl list_bindings
+#      - run: sudo rabbitmqctl list_connections
       - run: sudo apt-get -y install iputils-ping
       - name: Checking rabbitmq
         run: ping rabbit -c 2
