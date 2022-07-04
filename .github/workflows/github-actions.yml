@@ -13,15 +13,13 @@ jobs:
             SYMFONY_VERSION: 3.4.*
             SYMFONY_PHPUNIT_VERSION: '9.5'
 
-#    services:
-#      rabbit2:
-#        image: rabbitmq:3.8
-#        options: --hostname rabbit
-#        env:
-#          RABBITMQ_DEFAULT_USER: guest
-#          RABBITMQ_DEFAULT_PASS: guest
-#        ports:
-#          - 61613:5672
+    services:
+      rabbit2:
+        image: pcloud/rabbitmq-stomp
+        options: --hostname rabbit
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
 
     steps:
       - uses: actions/checkout@v2
