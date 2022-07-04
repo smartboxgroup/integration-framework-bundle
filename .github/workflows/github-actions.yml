@@ -34,9 +34,9 @@ jobs:
       - name: Check PHP Version
         run: php -v
       - run: sudo apt-get update
-      - run: sudo apt-get install curl -y
-      - run: curl rabbit:5672 > curl_result_docker
-      - run: cat curl_result_docker
+#      - run: sudo apt-get install curl -y
+#      - run: curl rabbit:5672 > curl_result_docker
+#      - run: cat curl_result_docker
 #      - name: Install rabbitMQ lib
 #        run: sudo apt-get install -y rabbitmq-server
 #      - name: Install rabbitMQ lib
@@ -52,6 +52,7 @@ jobs:
       - run: sudo apt-get -y install iputils-ping
       - name: Checking rabbitmq
         run: ping rabbit -c 2
+      - run: grep rabbit /etc/hosts
       - run: sudo composer self-update
       - run: sudo apt-get install -y libxml2-dev
       - run: >-
