@@ -13,15 +13,15 @@ jobs:
             SYMFONY_VERSION: 3.4.*
             SYMFONY_PHPUNIT_VERSION: '9.5'
 
-    services:
-      rabbit2:
-        image: rabbitmq:3.8
-        options: --hostname rabbit
-        env:
-          RABBITMQ_DEFAULT_USER: guest
-          RABBITMQ_DEFAULT_PASS: guest
-        ports:
-          - 61613:5672
+#    services:
+#      rabbit2:
+#        image: rabbitmq:3.8
+#        options: --hostname rabbit
+#        env:
+#          RABBITMQ_DEFAULT_USER: guest
+#          RABBITMQ_DEFAULT_PASS: guest
+#        ports:
+#          - 61613:5672
 
     steps:
       - uses: actions/checkout@v2
@@ -34,21 +34,21 @@ jobs:
       - name: Check PHP Version
         run: php -v
       - run: sudo apt-get update
-#      - run: sudo apt-get install curl -y
-#      - run: curl rabbit:5672 > curl_result_docker
-#      - run: cat curl_result_docker
-#      - name: Install rabbitMQ lib
-#        run: sudo apt-get install -y rabbitmq-server
-#      - name: Install rabbitMQ lib
-#        run: sudo apt-get install -y librabbitmq-dev
-#      - run: sudo systemctl enable rabbitmq-server
-#      - run: sudo rabbitmq-server -detached
-#      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
-#      - run: sudo rabbitmqctl start_app
-#      - run: sudo service rabbitmq-server status
-#      - run: sudo rabbitmqctl list_vhosts
-#      - run: sudo rabbitmqctl list_bindings
-#      - run: sudo rabbitmqctl list_connections
+      - run: sudo apt-get install curl -y
+      - run: curl rabbit:5672 > curl_result_docker
+      - run: cat curl_result_docker
+      - name: Install rabbitMQ lib
+        run: sudo apt-get install -y rabbitmq-server
+      - name: Install rabbitMQ lib
+        run: sudo apt-get install -y librabbitmq-dev
+      - run: sudo systemctl enable rabbitmq-server
+      - run: sudo rabbitmq-server -detached
+      - run: sudo rabbitmq-plugins enable rabbitmq_stomp
+      - run: sudo rabbitmqctl start_app
+      - run: sudo service rabbitmq-server status
+      - run: sudo rabbitmqctl list_vhosts
+      - run: sudo rabbitmqctl list_bindings
+      - run: sudo rabbitmqctl list_connections
       - run: sudo apt-get -y install iputils-ping
       - name: Checking rabbitmq
         run: ping rabbit2 -c 2
