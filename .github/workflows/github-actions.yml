@@ -52,7 +52,7 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['7.4']
+        php-versions: ['7.3','7.4']
         include:
           - os: ubuntu-18.04
             SYMFONY_VERSION: 3.4.*
