@@ -43,7 +43,6 @@ jobs:
         env:
           SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
           SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
-          # The hostname used to communicate with the PostgreSQL service container
           RABBITMQ_HOST: rabbit
           RABBITMQ_PORT: ${{ job.services.rabbit.ports[5672] }}
       - run: composer install --prefer-dist --no-interaction
@@ -91,43 +90,12 @@ jobs:
       - run: >-
           composer require symfony/framework-bundle:${SYMFONY_VERSION}
           --no-update
+      - name: Checking symfony version
+        run: php bin/console --version
         env:
           SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
           SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
-          # The hostname used to communicate with the PostgreSQL service container
           RABBITMQ_HOST: rabbit
           RABBITMQ_PORT: ${{ job.services.rabbit.ports[5672] }}
       - run: composer install --prefer-dist --no-interaction
       - run: bin/simple-phpunit --coverage-text
-
-#  php_7_job:
-#    runs-on: '${{ matrix.os }}'
-#    strategy:
-#      matrix:
-#        operating-system: [ubuntu-latest]
-#        php-versions: ['7.0','7.1','7.2','7.3','7.4']
-#        include:
-#          - os: ubuntu-18.04
-#            SYMFONY_VERSION: 3.4.*
-#          - os: ubuntu-18.04
-#            SYMFONY_VERSION: 5.4.*
-#    steps:
-#      - uses: actions/checkout@v2
-#      - name: Install PHP
-#        uses: shivammathur/setup-php@v2
-#        with:
-#          php-version: ${{ matrix.php-versions }}
-#          extensions: intl #optional
-#          ini-values: "post_max_size=256M" #optional
-#      - name: Check PHP Version
-#        run: php -v
-#      - run: sudo composer self-update
-#      - run: >-
-#          composer require symfony/framework-bundle:${SYMFONY_VERSION}
-#          --no-update
-#        env:
-#          SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
-#      - run: composer install --prefer-dist --no-interaction
-#      - run: ./src/BeSimple/SoapClient/Tests/bin/phpwebserver.sh
-#      - run: ./src/BeSimple/SoapClient/Tests/bin/axis.sh
-#      - run: bin/simple-phpunit
