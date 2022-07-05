@@ -43,8 +43,6 @@ jobs:
         env:
           SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
           SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
-          RABBITMQ_HOST: rabbit
-          RABBITMQ_PORT: ${{ job.services.rabbit.ports[5672] }}
       - run: composer install --prefer-dist --no-interaction
       - run: bin/simple-phpunit --coverage-text
 
@@ -90,12 +88,10 @@ jobs:
       - run: >-
           composer require symfony/framework-bundle:${SYMFONY_VERSION}
           --no-update
-      - name: Checking symfony version
-        run: php bin/console --version
         env:
           SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
           SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
-          RABBITMQ_HOST: rabbit
-          RABBITMQ_PORT: ${{ job.services.rabbit.ports[5672] }}
+      - name: Checking symfony version
+        run: php bin/console --version
       - run: composer install --prefer-dist --no-interaction
       - run: bin/simple-phpunit --coverage-text
