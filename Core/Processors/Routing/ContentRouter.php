@@ -92,6 +92,9 @@ class ContentRouter extends Processor
         $event->setEventDetails('Matched condition: '.$condition);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getClauses(): array
     {
         return $this->clauses;

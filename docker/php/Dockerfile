@@ -15,9 +15,9 @@ RUN docker-php-ext-install \
     pcntl \
     sockets
 
-RUN pecl install apcu-5.1.19
-RUN pecl install mongodb
-RUN pecl install xdebug-3.1.5
+RUN pecl install apcu-5.1.19 \
+    mongodb \
+    xdebug-3.1.5
 
 RUN docker-php-ext-enable \
     apcu \
