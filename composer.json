@@ -9,7 +9,7 @@
       }
     },
     "require": {
-        "php": ">=7.4 || >=8.0",
+        "php": ">=7.3 || >=8.0",
         "ext-pcntl": "*",
         "guzzlehttp/guzzle": "^6.0",
         "smartbox/besimple-soap": "dev-MINT-5942 as 1.4",
