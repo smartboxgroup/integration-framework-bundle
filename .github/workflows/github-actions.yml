@@ -57,9 +57,6 @@ jobs:
           - os: ubuntu-18.04
             SYMFONY_VERSION: 2.3.*
             SYMFONY_PHPUNIT_VERSION: '9.5'
-          - os: ubuntu-18.04
-            SYMFONY_VERSION: 3.4.*
-            SYMFONY_PHPUNIT_VERSION: '9.5'
 
     services:
       rabbit:
@@ -91,7 +88,5 @@ jobs:
         env:
           SYMFONY_VERSION: '${{ matrix.SYMFONY_VERSION }}'
           SYMFONY_PHPUNIT_VERSION: '${{ matrix.SYMFONY_PHPUNIT_VERSION }}'
-      - name: Checking symfony version
-        run: php bin/console --version
       - run: composer install --prefer-dist --no-interaction
       - run: bin/simple-phpunit --coverage-text
