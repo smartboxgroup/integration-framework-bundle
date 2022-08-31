@@ -72,8 +72,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: intl,soap,mongodb,apcu   #optional
-          ini-values: "post_max_size=256M" #optional
+          extensions: intl,soap,mongodb,apcu
+          ini-values: "post_max_size=256M"
       - name: Check PHP Version
         run: php -v
       - run: sudo apt-get update
