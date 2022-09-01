@@ -45,8 +45,7 @@ class ApcuParserCacheTest extends \PHPUnit\Framework\TestCase
 
     public function testSaveAndFetch()
     {
-
-//        $this->markTestSkipped('To be reviewed before reinstating..');
+        $this->markTestSkipped('To be reviewed after core bundle is updated.');
         $apcuParserCache = new ApcuParserCache();
 
         $data = new ParsedExpression('a', new Node(['a' => 'test']));
