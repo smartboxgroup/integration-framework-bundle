@@ -40,13 +40,13 @@ class SmokeTestConnectivityCompilerPass implements CompilerPassInterface
             }
             $smokeTestCommand->addMethodCall('addTest', [$testServiceName, new Reference($testServiceName), 'run', 'getDescription', $labels]);
 
-            foreach ($container->getDefinitions() as $id => $definition) {
-                $definition->setPublic(true);
-            }
-
-            foreach ($container->getAliases() as $id => $alias) {
-                $alias->setPublic(true);
-            }
+//            foreach ($container->getDefinitions() as $id => $definition) {
+//                $definition->setPublic(true);
+//            }
+//
+//            foreach ($container->getAliases() as $id => $alias) {
+//                $alias->setPublic(true);
+//            }
         }
     }
 }
