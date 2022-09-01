@@ -126,7 +126,7 @@ class AbstractAsyncConsumerTest extends TestCase
      */
     public function testMessageIsConfirmedAfterProcessing()
     {
-        $this->markTestSkipped('must be revisited.');
+//        $this->markTestSkipped('must be revisited.');
 
         $message = new QueueMessage();
         $consumer = $this->getConsumer($message, 1);
@@ -145,7 +145,7 @@ class AbstractAsyncConsumerTest extends TestCase
      */
     public function testMessageIsNotConfirmedAfterFailedProcessing()
     {
-        $this->markTestSkipped('must be revisited.');
+//        $this->markTestSkipped('must be revisited.');
 
         $this->expectException(\RuntimeException::class);
 
