@@ -89,7 +89,7 @@ class AbstractAsyncConsumerTest extends TestCase
      */
     public function testConsumerDoesNotSleepWhenFlagIsSet()
     {
-        $this->markTestSkipped('must be revisited.');
+//        $this->markTestSkipped('must be revisited.');
 
         $consumer = $this->getConsumer(new QueueMessage(), 2);
 
