@@ -18,6 +18,7 @@ services:
   # Base
   smartesb.protocols.base:
       class: "%smartesb.protocols.base.class%"
+      public: true
 
   # Direct
   smartesb.protocols.direct:
@@ -25,12 +26,14 @@ services:
       calls:
         - [setDefaultProducer, ['@smartesb.producer.direct']]
         - [setDefaultHandler, ['@smartesb.handlers.sync']]
+      public: true
 
   # JSON FILE
   smartesb.protocols.json_file:
       class: "%smartesb.protocols.json_file.class%"
       calls:
         - [setDefaultProducer, ['@smartesb.producers.json_file']]
+      public: true
 
   # Queues
   smartesb.protocols.service:
@@ -38,6 +41,7 @@ services:
       calls:
         - [setDefaultProducer, ['@smartesb.producers.service']]
         - [setDefaultHandler, ['@smartesb.handlers.async']]
+      public: true
 
   # Queues
   smartesb.protocols.queue:
@@ -45,29 +49,36 @@ services:
       calls:
         - [setDefaultProducer, ['@smartesb.producers.queue']]
         - [setDefaultHandler, ['@smartesb.handlers.async']]
+      public: true
 
   #NoSQL
   smartesb.protocols.configurable.nosql:
       class: "%smartesb.protocols.configurable.nosql.class%"
       calls:
        - [setDefaultHandler, ['@smartesb.handlers.async']]
+      public: true
 
   smartesb.protocols.configurable.webservice:
       class: "%smartesb.protocols.configurable.webservice.class%"
+      public: true
 
   smartesb.protocols.configurable.rest:
       class: "%smartesb.protocols.configurable.rest.class%"
+      public: true
 
   smartesb.protocols.configurable.soap:
       class: "%smartesb.protocols.configurable.soap.class%"
+      public: true
 
   smartesb.protocols.configurable.dbal:
       class: "%smartesb.protocols.configurable.dbal.class%"
       calls:
         - [setDefaultHandler, ['@smartesb.handlers.async']]
+      public: true
 
   # Csv File
   smartesb.protocols.configurable.csv_file:
       class: "%smartesb.protocols.csv_file.class%"
       calls:
         - [setDefaultHandler, ['@smartesb.handlers.async']]
+      public: true

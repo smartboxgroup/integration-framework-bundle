@@ -26,7 +26,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -41,7 +41,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
     /**
      * {@inheritdoc}
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         //create a temporary folder
@@ -51,7 +51,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
     /**
      * {@inheritdoc}
      */
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         $files = \glob(self::TMP_FOLDER.'*');
         foreach ($files as $file) {
@@ -66,12 +66,12 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
     /**
      * {@inheritdoc}
      */
-    public function testProviderExists()
+    public function testProviderExists(): void
     {
         $this->assertInstanceOf('Smartbox\Integration\FrameworkBundle\Components\FileService\Csv\CsvConfigurableStepsProvider', $this->stepsProvider);
     }
 
-    public function testExecuteStepReturnsFalse()
+    public function testExecuteStepReturnsFalse(): void
     {
         $stepAction = [];
         $stepActionParams = [];
@@ -82,7 +82,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         $this->assertFalse($ans);
     }
 
-    public function testCreateFile()
+    public function testCreateFile(): void
     {
         $fileName = $this->generateFilename();
 
@@ -105,7 +105,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @\unlink(self::TMP_FOLDER.$fileName);
     }
 
-    public function testCreateFileWithPathSet()
+    public function testCreateFileWithPathSet(): void
     {
         $default_file_name = $this->generateFilename('.goodbye.world');
         $fileName = $this->generateFilename();
@@ -133,7 +133,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @\unlink(self::TMP_FOLDER.$default_file_name);
     }
 
-    public function testUnlinkFile()
+    public function testUnlinkFile(): void
     {
         $fileName = $this->generateFilename();
         $fullPath = self::TMP_FOLDER.$fileName;
@@ -160,7 +160,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @\unlink($fullPath);
     }
 
-    public function testRenameFile()
+    public function testRenameFile(): void
     {
         $fileName = \md5(\microtime()).'.goodbye.world';
         $newFileName = $this->generateFilename();
@@ -192,7 +192,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @\unlink(self::TMP_FOLDER.$newFileName);
     }
 
-    public function testCopyFile()
+    public function testCopyFile(): void
     {
         $fileName = $this->generateFilename();
         $newFileName = $this->generateFilename('.really.hello.world');
@@ -226,7 +226,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @\unlink(self::TMP_FOLDER.$newFileName);
     }
 
-    public function testWriteToFile()
+    public function testWriteToFile(): void
     {
         $fileName = $this->generateFilename();
 
@@ -264,7 +264,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @\unlink(self::TMP_FOLDER.$fileName);
     }
 
-    public function testAppendLinesToFile()
+    public function testAppendLinesToFile(): void
     {
         $fileName = $this->generateFilename();
 
@@ -307,7 +307,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @\unlink(self::TMP_FOLDER.$fileName);
     }
 
-    public function testAppendLinesToFileWithHeader()
+    public function testAppendLinesToFileWithHeader(): void
     {
         $fileName = $this->generateFilename();
 
@@ -342,7 +342,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @\unlink(self::TMP_FOLDER.$fileName);
     }
 
-    public function testReadFile()
+    public function testReadFile(): void
     {
         $fileName = $this->generateFilename();
 
@@ -372,7 +372,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
         @\unlink(self::TMP_FOLDER.$fileName);
     }
 
-    public function testReadLinesFromFile()
+    public function testReadLinesFromFile(): void
     {
         $fileName = $this->generateFilename();
         \file_put_contents(self::TMP_FOLDER.$fileName, "a1|b1|c1\na2|b2|c2\na3|b3|c3\na4|b4|c4\na5|b5|c5\na6|b6|c6\na7|b7|c7");
@@ -409,7 +409,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
     /**
      * @return string
      */
-    private function generateFilename($postFix = '.hello.world')
+    private function generateFilename($postFix = '.hello.world'): string
     {
         return \md5(\microtime()).$postFix;
     }

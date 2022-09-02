@@ -14,7 +14,7 @@ class RetryExchangeEnvelopeTest extends \PHPUnit\Framework\TestCase
     /** @var RetryExchangeEnvelope */
     private $retryExchangeEnvelope;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         /** @var Context|\PHPUnit_Framework_MockObject_MockObject $context */
         $context = $this->createMock(Context::class);
@@ -31,7 +31,7 @@ class RetryExchangeEnvelopeTest extends \PHPUnit\Framework\TestCase
         $this->retryExchangeEnvelope = new RetryExchangeEnvelope($exchange);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->retryExchangeEnvelope = null;
     }

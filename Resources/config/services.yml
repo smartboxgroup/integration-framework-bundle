@@ -32,6 +32,7 @@ services:
       class: '%smartesb.serialization.handler.mongodate.class%'
       tags:
         - { name: jms_serializer.subscribing_handler }
+      public: true
 
   # CSV
   smartesb.steps_provider.csv_file:
@@ -39,6 +40,7 @@ services:
       calls:
         - [setId, ['smartesb.steps_provider.csv_file']]
         - [setConfHelper, ['@smartesb.configurable_service_helper']]
+      public: true
 
   # DB Configurable services
   smartesb.steps_provider.dbal:
@@ -48,6 +50,7 @@ services:
         - [ setDoctrine, [ '@?doctrine' ] ]
         - [ setMessageFactory, [ '@smartesb.message_factory' ] ]
         - [ setConfHelper, [ '@smartesb.configurable_service_helper' ] ]
+      public: true
 
   # DB Configurable services
   smartesb.steps_provider.nosql:
@@ -57,11 +60,13 @@ services:
         - [ setDriverRegistry, [ '@smartesb.drivers.nosql._registry' ] ]
         - [ setMessageFactory, [ '@smartesb.message_factory' ] ]
         - [setConfHelper, ['@smartesb.configurable_service_helper']]
+      public: true
 
   # UTILS
   smartesb.util.expression_language:
       class: '%smartesb.util.expression_language.class%'
       factory: ['%smartesb.util.expression_language_factory.class%', createExpressionLanguage]
+      public: true
 
   smartesb.util.evaluator:
       class: '%smartesb.util.evaluator.class%'
@@ -69,49 +74,69 @@ services:
       calls:
         - [setSerializer, ['@jms_serializer']]
         - [setMapper, ['@smartesb.util.mapper']]
+      public: true
 
   smartesb.util.mapper:
       class: '%smartesb.util.mapper.class%'
       calls:
         - [setDebug, ['%kernel.debug%']]
         - [setEvaluator, ['@smartesb.util.evaluator']]
+      public: true
 
   # INTERNAL HELPERS
   smartesb.message_factory:
       class: Smartbox\Integration\FrameworkBundle\Core\Messages\MessageFactory
       calls:
           - [ setFlowsVersion, [ '%smartesb.flows_version%' ] ]
+      public: true
 
   smartesb.endpoint_factory:
     class: Smartbox\Integration\FrameworkBundle\Core\Endpoints\EndpointFactory
     calls:
         - [ setEndpointsRouter, [ '@smartesb.router.endpoints' ] ]
         - [ setMessageFactory, [ '@smartesb.message_factory' ] ]
+    public: true
 
   smartesb.configurable_service_helper:
       class: Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper
       calls:
           - [ setEvaluator, [ '@smartesb.util.evaluator' ] ]
           - [ setSerializer, [ '@jms_serializer' ] ]
+      public: true
 
   smartesb.helper:
       class: '%smartesb.helper.class%'
       calls:
           - [ setContainer, [ '@service_container' ] ]
+      public: true
 
   smartesb.itineray_resolver:
       class: '%smartesb.itineray_resolver.class%'
       calls:
           - [ setItinerariesRouter, [ '@smartesb.router.itineraries' ] ]
+      public: true
 
   # PLACEHOLDERS FOR CONFIGURED HANDLERS
   smartesb.handlers.sync:
       class: '%smartesb.handlers.message_routing.class%'
+      public: true
 
   smartesb.handlers.async:
       class: '%smartesb.handlers.message_routing.class%'
+      public: true
 
   # Serializers
   smartesb.serialization.queue.jms_serializer:
       class: Smartbox\Integration\FrameworkBundle\Components\Queues\Serialization\Serializer
       arguments: ['@jms_serializer']
+      public: true
+
+  _instanceof:
+      Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface:
+          public: true
+
+      Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface:
+          public: true
+
+      Smartbox\Integration\FrameworkBundle\Core\Consumers\ConsumerInterface:
+          public: true

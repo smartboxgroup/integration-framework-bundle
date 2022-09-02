@@ -29,8 +29,11 @@ class DelayInterceptorTest extends \PHPUnit\Framework\TestCase
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
         $throttlerMock->setEventDispatcher($eventDispatcherMock);
+        $throttlerMock->expects($this->any())
+            ->method('getEventDispatcher')
+            ->will($this->returnValue($eventDispatcherMock));
 
-        $exchange = new Exchange(new Message(new TestEntity()));
+        $exchange = new Exchange(new Message(null, ['delay' => 10], null));
 
         //We do not use expectException, instead we want to actually inspect what is in the exception
         $thrown = false;

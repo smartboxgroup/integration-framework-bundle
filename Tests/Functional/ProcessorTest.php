@@ -17,7 +17,7 @@ abstract class ProcessorTest extends BaseTestCase
 
     abstract public function getWorkingMessages();
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->processor = $this->createProcessor();
@@ -29,7 +29,7 @@ abstract class ProcessorTest extends BaseTestCase
      * @param $inMessage
      * @param $outMessage
      */
-    public function testWorkingMessages(MessageInterface $inMessage, MessageInterface $outMessage)
+    public function testWorkingMessages(MessageInterface $inMessage, MessageInterface $outMessage): void
     {
         $exchange = new Exchange($inMessage);
 

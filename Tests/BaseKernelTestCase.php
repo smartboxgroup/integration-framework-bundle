@@ -16,9 +16,9 @@ class BaseKernelTestCase extends KernelTestCase
     /** @var SmartesbHelper */
     protected $helper;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->bootKernel();
+        self::bootKernel();
         $this->getContainer()->set('doctrine', $this->createMock(RegistryInterface::class));
         $this->helper = $this->getContainer()->get('smartesb.helper');
     }

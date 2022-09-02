@@ -41,7 +41,7 @@ class RestConfigurableProducerTest extends \PHPUnit\Framework\TestCase
     /** @var EventDispatcher */
     private $eventDispatcher;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->getMockBuilder(ClientInterface::class)->getMock();
         $this->evaluator = $this->getMockBuilder(ExpressionEvaluator::class)

@@ -15,12 +15,12 @@ class ConditionalClauseTest extends \PHPUnit\Framework\TestCase
     /** @var Itinerary */
     private $itinerary;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->itinerary = new Itinerary();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->itinerary = null;
     }

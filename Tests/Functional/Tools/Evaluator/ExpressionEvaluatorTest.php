@@ -20,13 +20,13 @@ class ExpressionEvaluatorTest extends KernelTestCase
      */
     protected $evaluator;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->bootKernel();
         $this->evaluator = static::$kernel->getContainer()->get('smartesb.util.evaluator');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->evaluator = null;
     }

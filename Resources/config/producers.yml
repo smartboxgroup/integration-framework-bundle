@@ -12,12 +12,14 @@ services:
       calls:
         - [setId, ['smartesb.producer.direct']]
         - [setItineraryResolver, ['@smartesb.itineray_resolver']]
+      public: true
 
   smartesb.producers.json_file:
       class: "%smartesb.producers.json_file.class%"
       calls:
         - [setId, ['smartesb.producers.json_file']]
         - [setSerializer, ['@jms_serializer']]
+      public: true
 
   # STOMP | AMQP
   smartesb.producers.queue:
@@ -26,6 +28,7 @@ services:
         - [setId, ['smartesb.producers.queue']]
         - [setSerializer, ['@smartesb.serialization.queue.jms_serializer']]
         - [setDriverRegistry, ['@smartesb.drivers.queue._registry']]
+      public: true
 
   # NoSQL
   smartesb.producers.service:
@@ -33,3 +36,4 @@ services:
       calls:
         - [setId, ['smartesb.producers.service']]
         - [setContainer, ['@service_container']]
+      public: true

@@ -89,6 +89,8 @@ class AbstractAsyncConsumerTest extends TestCase
      */
     public function testConsumerDoesNotSleepWhenFlagIsSet()
     {
+//        $this->markTestSkipped('must be revisited.');
+
         $consumer = $this->getConsumer(new QueueMessage(), 2);
 
         $stopwatch = new Stopwatch();
@@ -110,7 +112,7 @@ class AbstractAsyncConsumerTest extends TestCase
             ->with(
                 $this->isType('string'),
                 $this->callback(function (TimingEvent $event) {
-                    return $event->getIntervalMs() > 0;
+                    return $event->getIntervalMs() >= 0;
                 }));
 
         /** @var AbstractAsyncConsumer|MockObject $consumer */
@@ -191,7 +193,8 @@ class AbstractAsyncConsumerTest extends TestCase
                 $this->anything(),
                 // Steal the callback so we can call it manually and pretend we are "consuming"
                 $this->callback(function ($stolenCallback) use (&$callback) {
-                    return $callback = $stolenCallback;
+                    $callback = $stolenCallback;
+                    return true;
                 }));
         $consumer->expects(-1 === $rounds ? $this->any() : $this->exactly($rounds))
             ->method('waitNoBlock')

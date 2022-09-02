@@ -27,6 +27,7 @@ class EventDeferringCompilerPass implements CompilerPassInterface
 
         foreach ($filters as $serviceName => $tags) {
             $filtersRepoDef->addMethodCall('addDeferringFilter', [new Reference($serviceName)]);
+            $tags->setPublic(true);
         }
     }
 }

@@ -24,12 +24,12 @@ class RecipientListTest extends TestCase
     /** @var RecipientList */
     private $recipientList;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->recipientList = new RecipientList();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->recipientList = null;
     }
