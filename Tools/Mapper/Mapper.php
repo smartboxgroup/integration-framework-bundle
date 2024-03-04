@@ -435,9 +435,7 @@ class Mapper implements MapperInterface
     }
 
     /**
-     * Will check if a value match a specific type, and if so will still map it. Ex:
-     * - `allow_empty_string => true` will allow ''
-     * - `allow_empty_numeric => true` will allow 0
+     * Will merge multidimensional arrays based on a matching child element value
      *
      * @param array $context
      * @param string $elementIdentifier

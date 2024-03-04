@@ -375,9 +375,9 @@ class MapperTest extends BaseTestCase
         $this->assertEquals($expectedValue, $res);
     }
 
-    public function testmergeArraysByKeyValue()
+    public function testMergeArraysByKeyValue()
     {
-        $arr = [
+        $arrayToBeMerged = [
             "array1" => [
                 [
                     "key2" => 'voucher1',
@@ -419,33 +419,47 @@ class MapperTest extends BaseTestCase
                     "key4" => 'IT',
                     "key1" => '12345'
                 ],
+            ],
+            'array4' => [
+                [
+                    'key5' => 'existing',
+                    "key1" => '111111'
+                ],
+                [
+                    'key5' => 'not existing',
+                ],
+                [
+                    'key5' => 'not existing',
+                ],
             ]
-
         ];
 
         $expectedResult = [
             '12345' => [
                 'key4' => 'IT',
-                'key1' => 12345,
+                'key1' => '12345',
                 'key3' => 100,
                 'key2' => 'voucher1'
             ],
-            54321 => [
+            '54321' => [
                 'key4' => 'FR',
-                'key1' => 54321,
+                'key1' => '54321',
                 'key3' => 200,
                 'key2' => 'voucher2'
             ],
-            111111 => [
+            '111111' => [
+                'key5' => 'existing',
                 'key4' => 'ES',
-                'key1' => 111111,
+                'key1' => '111111',
                 'key3' => 100,
                 'key2' => 'voucher3'
             ]
         ];
 
+        $mergedArray = $this->mapper->mergeArraysByKeyValue($arrayToBeMerged, 'key1');
+        $this->assertEquals($expectedResult, $mergedArray);
 
-        $res = $this->mapper->mergeArraysByKeyValue($arr, 'voucher');
-        $this->assertEquals($expectedResult, $res);
+        $mergedArrayEmpty = $this->mapper->mergeArraysByKeyValue($arrayToBeMerged, 'key6');
+        $this->assertEquals([], $mergedArrayEmpty);
     }
 }
