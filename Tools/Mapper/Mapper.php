@@ -433,4 +433,31 @@ class Mapper implements MapperInterface
 
         return false;
     }
+
+    /**
+     * Will check if a value match a specific type, and if so will still map it. Ex:
+     * - `allow_empty_string => true` will allow ''
+     * - `allow_empty_numeric => true` will allow 0
+     *
+     * @param array $context
+     * @param string $elementIdentifier
+     *
+     * @return array
+     */
+    public function mergeArraysByKeyValue(array $parentArray, string $elementIdentifier)
+    {
+        $mergedArray = [];
+        foreach ($parentArray as $childArray) {
+            foreach ($childArray as $element) {
+                if (!isset($mergedArray[$element[$elementIdentifier]])) {
+                    $mergedArray[$element[$elementIdentifier]] = $element;
+                } else {
+                    $mergedArray[$element[$elementIdentifier]] = array_merge($element, $mergedArray[$element[$elementIdentifier]]);
+                }
+
+            }
+        }
+
+        return $mergedArray;
+    }
 }

@@ -374,4 +374,78 @@ class MapperTest extends BaseTestCase
 
         $this->assertEquals($expectedValue, $res);
     }
+
+    public function testmergeArraysByKeyValue()
+    {
+        $arr = [
+            "array1" => [
+                [
+                    "key2" => 'voucher1',
+                    "key1" => '12345'
+                ],
+                [
+                    "key2" => 'voucher2',
+                    "key1" => '54321'
+                ],
+                [
+                    "key2" => 'voucher3',
+                    "key1" => '111111'
+                ],
+            ],
+            'array2' => [
+                [
+                    'key3' => 200,
+                    "key1" => '54321'
+                ],
+                [
+                    "key3" => 100,
+                    "key1" => '111111'
+                ],
+                [
+                    "key3" => 100,
+                    "key1" => '12345'
+                ],
+            ],
+            'array3' => [
+                [
+                    'key4' => 'ES',
+                    "key1" => '111111'
+                ],
+                [
+                    'key4' => 'FR',
+                    "key1" => '54321'
+                ],
+                [
+                    "key4" => 'IT',
+                    "key1" => '12345'
+                ],
+            ]
+
+        ];
+
+        $expectedResult = [
+            '12345' => [
+                'key4' => 'IT',
+                'key1' => 12345,
+                'key3' => 100,
+                'key2' => 'voucher1'
+            ],
+            54321 => [
+                'key4' => 'FR',
+                'key1' => 54321,
+                'key3' => 200,
+                'key2' => 'voucher2'
+            ],
+            111111 => [
+                'key4' => 'ES',
+                'key1' => 111111,
+                'key3' => 100,
+                'key2' => 'voucher3'
+            ]
+        ];
+
+
+        $res = $this->mapper->mergeArraysByKeyValue($arr, 'voucher');
+        $this->assertEquals($expectedResult, $res);
+    }
 }
