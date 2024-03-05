@@ -447,6 +447,10 @@ class Mapper implements MapperInterface
         $mergedArray = [];
         foreach ($parentArray as $childArray) {
             foreach ($childArray as $element) {
+                if(!isset($element[$elementIdentifier])){
+                    continue;
+                }
+
                 if (!isset($mergedArray[$element[$elementIdentifier]])) {
                     $mergedArray[$element[$elementIdentifier]] = $element;
                 } else {
