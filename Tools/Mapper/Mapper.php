@@ -457,7 +457,7 @@ class Mapper implements MapperInterface
 
                 if (isset($extras['consecutive']) && in_array($childKey, $extras['consecutive'])) {
                     if (isset($element[$elementIdentifier])) {
-                        $mergedArray[$element[$elementIdentifier]][$childKey][] = [$element, $childArray[$elementKey + 1]];
+                        $mergedArray[$element[$elementIdentifier]][$childKey] = [$element, $childArray[$elementKey + 1]];
                     }
                     continue;
                 }
