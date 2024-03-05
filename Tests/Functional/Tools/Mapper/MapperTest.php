@@ -456,10 +456,10 @@ class MapperTest extends BaseTestCase
             ]
         ];
 
-        $mergedArray = $this->mapper->mergeArraysByKeyValue($arrayToBeMerged, 'key1');
-        $this->assertEquals($expectedResult, $mergedArray);
+        $mergedArrayKeyFound = $this->mapper->mergeArraysByKeyValue($arrayToBeMerged, 'key1');
+        $this->assertEquals($expectedResult, $mergedArrayKeyFound);
 
-        $mergedArrayEmpty = $this->mapper->mergeArraysByKeyValue($arrayToBeMerged, 'key6');
-        $this->assertEquals([], $mergedArrayEmpty);
+        $mergedArrayEmptyNotFound = $this->mapper->mergeArraysByKeyValue($arrayToBeMerged, 'key6');
+        $this->assertEquals([], $mergedArrayEmptyNotFound);
     }
 }
