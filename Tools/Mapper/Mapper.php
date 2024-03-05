@@ -442,21 +442,30 @@ class Mapper implements MapperInterface
      *
      * @return array
      */
-    public function mergeArraysByKeyValue(array $parentArray, string $elementIdentifier)
+    function mergeArraysByKeyValue(array $parentArray, string $elementIdentifier, array $extras = [])
     {
         $mergedArray = [];
-        foreach ($parentArray as $childArray) {
-            foreach ($childArray as $element) {
-                if(!isset($element[$elementIdentifier])){
+        foreach ($parentArray as $childKey => $childArray) {
+            foreach ($childArray as $elementKey => $element) {
+                if (isset($extras['multi']) && in_array($childKey, $extras['multi'])) {
+                    if (!isset($element[$elementIdentifier])) {
+                        continue;
+                    }
+                    $mergedArray[$element[$elementIdentifier]][$childKey][] = $element;
                     continue;
                 }
 
-                if (!isset($mergedArray[$element[$elementIdentifier]])) {
-                    $mergedArray[$element[$elementIdentifier]] = $element;
-                } else {
-                    $mergedArray[$element[$elementIdentifier]] = array_merge($element, $mergedArray[$element[$elementIdentifier]]);
+                if (isset($extras['consecutive']) && in_array($childKey, $extras['consecutive'])) {
+                    if (isset($element[$elementIdentifier])) {
+                        $mergedArray[$element[$elementIdentifier]][$childKey] = [$element, $childArray[$elementKey + 1]];
+                    }
+                    continue;
                 }
 
+                if (!isset($element[$elementIdentifier])) {
+                    continue;
+                }
+                $mergedArray[$element[$elementIdentifier]][$childKey] = $element;
             }
         }
 
