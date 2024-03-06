@@ -442,19 +442,19 @@ class Mapper implements MapperInterface
      *
      * @return array
      */
+    /**
+     * Will merge multidimensional arrays based on a matching child element value
+     *
+     * @param array $context
+     * @param string $elementIdentifier
+     *
+     * @return array
+     */
     function mergeArraysByKeyValue(array $parentArray, string $elementIdentifier, array $extras = [])
     {
         $mergedArray = [];
         foreach ($parentArray as $childKey => $childArray) {
             foreach ($childArray as $elementKey => $element) {
-                if (isset($extras['multi']) && in_array($childKey, $extras['multi'])) {
-                    if (!isset($element[$elementIdentifier])) {
-                        continue;
-                    }
-                    $mergedArray[$element[$elementIdentifier]][$childKey][] = $element;
-                    continue;
-                }
-
                 if (isset($extras['consecutive']) && in_array($childKey, $extras['consecutive'])) {
                     if (isset($element[$elementIdentifier])) {
                         $mergedArray[$element[$elementIdentifier]][$childKey] = [$element, $childArray[$elementKey + 1]];
@@ -465,6 +465,7 @@ class Mapper implements MapperInterface
                 if (!isset($element[$elementIdentifier])) {
                     continue;
                 }
+
                 $mergedArray[$element[$elementIdentifier]][$childKey][] = $element;
             }
         }
