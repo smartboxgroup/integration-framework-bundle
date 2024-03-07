@@ -437,25 +437,22 @@ class Mapper implements MapperInterface
     /**
      * Will merge multidimensional arrays based on a matching child element value
      *
-     * @param array $context
+     * Mappings Accepted Values: 'coupled', 'standard'
+     * standard: will merge any item with the elementIdentifier
+     * coupled: will merge an item with the elementIdentifier along with the item right below it
+     *
+     * @param array $parentArray
      * @param string $elementIdentifier
+     * @param array $mappings
      *
      * @return array
      */
-    /**
-     * Will merge multidimensional arrays based on a matching child element value
-     *
-     * @param array $context
-     * @param string $elementIdentifier
-     *
-     * @return array
-     */
-    function mergeArraysByKeyValue(array $parentArray, string $elementIdentifier, array $extras = [])
+    function mergeArraysByKeyValue(array $parentArray, string $elementIdentifier, array $mappings = [])
     {
         $mergedArray = [];
         foreach ($parentArray as $childKey => $childArray) {
             foreach ($childArray as $elementKey => $element) {
-                if (isset($extras['consecutive']) && in_array($childKey, $extras['consecutive'])) {
+                if (isset($mappings['coupled']) && in_array($childKey, $mappings['coupled'], true)) {
                     if (isset($element[$elementIdentifier])) {
                         $mergedArray[$element[$elementIdentifier]][$childKey] = [$element, $childArray[$elementKey + 1]];
                     }
@@ -466,7 +463,9 @@ class Mapper implements MapperInterface
                     continue;
                 }
 
-                $mergedArray[$element[$elementIdentifier]][$childKey][] = $element;
+                if (isset($mappings['standard']) && in_array($childKey, $mappings['standard'], true)) {
+                    $mergedArray[$element[$elementIdentifier]][$childKey][] = $element;
+                }
             }
         }
 
