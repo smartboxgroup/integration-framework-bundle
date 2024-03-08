@@ -159,6 +159,57 @@ class Mapper implements MapperInterface
     }
 
     /**
+     * @param array  $elements
+     * @param string $mappingName
+     * @param array  $toMerge
+     * @param array  $context
+     * @param bool   $disassociate
+     *
+     * @return array|mixed
+     */
+    public function mergeAndMapAll($elements, $mappingName, $toMerge = [], $context = [], $disassociate = false)
+    {
+        if (!is_array($elements)) {
+            throw new \RuntimeException('mergeAndMapAll expected an array');
+        }
+
+        if (empty($elements)) {
+            return $elements;
+        }
+
+        $res = [];
+        foreach ($elements as $key => $element) {
+            $valuesToMerge = [];
+            foreach ($toMerge as $keyToMerge) {
+                if (array_key_exists($keyToMerge, $element)) {
+                    $valuesToMerge[$keyToMerge] = $element[$keyToMerge];
+                    unset($element[$keyToMerge]);
+                }
+            }
+            if (!empty($valuesToMerge)) {
+                $newElement = [];
+                foreach ($valuesToMerge as $keyToRemap => $valueToRemap) {
+                    foreach($valueToRemap as $lineNum => $val) {
+                        $newElement[$lineNum][$keyToRemap] = $val;
+                    }
+                }
+
+                foreach ($newElement as $newKey => $newValue) {
+                    $newElement[$newKey] = array_merge($element, $newValue);
+                }
+
+                $newElement = ($disassociate) ? ['key' => $key, 'value' => $newElement] : $newElement;
+                $res[$key] = $this->mapAll($newElement, $mappingName, $context);
+            } else {
+                $element = ($disassociate) ? ['key' => $key, 'value' => $element] : $element;
+                $res[$key] = $this->map($element, $mappingName, $context);
+            }
+        }
+
+        return $res;
+    }
+
+    /**
      * Return true if the key exists in the given array.
      *
      * @param array  $obj
@@ -281,7 +332,7 @@ class Mapper implements MapperInterface
     public function arrayToSoapVars(array $data)
     {
         array_walk_recursive($data, [$this, 'transformToSoapVar']);
-        
+
         return $data;
     }
 
