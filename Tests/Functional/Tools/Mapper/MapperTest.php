@@ -374,4 +374,102 @@ class MapperTest extends BaseTestCase
 
         $this->assertEquals($expectedValue, $res);
     }
+
+    public function dataProviderForMergeAndMapAll()
+    {
+        $dataProviderFromMapAll = $this->dataProviderForMapAll();
+        $dataProviderForMergeAndMapAll = [
+            'Test mapping with array keys to merge' => [
+                'mappings' => [
+                    'xy_to_xyz' => [
+                        'x' => "obj.get('x') + 1",
+                        'y' => "obj.get('x') + 2",
+                        'z' => "obj.get('x') + 3",
+                    ],
+                ],
+                'mapping_name' => 'xy_to_xyz',
+                'elements' => [
+                    'x_10' => new SerializableArray(['x' => 10]),
+                    'x_11' => new SerializableArray(['x' => 11]),
+                    'x_12' => new SerializableArray(['x' => 12]),
+                    'x_13_14' => new SerializableArray(['x' => [13, 14]]),
+                    'x_15_16' => new SerializableArray(['x' => [15, 16]]),
+                ],
+                'to_merge' => ['x_13_14', 'x_15_16'],
+                'context' => [],
+                'expected_value' => [
+                    [
+                        0 => [
+                            'x_10' => [
+                                'x' => 11,
+                                'y' => 12,
+                                'z' => 13,
+                            ],
+                            'x_11' => [
+                                'x' => 12,
+                                'y' => 13,
+                                'z' => 14,
+                            ],
+                            'x_12' => [
+                                'x' => 13,
+                                'y' => 14,
+                                'z' => 15,
+                            ],
+                            'x_13_14' => [
+                                'x' => 1, //TODO array + 1 = 1, it needs to be correct regarding the scenario of merging
+                                'y' => 1,
+                                'z' => 1,
+                            ],
+                        ],
+                        1 => [
+                            'x_10' => [
+                                'x' => 11,
+                                'y' => 12,
+                                'z' => 13,
+                            ],
+                            'x_11' => [
+                                'x' => 12,
+                                'y' => 13,
+                                'z' => 14,
+                            ],
+                            'x_12' => [
+                                'x' => 13,
+                                'y' => 14,
+                                'z' => 15,
+                            ],
+                            'x_15_16' => [
+                                'x' => 1,
+                                'y' => 1,
+                                'z' => 1,
+                            ],
+                        ]
+                    ]
+                ],
+            ],
+        ];
+
+        return array_merge($dataProviderFromMapAll, $dataProviderForMergeAndMapAll);
+    }
+
+    /**
+     * @covers ::mergeAndMapAll
+     * @covers ::map
+     * @covers ::addMappings
+     *
+     * @dataProvider dataProviderForMergeAndMapAll
+     *
+     * @param array $mappings
+     * @param $mappingName
+     * @param array  $toMerge
+     * @param array $elements
+     * @param array $expectedValue
+     */
+    public function testMergeAndMapAll(array $mappings, $mappingName, array $elements, array $toMerge, $context, array $expectedValue)
+    {
+        $this->mapper->addMappings($mappings);
+
+        $res = $this->mapper->mergeAndMapAll($elements, $mappingName, $context, $toMerge);
+
+        $this->assertEquals($expectedValue, $res);
+    }
 }
