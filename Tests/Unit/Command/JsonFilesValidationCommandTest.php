@@ -24,7 +24,7 @@ class JsonFilesValidationCommandTest extends BaseKernelTestCase
             'path' => '@SmartboxIntegrationFrameworkBundle/Tests/Unit/Command/fixtures/success',
         ]);
 
-        $this->assertRegExp('/Everything is OK./', $commandTester->getDisplay());
+        $this->assertMatchesRegularExpression('/Everything is OK./', $commandTester->getDisplay());
     }
 
     public function testExecuteForFailureOutput()
@@ -41,7 +41,7 @@ class JsonFilesValidationCommandTest extends BaseKernelTestCase
             'path' => $path,
         ]);
 
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             \sprintf(
                 '/Some fixture files in "%s" directory have invalid format./',
                 '@SmartboxIntegrationFrameworkBundle\/Tests\/Unit\/Command\/fixtures\/failure'

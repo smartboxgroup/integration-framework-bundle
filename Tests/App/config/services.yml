@@ -1,9 +1,11 @@
 services:
-    doctrine:
-      class: Symfony\Bridge\Doctrine\RegistryInterface
-      synthetic: true
+  doctrine:
+    class: Symfony\Bridge\Doctrine\RegistryInterface
+    synthetic: true
+    public: true
 
-    cache.app:
-      class: Symfony\Component\Cache\Adapter\ArrayAdapter
-      calls:
-        - [setLogger, ['@logger']]
+  cache.app:
+    class: Symfony\Component\Cache\Adapter\ArrayAdapter
+    public: true
+    calls:
+      - [ setLogger, [ '@logger' ] ]

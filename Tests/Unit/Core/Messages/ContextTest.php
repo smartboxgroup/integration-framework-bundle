@@ -34,6 +34,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase
      */
     public function testItShouldNotBeConstructedWithOtherThings()
     {
+        $this->expectException(\InvalidArgumentException::class);
         new Context(new \stdClass());
     }
 }

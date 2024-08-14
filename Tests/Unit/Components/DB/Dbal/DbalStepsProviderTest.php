@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Components\DB\Dbal;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Result;
 use Smartbox\Integration\FrameworkBundle\Components\DB\Dbal\DbalStepsProvider;
 use Smartbox\Integration\FrameworkBundle\Configurability\ConfigurableServiceHelper;
 
@@ -12,12 +12,12 @@ class DbalStepsProviderTest extends \PHPUnit\Framework\TestCase
 {
     private $dbalStepsProvider;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->dbalStepsProvider = new DbalStepsProvider();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dbalStepsProvider = null;
     }
@@ -55,20 +55,20 @@ class DbalStepsProviderTest extends \PHPUnit\Framework\TestCase
         $parameters = [];
         $sql = 'SELECT test FROM test';
 
-        $stmt = $this->getMockBuilder(Statement::class)->getMock();
-        $stmt->expects($this->once())
+        $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
+        $result->expects($this->once())
             ->method('columnCount')
-            ->will($this->returnValue(1));
-        $stmt->expects($this->once())
+            ->willReturn(1);
+        $result->expects($this->once())
             ->method('fetchAll')
-            ->will($this->returnValue(['test' => 1]));
+            ->willReturn(['test' => 1]);
 
         $dbal = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
         $dbal->expects($this->once())
             ->method('executeQuery')
-            ->will($this->returnValue($stmt));
+            ->willReturn($result);
 
         $doctrine = $this->getMockBuilder(Registry::class)
             ->disableOriginalConstructor()
@@ -76,7 +76,7 @@ class DbalStepsProviderTest extends \PHPUnit\Framework\TestCase
         $doctrine->expects($this->once())
             ->method('getConnection')
             ->with($connectionName)
-            ->will($this->returnValue($dbal));
+            ->willReturn($dbal);
 
         $confHelper = $this->getMockBuilder(ConfigurableServiceHelper::class)->getMock();
         $confHelper->expects($this->exactly(2))

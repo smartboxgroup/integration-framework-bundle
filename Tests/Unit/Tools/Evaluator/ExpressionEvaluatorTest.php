@@ -27,7 +27,7 @@ class ExpressionEvaluatorTest extends TestCase
         $failingExpression = 'expression';
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageRegExp("/.*'expression'\\. Original Message.*/");
+        $this->expectExceptionMessageMatches("/.*'expression'\\. Original Message.*/");
 
         $evaluator = new ExpressionEvaluator($language);
         $evaluator->evaluateWithVars($failingExpression, []);

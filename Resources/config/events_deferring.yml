@@ -6,6 +6,7 @@ services:
       - { name: container.hot_path }
     arguments:
       $container: '@service_container'
+    public: true
 
   smartesb.handlers.events:
       class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\DeferredEventsHandler
@@ -13,6 +14,8 @@ services:
         - [setId, ['smartesb.handlers.events']]
         - [setEventDispatcher, ['@event_dispatcher']]
         - [setFlowsVersion, ["%smartesb.flows_version%"]]
+      public: true
 
   smartesb.registry.event_filters:
     class: Smartbox\Integration\FrameworkBundle\Tools\EventsDeferring\EventFiltersRegistry
+    public: true

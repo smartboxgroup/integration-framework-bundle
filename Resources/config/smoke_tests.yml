@@ -1,25 +1,28 @@
 parameters:
   smartesb.smoke_test.check_queue_driver_connection.class: Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\QueueDriverConnectionSmokeTest
   smartesb.smoke_test.file_permissions.class: Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\FilePermissionsSmokeTest
-  smartesb.smoke_test.connectivity_check.class:  Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\ConnectivityCheckSmokeTest
-  smartesb.smoke_test.database.class:  Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\DatabaseSmokeTest
+  smartesb.smoke_test.connectivity_check.class: Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\ConnectivityCheckSmokeTest
+  smartesb.smoke_test.database.class: Smartbox\Integration\FrameworkBundle\Tools\SmokeTests\DatabaseSmokeTest
 
 services:
   ## SMOKE TESTS ##
   smartesb.smoke_test.check_queue_driver_connection:
-      class: "%smartesb.smoke_test.check_queue_driver_connection.class%"
-      arguments: ["@smartesb.default_queue_driver"]
-      tags:
-          - { name: smartcore.smoke_test, labels: "critical" }
+    class: "%smartesb.smoke_test.check_queue_driver_connection.class%"
+    arguments: [ "@smartesb.default_queue_driver" ]
+    tags:
+      - { name: smartcore.smoke_test, labels: "critical" }
+    public: true
 
   smartesb.smoke_test.file_permissions:
-      class: "%smartesb.smoke_test.file_permissions.class%"
-      arguments: [ "@=service('kernel').getCacheDir()" ] # TODO: Once 2.8 support is dropped, replace this with '%kernel.cache_dir%'
-      tags:
-          - { name: smartcore.smoke_test, labels: "important" }
+    class: "%smartesb.smoke_test.file_permissions.class%"
+    arguments: [ "@=service('kernel').getCacheDir()" ] # TODO: Once 2.8 support is dropped, replace this with '%kernel.cache_dir%'
+    tags:
+      - { name: smartcore.smoke_test, labels: "important" }
+    public: true
 
   smartesb.smoke_test.database:
-      class: "%smartesb.smoke_test.database.class%"
-      arguments: ["@doctrine"]
-      tags:
-          - { name: smartcore.smoke_test, labels: "critical" }
+    class: "%smartesb.smoke_test.database.class%"
+    arguments: [ "@doctrine" ]
+    tags:
+      - { name: smartcore.smoke_test, labels: "critical" }
+    public: true

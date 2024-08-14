@@ -45,7 +45,7 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
     /** @var MessageFactoryInterface */
     public $factory;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
         $this->handler = new MessageHandler();
@@ -73,7 +73,7 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
      *
      * @param int $numberOfProcessors
      */
-    public function testHandle($numberOfProcessors)
+    public function testHandle($numberOfProcessors): void
     {
         $message = $this->factory->createMessage(new EntityX(2));
         $from = 'xxx';
@@ -113,7 +113,7 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
      * @covers ::handle
      * @dataProvider dataProviderForNumberOfProcessors
      */
-    public function testHandleWithWrongVersionMustFail()
+    public function testHandleWithWrongVersionMustFail(): void
     {
         $this->expectException(HandlerException::class);
 
@@ -140,7 +140,7 @@ class MessageHandlerTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::handle
      */
-    public function testHandleWithErrorLogging()
+    public function testHandleWithErrorLogging(): void
     {
         $message = $this->factory->createMessage(new EntityX(3));
         $itinerary = new Itinerary();
