@@ -1,6 +1,6 @@
-FROM composer:1 AS composer
+FROM composer:lts AS composer
 
-FROM php:7.0-fpm
+FROM php:7.4-fpm
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
@@ -15,9 +15,9 @@ RUN docker-php-ext-install \
     pcntl \
     sockets
 
-RUN pecl install apcu-5.1.8 \
+RUN pecl install apcu-5.1.23 \
     mongodb \
-    xdebug-2.7.2 #Latest version that supports PHP 7.0
+    xdebug-3.1.6 #Latest version that supports PHP 7.4
 
 RUN docker-php-ext-enable \
     apcu \

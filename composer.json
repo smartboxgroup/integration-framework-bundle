@@ -29,7 +29,9 @@
         "stomp-php/stomp-php": "4.*",
         "symfony/monolog-bundle": "^2.4",
         "symfony/phpunit-bridge": "*",
-        "symfony/stopwatch": "^2.8 || ^3.4"
+        "symfony/stopwatch": "^2.8 || ^3.4",
+        "phpunit/phpunit": "^7.5",
+        "symfony/translation": "^4.3.8"
     },
     "config": {
         "bin-dir": "bin"
