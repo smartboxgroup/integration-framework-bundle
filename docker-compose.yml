@@ -1,13 +1,14 @@
-version: '3'
-
 services:
   php:
     build: ./docker/php
     working_dir: /app
+    user: "${CURRENT_USER}"
     volumes:
       - .:/app
     depends_on:
       - rabbit
+    environment:
+      CURRENT_USER: '11:11'
 
   rabbit:
     build: ./docker/rabbit
@@ -15,4 +16,4 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     ports:
-      - "8081:15672"
+      - "8082:15672"

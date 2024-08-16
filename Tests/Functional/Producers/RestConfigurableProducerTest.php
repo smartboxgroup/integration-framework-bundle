@@ -131,4 +131,49 @@ class RestConfigurableProducerTest extends BaseTestCase
         $this->assertEquals($expectedHost, $request->getUri()->getHost());
         $this->assertEquals($expectedPath, $request->getUri()->getPath());
     }
+
+    public function testShouldAllowGetWithoutQuery()
+    {
+        $requestUri = 'v0/put/cats';
+        $baseUri = 'http://someservice.com/api/';
+
+        $mockHandler = new MockHandler([
+            new Response(200, ['X-Foo' => 'Bar']),
+        ]);
+
+        $container = [];
+        $history = Middleware::history($container);
+        $stack = HandlerStack::create($mockHandler);
+        $stack->push($history);
+
+        $client = new Client(['handler' => $stack]);
+
+        $producer = $this->producer;
+        $producer->setHttpClient($client);
+
+        $actionParams = [
+            RestConfigurableProducer::REQUEST_NAME => 'someRequest',
+            RestConfigurableProducer::REQUEST_HTTP_VERB => 'GET',
+            RestConfigurableProducer::REQUEST_BODY => [],
+            RestConfigurableProducer::REQUEST_URI => $requestUri,
+            RestConfigurableProducer::DISPLAY_RESPONSE_ERROR => false,
+        ];
+
+        $options = [
+            RestConfigurableProtocol::OPTION_BASE_URI => $baseUri,
+            RestConfigurableProtocol::OPTION_ENCODING => RestConfigurableProtocol::ENCODING_JSON,
+            ConfigurableWebserviceProtocol::OPTION_CONNECT_TIMEOUT => 10,
+            ConfigurableWebserviceProtocol::OPTION_TIMEOUT => 10,
+            RestConfigurableProtocol::OPTION_HEADERS => [],
+            RestConfigurableProtocol::OPTION_AUTH => false,
+        ];
+        $context = [
+            'vars' => [],
+            'msg'  => new Message(new SerializableThing(), [], new Context()),
+            'exchange' => new Exchange(),
+        ];
+
+        $response = $producer->executeStep(RestConfigurableProducer::STEP_REQUEST, $actionParams, $options, $context);
+        $this->assertTrue($response, 'The producer should return true to say it has completed the Request Step');
+    }
 }

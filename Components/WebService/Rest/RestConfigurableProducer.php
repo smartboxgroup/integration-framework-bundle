@@ -174,7 +174,7 @@ class RestConfigurableProducer extends AbstractWebServiceProducer implements Htt
         }
         $restOptions['body'] = $requestBody;
 
-        if ('GET' == $httpMethod) {
+        if ('GET' == $httpMethod && key_exists(self::REQUEST_QUERY_PARAMETERS, $params)) {
             $queryParameters = $this->confHelper->resolve($params[self::REQUEST_QUERY_PARAMETERS], $context);
             if (!$queryParameters) {
                 throw new InvalidConfigurationException("'parameters' entry in 'request' configuration is mandatory for GET HTTP method");
