@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Smartbox\Integration\FrameworkBundle\Tests\Functional\Consumers;
 
+use Smartbox\Integration\FrameworkBundle\Components\Queues\AsyncQueueConsumer;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\AsyncQueueDriverInterface;
+use Smartbox\Integration\FrameworkBundle\Components\Queues\Drivers\QueueDriverInterface;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueMessage;
 use Smartbox\Integration\FrameworkBundle\Components\Queues\QueueProtocol;
 use Smartbox\Integration\FrameworkBundle\Core\Endpoints\Endpoint;
@@ -21,12 +23,14 @@ class AsyncQueueConsumerTest extends BaseKernelTestCase
 {
     const QUEUE = '/test/async';
 
-    private function getConsumer()
+    private function getConsumer(): AsyncQueueConsumer
     {
-        return $this->helper->getConsumer('async_queue');
+        /** @var AsyncQueueConsumer $consumer */
+        $consumer = $this->helper->getConsumer('async_queue');
+        return $consumer;
     }
 
-    private function getQueueDriver(string $queueDriverName): AsyncQueueDriverInterface
+    private function getQueueDriver(string $queueDriverName): QueueDriverInterface
     {
         return $this->helper->getQueueDriver($queueDriverName);
     }

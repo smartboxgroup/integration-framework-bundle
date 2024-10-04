@@ -31,8 +31,8 @@ start: ## Start the project
 	$(DOCKER_COMPOSE) up -d --remove-orphans --no-recreate
 
 useradd: ## Add your host user to the container
-	$(EXEC_SUDO_PHP) groupadd -f -g $(shell id -g) $(USER_NAME)
-	$(EXEC_SUDO_PHP) useradd -u $(shell id -u) -g $(shell id -g) -m $(USER_NAME)
+	$(EXEC_SUDO_PHP) groupadd -f -g $(shell id -g) $(USER_NAME) 2> /dev/null
+	$(EXEC_SUDO_PHP) useradd -u $(shell id -u) -g $(shell id -g) -m $(USER_NAME) 2> /dev/null
 
 stop: ## Stop the project
 	$(DOCKER_COMPOSE) stop
@@ -44,7 +44,7 @@ clear-cache:
 	$(EXEC_SUDO_PHP) bash -c 'rm -rf var/cache/*'
 
 vendor:
-	$(EXEC_PHP) composer install --prefer-dist
+	$(EXEC_PHP) composer install
 
 test:
 	$(EXEC_PHP) php ./bin/phpunit

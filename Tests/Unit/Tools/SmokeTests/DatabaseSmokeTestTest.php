@@ -4,7 +4,7 @@ namespace Smartbox\Integration\FrameworkBundle\Tests\Unit\Tools\SmokeTests;
 
 use Doctrine\Common\Persistence\ConnectionRegistry;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use PHPUnit\Framework\TestCase;
 use Smartbox\CoreBundle\Utils\SmokeTest\Output\SmokeTestOutputInterface;
@@ -89,7 +89,7 @@ class DatabaseSmokeTestTest extends TestCase
     private function getConnection($throw = false)
     {
         $method = 'willThrowException';
-        $expected = new DBALException('Black Hawk 64 is going down, I repeat, Black Hawk 64 is going dow...');
+        $expected = new Exception('Black Hawk 64 is going down, I repeat, Black Hawk 64 is going dow...');
 
         if (!$throw) {
             $method = 'willReturn';

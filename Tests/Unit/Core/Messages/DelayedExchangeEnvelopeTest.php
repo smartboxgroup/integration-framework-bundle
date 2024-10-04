@@ -28,7 +28,7 @@ class DelayedExchangeEnvelopeTest extends \PHPUnit\Framework\TestCase
 
         $exchange = new Exchange($message);
 
-        $this->delayedExchangeEnvelope = new DelayedExchangeEnvelope($exchange);
+        $this->delayedExchangeEnvelope = new DelayedExchangeEnvelope($exchange, 1);
     }
 
     protected function tearDown()
