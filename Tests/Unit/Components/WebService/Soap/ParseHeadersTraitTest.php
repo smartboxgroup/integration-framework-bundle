@@ -29,7 +29,7 @@ class ParseHeadersTraitTest extends TestCase
         Request::METHOD_TRACE,
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->parseTrait = $this->getMockForTrait(ParseHeadersTrait::class);
     }
@@ -42,7 +42,7 @@ class ParseHeadersTraitTest extends TestCase
     {
         $result = $this->parseTrait->parseHeadersToArray($header);
 
-        $this->assertInternalType('array', $result, 'The parser should return an array');
+        $this->assertIsArray($result, 'The parser should return an array');
         $this->assertNotEmpty($result, 'The parser should not return an empty array');
         $this->assertEquals($expected, $result, 'The parser did not returned the same as expected.');
     }
@@ -55,7 +55,7 @@ class ParseHeadersTraitTest extends TestCase
     {
         $result = $this->parseTrait->parseHeadersToArray($data);
 
-        $this->assertInternalType('array', $result, 'The parser should return an array');
+        $this->assertIsArray($result, 'The parser should return an array');
         $this->assertTrue(\is_array($result), 'The parser should return an array');
         $this->assertCount(0, $result, 'The parser should return an empty array');
     }

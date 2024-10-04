@@ -16,7 +16,7 @@ class MongoDBDateHandlerTest extends \PHPUnit\Framework\TestCase
     /** @var MongoDBDateHandler */
     private $handler;
 
-    public function setup()
+    public function setup(): void
     {
         if (!\extension_loaded('mongodb')) {
             $this->markTestSkipped(

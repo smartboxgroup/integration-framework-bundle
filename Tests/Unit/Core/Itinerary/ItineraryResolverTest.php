@@ -12,12 +12,12 @@ class ItineraryResolverTest extends \PHPUnit\Framework\TestCase
     /** @var ItineraryResolver */
     private $itineraryResolver;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->itineraryResolver = new ItineraryResolver();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->itineraryResolver = null;
     }

@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * Class DelayInterceptorTest.
  *
- * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\DelayInterceptorTest
+ * @coversDefaultClass \Smartbox\Integration\FrameworkBundle\Core\Processors\ControlFlow\DelayInterceptor
  */
 class DelayInterceptorTest extends \PHPUnit\Framework\TestCase
 {
@@ -28,20 +28,23 @@ class DelayInterceptorTest extends \PHPUnit\Framework\TestCase
             ->getMock();
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $throttlerMock->setEventDispatcher($eventDispatcherMock);
+        $throttlerMock->method('getEventDispatcher')
+            ->willReturn($eventDispatcherMock);
 
-        $exchange = new Exchange(new Message(new TestEntity()));
+        $message = new Message(new TestEntity());
+        $message->setHeader('delay', 10);
+
+        $exchange = new Exchange($message);
 
         //We do not use expectException, instead we want to actually inspect what is in the exception
-        $thrown = false;
         try {
             $throttlerMock->process($exchange);
         } catch (\Exception $e) {
-            $thrown = true;
             $this->assertInstanceOf(ProcessingException::class, $e);
             $this->assertInstanceOf(DelayException::class, $e->getOriginalException());
+            return;
         }
 
-        $this->assertTrue($thrown, 'Process did not throw an exception');
+        $this->fail('Process did not throw an exception');
     }
 }
