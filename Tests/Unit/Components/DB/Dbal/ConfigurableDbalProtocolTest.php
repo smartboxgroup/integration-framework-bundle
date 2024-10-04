@@ -20,7 +20,7 @@ class ConfigurableDbalProtocolTest extends \PHPUnit\Framework\TestCase
      */
     private $expectedOptions;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->dbalProtocol = new ConfigurableDbalProtocol();
         $this->expectedOptions = [
@@ -33,7 +33,7 @@ class ConfigurableDbalProtocolTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dbalProtocol = null;
         $this->expectedOptions = null;

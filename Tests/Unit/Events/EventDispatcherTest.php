@@ -156,7 +156,7 @@ class EventDispatcherTest extends TestCase
         $this->assertCount(0, $messages);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         ArrayQueueDriver::$array = [];

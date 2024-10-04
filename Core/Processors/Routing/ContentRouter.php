@@ -91,4 +91,12 @@ class ContentRouter extends Processor
         $condition = $event->getProcessingContext()->get(self::CONDITION_MATCHED);
         $event->setEventDetails('Matched condition: '.$condition);
     }
+
+    /**
+     * @return  ConditionalClause[]
+     */
+    public function clauses(): array
+    {
+        return $this->clauses;
+    }
 }

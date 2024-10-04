@@ -14,7 +14,7 @@ class DelayedExchangeEnvelopeTest extends \PHPUnit\Framework\TestCase
     /** @var DelayedExchangeEnvelope */
     private $delayedExchangeEnvelope;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         /** @var Context|\PHPUnit_Framework_MockObject_MockObject $context */
         $context = $this->createMock(Context::class);
@@ -31,7 +31,7 @@ class DelayedExchangeEnvelopeTest extends \PHPUnit\Framework\TestCase
         $this->delayedExchangeEnvelope = new DelayedExchangeEnvelope($exchange, 1);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->delayedExchangeEnvelope = null;
     }

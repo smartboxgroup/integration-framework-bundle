@@ -13,14 +13,14 @@ class ApcuParserCacheTest extends \PHPUnit\Framework\TestCase
 {
     private $cache_key = 'apcu_key_for_testing_purposes';
 
-    protected function setUp()
+    protected function setUp(): void
     {
         if (!$this->apcuEnabled()) {
             $this->markTestSkipped('There is no APCu extension enabled.');
         }
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if ($this->apcuEnabled()) {
             \apcu_delete($this->cache_key);

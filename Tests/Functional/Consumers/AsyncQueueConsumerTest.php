@@ -44,6 +44,7 @@ class AsyncQueueConsumerTest extends BaseKernelTestCase
         $serializer = $consumer->getSerializer();
         $queueDriver = $this->getQueueDriver('amqp');
         $queueDriver->connect();
+        $queueDriver->purge(self::QUEUE);
 
         $message = $this->createMessage(new EntityX(333));
         $queueMessage = new QueueMessage();
@@ -72,7 +73,7 @@ class AsyncQueueConsumerTest extends BaseKernelTestCase
         $consumer->consume($endpoint);
 
         $output = $this->getActualOutput();
-        $this->assertNotContains('A message was consumed', $output);
+        $this->assertStringNotContainsString('A message was consumed', $output);
     }
 
     /**

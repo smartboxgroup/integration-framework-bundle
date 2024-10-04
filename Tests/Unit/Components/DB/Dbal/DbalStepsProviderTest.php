@@ -13,12 +13,12 @@ class DbalStepsProviderTest extends \PHPUnit\Framework\TestCase
 {
     private $dbalStepsProvider;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->dbalStepsProvider = new DbalStepsProvider();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dbalStepsProvider = null;
     }
