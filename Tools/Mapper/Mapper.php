@@ -90,6 +90,50 @@ class Mapper implements MapperInterface
     }
 
     /**
+     * Merge multiples arrays values in a single mappingName
+     *
+     * @param string $mappingName
+     * @param array<array{mapFunction: string, object: array|null, context: string}> $mappers
+     *
+     * @return null|string
+     */
+    public function mergeMapping($mappingName, $mappers)
+    {
+        $response = [];
+
+        if (empty($mappers)) {
+            throw new \InvalidArgumentException('No mapper provided.');
+        }
+
+        foreach ($mappers as $mapper){
+            $mapFunction = $mapper[0];
+            $object = $mapper[1];
+            $context = $mapper[2];
+
+            if(empty($object)){
+                continue;
+            }
+
+            if(empty($mapFunction) || empty($context)){
+                throw new \InvalidArgumentException('No mapper function or context informed');
+            }
+
+            switch ($mapFunction){
+                case 'map':
+                    $response[] = $this->map($object, $mappingName, $context);
+                    break;
+                case 'mapAll':
+                    $response = array_merge($response, $this->mapAll($object, $mappingName, $context));
+                    break;
+                default:
+                    throw new \InvalidArgumentException(sprintf('Invalid mapping name "%s"', $mappingName));
+            }
+        }
+
+        return $response;
+    }
+
+    /**
      * @param $mapping
      * @param $obj
      * @param $context
