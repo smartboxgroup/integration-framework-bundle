@@ -268,4 +268,44 @@ class MapperTest extends \PHPUnit\Framework\TestCase
         yield 'Empty allowed option' => [['name' => ''], '', $ctx];
         yield 'Wrong type' => [null, null, $ctx];
     }
+
+    public function testShouldMergeMappings()
+    {
+        $expectedResult = [
+            ['name' => 'packshot', 'location' => 'https://media.com/1'],
+            ['name' => 'eRetailerNonBrand', 'location' => 'https://media.com/2'],
+            ['name' => 'eRetailerNonBrand', 'location' => 'https://media.com/3']
+        ];
+        $mapperMock = $this->getMockBuilder(Mapper::class)
+            ->setMethods(['mapAll', 'map'])
+            ->getMock();
+
+        $mapperMock->method('map')->willReturn(['name' => 'packshot', 'location' => 'https://media.com/1']);
+        $mapperMock->method('mapAll')->willReturn([['name' => 'eRetailerNonBrand', 'location' => 'https://media.com/2'],['name' => 'eRetailerNonBrand', 'location' => 'https://media.com/3']]);
+
+        $result = $mapperMock->mergeMapping('mappingName', [
+            ['map', ['https://media.com/1'], 'packshot'],
+            ['mapAll', ['https://media.com/2', 'https://media.com/3'], 'eRetailerNonBrand']
+        ]);
+
+        $this->assertSame($expectedResult, $result);
+    }
+
+    /**
+     * @dataProvider provideInvalidMappersToMerge
+     */
+    public function testShouldThrowExceptionIfMappersIsNotCorrect(array $mapper = null)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->mapper->mergeMapping('test', $mapper);
+    }
+
+    public function provideInvalidMappersToMerge()
+    {
+        yield 'Null mappers parameter' => [null];
+        yield 'Null map function' => [[null,'test', 'test']];
+        yield 'Null map function' => [['map','test', null]];
+        yield 'Map function is not mapped' => [['invalid','test', 'test']];
+    }
+
 }

@@ -106,9 +106,9 @@ class Mapper implements MapperInterface
         }
 
         foreach ($mappers as $mapper){
-            $mapFunction = $mapper[0];
-            $object = $mapper[1];
-            $context = $mapper[2];
+            $mapFunction = $mapper[0] ?? null;
+            $object = $mapper[1] ?? null;
+            $context = $mapper[2] ?? null;
 
             if(empty($object)){
                 continue;
