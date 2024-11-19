@@ -268,4 +268,106 @@ class MapperTest extends \PHPUnit\Framework\TestCase
         yield 'Empty allowed option' => [['name' => ''], '', $ctx];
         yield 'Wrong type' => [null, null, $ctx];
     }
+
+    /**
+     * @dataProvider provideMergeMappings
+     */
+    public function testShouldMergeMappings($elements, $mappers, $mockedMapFunction, $mockedMapAllFunction, $expectedResult)
+    {
+        $mapperMock = $this->getMockBuilder(Mapper::class)
+            ->setMethods(['mapAll', 'map'])
+            ->getMock();
+
+        $mapperMock->method('map')->willReturn($mockedMapFunction);
+        $mapperMock->method('mapAll')->willReturn($mockedMapAllFunction);
+
+        $result = $mapperMock->mergeMapping($elements, 'mappingName', $mappers);
+
+        $this->assertSame($expectedResult, $result);
+    }
+
+    public function provideMergeMappings()
+    {
+        yield 'Merge mappings' => [
+            [
+                'packshot' => 'url://packshot.com',
+                'lengow' => null,
+                'eRetail' => [
+                    'main' => 'url://main.com',
+                    'nonBrand' => [
+                        'url://nonBrand1.com',
+                        'url://nonBrand2.com'
+                    ]
+                ]
+            ],
+            [
+                ['map', 'packshot'],
+                ['map', 'lengow'],
+                ['map', 'maps'],
+                ['map', 'eRetail.main'],
+                ['mapAll', 'eRetail.nonBrand'],
+            ],
+            ['name' => 'singleLine', 'location' => 'https://media.com/1'],
+            [['name' => 'multipleLines', 'location' => 'https://media.com/2'],['name' => 'multipleLines', 'location' => 'https://media.com/3']],
+            [
+                ['name' => 'singleLine', 'location' => 'https://media.com/1'],
+                ['name' => 'singleLine', 'location' => 'https://media.com/1'],
+                ['name' => 'multipleLines', 'location' => 'https://media.com/2'],
+                ['name' => 'multipleLines', 'location' => 'https://media.com/3']
+            ],
+        ];
+        yield 'Merge mappings with null mapAll' => [
+            [
+                'line' => 'https://media.com/1',
+                'lines' => null
+            ],
+            [
+                ['map', 'line'],
+                ['mapAll', 'lines'],
+            ],
+            ['name' => 'singleLine', 'location' => 'https://media.com/1'],
+            null,
+            [
+                ['name' => 'singleLine', 'location' => 'https://media.com/1']
+            ],
+        ];
+        yield 'Merge mappings with null map' => [
+            [
+                'line' => null,
+                'lines' => [
+                    'https://media.com/2',
+                    'https://media.com/3'
+                ]
+            ],
+            [
+                ['map', 'line'],
+                ['mapAll', 'lines'],
+            ],
+            null,
+            [['name' => 'multipleLines', 'location' => 'https://media.com/2'],['name' => 'multipleLines', 'location' => 'https://media.com/3']],
+            [
+                ['name' => 'multipleLines', 'location' => 'https://media.com/2'],
+                ['name' => 'multipleLines', 'location' => 'https://media.com/3']
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provideInvalidMappersToMerge
+     */
+    public function testShouldThrowExceptionIfMappersIsNotCorrect(array $mapper = null)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->mapper->mergeMapping([
+            'line' => 'https://media.com/1',
+            'lines' => ['https://media.com/2','https://media.com/3']
+        ], 'test', $mapper);
+    }
+
+    public function provideInvalidMappersToMerge()
+    {
+        yield 'Null mappers parameter' => [null];
+        yield 'Map function is not mapped' => [[['invalid', 'line']]];
+        yield 'Map function is null' => [[[null, 'line']]];
+    }
 }
