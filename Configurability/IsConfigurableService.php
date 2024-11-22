@@ -62,6 +62,18 @@ trait IsConfigurableService {
     }
 
     /**
+     * @return array
+     */
+    public function getMethodsConfiguration(string $methodName = null)
+    {
+        if ($methodName) {
+            return $this->methodsConfiguration[$methodName] ?? null;
+        }
+
+        return $this->methodsConfiguration;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getOptionsDescriptions()
