@@ -13,7 +13,7 @@ class HandlerEventTest extends \PHPUnit\Framework\TestCase
     /** @var HandlerEvent|\PHPUnit_Framework_MockObject_MockObject */
     private $event;
 
-    public function setup()
+    public function setup(): void
     {
         $this->event = $this->getMockForAbstractClass(HandlerEvent::class);
     }

@@ -17,7 +17,7 @@ class ConsumeCommandTest extends KernelTestCase
     const NB_MESSAGES = 1;
     const URI = 'queue://main/api';
 
-    protected function setUp()
+    protected function setUp(): void
     {
         self::bootKernel();
         self::$kernel->getContainer()->set('doctrine', $this->createMock(RegistryInterface::class));
@@ -49,8 +49,8 @@ class ConsumeCommandTest extends KernelTestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        $this->assertContains('limited to', $output);
-        $this->assertContains('Consumer was gracefully stopped', $output);
+        $this->assertStringContainsString('limited to', $output);
+        $this->assertStringContainsString('Consumer was gracefully stopped', $output);
     }
 
     public function testExecuteWithoutKillAfter()
@@ -68,7 +68,7 @@ class ConsumeCommandTest extends KernelTestCase
         ]);
 
         $output = $commandTester->getDisplay();
-        $this->assertNotContains('limited to', $output);
-        $this->assertContains('Consumer was gracefully stopped', $output);
+        $this->assertStringNotContainsString('limited to', $output);
+        $this->assertStringContainsString('Consumer was gracefully stopped', $output);
     }
 }

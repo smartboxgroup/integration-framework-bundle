@@ -9,7 +9,7 @@
       }
     },
     "require": {
-        "php": ">=7.0",
+        "php": ">=7.4",
         "ext-pcntl": "*",
         "guzzlehttp/guzzle": "^6.0",
         "smartbox/besimple-soap": "^1.3",
@@ -30,8 +30,9 @@
         "symfony/monolog-bundle": "^2.4",
         "symfony/phpunit-bridge": "*",
         "symfony/stopwatch": "^2.8 || ^3.4",
-        "phpunit/phpunit": "^7.5",
-        "symfony/translation": "^4.3.8"
+        "phpunit/phpunit": "^8.5",
+        "symfony/translation": "^4.3.8",
+        "symfony/routing": "^3.4"
     },
     "config": {
         "bin-dir": "bin"

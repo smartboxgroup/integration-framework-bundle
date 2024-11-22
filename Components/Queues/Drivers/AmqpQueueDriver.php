@@ -307,4 +307,10 @@ class AmqpQueueDriver extends Service implements AsyncQueueDriverInterface
     {
         return $this->stream instanceof AbstractConnection;
     }
+
+    public function purge(string $queue): void
+    {
+        $this->declareChannel();
+        $this->channel->queue_purge($queue);
+    }
 }

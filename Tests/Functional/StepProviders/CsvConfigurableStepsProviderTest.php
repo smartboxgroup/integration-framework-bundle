@@ -26,7 +26,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -41,7 +41,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
     /**
      * {@inheritdoc}
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         //create a temporary folder
@@ -51,7 +51,7 @@ class CsvConfigurableStepsProviderTest extends BaseTestCase
     /**
      * {@inheritdoc}
      */
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         $files = \glob(self::TMP_FOLDER.'*');
         foreach ($files as $file) {

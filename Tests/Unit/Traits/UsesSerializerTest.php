@@ -16,7 +16,7 @@ class UsesSerializerTest extends \PHPUnit\Framework\TestCase
      */
     private $fakeObject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->fakeObject = new FakeTraitsUsage();
     }

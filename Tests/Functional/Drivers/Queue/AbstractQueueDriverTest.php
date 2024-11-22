@@ -29,7 +29,7 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
      */
     protected $driver;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->driver = $this->createDriver();
@@ -37,7 +37,7 @@ abstract class AbstractQueueDriverTest extends BaseTestCase
         $this->queueName = static::QUEUE_PREFIX.(new \ReflectionClass($this->driver))->getShortName().md5(random_bytes(10));
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->driver->disconnect();
         $this->driver = null;

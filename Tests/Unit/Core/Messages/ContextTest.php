@@ -29,11 +29,9 @@ class ContextTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('bar', $context->get(Context::ORIGINAL_FROM));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testItShouldNotBeConstructedWithOtherThings()
     {
+        $this->expectException(\InvalidArgumentException::class);
         new Context(new \stdClass());
     }
 }

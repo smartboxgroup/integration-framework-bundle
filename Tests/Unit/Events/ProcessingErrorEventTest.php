@@ -27,7 +27,7 @@ class ProcessingErrorEventTest extends \PHPUnit\Framework\TestCase
     /** @var string */
     private $name;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->processor = $this->createMock(Processor::class);
         $this->exchange = $this->createMock(Exchange::class);
@@ -39,7 +39,7 @@ class ProcessingErrorEventTest extends \PHPUnit\Framework\TestCase
         $this->event->setTimestampToCurrent();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->processor = null;
         $this->exchange = null;
