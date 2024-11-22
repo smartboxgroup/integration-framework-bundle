@@ -168,6 +168,23 @@ class MapperTest extends BaseTestCase
                     'test_1' => \DateTime::createFromFormat(\DateTime::ISO8601, '2018-03-23T20:15:30+00:00'),
                 ],
             ],
+            'Test keyExists' => [
+                'mappings' => [
+                    'mapping_name' => [
+                        'test_key_1' => "mapper.keyExists(obj.get('test_array'), 'A')",
+                        'test_key_2' => "mapper.keyExists(obj.get('test_array'), 'C')",
+                    ],
+                ],
+                'mapping_name' => 'mapping_name',
+                'mapped_values' => new SerializableArray([
+                    'test_array' => ['A' => 0, 'B' => 0],
+                ]),
+                'context' => [],
+                'expected_value' => [
+                    'test_key_1' => true,
+                    'test_key_2' => false,
+                ],
+            ],
             'Test mapping getting information from the context' => [
                 'mappings' => [
                     'x_to_xyz' => [
@@ -221,6 +238,40 @@ class MapperTest extends BaseTestCase
             new SerializableArray(['x' => 10]),
             ''
         );
+    }
+
+    /**
+     * @covers ::map
+     */
+    public function testKeyExistsForExceptions()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->mapper->addMappings([
+            'mapping_name' => [
+                'test_key_1' => "mapper.keyExists(obj.get('test_array'), obj.get('test_key'))",
+            ],
+        ]);
+
+        // Testing 1st argument
+        $this->expectExceptionMessage('keyExists expected the first argument to be an array');
+        $this->mapper->map(
+            new SerializableArray([
+                'test_array' => 'A',
+                'test_key' => 'B',
+            ]),
+            'mapping_name'
+        );
+
+        // Testing 2nd argument
+        $this->expectExceptionMessage('keyExists expected the key (second argument) to be either a string or an integer');
+        $this->mapper->map(
+            new SerializableArray([
+                'test_array' => ['A' => 0, 'B' => 0],
+                'test_key' => [10],
+            ]),
+            'mapping_name'
+        );
+
     }
 
     /**
